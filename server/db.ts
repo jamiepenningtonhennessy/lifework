@@ -11,6 +11,7 @@ import {
   viaResults,
   interviewMessages,
   analysisReports,
+  ipipResults,
 } from "../drizzle/schema";
 import { ENV } from "./_core/env";
 
@@ -287,6 +288,27 @@ export async function addInterviewMessage(
   const db = await getDb();
   if (!db) throw new Error("DB not available");
   await db.insert(interviewMessages).values(data);
+}
+
+// ─── IPIP Results ──────────────────────────────────────────────────────────────
+
+export async function getIpipResults(clientId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("DB not available");
+  const result = await db
+    .select()
+    .from(ipipResults)
+    .where(eq(ipipResults.clientId, clientId))
+    .limit(1);
+  return result[0];
+}
+
+export async function upsertIpipResults(
+  data: typeof ipipResults.$inferInsert
+) {
+  const db = await getDb();
+  if (!db) throw new Error("DB not available");
+  await db.insert(ipipResults).values(data).onDuplicateKeyUpdate({ set: data });
 }
 
 // ─── Analysis Reports ─────────────────────────────────────────────────────────

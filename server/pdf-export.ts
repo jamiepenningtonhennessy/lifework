@@ -8,10 +8,12 @@ import {
   getEducationHistory,
   getCareerHistory,
   getViaResults,
+  getIpipResults,
   getAnalysisReport,
 } from "./db";
 import { getUserByOpenId } from "./db";
 import { VIA_STRENGTHS } from "../shared/via-data";
+import { IPIP_DOMAINS, IPIP_FACETS } from "../shared/ipip-data";
 
 const strengthsMap = new Map(VIA_STRENGTHS.map((s) => [s.id, s]));
 
@@ -39,13 +41,14 @@ pdfRouter.get("/api/export/report/:clientId?", async (req: Request, res: Respons
       clientId = profile.id;
     }
 
-    const [profile, achievements, family, education, career, via, report] = await Promise.all([
+    const [profile, achievements, family, education, career, via, ipip, report] = await Promise.all([
       getClientProfileById(clientId),
       getAchievements(clientId),
       getFamilyBackground(clientId),
       getEducationHistory(clientId),
       getCareerHistory(clientId),
       getViaResults(clientId),
+      getIpipResults(clientId),
       getAnalysisReport(clientId),
     ]);
 
@@ -79,6 +82,7 @@ pdfRouter.get("/api/export/report/:clientId?", async (req: Request, res: Respons
       career,
       top5,
       ranked,
+      ipip: ipip ?? null,
       report,
     });
 
@@ -104,9 +108,10 @@ function buildReportHTML(data: {
   career: any[];
   top5: any[];
   ranked: any[];
+  ipip: any;
   report: any;
 }): string {
-  const { clientName, date, achievements, family, education, career, top5, ranked, report } = data;
+  const { clientName, date, achievements, family, education, career, top5, ranked, ipip, report } = data;
 
   const achievementsByDecade = achievements.reduce((acc: Record<string, any[]>, a) => {
     if (!acc[a.decade]) acc[a.decade] = [];
@@ -275,6 +280,58 @@ function buildReportHTML(data: {
     <div class="analysis-content">
       ${markdownToHTML(report.fullReportMarkdown)}
     </div>
+  </div>
+  ` : ""}
+
+  ${ipip && ipip.domainScores ? `
+  <!-- IPIP-NEO-120 Personality Profile -->
+  <div class="section">
+    <div class="section-title">Personality Profile (IPIP-NEO-120)</div>
+    <p style="font-size:14px;color:#6b5c4a;margin-bottom:20px;">The IPIP-NEO-120 measures personality across five broad domains and thirty specific facets. It is the modern open-science equivalent of the 16PF assessment used in traditional career counselling, and is validated against the same underlying model.</p>
+    
+    <div class="section-subtitle">The Big Five — Domain Overview</div>
+    <div style="margin-bottom:24px;">
+      ${IPIP_DOMAINS.map((domain) => {
+        const score = (ipip.domainScores as any)[domain.key] ?? 50;
+        const pct = score;
+        const label = score >= 70 ? "High" : score <= 30 ? "Low" : "Average";
+        return `
+        <div style="margin-bottom:14px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
+            <span style="font-size:14px;font-weight:600;color:#1a1008;">${domain.name}</span>
+            <span style="font-size:12px;color:#6b5c4a;">${label} (${score}/100)</span>
+          </div>
+          <div style="height:8px;background:#f0e8f8;border-radius:4px;overflow:hidden;">
+            <div style="height:100%;width:${pct}%;background:${domain.color};border-radius:4px;"></div>
+          </div>
+          <p style="font-size:12px;color:#6b5c4a;margin-top:4px;">${domain.description}</p>
+        </div>`;
+      }).join("")}
+    </div>
+    
+    ${IPIP_DOMAINS.map((domain) => {
+      const facets = IPIP_FACETS.filter((f) => f.domain === domain.key);
+      const domainScore = (ipip.domainScores as any)[domain.key] ?? 50;
+      return `
+      <div class="section-subtitle" style="color:${domain.color};">${domain.name} — Facet Detail (Domain score: ${domainScore}/100)</div>
+      ${facets.map((facet) => {
+        const fs = (ipip.facetScores as any)[facet.key] ?? 50;
+        const pct = fs;
+        return `
+        <div style="margin-bottom:8px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:2px;">
+            <span style="font-size:13px;color:#1a1008;">${facet.name}</span>
+            <span style="font-size:11px;color:#9a8a78;">${fs}/100</span>
+          </div>
+          <div style="height:5px;background:#f0e8f8;border-radius:3px;overflow:hidden;">
+            <div style="height:100%;width:${pct}%;background:${domain.color};opacity:0.7;border-radius:3px;"></div>
+          </div>
+          <div style="display:flex;justify-content:space-between;font-size:10px;color:#9a8a78;margin-top:1px;">
+            <span>${facet.lowLabel}</span><span>${facet.highLabel}</span>
+          </div>
+        </div>`;
+      }).join("")}`;
+    }).join("")}
   </div>
   ` : ""}
 

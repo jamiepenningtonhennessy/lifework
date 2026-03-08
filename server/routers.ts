@@ -23,6 +23,8 @@ import {
   deleteCareer,
   getViaResults,
   upsertViaResults,
+  getIpipResults,
+  upsertIpipResults,
   getInterviewMessages,
   addInterviewMessage,
   getAnalysisReport,
@@ -30,6 +32,7 @@ import {
 } from "./db";
 import { invokeLLM } from "./_core/llm";
 import { scoreVia, VIA_QUESTIONS, VIA_STRENGTHS } from "../shared/via-data";
+import { scoreIpip, ipipCareerNarrative } from "../shared/ipip-data";
 
 // ─── Helper: require counselor/admin role ────────────────────────────────────
 const counselorProcedure = protectedProcedure.use(({ ctx, next }) => {
@@ -300,6 +303,34 @@ const viaRouter = router({
     }),
 });
 
+// ─── IPIP Router ──────────────────────────────────────────────────────────────
+const ipipRouter = router({
+  getMyResults: protectedProcedure.query(async ({ ctx }) => {
+    const profile = await getOrCreateClientProfile(ctx.user.id);
+    return getIpipResults(profile.id);
+  }),
+
+  submit: protectedProcedure
+    .input(z.object({ answers: z.record(z.string(), z.number()) }))
+    .mutation(async ({ ctx, input }) => {
+      const profile = await getOrCreateClientProfile(ctx.user.id);
+      const numericAnswers: Record<number, number> = {};
+      for (const [k, v] of Object.entries(input.answers)) {
+        numericAnswers[parseInt(k)] = v;
+      }
+      const scores = scoreIpip(numericAnswers);
+      await upsertIpipResults({
+        clientId: profile.id,
+        domainScores: scores.domainScores as any,
+        facetScores: scores.facetScores as any,
+        rawAnswers: numericAnswers as any,
+        completedAt: new Date(),
+      });
+      await updateClientProfile(profile.id, { ipipStatus: "completed" });
+      return { success: true, scores };
+    }),
+});
+
 // ─── Analysis Router ─────────────────────────────────────────────────────────
 const analysisRouter = router({
   getMyReport: protectedProcedure.query(async ({ ctx }) => {
@@ -312,7 +343,7 @@ const analysisRouter = router({
     await updateClientProfile(profile.id, { analysisStatus: "in_progress" });
 
     // Gather all data
-    const [messages, achievementsList, family, education, career, via] =
+    const [messages, achievementsList, family, education, career, via, ipip] =
       await Promise.all([
         getInterviewMessages(profile.id),
         getAchievements(profile.id),
@@ -320,6 +351,7 @@ const analysisRouter = router({
         getEducationHistory(profile.id),
         getCareerHistory(profile.id),
         getViaResults(profile.id),
+        getIpipResults(profile.id),
       ]);
 
     const conversationText = messages
@@ -340,6 +372,10 @@ const analysisRouter = router({
             .map((s: any) => `${s.rank}. ${s.name} (score: ${s.score})`)
             .join("\n")
         : "No VIA data available";
+
+    const ipipText = ipip && ipip.domainScores && ipip.facetScores
+      ? ipipCareerNarrative({ domainScores: ipip.domainScores as any, facetScores: ipip.facetScores as any })
+      : "No IPIP-NEO personality data available";
 
     const careerText = career
       .map((c) => `${c.yearFrom ?? "?"}-${c.yearTo ?? "present"}: ${c.role} at ${c.organisation}`)
@@ -376,6 +412,9 @@ ${careerText || "None recorded."}
 ### VIA Character Strengths (Top 10)
 ${viaText}
 
+### IPIP-NEO-120 Personality Profile
+${ipipText}
+
 ## Your Task
 
 Produce a comprehensive career analysis report in Markdown format with the following sections:
@@ -386,9 +425,10 @@ Produce a comprehensive career analysis report in Markdown format with the follo
 4. **Preferred Environments** — The conditions, cultures, and contexts in which they thrive.
 5. **Career Themes** — The deeper patterns and threads running through their life and work.
 6. **VIA Character Strengths Correlation** — How their top VIA strengths connect to and reinforce the patterns found in their life story.
-7. **Career Directions & Possibilities** — 3-5 specific career archetypes or directions that align with all the above, with a brief rationale for each.
-8. **If this is true, these things will also be true...** — A set of bold, specific predictions about what this person needs, values, and will find meaningful in their next chapter.
-9. **Questions for the Feedback Session** — 5 powerful questions the counsellor might explore with the client.
+7. **Personality Profile Interpretation (IPIP-NEO-120)** — Interpret the Big Five personality scores in the context of this person's career story. Note where personality traits reinforce or create tension with their life history patterns. This replaces the 16PF analysis used in traditional career counselling.
+8. **Career Directions & Possibilities** — 3-5 specific career archetypes or directions that align with all the above, with a brief rationale for each.
+9. **If this is true, these things will also be true...** — A set of bold, specific predictions about what this person needs, values, and will find meaningful in their next chapter.
+10. **Questions for the Feedback Session** — 5 powerful questions the counsellor might explore with the client.
 
 Write in a warm, insightful, and direct style. Be specific — use examples from their actual story. Avoid generic career advice.`;
 
@@ -436,7 +476,7 @@ const counselorRouter = router({
   getClientProfile: counselorProcedure
     .input(z.object({ clientId: z.number() }))
     .query(async ({ input }) => {
-      const [profile, achievementsList, family, education, career, via, report, messages] =
+      const [profile, achievementsList, family, education, career, via, ipip, report, messages] =
         await Promise.all([
           getClientProfileById(input.clientId),
           getAchievements(input.clientId),
@@ -444,10 +484,11 @@ const counselorRouter = router({
           getEducationHistory(input.clientId),
           getCareerHistory(input.clientId),
           getViaResults(input.clientId),
+          getIpipResults(input.clientId),
           getAnalysisReport(input.clientId),
           getInterviewMessages(input.clientId),
         ]);
-      return { profile, achievements: achievementsList, family, education, career, via, report, messages };
+      return { profile, achievements: achievementsList, family, education, career, via, ipip, report, messages };
     }),
 
   saveNotes: counselorProcedure
@@ -472,7 +513,7 @@ const counselorRouter = router({
       if (!profile) throw new TRPCError({ code: "NOT_FOUND" });
       await updateClientProfile(profile.id, { analysisStatus: "in_progress" });
 
-      const [messages, achievementsList, family, education, career, via] =
+      const [messages, achievementsList, family, education, career, via, ipip] =
         await Promise.all([
           getInterviewMessages(profile.id),
           getAchievements(profile.id),
@@ -480,6 +521,7 @@ const counselorRouter = router({
           getEducationHistory(profile.id),
           getCareerHistory(profile.id),
           getViaResults(profile.id),
+          getIpipResults(profile.id),
         ]);
 
       const conversationText = messages
@@ -492,6 +534,9 @@ const counselorRouter = router({
         via && via.rankedStrengths
           ? (via.rankedStrengths as any[]).slice(0, 10).map((s: any) => `${s.rank}. ${s.name} (score: ${s.score})`).join("\n")
           : "No VIA data";
+      const ipipText = ipip && ipip.domainScores && ipip.facetScores
+        ? ipipCareerNarrative({ domainScores: ipip.domainScores as any, facetScores: ipip.facetScores as any })
+        : "No IPIP-NEO personality data available";
       const careerText = career.map((c) => `${c.yearFrom}-${c.yearTo}: ${c.role} at ${c.organisation}`).join("\n");
       const educationText = education.map((e) => `${e.yearFrom}-${e.yearTo}: ${e.qualification} ${e.subject} at ${e.institution}`).join("\n");
 
@@ -518,6 +563,9 @@ ${careerText || "None."}
 ### VIA Top 10
 ${viaText}
 
+### IPIP-NEO-120 Personality Profile
+${ipipText}
+
 Produce a report with these sections:
 1. Executive Summary
 2. Core Strengths & Skills
@@ -525,9 +573,10 @@ Produce a report with these sections:
 4. Preferred Environments
 5. Career Themes
 6. VIA Character Strengths Correlation
-7. Career Directions & Possibilities
-8. If this is true, these things will also be true...
-9. Questions for the Feedback Session
+7. Personality Profile Interpretation (IPIP-NEO-120)
+8. Career Directions & Possibilities
+9. If this is true, these things will also be true...
+10. Questions for the Feedback Session
 
 Be specific, warm, and insightful. Use examples from their actual story.`;
 
@@ -580,6 +629,7 @@ export const appRouter = router({
   achievements: achievementsRouter,
   background: backgroundRouter,
   via: viaRouter,
+  ipip: ipipRouter,
   analysis: analysisRouter,
   counselor: counselorRouter,
 });

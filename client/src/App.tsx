@@ -12,6 +12,8 @@ import ClientDashboard from "./pages/ClientDashboard";
 import CounselorDashboard from "./pages/CounselorDashboard";
 import ClientProfile from "./pages/ClientProfile";
 import Background from "./pages/Background";
+import IpipSurvey from "./pages/IpipSurvey";
+import IpipResults from "./pages/IpipResults";
 
 function Router() {
   return (
@@ -21,6 +23,8 @@ function Router() {
       <Route path="/background" component={Background} />
       <Route path="/via" component={VIASurvey} />
       <Route path="/via/results" component={VIAResults} />
+      <Route path="/ipip-survey" component={IpipSurvey} />
+      <Route path="/ipip/results" component={IpipResults} />
       <Route path="/dashboard" component={ClientDashboard} />
       <Route path="/counselor" component={CounselorDashboard} />
       <Route path="/counselor/client/:id" component={ClientProfile} />

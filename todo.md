@@ -45,3 +45,17 @@
 - [x] Hints & Tips section from Peter's document
 - [x] Playing Teacher worked example
 - [x] Progress indicator showing which phase user is on
+
+## IPIP-NEO-120 Integration
+
+- [x] Add ipip_results table to database schema (30 facet scores + 5 domain scores)
+- [x] Write shared/ipip-data.ts with all 120 questions, 30 facets, 5 domains
+- [x] Build IpipSurvey.tsx page (120 questions, 5-point scale, paginated by domain)
+- [x] Build IpipResults.tsx page showing domain and facet scores with descriptions
+- [x] Add IPIP router to server (save scores, get results)
+- [x] Add IPIP step to ClientDashboard progress tracker (after VIA)
+- [x] Add IPIP results section to CounselorProfile view
+- [x] Update AI analysis prompt to incorporate IPIP facet scores
+- [x] Update PDF/HTML export to include IPIP personality profile section
+- [x] Add IPIP route to App.tsx
+- [x] Write tests for IPIP scoring logic

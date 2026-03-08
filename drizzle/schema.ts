@@ -45,6 +45,9 @@ export const clientProfiles = mysqlTable("client_profiles", {
   viaStatus: mysqlEnum("viaStatus", ["not_started", "completed"])
     .default("not_started")
     .notNull(),
+  ipipStatus: mysqlEnum("ipipStatus", ["not_started", "completed"])
+    .default("not_started")
+    .notNull(),
   analysisStatus: mysqlEnum("analysisStatus", [
     "not_started",
     "in_progress",
@@ -150,6 +153,24 @@ export const viaResults = mysqlTable("via_results", {
 });
 
 export type ViaResults = typeof viaResults.$inferSelect;
+
+// ─── IPIP-NEO-120 Results ────────────────────────────────────────────────────
+
+export const ipipResults = mysqlTable("ipip_results", {
+  id: int("id").autoincrement().primaryKey(),
+  clientId: int("clientId").notNull().unique(),
+  // Domain scores: { N, E, O, A, C } each 0-100
+  domainScores: json("domainScores"),
+  // Facet scores: { facetKey: score } 30 facets each 0-100
+  facetScores: json("facetScores"),
+  // Raw answers: { questionIndex: 1-5 }
+  rawAnswers: json("rawAnswers"),
+  completedAt: timestamp("completedAt").defaultNow().notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type IpipResults = typeof ipipResults.$inferSelect;
 
 // ─── Interview Chat Messages ─────────────────────────────────────────────────
 

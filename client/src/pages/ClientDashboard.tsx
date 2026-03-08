@@ -48,6 +48,16 @@ const STEPS = [
     ctaInProgress: "Continue Survey",
   },
   {
+    id: "ipip",
+    icon: <Brain className="w-5 h-5" />,
+    title: "Personality Profile (IPIP-NEO-120)",
+    description: "A 120-question personality assessment measuring 30 facets across the Big Five dimensions — the modern equivalent of the 16PF used in traditional career counselling.",
+    path: "/ipip-survey",
+    statusKey: "ipipStatus",
+    cta: "Take Personality Survey",
+    ctaInProgress: "Continue Survey",
+  },
+  {
     id: "analysis",
     icon: <Brain className="w-5 h-5" />,
     title: "Career Analysis Report",
@@ -89,7 +99,9 @@ export default function ClientDashboard() {
   const progressPct = Math.round((completedSteps / totalSteps) * 100);
 
   const canGenerateAnalysis =
-    getStatus("interviewStatus") === "completed" && getStatus("viaStatus") === "completed";
+    getStatus("interviewStatus") === "completed" &&
+    getStatus("viaStatus") === "completed" &&
+    getStatus("ipipStatus") === "completed";
 
   return (
     <div className="min-h-screen bg-background">
@@ -199,7 +211,9 @@ export default function ClientDashboard() {
                               <Button size="sm" disabled>
                                 <Loader2 className="w-3.5 h-3.5 animate-spin mr-1" /> Generating...
                               </Button>
-                            ) : canGenerateAnalysis ? (
+                            ) : !canGenerateAnalysis ? (
+                              <span className="text-xs text-muted-foreground">Complete steps 1–4 first</span>
+                            ) : (
                               <Button
                                 size="sm"
                                 onClick={() => generateAnalysis.mutate()}
@@ -207,8 +221,6 @@ export default function ClientDashboard() {
                               >
                                 Generate Analysis <ArrowRight className="w-3.5 h-3.5" />
                               </Button>
-                            ) : (
-                              <span className="text-xs text-muted-foreground">Complete steps 1–3 first</span>
                             )
                           ) : step.path ? (
                             <Button
