@@ -73,6 +73,7 @@ export const achievements = mysqlTable("achievements", {
     "sixties_plus",
   ]).notNull(),
   title: varchar("title", { length: 512 }).notNull(),
+  age: int("age"), // age at time of action
   description: text("description"),
   esf: mysqlEnum("esf", ["enjoyable", "satisfying", "fulfilling"]),
   skills: text("skills"), // comma-separated or short text

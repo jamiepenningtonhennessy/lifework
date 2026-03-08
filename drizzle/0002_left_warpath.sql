@@ -1,0 +1,1 @@
+ALTER TABLE `achievements` ADD `age` int;

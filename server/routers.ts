@@ -155,6 +155,7 @@ const achievementsRouter = router({
         id: z.number().optional(),
         decade: z.enum(["childhood", "teens", "twenties", "thirties", "forties", "fifties", "sixties_plus"]),
         title: z.string(),
+        age: z.number().optional(),
         description: z.string().optional(),
         esf: z.enum(["enjoyable", "satisfying", "fulfilling"]).optional(),
         skills: z.string().optional(),

@@ -35,3 +35,13 @@
 - [x] VIA Character Work section in export with all 24 strengths ranked
 - [x] Vitest unit tests (12 tests passing: auth, VIA data integrity, scoring, access control)
 - [x] Checkpoint and deliver
+
+## Interview Page Rewrite (Peter's Methodology)
+- [x] Replace AI chat interview with structured phase-based form matching Peter's document
+- [x] Add Peter's opening framing text verbatim
+- [x] Structure phases: Early Childhood (0-5), Mid Childhood (6-11), Late Childhood (12-18), then adult decades (20s, 30s, 40s, 50s, 60s+)
+- [x] 4 actions per phase, each with: Action title, Age, Description, ESF choice
+- [x] ESF definitions with Peter's exact wording (Enjoyable = "in the moment", Satisfying = "rewarding", Fulfilling = "longer-term satisfying")
+- [x] Hints & Tips section from Peter's document
+- [x] Playing Teacher worked example
+- [x] Progress indicator showing which phase user is on
