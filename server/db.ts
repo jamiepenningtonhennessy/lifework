@@ -174,9 +174,8 @@ export async function getFamilyBackground(clientId: number) {
     .from(familyBackground)
     .where(eq(familyBackground.clientId, clientId))
     .limit(1);
-  return result[0];
+  return result[0] ?? null;
 }
-
 export async function upsertFamilyBackground(
   data: typeof familyBackground.$inferInsert
 ) {
