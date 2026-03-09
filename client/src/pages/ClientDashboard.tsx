@@ -214,7 +214,7 @@ export default function ClientDashboard() {
                         <div className="flex-shrink-0">
                           {step.id === "analysis" ? (
                             isCompleted ? (
-                              <Button size="sm" variant="outline" onClick={() => navigate("/via/results")}>
+                              <Button size="sm" variant="outline" onClick={() => navigate("/my-report")}>
                                 View Report
                               </Button>
                             ) : generateAnalysis.isPending ? (

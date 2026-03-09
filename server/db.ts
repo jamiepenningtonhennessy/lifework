@@ -64,9 +64,9 @@ export async function upsertUser(user: InsertUser): Promise<void> {
 
 export async function getUserByOpenId(openId: string) {
   const db = await getDb();
-  if (!db) return undefined;
+  if (!db) return null;
   const result = await db.select().from(users).where(eq(users.openId, openId)).limit(1);
-  return result[0];
+  return result[0] ?? null;
 }
 
 // ─── Client Profiles ─────────────────────────────────────────────────────────
@@ -97,7 +97,7 @@ export async function getClientProfileByUserId(userId: number) {
     .from(clientProfiles)
     .where(eq(clientProfiles.userId, userId))
     .limit(1);
-  return result[0];
+  return result[0] ?? null;
 }
 
 export async function getClientProfileById(clientId: number) {
@@ -108,7 +108,7 @@ export async function getClientProfileById(clientId: number) {
     .from(clientProfiles)
     .where(eq(clientProfiles.id, clientId))
     .limit(1);
-  return result[0];
+  return result[0] ?? null;
 }
 
 export async function updateClientProfile(
@@ -259,7 +259,7 @@ export async function getViaResults(clientId: number) {
     .from(viaResults)
     .where(eq(viaResults.clientId, clientId))
     .limit(1);
-  return result[0];
+  return result[0] ?? null;
 }
 
 export async function upsertViaResults(

@@ -1,0 +1,13 @@
+{
+  "query": "SELECT id, clientId, LENGTH(fullReportMarkdown) as report_length, LEFT(fullReportMarkdown, 500) as report_preview, generatedAt FROM analysis_reports WHERE clientId = 1;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 32u3a1hNYuu9Gj3.7d2282893346 --database kFbbE6kqNApXGDFpQJUGV7 --execute SELECT id, clientId, LENGTH(fullReportMarkdown) as report_length, LEFT(fullReportMarkdown, 500) as report_preview, generatedAt FROM analysis_reports WHERE clientId = 1;",
+  "rows": [],
+  "messages": [
+    "1\t1\t20186\t## Career Analysis Report: A Journey of Strategic Influence and Purposeful Leadership",
+    "### Executive Summary",
+    "This client's life story reveals a consistent trajectory of an individual driven by intellectual curiosity, strategic mastery, and a profound desire to make a tangible, positive impact on their environment and the people within it. From early childhood, a pattern emerges of seeking to understand systems, master their rules, and then innovatively reshape them for greater engagement, fairn\t2026-03-09 09:44:06"
+  ],
+  "stdout": "id\tclientId\treport_length\treport_preview\tgeneratedAt\n1\t1\t20186\t## Career Analysis Report: A Journey of Strategic Influence and Purposeful Leadership\n\n### Executive Summary\n\nThis client's life story reveals a consistent trajectory of an individual driven by intellectual curiosity, strategic mastery, and a profound desire to make a tangible, positive impact on their environment and the people within it. From early childhood, a pattern emerges of seeking to understand systems, master their rules, and then innovatively reshape them for greater engagement, fairn\t2026-03-09 09:44:06\n",
+  "stderr": "",
+  "execution_time_ms": 67
+}

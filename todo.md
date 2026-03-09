@@ -80,3 +80,8 @@
 
 - [x] Fix 404 on IPIP results page after survey submission
 - [x] Show existing IPIP results without requiring retake
+
+- [x] Fix AI analysis report not generating (db helpers returning undefined instead of null)
+- [x] Fix all remaining db helpers returning undefined instead of null
+- [x] Add /my-report client-facing report page
+- [x] Fix View Report button in ClientDashboard to navigate to /my-report
