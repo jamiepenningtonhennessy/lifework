@@ -59,3 +59,15 @@
 - [x] Update PDF/HTML export to include IPIP personality profile section
 - [x] Add IPIP route to App.tsx
 - [x] Write tests for IPIP scoring logic
+
+## Cognitive Screener (30-item, timed)
+
+- [ ] Write shared/cognitive-screener-data.ts with 30 items (10 verbal, 10 numerical, 10 abstract)
+- [ ] Add cognitive_screener_results table to database schema
+- [ ] Add cognitiveScreener router to server (save results, get results)
+- [ ] Build CognitiveScreener.tsx page (timed, one question at a time)
+- [ ] Build CognitiveResults.tsx page showing domain scores and interpretation
+- [ ] Add cognitive screener step to ClientDashboard progress tracker
+- [ ] Add cognitive screener route to App.tsx
+- [ ] Update PDF export to include cognitive profile section
+- [ ] Write tests for screener scoring logic

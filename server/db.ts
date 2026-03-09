@@ -12,6 +12,7 @@ import {
   interviewMessages,
   analysisReports,
   ipipResults,
+  cognitiveScreenerResults,
 } from "../drizzle/schema";
 import { ENV } from "./_core/env";
 
@@ -331,6 +332,30 @@ export async function upsertAnalysisReport(
   if (!db) throw new Error("DB not available");
   await db
     .insert(analysisReports)
+    .values(data)
+    .onDuplicateKeyUpdate({ set: data });
+}
+
+// ─── Cognitive Screener Results ───────────────────────────────────────────────
+
+export async function getCognitiveScreenerResult(clientId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("DB not available");
+  const result = await db
+    .select()
+    .from(cognitiveScreenerResults)
+    .where(eq(cognitiveScreenerResults.clientId, clientId))
+    .limit(1);
+  return result[0] ?? null;
+}
+
+export async function upsertCognitiveScreenerResult(
+  data: typeof cognitiveScreenerResults.$inferInsert
+) {
+  const db = await getDb();
+  if (!db) throw new Error("DB not available");
+  await db
+    .insert(cognitiveScreenerResults)
     .values(data)
     .onDuplicateKeyUpdate({ set: data });
 }

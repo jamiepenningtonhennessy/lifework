@@ -58,6 +58,16 @@ const STEPS = [
     ctaInProgress: "Continue Survey",
   },
   {
+    id: "cognitive",
+    icon: <Brain className="w-5 h-5" />,
+    title: "Reasoning Strengths Screener",
+    description: "A 30-question indicative assessment covering verbal, numerical, and abstract reasoning — to help make sense of your cognitive strengths.",
+    path: "/cognitive-screener",
+    statusKey: "cognitiveStatus",
+    cta: "Take Screener",
+    ctaInProgress: "Retake Screener",
+  },
+  {
     id: "analysis",
     icon: <Brain className="w-5 h-5" />,
     title: "Career Analysis Report",

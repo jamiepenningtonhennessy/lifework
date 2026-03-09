@@ -48,6 +48,9 @@ export const clientProfiles = mysqlTable("client_profiles", {
   ipipStatus: mysqlEnum("ipipStatus", ["not_started", "completed"])
     .default("not_started")
     .notNull(),
+  cognitiveStatus: mysqlEnum("cognitiveStatus", ["not_started", "completed"])
+    .default("not_started")
+    .notNull(),
   analysisStatus: mysqlEnum("analysisStatus", [
     "not_started",
     "in_progress",
@@ -171,6 +174,24 @@ export const ipipResults = mysqlTable("ipip_results", {
 });
 
 export type IpipResults = typeof ipipResults.$inferSelect;
+
+// ─── Cognitive Screener Results ────────────────────────────────────────────
+
+export const cognitiveScreenerResults = mysqlTable("cognitive_screener_results", {
+  id: int("id").autoincrement().primaryKey(),
+  clientId: int("clientId").notNull().unique(),
+  // Scores per domain: { verbal: 0-10, numerical: 0-10, abstract: 0-10, total: 0-30, percentile: 0-99 }
+  scores: json("scores"),
+  // Raw answers: { itemId: chosenOptionIndex }
+  rawAnswers: json("rawAnswers"),
+  // Time taken in seconds
+  timeTakenSeconds: int("timeTakenSeconds"),
+  completedAt: timestamp("completedAt").defaultNow().notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type CognitiveScreenerResult = typeof cognitiveScreenerResults.$inferSelect;
 
 // ─── Interview Chat Messages ─────────────────────────────────────────────────
 

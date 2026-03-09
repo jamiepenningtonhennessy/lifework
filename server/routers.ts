@@ -29,10 +29,13 @@ import {
   addInterviewMessage,
   getAnalysisReport,
   upsertAnalysisReport,
+  getCognitiveScreenerResult,
+  upsertCognitiveScreenerResult,
 } from "./db";
 import { invokeLLM } from "./_core/llm";
 import { scoreVia, VIA_QUESTIONS, VIA_STRENGTHS } from "../shared/via-data";
 import { scoreIpip, ipipCareerNarrative } from "../shared/ipip-data";
+import { scoreScreener, SCREENER_ITEMS } from "../shared/cognitive-screener-data";
 
 // ─── Helper: require counselor/admin role ────────────────────────────────────
 const counselorProcedure = protectedProcedure.use(({ ctx, next }) => {
@@ -613,7 +616,42 @@ Be specific, warm, and insightful. Use examples from their actual story.`;
     }),
 });
 
-// ─── App Router ───────────────────────────────────────────────────────────────
+// ─── App Rout// ─── Cognitive Screener Router ───────────────────────────────────────────
+const cognitiveRouter = router({
+  getResults: protectedProcedure.query(async ({ ctx }) => {
+    const profile = await getOrCreateClientProfile(ctx.user.id);
+    return getCognitiveScreenerResult(profile.id);
+  }),
+
+  saveResults: protectedProcedure
+    .input(
+      z.object({
+        // answers: { [itemId]: chosenOptionIndex }
+        answers: z.record(z.string(), z.number()),
+        timeTakenSeconds: z.number().optional(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const profile = await getOrCreateClientProfile(ctx.user.id);
+      // Convert string keys to number keys
+      const numericAnswers: Record<number, number> = {};
+      for (const [k, v] of Object.entries(input.answers)) {
+        numericAnswers[parseInt(k)] = v;
+      }
+      const scores = scoreScreener(numericAnswers);
+      await upsertCognitiveScreenerResult({
+        clientId: profile.id,
+        scores,
+        rawAnswers: numericAnswers,
+        timeTakenSeconds: input.timeTakenSeconds ?? null,
+        completedAt: new Date(),
+      });
+      await updateClientProfile(profile.id, { cognitiveStatus: "completed" });
+      return { success: true, scores };
+    }),
+});
+
+// ─── App Router ─────────────────────────────────────────────────────────────
 export const appRouter = router({
   system: systemRouter,
   auth: router({
@@ -630,6 +668,7 @@ export const appRouter = router({
   background: backgroundRouter,
   via: viaRouter,
   ipip: ipipRouter,
+  cognitive: cognitiveRouter,
   analysis: analysisRouter,
   counselor: counselorRouter,
 });

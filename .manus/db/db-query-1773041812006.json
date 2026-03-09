@@ -1,0 +1,9 @@
+{
+  "query": "CREATE TABLE `cognitive_screener_results` (\n\t`id` int AUTO_INCREMENT NOT NULL,\n\t`clientId` int NOT NULL,\n\t`scores` json,\n\t`rawAnswers` json,\n\t`timeTakenSeconds` int,\n\t`completedAt` timestamp NOT NULL DEFAULT (now()),\n\t`createdAt` timestamp NOT NULL DEFAULT (now()),\n\t`updatedAt` timestamp NOT NULL DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP,\n\tCONSTRAINT `cognitive_screener_results_id` PRIMARY KEY(`id`),\n\tCONSTRAINT `cognitive_screener_results_clientId_unique` UNIQUE(`clientId`)\n);\nALTER TABLE `client_profiles` ADD `cognitiveStatus` enum('not_started','completed') DEFAULT 'not_started' NOT NULL;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 32u3a1hNYuu9Gj3.7d2282893346 --database kFbbE6kqNApXGDFpQJUGV7 --execute CREATE TABLE `cognitive_screener_results` (\n\t`id` int AUTO_INCREMENT NOT NULL,\n\t`clientId` int NOT NULL,\n\t`scores` json,\n\t`rawAnswers` json,\n\t`timeTakenSeconds` int,\n\t`completedAt` timestamp NOT NULL DEFAULT (now()),\n\t`createdAt` timestamp NOT NULL DEFAULT (now()),\n\t`updatedAt` timestamp NOT NULL DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP,\n\tCONSTRAINT `cognitive_screener_results_id` PRIMARY KEY(`id`),\n\tCONSTRAINT `cognitive_screener_results_clientId_unique` UNIQUE(`clientId`)\n);\nALTER TABLE `client_profiles` ADD `cognitiveStatus` enum('not_started','completed') DEFAULT 'not_started' NOT NULL;",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 508
+}

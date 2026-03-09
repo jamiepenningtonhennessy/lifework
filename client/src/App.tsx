@@ -14,6 +14,8 @@ import ClientProfile from "./pages/ClientProfile";
 import Background from "./pages/Background";
 import IpipSurvey from "./pages/IpipSurvey";
 import IpipResults from "./pages/IpipResults";
+import CognitiveScreener from "./pages/CognitiveScreener";
+import CognitiveResults from "./pages/CognitiveResults";
 
 function Router() {
   return (
@@ -25,6 +27,8 @@ function Router() {
       <Route path="/via/results" component={VIAResults} />
       <Route path="/ipip-survey" component={IpipSurvey} />
       <Route path="/ipip/results" component={IpipResults} />
+      <Route path="/cognitive-screener" component={CognitiveScreener} />
+      <Route path="/cognitive-results" component={CognitiveResults} />
       <Route path="/dashboard" component={ClientDashboard} />
       <Route path="/counselor" component={CounselorDashboard} />
       <Route path="/counselor/client/:id" component={ClientProfile} />
