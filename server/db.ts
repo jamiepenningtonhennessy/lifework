@@ -13,6 +13,10 @@ import {
   analysisReports,
   ipipResults,
   cognitiveScreenerResults,
+  historicalClients,
+  parallelClientMatches,
+  type HistoricalClient,
+  type InsertHistoricalClient,
 } from "../drizzle/schema";
 import { ENV } from "./_core/env";
 
@@ -357,4 +361,80 @@ export async function upsertCognitiveScreenerResult(
     .insert(cognitiveScreenerResults)
     .values(data)
     .onDuplicateKeyUpdate({ set: data });
+}
+
+// ─── Virtual Peter: Historical Clients ───────────────────────────────────────
+
+export async function getAllHistoricalClients(): Promise<HistoricalClient[]> {
+  const db = await getDb();
+  if (!db) throw new Error("DB not available");
+  return db
+    .select()
+    .from(historicalClients)
+    .where(eq(historicalClients.embeddingReady, true));
+}
+
+export async function getHistoricalClientById(id: number): Promise<HistoricalClient | null> {
+  const db = await getDb();
+  if (!db) throw new Error("DB not available");
+  const result = await db
+    .select()
+    .from(historicalClients)
+    .where(eq(historicalClients.id, id))
+    .limit(1);
+  return result[0] ?? null;
+}
+
+// ─── Virtual Peter: Parallel Client Matches ───────────────────────────────────
+
+export async function getParallelMatches(clientId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("DB not available");
+  const matches = await db
+    .select()
+    .from(parallelClientMatches)
+    .where(eq(parallelClientMatches.clientId, clientId))
+    .orderBy(parallelClientMatches.rank);
+
+  // Hydrate with historical client data
+  const hydrated = await Promise.all(
+    matches.map(async (m) => {
+      const hc = await getHistoricalClientById(m.historicalClientId);
+      return { ...m, historicalClient: hc };
+    })
+  );
+  return hydrated;
+}
+
+export async function saveParallelMatches(
+  clientId: number,
+  matches: Array<{
+    historicalClientId: number;
+    similarityScore: string;
+    rank: number;
+  }>
+) {
+  const db = await getDb();
+  if (!db) throw new Error("DB not available");
+
+  // Delete existing matches for this client
+  await db
+    .delete(parallelClientMatches)
+    .where(eq(parallelClientMatches.clientId, clientId));
+
+  // Insert new matches
+  if (matches.length > 0) {
+    await db.insert(parallelClientMatches).values(
+      matches.map((m) => ({ ...m, clientId }))
+    );
+  }
+}
+
+export async function updateMatchNotes(matchId: number, notes: string) {
+  const db = await getDb();
+  if (!db) throw new Error("DB not available");
+  await db
+    .update(parallelClientMatches)
+    .set({ counsellorNotes: notes })
+    .where(eq(parallelClientMatches.id, matchId));
 }

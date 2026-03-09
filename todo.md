@@ -85,3 +85,14 @@
 - [x] Fix all remaining db helpers returning undefined instead of null
 - [x] Add /my-report client-facing report page
 - [x] Fix View Report button in ClientDashboard to navigate to /my-report
+
+## Virtual Peter — Parallel Client Matching
+
+- [x] Extract and clean all life history narratives from Peter's MDB file into structured JSON
+- [x] Add historical_clients and parallel_client_matches tables to schema (migration applied)
+- [x] Batch generate LLM semantic tags for all 449 historical clients (all complete, embeddingReady=1)
+- [x] Build semantic tag similarity matching tRPC procedure (virtualPeter.findMatches)
+- [x] Build thematic tag extraction for new clients via LLM (themes, environment, motivation, sector)
+- [x] Build Virtual Peter counsellor interface: expandable narrative cards with anonymised summaries
+- [x] Add "Virtual Peter" tab to ClientProfile counsellor page
+- [x] Write tests for matching procedure (7 tests: identical profiles, zero similarity, partial overlap, weight dominance, edge cases, case-insensitivity, Peter's principle)

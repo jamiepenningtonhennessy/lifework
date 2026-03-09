@@ -18,11 +18,16 @@ import {
   GraduationCap,
   RefreshCw,
   Download,
+  GitCompare,
+  Tag,
+  Sparkles,
+  ChevronDown,
+  ChevronUp,
 } from "lucide-react";
 import { Streamdown } from "streamdown";
 import { toast } from "sonner";
 
-type Tab = "overview" | "interview" | "background" | "via" | "report";
+type Tab = "overview" | "interview" | "background" | "via" | "report" | "virtual-peter";
 
 export default function ClientProfile() {
   const { isAuthenticated, loading, user } = useAuth();
@@ -53,6 +58,25 @@ export default function ClientProfile() {
     onSuccess: () => toast.success("Notes saved."),
   });
 
+  // Virtual Peter state
+  const [expandedMatchId, setExpandedMatchId] = useState<number | null>(null);
+  const [matchNotes, setMatchNotes] = useState<Record<number, string>>({});
+  const { data: existingMatches, refetch: refetchMatches } = trpc.virtualPeter.getMatches.useQuery(
+    { clientId },
+    { enabled: isAuthenticated && user?.role === "admin" && !!clientId }
+  );
+  const findMatches = trpc.virtualPeter.findMatches.useMutation({
+    onSuccess: () => {
+      toast.success("Parallel clients found.");
+      refetchMatches();
+    },
+    onError: () => toast.error("Failed to find parallel clients."),
+  });
+  const updateMatchNotesMutation = trpc.virtualPeter.updateMatchNotes.useMutation({
+    onSuccess: () => toast.success("Notes saved."),
+    onError: () => toast.error("Failed to save notes."),
+  });
+
   if (!loading && !isAuthenticated) {
     window.location.href = getLoginUrl();
     return null;
@@ -68,6 +92,7 @@ export default function ClientProfile() {
     { id: "background", label: "Background", icon: <Briefcase className="w-4 h-4" /> },
     { id: "via", label: "VIA Strengths", icon: <Star className="w-4 h-4" /> },
     { id: "report", label: "Analysis Report", icon: <Brain className="w-4 h-4" /> },
+    { id: "virtual-peter", label: "Virtual Peter", icon: <GitCompare className="w-4 h-4" /> },
   ];
 
   return (
@@ -351,6 +376,204 @@ export default function ClientProfile() {
               ) : (
                 <div className="prose-report">
                   <Streamdown>{data.report.fullReportMarkdown ?? ""}</Streamdown>
+                </div>
+              )}
+            </div>
+          )}
+
+          {activeTab === "virtual-peter" && (
+            <div className="max-w-4xl">
+              {/* Header explanation */}
+              <div className="mb-6 p-5 rounded-xl bg-[var(--plum-light)]/15 border border-[var(--plum)]/20">
+                <div className="flex items-start gap-3">
+                  <div className="w-9 h-9 rounded-full bg-[var(--plum)] flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <Sparkles className="w-4 h-4 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="font-serif font-semibold text-foreground mb-1">Virtual Peter — Parallel Clients</h3>
+                    <p className="text-sm text-muted-foreground leading-relaxed">
+                      Peter Daws maintained a mental library of 449 clients whose life histories he knew well.
+                      This feature replicates that knowledge: it analyses this client's achievements and themes,
+                      then finds the most similar historical clients from Peter's database — matched by life pattern,
+                      not by psychometric scores.
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-2 italic">
+                      Each card shows a historical client's career outcome and the thematic patterns that matched.
+                      Use these as conversation starters: "Does this person's story feel familiar to you?"
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Run matching button */}
+              <div className="flex items-center justify-between mb-6">
+                <div>
+                  {existingMatches && existingMatches.length > 0 ? (
+                    <p className="text-sm text-muted-foreground">
+                      {existingMatches.length} parallel clients found
+                      {existingMatches[0]?.createdAt && ` · Last run ${new Date(existingMatches[0].createdAt).toLocaleDateString()}`}
+                    </p>
+                  ) : (
+                    <p className="text-sm text-muted-foreground">No matches yet. Run the analysis to find parallel clients.</p>
+                  )}
+                </div>
+                <Button
+                  onClick={() => findMatches.mutate({ clientId, topN: 8 })}
+                  disabled={findMatches.isPending}
+                  className="bg-[var(--plum)] hover:bg-[var(--plum-dark)] text-white gap-2"
+                >
+                  {findMatches.isPending ? (
+                    <><Loader2 className="w-4 h-4 animate-spin" /> Finding matches…</>
+                  ) : (
+                    <><GitCompare className="w-4 h-4" /> {existingMatches?.length ? "Re-run Matching" : "Find Parallel Clients"}</>
+                  )}
+                </Button>
+              </div>
+
+              {/* Match cards */}
+              {existingMatches && existingMatches.length > 0 && (
+                <div className="space-y-3">
+                  {existingMatches.map((match) => {
+                    const hc = match.historicalClient;
+                    if (!hc) return null;
+                    const tags = (() => {
+                      try {
+                        return typeof hc.embedding === "string" ? JSON.parse(hc.embedding) : hc.embedding as any;
+                      } catch { return null; }
+                    })();
+                    const narrativeSamples = (() => {
+                      try {
+                        return typeof hc.narrativeSample === "string" ? JSON.parse(hc.narrativeSample) : hc.narrativeSample as string[];
+                      } catch { return []; }
+                    })();
+                    const isExpanded = expandedMatchId === match.id;
+                    const similarityPct = Math.round(parseFloat(match.similarityScore) * 100);
+                    const tierLabel = hc.tier === 1 ? "Best Match" : hc.tier === 2 ? "Good Match" : "Possible Match";
+                    const tierColor = hc.tier === 1 ? "bg-emerald-100 text-emerald-700" : hc.tier === 2 ? "bg-blue-100 text-blue-700" : "bg-amber-100 text-amber-700";
+
+                    return (
+                      <div
+                        key={match.id}
+                        className={`border rounded-xl overflow-hidden transition-all ${
+                          hc.tier === 1 ? "border-[var(--plum)]/40" : "border-border"
+                        }`}
+                      >
+                        {/* Card header - always visible */}
+                        <button
+                          className="w-full text-left p-4 flex items-start gap-4 hover:bg-muted/30 transition-colors"
+                          onClick={() => setExpandedMatchId(isExpanded ? null : match.id)}
+                        >
+                          <div className="flex-shrink-0 w-8 h-8 rounded-full bg-[var(--plum-light)]/30 flex items-center justify-center text-sm font-bold text-[var(--plum)]">
+                            {match.rank}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 flex-wrap mb-1">
+                              <span className="font-medium text-foreground text-sm">{hc.careerDescription}</span>
+                              <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${tierColor}`}>{tierLabel}</span>
+                            </div>
+                            {tags?.summary && (
+                              <p className="text-xs text-muted-foreground italic">{tags.summary}</p>
+                            )}
+                            <div className="flex items-center gap-3 mt-2">
+                              <div className="flex items-center gap-1.5">
+                                <div className="h-1.5 w-20 bg-muted rounded-full overflow-hidden">
+                                  <div
+                                    className="h-full bg-[var(--plum)] rounded-full"
+                                    style={{ width: `${similarityPct}%` }}
+                                  />
+                                </div>
+                                <span className="text-xs text-muted-foreground">{similarityPct}% match</span>
+                              </div>
+                            </div>
+                          </div>
+                          <div className="flex-shrink-0 text-muted-foreground">
+                            {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                          </div>
+                        </button>
+
+                        {/* Expanded detail */}
+                        {isExpanded && (
+                          <div className="px-4 pb-4 border-t border-border/50 pt-4 space-y-4">
+                            {/* Semantic tags */}
+                            {tags && (
+                              <div className="space-y-2">
+                                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Pattern Tags</p>
+                                <div className="flex flex-wrap gap-1.5">
+                                  {tags.themes?.map((t: string) => (
+                                    <span key={t} className="flex items-center gap-1 text-xs px-2 py-0.5 rounded-full bg-[var(--plum-light)]/20 text-[var(--plum)] border border-[var(--plum)]/20">
+                                      <Tag className="w-2.5 h-2.5" />{t}
+                                    </span>
+                                  ))}
+                                </div>
+                                <div className="flex flex-wrap gap-2 mt-1">
+                                  {tags.environment && (
+                                    <span className="text-xs text-muted-foreground">Environment: <span className="text-foreground font-medium">{tags.environment}</span></span>
+                                  )}
+                                  {tags.motivation && (
+                                    <span className="text-xs text-muted-foreground">Motivation: <span className="text-foreground font-medium">{tags.motivation}</span></span>
+                                  )}
+                                  {tags.sector?.length > 0 && (
+                                    <span className="text-xs text-muted-foreground">Sector: <span className="text-foreground font-medium">{tags.sector.join(", ")}</span></span>
+                                  )}
+                                </div>
+                              </div>
+                            )}
+
+                            {/* Life history samples */}
+                            {narrativeSamples && narrativeSamples.length > 0 && (
+                              <div className="space-y-2">
+                                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Life History Samples</p>
+                                <div className="space-y-1.5">
+                                  {narrativeSamples.slice(0, 3).map((sample: string, i: number) => (
+                                    <p key={i} className="text-xs text-muted-foreground pl-3 border-l-2 border-[var(--plum)]/30 italic leading-relaxed">
+                                      {sample.slice(0, 180)}{sample.length > 180 ? "…" : ""}
+                                    </p>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+
+                            {/* Counsellor notes */}
+                            <div className="space-y-2">
+                              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Counsellor Notes on this Match</p>
+                              <p className="text-xs text-muted-foreground italic">Use this space to note why this parallel client is or isn't relevant.</p>
+                              <Textarea
+                                rows={2}
+                                value={matchNotes[match.id] ?? (match.counsellorNotes ?? "")}
+                                onChange={(e) => setMatchNotes(prev => ({ ...prev, [match.id]: e.target.value }))}
+                                placeholder="e.g. Similar pattern of organising others from childhood…"
+                                className="text-xs"
+                              />
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="text-xs h-7"
+                                onClick={() => updateMatchNotesMutation.mutate({
+                                  matchId: match.id,
+                                  notes: matchNotes[match.id] ?? (match.counsellorNotes ?? ""),
+                                })}
+                                disabled={updateMatchNotesMutation.isPending}
+                              >
+                                Save Note
+                              </Button>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+
+              {/* Empty state */}
+              {(!existingMatches || existingMatches.length === 0) && !findMatches.isPending && (
+                <div className="text-center py-16 border-2 border-dashed border-border rounded-xl">
+                  <GitCompare className="w-10 h-10 text-muted-foreground mx-auto mb-3" />
+                  <p className="text-muted-foreground mb-2">No parallel clients found yet.</p>
+                  <p className="text-sm text-muted-foreground mb-4 max-w-sm mx-auto">
+                    Generate an analysis report first, then run the matching to find historical clients
+                    with similar life patterns.
+                  </p>
                 </div>
               )}
             </div>

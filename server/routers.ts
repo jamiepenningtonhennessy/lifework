@@ -31,6 +31,10 @@ import {
   upsertAnalysisReport,
   getCognitiveScreenerResult,
   upsertCognitiveScreenerResult,
+  getAllHistoricalClients,
+  getParallelMatches,
+  saveParallelMatches,
+  updateMatchNotes,
 } from "./db";
 import { invokeLLM } from "./_core/llm";
 import { scoreVia, VIA_QUESTIONS, VIA_STRENGTHS } from "../shared/via-data";
@@ -651,6 +655,212 @@ const cognitiveRouter = router({
     }),
 });
 
+// ─── Virtual Peter Router ───────────────────────────────────────────────────
+// The core matching logic: given a client's analysis report, find the most
+// similar historical clients from Peter's 449-client database.
+// Matching uses semantic tag overlap (themes, environment, motivation, sector)
+// which is more transparent and counsellor-readable than raw vector similarity.
+
+type SemanticTags = {
+  themes: string[];
+  environment: string;
+  motivation: string;
+  sector: string[];
+  summary: string;
+};
+
+function computeTagSimilarity(clientTags: SemanticTags, historicalTags: SemanticTags): number {
+  let score = 0;
+  let maxScore = 0;
+
+  // Theme overlap (weighted 50%): Jaccard similarity on theme arrays
+  const clientThemes = new Set(clientTags.themes.map((t) => t.toLowerCase()));
+  const histThemes = new Set(historicalTags.themes.map((t) => t.toLowerCase()));
+  const themeIntersection = Array.from(clientThemes).filter((t) => histThemes.has(t)).length;
+  const themeUnion = new Set(Array.from(clientThemes).concat(Array.from(histThemes))).size;
+  const themeScore = themeUnion > 0 ? themeIntersection / themeUnion : 0;
+  score += themeScore * 50;
+  maxScore += 50;
+
+  // Environment match (weighted 20%)
+  if (clientTags.environment && historicalTags.environment) {
+    const envMatch = clientTags.environment.toLowerCase() === historicalTags.environment.toLowerCase() ? 1 :
+      clientTags.environment.toLowerCase().split(",").some(e =>
+        historicalTags.environment.toLowerCase().includes(e.trim())) ? 0.5 : 0;
+    score += envMatch * 20;
+    maxScore += 20;
+  }
+
+  // Motivation match (weighted 20%)
+  if (clientTags.motivation && historicalTags.motivation) {
+    const motMatch = clientTags.motivation.toLowerCase() === historicalTags.motivation.toLowerCase() ? 1 :
+      clientTags.motivation.toLowerCase().split(",").some(m =>
+        historicalTags.motivation.toLowerCase().includes(m.trim())) ? 0.5 : 0;
+    score += motMatch * 20;
+    maxScore += 20;
+  }
+
+  // Sector overlap (weighted 10%)
+  if (clientTags.sector?.length && historicalTags.sector?.length) {
+    const clientSectors = new Set(clientTags.sector.map((s) => s.toLowerCase()));
+    const histSectors = new Set(historicalTags.sector.map((s) => s.toLowerCase()));
+    const sectorIntersection = Array.from(clientSectors).filter((s) => histSectors.has(s)).length;
+    const sectorUnion = new Set(Array.from(clientSectors).concat(Array.from(histSectors))).size;
+    const sectorScore = sectorUnion > 0 ? sectorIntersection / sectorUnion : 0;
+    score += sectorScore * 10;
+    maxScore += 10;
+  }
+
+  return maxScore > 0 ? score / maxScore : 0;
+}
+
+const virtualPeterRouter = router({
+  // Get cached matches for a client (counsellor view)
+  getMatches: counselorProcedure
+    .input(z.object({ clientId: z.number() }))
+    .query(async ({ input }) => {
+      return getParallelMatches(input.clientId);
+    }),
+
+  // Run the matching algorithm for a client
+  // This generates semantic tags for the client's analysis and finds the closest
+  // historical clients from Peter's database.
+  findMatches: counselorProcedure
+    .input(z.object({ clientId: z.number(), topN: z.number().default(8) }))
+    .mutation(async ({ input }) => {
+      const { clientId, topN } = input;
+
+      // 1. Gather client data
+      const [profile, achievementsList, report, via, ipip] = await Promise.all([
+        getClientProfileById(clientId),
+        getAchievements(clientId),
+        getAnalysisReport(clientId),
+        getViaResults(clientId),
+        getIpipResults(clientId),
+      ]);
+
+      if (!profile) throw new TRPCError({ code: "NOT_FOUND", message: "Client not found" });
+
+      // 2. Build a description of the client for tag extraction
+      const achievementsText = achievementsList
+        .slice(0, 12)
+        .map((a) => `[${a.decade}] ${a.title}: ${a.description ?? ""}`)
+        .join("\n");
+
+      const viaText = via?.rankedStrengths
+        ? (via.rankedStrengths as any[]).slice(0, 5).map((s: any) => s.name).join(", ")
+        : "";
+
+      const careerThemes = report?.careerThemes ?? "";
+      const coreStrengths = report?.coreStrengths ?? "";
+
+      const clientDescription = `
+Achievements across life:
+${achievementsText || "No achievements recorded yet."}
+
+Career themes identified: ${careerThemes || "Not yet analysed."}
+Core strengths: ${coreStrengths || "Not yet analysed."}
+Top VIA character strengths: ${viaText || "Not yet completed."}
+`.trim();
+
+      // 3. Generate semantic tags for this client using the LLM
+      const tagPrompt = `You are analysing a career counselling client profile.
+
+${clientDescription}
+
+Extract the key patterns. Return a JSON object with exactly these fields:
+- themes: array of 6-8 lowercase thematic keywords describing this person's motivated strengths (e.g. "organising", "communicating", "leading", "creating", "analysing", "building", "teaching", "performing")
+- environment: string describing preferred work environment (one of: "people-facing", "intellectual", "practical", "creative", "technical", "outdoor", "structured", "entrepreneurial")
+- motivation: string describing primary motivation (one of: "achievement", "service", "expression", "analysis", "leadership", "craft", "connection", "discovery")
+- sector: array of 1-3 likely sectors (e.g. "legal", "education", "arts", "business", "healthcare", "technology", "public sector", "media", "charity", "finance")
+- summary: one concise sentence (max 20 words) describing this person's career pattern
+
+Return ONLY valid JSON.`;
+
+      const tagResponse = await invokeLLM({
+        messages: [{ role: "user", content: tagPrompt }],
+        response_format: { type: "json_object" },
+        max_tokens: 400,
+      });
+
+      const clientTagsRaw = tagResponse.choices[0]?.message?.content as string;
+      let clientTags: SemanticTags;
+      try {
+        clientTags = JSON.parse(clientTagsRaw);
+      } catch {
+        throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Failed to parse client tags" });
+      }
+
+      // 4. Load all historical clients and compute similarity
+      const allHistorical = await getAllHistoricalClients();
+
+      const scored = allHistorical
+        .filter((hc) => hc.embedding) // must have tags
+        .map((hc) => {
+          let historicalTags: SemanticTags;
+          try {
+            historicalTags = typeof hc.embedding === "string"
+              ? JSON.parse(hc.embedding)
+              : hc.embedding as unknown as SemanticTags;
+          } catch {
+            return null;
+          }
+          const similarity = computeTagSimilarity(clientTags, historicalTags);
+          return { hc, similarity };
+        })
+        .filter(Boolean) as Array<{ hc: typeof allHistorical[0]; similarity: number }>;
+
+      // Sort by similarity descending, then by tier ascending (tier 1 = best)
+      scored.sort((a, b) => {
+        if (Math.abs(a.similarity - b.similarity) > 0.05) {
+          return b.similarity - a.similarity;
+        }
+        return a.hc.tier - b.hc.tier;
+      });
+
+      const topMatches = scored.slice(0, topN);
+
+      // 5. Save matches to database
+      await saveParallelMatches(
+        clientId,
+        topMatches.map((m, i) => ({
+          historicalClientId: m.hc.id,
+          similarityScore: m.similarity.toFixed(4),
+          rank: i + 1,
+        }))
+      );
+
+      // 6. Return the matches with full data
+      return {
+        clientTags,
+        matches: topMatches.map((m, i) => {
+          const tags = typeof m.hc.embedding === "string"
+            ? JSON.parse(m.hc.embedding)
+            : m.hc.embedding;
+          return {
+            rank: i + 1,
+            similarityScore: m.similarity,
+            historicalClient: {
+              id: m.hc.id,
+              careerDescription: m.hc.careerDescription,
+              tier: m.hc.tier,
+              narrativeSample: m.hc.narrativeSample,
+              tags,
+            },
+          };
+        }),
+      };
+    }),
+
+  // Update counsellor notes on a specific match
+  updateMatchNotes: counselorProcedure
+    .input(z.object({ matchId: z.number(), notes: z.string() }))
+    .mutation(async ({ input }) => {
+      await updateMatchNotes(input.matchId, input.notes);
+      return { success: true };
+    }),
+});
+
 // ─── App Router ─────────────────────────────────────────────────────────────
 export const appRouter = router({
   system: systemRouter,
@@ -671,6 +881,7 @@ export const appRouter = router({
   cognitive: cognitiveRouter,
   analysis: analysisRouter,
   counselor: counselorRouter,
+  virtualPeter: virtualPeterRouter,
 });
 
 export type AppRouter = typeof appRouter;

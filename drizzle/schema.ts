@@ -226,3 +226,51 @@ export const analysisReports = mysqlTable("analysis_reports", {
 });
 
 export type AnalysisReport = typeof analysisReports.$inferSelect;
+
+// ─── Virtual Peter: Historical Client Database ───────────────────────────────
+// Each record represents one of Peter's historical clients, identified by
+// their career outcome description. The embedding field stores a 1536-dim
+// float32 vector (as JSON array) for semantic similarity search.
+// tier: 1 = best match, 2 = good match, 3 = possible match (Peter's original classification)
+
+export const historicalClients = mysqlTable("historical_clients", {
+  id: int("id").autoincrement().primaryKey(),
+  // Stable hash ID from the original MDB data
+  externalId: varchar("externalId", { length: 32 }).notNull().unique(),
+  // Peter's career outcome description (the primary display text)
+  careerDescription: text("careerDescription").notNull(),
+  // Peter's tier classification: 1=best, 2=good, 3=possible
+  tier: int("tier").notNull().default(3),
+  // Sample narrative entries from the life history corpus (JSON array of strings)
+  narrativeSample: json("narrativeSample"),
+  // The text used to generate the embedding (career description + narrative sample)
+  embeddingText: text("embeddingText"),
+  // Embedding vector stored as JSON array of floats (1536 dimensions for text-embedding-3-small)
+  embedding: json("embedding"),
+  // Whether the embedding has been generated
+  embeddingReady: boolean("embeddingReady").default(false).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type HistoricalClient = typeof historicalClients.$inferSelect;
+export type InsertHistoricalClient = typeof historicalClients.$inferInsert;
+
+// ─── Virtual Peter: Match Results ────────────────────────────────────────────
+// Cached match results for a given client analysis.
+// Regenerated when the analysis report changes.
+
+export const parallelClientMatches = mysqlTable("parallel_client_matches", {
+  id: int("id").autoincrement().primaryKey(),
+  clientId: int("clientId").notNull(),
+  historicalClientId: int("historicalClientId").notNull(),
+  // Cosine similarity score (0-1)
+  similarityScore: text("similarityScore").notNull(),
+  // Rank within this client's matches (1 = closest)
+  rank: int("rank").notNull(),
+  // Counsellor notes on this match
+  counsellorNotes: text("counsellorNotes"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type ParallelClientMatch = typeof parallelClientMatches.$inferSelect;
