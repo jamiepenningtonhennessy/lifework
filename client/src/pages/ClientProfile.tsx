@@ -423,7 +423,7 @@ export default function ClientProfile() {
                   className="bg-[var(--plum)] hover:bg-[var(--plum-dark)] text-white gap-2"
                 >
                   {findMatches.isPending ? (
-                    <><Loader2 className="w-4 h-4 animate-spin" /> Finding matches…</>
+                    <><Loader2 className="w-4 h-4 animate-spin" /> Analysing patterns &amp; writing insights…</>
                   ) : (
                     <><GitCompare className="w-4 h-4" /> {existingMatches?.length ? "Re-run Matching" : "Find Parallel Clients"}</>
                   )}
@@ -494,6 +494,39 @@ export default function ClientProfile() {
                         {/* Expanded detail */}
                         {isExpanded && (
                           <div className="px-4 pb-4 border-t border-border/50 pt-4 space-y-4">
+
+                            {/* Why this match? */}
+                            {match.matchNarrative && (
+                              <div className="space-y-2">
+                                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Why This Match?</p>
+                                <div className="bg-[var(--plum-light)]/10 border border-[var(--plum)]/20 rounded-lg p-3">
+                                  <p className="text-sm text-foreground leading-relaxed">{match.matchNarrative}</p>
+                                </div>
+                              </div>
+                            )}
+
+                            {/* Conversation starters */}
+                            {match.conversationStarters && (() => {
+                              try {
+                                const questions: string[] = typeof match.conversationStarters === "string"
+                                  ? JSON.parse(match.conversationStarters)
+                                  : match.conversationStarters;
+                                return questions.length > 0 ? (
+                                  <div className="space-y-2">
+                                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Conversation Starters</p>
+                                    <div className="space-y-2">
+                                      {questions.map((q: string, qi: number) => (
+                                        <div key={qi} className="flex gap-2.5 items-start">
+                                          <span className="flex-shrink-0 w-5 h-5 rounded-full bg-[var(--plum)] text-white text-xs flex items-center justify-center font-medium mt-0.5">{qi + 1}</span>
+                                          <p className="text-sm text-foreground leading-relaxed">{q}</p>
+                                        </div>
+                                      ))}
+                                    </div>
+                                  </div>
+                                ) : null;
+                              } catch { return null; }
+                            })()}
+
                             {/* Semantic tags */}
                             {tags && (
                               <div className="space-y-2">

@@ -820,26 +820,87 @@ Return ONLY valid JSON.`;
 
       const topMatches = scored.slice(0, topN);
 
-      // 5. Save matches to database
+      // 5. Generate per-match narratives and conversation starters
+      // Run in parallel (one LLM call per match) to keep latency reasonable
+      const enriched = await Promise.all(
+        topMatches.map(async (m, i) => {
+          const historicalTags = typeof m.hc.embedding === "string"
+            ? JSON.parse(m.hc.embedding)
+            : m.hc.embedding as SemanticTags;
+
+          const enrichPrompt = `You are assisting a career counsellor using the Dependable Strengths / life history methodology.
+
+The counsellor has a new client with this profile:
+- Career themes: ${careerThemes || "not yet analysed"}
+- Core strengths: ${coreStrengths || "not yet analysed"}
+- Life history themes: ${clientTags.themes.join(", ")}
+- Preferred environment: ${clientTags.environment}
+- Primary motivation: ${clientTags.motivation}
+- Summary: ${clientTags.summary}
+
+A historical client from Peter Daws' database has been identified as a parallel match:
+- Career outcome: ${m.hc.careerDescription}
+- Their themes: ${historicalTags.themes?.join(", ") ?? ""}
+- Their environment: ${historicalTags.environment ?? ""}
+- Their motivation: ${historicalTags.motivation ?? ""}
+- Life history sample: ${m.hc.narrativeSample ? (m.hc.narrativeSample as string[]).slice(0, 2).join(" | ") : ""}
+
+Return a JSON object with exactly these two fields:
+1. "matchNarrative": A single paragraph (3-5 sentences) explaining WHY this historical client is a meaningful parallel. Focus on the shared life history pattern — not just the job title. Be specific about what the two profiles have in common at the level of motivated behaviour.
+2. "conversationStarters": An array of exactly 3 questions the counsellor could ask the client during the feedback session, grounded in this specific parallel. Each question should be open, exploratory, and rooted in the life history — not generic career questions.
+
+Return ONLY valid JSON.`;
+
+          try {
+            const enrichResponse = await invokeLLM({
+              messages: [{ role: "user", content: enrichPrompt }],
+              response_format: { type: "json_object" },
+              max_tokens: 600,
+            });
+            const enrichData = JSON.parse(enrichResponse.choices[0]?.message?.content as string);
+            return {
+              ...m,
+              rank: i + 1,
+              matchNarrative: enrichData.matchNarrative as string,
+              conversationStarters: enrichData.conversationStarters as string[],
+            };
+          } catch {
+            return {
+              ...m,
+              rank: i + 1,
+              matchNarrative: null,
+              conversationStarters: null,
+            };
+          }
+        })
+      );
+
+      // 6. Save matches to database (with narrative and starters)
       await saveParallelMatches(
         clientId,
-        topMatches.map((m, i) => ({
+        enriched.map((m) => ({
           historicalClientId: m.hc.id,
           similarityScore: m.similarity.toFixed(4),
-          rank: i + 1,
+          rank: m.rank,
+          matchNarrative: m.matchNarrative ?? undefined,
+          conversationStarters: m.conversationStarters
+            ? JSON.stringify(m.conversationStarters)
+            : undefined,
         }))
       );
 
-      // 6. Return the matches with full data
+      // 7. Return the matches with full data
       return {
         clientTags,
-        matches: topMatches.map((m, i) => {
+        matches: enriched.map((m) => {
           const tags = typeof m.hc.embedding === "string"
             ? JSON.parse(m.hc.embedding)
             : m.hc.embedding;
           return {
-            rank: i + 1,
+            rank: m.rank,
             similarityScore: m.similarity,
+            matchNarrative: m.matchNarrative,
+            conversationStarters: m.conversationStarters,
             historicalClient: {
               id: m.hc.id,
               careerDescription: m.hc.careerDescription,

@@ -96,3 +96,10 @@
 - [x] Build Virtual Peter counsellor interface: expandable narrative cards with anonymised summaries
 - [x] Add "Virtual Peter" tab to ClientProfile counsellor page
 - [x] Write tests for matching procedure (7 tests: identical profiles, zero similarity, partial overlap, weight dominance, edge cases, case-insensitivity, Peter's principle)
+
+## Virtual Peter — Match Enrichment (Why this match? + Conversation Starters)
+
+- [x] Add matchNarrative and conversationStarters columns to parallel_client_matches table
+- [x] Extend findMatches procedure to generate per-match LLM narrative and questions (parallel LLM calls)
+- [x] Update Virtual Peter UI cards to display "Why this match?" and "Conversation Starters"
+- [x] Updated loading message to reflect enrichment step duration

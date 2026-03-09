@@ -412,6 +412,8 @@ export async function saveParallelMatches(
     historicalClientId: number;
     similarityScore: string;
     rank: number;
+    matchNarrative?: string;
+    conversationStarters?: string;
   }>
 ) {
   const db = await getDb();

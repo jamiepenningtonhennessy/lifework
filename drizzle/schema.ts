@@ -270,6 +270,10 @@ export const parallelClientMatches = mysqlTable("parallel_client_matches", {
   rank: int("rank").notNull(),
   // Counsellor notes on this match
   counsellorNotes: text("counsellorNotes"),
+  // LLM-generated explanation of why this historical client matches
+  matchNarrative: text("match_narrative"),
+  // LLM-generated conversation starter questions (JSON array of strings)
+  conversationStarters: text("conversation_starters"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
 });
 

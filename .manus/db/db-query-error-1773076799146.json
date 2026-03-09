@@ -1,0 +1,8 @@
+{
+  "query": "ALTER TABLE parallel_client_matches \n  ADD COLUMN matchNarrative TEXT NULL AFTER counsellorNotes,\n  ADD COLUMN conversationStarters TEXT NULL AFTER matchNarrative;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 32u3a1hNYuu9Gj3.7d2282893346 --database kFbbE6kqNApXGDFpQJUGV7 --execute ALTER TABLE parallel_client_matches \n  ADD COLUMN matchNarrative TEXT NULL AFTER counsellorNotes,\n  ADD COLUMN conversationStarters TEXT NULL AFTER matchNarrative;",
+  "returncode": 1,
+  "logs": [
+    "ERROR 1054 (42S22) at line 1: Unknown column 'matchnarrative' in 'parallel_client_matches'"
+  ]
+}

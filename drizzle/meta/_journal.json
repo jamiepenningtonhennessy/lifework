@@ -43,6 +43,13 @@
       "when": 1773074698017,
       "tag": "0005_complex_cable",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "5",
+      "when": 1773076839896,
+      "tag": "0006_boring_the_hunter",
+      "breakpoints": true
     }
   ]
 }

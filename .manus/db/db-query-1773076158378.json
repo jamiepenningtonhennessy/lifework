@@ -1,0 +1,17 @@
+{
+  "query": "SELECT id, name, email, role, openId FROM users LIMIT 5;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 32u3a1hNYuu9Gj3.7d2282893346 --database kFbbE6kqNApXGDFpQJUGV7 --execute SELECT id, name, email, role, openId FROM users LIMIT 5;",
+  "rows": [
+    {
+      "id": "1",
+      "name": "Jamie Pennington",
+      "email": "jamie@penningtonhennessy.com",
+      "role": "admin",
+      "openId": "kp593JGV8xod3AbausKBGx"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\temail\trole\topenId\n1\tJamie Pennington\tjamie@penningtonhennessy.com\tadmin\tkp593JGV8xod3AbausKBGx\n",
+  "stderr": "",
+  "execution_time_ms": 55
+}
