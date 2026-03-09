@@ -26,6 +26,7 @@ function Router() {
       <Route path="/via" component={VIASurvey} />
       <Route path="/via/results" component={VIAResults} />
       <Route path="/ipip-survey" component={IpipSurvey} />
+      <Route path="/ipip-results" component={IpipResults} />
       <Route path="/ipip/results" component={IpipResults} />
       <Route path="/cognitive-screener" component={CognitiveScreener} />
       <Route path="/cognitive-results" component={CognitiveResults} />

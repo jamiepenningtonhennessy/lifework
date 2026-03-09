@@ -75,3 +75,8 @@
 ## IPIP Survey UX
 
 - [x] Randomise question order within each domain on every sitting (shuffle on mount, consistent within session)
+
+## Bug Fixes
+
+- [x] Fix 404 on IPIP results page after survey submission
+- [x] Show existing IPIP results without requiring retake

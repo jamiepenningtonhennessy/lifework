@@ -300,7 +300,7 @@ export async function getIpipResults(clientId: number) {
     .from(ipipResults)
     .where(eq(ipipResults.clientId, clientId))
     .limit(1);
-  return result[0];
+  return result[0] ?? null;
 }
 
 export async function upsertIpipResults(
@@ -321,7 +321,7 @@ export async function getAnalysisReport(clientId: number) {
     .from(analysisReports)
     .where(eq(analysisReports.clientId, clientId))
     .limit(1);
-  return result[0];
+  return result[0] ?? null;
 }
 
 export async function upsertAnalysisReport(
