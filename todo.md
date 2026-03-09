@@ -71,3 +71,7 @@
 - [ ] Add cognitive screener route to App.tsx
 - [ ] Update PDF export to include cognitive profile section
 - [ ] Write tests for screener scoring logic
+
+## IPIP Survey UX
+
+- [x] Randomise question order within each domain on every sitting (shuffle on mount, consistent within session)

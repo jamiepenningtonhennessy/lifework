@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useMemo } from "react";
 import { useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
@@ -31,6 +31,15 @@ function getQuestionsForDomain(domainKey: IpipDomainKey) {
   return IPIP_QUESTIONS.filter((q) => facetKeys.includes(q.facet));
 }
 
+function shuffleArray<T>(arr: T[]): T[] {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
 export default function IpipSurvey() {
   const [, setLocation] = useLocation();
   const [domainIndex, setDomainIndex] = useState(0);
@@ -49,9 +58,18 @@ export default function IpipSurvey() {
     },
   });
 
+  // Shuffle questions within each domain once on mount — stable for the whole session
+  const shuffledDomainQuestions = useMemo(() => {
+    const map: Record<string, ReturnType<typeof getQuestionsForDomain>> = {};
+    for (const dk of DOMAIN_ORDER) {
+      map[dk] = shuffleArray(getQuestionsForDomain(dk));
+    }
+    return map;
+  }, []); // empty deps = computed once on mount
+
   const currentDomainKey = DOMAIN_ORDER[domainIndex];
   const currentDomain = IPIP_DOMAINS.find((d) => d.key === currentDomainKey)!;
-  const currentQuestions = getQuestionsForDomain(currentDomainKey);
+  const currentQuestions = shuffledDomainQuestions[currentDomainKey];
 
   const totalAnswered = Object.keys(answers).length;
   const progressPct = Math.round((totalAnswered / 120) * 100);
