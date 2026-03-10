@@ -257,7 +257,7 @@ export default function Home() {
             "The most important thing is to find out what is important to you — not what others think should be important."
           </blockquote>
           <p style={{ fontSize: "0.8rem", color: "rgba(255,255,255,0.5)", letterSpacing: "0.06em" }}>
-            — Peter Daws, Career Analyst (1982–2017)
+            — Peter Daws, Career Analyst
           </p>
         </div>
       </section>
