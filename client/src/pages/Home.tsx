@@ -100,10 +100,10 @@ export default function Home() {
           <div className="text-center mb-14">
             <h2 className="text-3xl font-serif font-bold text-foreground mb-3">How it works</h2>
             <p className="text-muted-foreground max-w-xl mx-auto">
-              A structured, four-part process that combines narrative life history with validated psychometrics.
+              A three-stage process that reveals the career that is authentically yours.
             </p>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
             {[
               {
                 icon: <BookOpen className="w-6 h-6" />,
@@ -112,20 +112,14 @@ export default function Home() {
                 desc: "A structured conversation explores your achievements decade by decade — childhood through to today.",
               },
               {
-                icon: <Users className="w-6 h-6" />,
-                step: "02",
-                title: "Background & Context",
-                desc: "Structured forms capture your family background, education, and career timeline.",
-              },
-              {
                 icon: <Star className="w-6 h-6" />,
-                step: "03",
-                title: "VIA Character Strengths",
-                desc: "Complete the 120-question VIA survey to identify your top character strengths.",
+                step: "02",
+                title: "Psychometric Instruments",
+                desc: "A small set of validated assessments that act as lenses through which we consider the you that your life shows.",
               },
               {
                 icon: <Brain className="w-6 h-6" />,
-                step: "04",
+                step: "03",
                 title: "Analysis & Report",
                 desc: "Your counsellor will take all the information given and write a summary report, setting out what he believes may be true, and setting out some questions to explore together.",
               },

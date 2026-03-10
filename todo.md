@@ -130,3 +130,9 @@
 - [x] Home page step 01: remove "AI-guided", replace with "structured conversation"
 - [x] Home page step 04: remove "AI Analysis & Report", replace with counsellor-centred description
 - [x] Client dashboard: same AI reference fixes applied to step descriptions
+
+## Home Page — 3-Stage Process
+
+- [x] Consolidate "How it works" from 4 steps to 3 stages (Life History / Psychometrics / Analysis & Report)
+- [x] Update grid from 4-column to 3-column (max-w-4xl centred)
+- [x] Update subtitle to "A three-stage process that reveals the career that is authentically yours"
