@@ -103,3 +103,15 @@
 - [x] Extend findMatches procedure to generate per-match LLM narrative and questions (parallel LLM calls)
 - [x] Update Virtual Peter UI cards to display "Why this match?" and "Conversation Starters"
 - [x] Updated loading message to reflect enrichment step duration
+
+## Chat to Peter — Conversational Reflection
+
+- [x] Add chat_sessions table to schema (clientId, section, messages JSON, summary, createdAt)
+- [x] Build tRPC chatPeter.sendMessage procedure (reads achievements + career history, Peter's voice)
+- [x] Build tRPC chatPeter.getSession, generateSummary, resetSession procedures
+- [x] Write Peter's system prompt: reflective, specific, grounded in life history (Haldane methodology)
+- [x] Build ChatToPeter floating panel component (typing indicator, save-insights, reset, keyboard shortcuts)
+- [x] Add "Chat to Peter" button to Life History section of client dashboard (shows when in-progress or complete)
+- [x] Add "Chat to Peter" button to Career & Education section of client dashboard
+- [x] Wire chat session summaries into analysis report generation as primary context
+- [x] Write tests for chat procedures (14 tests: transcript formatting, section context, first-message detection, message counting, summary threshold, analysis prompt injection)

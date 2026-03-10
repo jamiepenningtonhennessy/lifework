@@ -15,6 +15,7 @@ import {
   Loader2,
   LogOut,
 } from "lucide-react";
+import { ChatToPeter } from "@/components/ChatToPeter";
 
 const STEPS = [
   {
@@ -211,7 +212,22 @@ export default function ClientDashboard() {
                           </div>
                           <p className="text-sm text-muted-foreground leading-relaxed">{step.description}</p>
                         </div>
-                        <div className="flex-shrink-0">
+                        <div className="flex-shrink-0 flex flex-col items-end gap-2">
+                          {/* Chat to Peter — shown when life history is in progress or completed */}
+                          {(step.id === "interview" && (isCompleted || isInProgress)) && (
+                            <ChatToPeter
+                              section="life_history"
+                              buttonLabel="Chat to Peter"
+                              sectionDescription="Peter has read your life history achievements. He’d like to explore them with you — reflecting back what he’s noticed and asking a few questions to help you see your own pattern more clearly."
+                            />
+                          )}
+                          {step.id === "background" && (
+                            <ChatToPeter
+                              section="career_education"
+                              buttonLabel="Chat to Peter"
+                              sectionDescription="Peter has read your education and career history. He’d like to explore the relationship between your formal career path and what you’ve actually found most rewarding."
+                            />
+                          )}
                           {step.id === "analysis" ? (
                             isCompleted ? (
                               <Button size="sm" variant="outline" onClick={() => navigate("/my-report")}>

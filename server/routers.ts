@@ -35,6 +35,13 @@ import {
   getParallelMatches,
   saveParallelMatches,
   updateMatchNotes,
+  getOrCreateChatSession,
+  appendChatMessage,
+  saveChatSummary,
+  getChatSessionsByClient,
+  getChatSessionById,
+  resetChatSession,
+  type ChatMessage,
 } from "./db";
 import { invokeLLM } from "./_core/llm";
 import { scoreVia, VIA_QUESTIONS, VIA_STRENGTHS } from "../shared/via-data";
@@ -350,7 +357,7 @@ const analysisRouter = router({
     await updateClientProfile(profile.id, { analysisStatus: "in_progress" });
 
     // Gather all data
-    const [messages, achievementsList, family, education, career, via, ipip] =
+    const [messages, achievementsList, family, education, career, via, ipip, chatSessions] =
       await Promise.all([
         getInterviewMessages(profile.id),
         getAchievements(profile.id),
@@ -359,6 +366,7 @@ const analysisRouter = router({
         getCareerHistory(profile.id),
         getViaResults(profile.id),
         getIpipResults(profile.id),
+        getChatSessionsByClient(profile.id),
       ]);
 
     const conversationText = messages
@@ -392,6 +400,17 @@ const analysisRouter = router({
       .map((e) => `${e.yearFrom ?? "?"}-${e.yearTo ?? "?"}: ${e.qualification ?? ""} ${e.subject ?? ""} at ${e.institution}`)
       .join("\n");
 
+    // Build chat session summaries for injection into the prompt
+    const lifeHistoryChat = chatSessions
+      .filter(s => s.section === "life_history" && s.summary)
+      .map(s => s.summary!)
+      .join("\n\n");
+
+    const careerEducationChat = chatSessions
+      .filter(s => s.section === "career_education" && s.summary)
+      .map(s => s.summary!)
+      .join("\n\n");
+
     const prompt = `You are an expert career analyst using the narrative life history methodology pioneered by Peter Daws. You have been given a comprehensive set of data about a client. Your task is to produce a rich, insightful career analysis report.
 
 ## Client Data
@@ -402,6 +421,8 @@ ${conversationText || "No interview data yet."}
 ### Structured Achievements (by decade, with ESF classification)
 ${achievementsText || "No achievements recorded yet."}
 
+${lifeHistoryChat ? `### Chat with Peter: Life History Insights\n${lifeHistoryChat}\n` : ""}
+${careerEducationChat ? `### Chat with Peter: Career & Education Insights\n${careerEducationChat}\n` : ""}
 ### Family Background
 Father's occupation: ${family?.fatherOccupation ?? "Unknown"}
 Mother's occupation: ${family?.motherOccupation ?? "Unknown"}
@@ -922,6 +943,195 @@ Return ONLY valid JSON.`;
     }),
 });
 
+// ─── Chat to Peter Router ──────────────────────────────────────────────────
+// Peter's voice: reflective, specific, grounded in the life history.
+// He does not ask generic career questions. He reflects back what he has heard
+// and asks the client to say more about specific moments.
+
+const PETER_SYSTEM_PROMPT = `You are Peter Daws, a career analyst who spent 40 years helping people discover their authentic career direction through their life history.
+
+Your approach is based on the Dependable Strengths methodology of Bernard Haldane. You believe that the pattern of what a person has found genuinely enjoyable, satisfying, and fulfilling across their whole life — from childhood onwards — reveals their true motivated strengths far more reliably than any psychometric test or job description.
+
+Your conversational style:
+- Warm, attentive, and specific. You always refer to what the person has actually said, not generalities.
+- You reflect back what you have heard before asking for more. "It sounds like..." or "What strikes me is..."
+- You ask for concrete examples and specific moments, not opinions or self-assessments.
+- You notice patterns across different life phases and point them out gently.
+- You never lead the client toward a particular career conclusion. Your job is to help them see their own pattern more clearly.
+- You keep responses concise — 2-4 sentences of reflection, then one focused question.
+- You use the ESF framework (Enjoyable / Satisfying / Fulfilling) to probe what specifically made an experience rewarding.
+- You are curious about what the person did *themselves*, not what happened to them.
+
+Important: You are having a conversation, not conducting an interview. Respond naturally to what the client says. If they give you a rich answer, acknowledge it before asking the next question. If they give a brief answer, gently invite more detail.`;
+
+const chatPeterRouter = router({
+  // Get or create a chat session for a client section
+  getSession: protectedProcedure
+    .input(z.object({
+      section: z.enum(["life_history", "career_education"]),
+    }))
+    .query(async ({ ctx }) => {
+      const profile = await getOrCreateClientProfile(ctx.user.id);
+      const sessions = await getChatSessionsByClient(profile.id);
+      return sessions;
+    }),
+
+  // Send a message and get Peter's response
+  sendMessage: protectedProcedure
+    .input(z.object({
+      section: z.enum(["life_history", "career_education"]),
+      userMessage: z.string().min(1).max(2000),
+      sessionId: z.number().optional(),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      const profile = await getOrCreateClientProfile(ctx.user.id);
+
+      // Get or create session
+      let session = input.sessionId
+        ? await getChatSessionById(input.sessionId)
+        : null;
+      if (!session) {
+        session = await getOrCreateChatSession(profile.id, input.section);
+      }
+
+      // Load client context for Peter to read
+      const [achievementsList, educationList, careerList, bg] = await Promise.all([
+        getAchievements(profile.id),
+        getEducationHistory(profile.id),
+        getCareerHistory(profile.id),
+        getFamilyBackground(profile.id),
+      ]);
+
+      const achievementsContext = achievementsList.length > 0
+        ? achievementsList.map(a =>
+            `[${a.decade || "?"}] ${a.title} (${a.esf || "?"}): ${a.description || ""}`
+          ).join("\n")
+        : "No achievements recorded yet.";
+
+      const careerContext = careerList.length > 0
+        ? careerList.map(c =>
+            `${c.yearFrom || "?"}–${c.yearTo || "present"}: ${c.role || ""} at ${c.organisation || ""}`
+          ).join("\n")
+        : "No career history recorded yet.";
+
+      const educationContext = educationList.length > 0
+        ? educationList.map(e =>
+            `${e.yearFrom || "?"}–${e.yearTo || "?"}: ${e.qualification || ""} at ${e.institution || ""}`
+          ).join("\n")
+        : "No education history recorded yet.";
+
+      const sectionContext = input.section === "life_history"
+        ? `The client has completed their life history section. Here are their recorded achievements:\n\n${achievementsContext}\n\nYour role in this conversation is to help them explore these achievements more deeply — probing what specifically made each one rewarding, noticing patterns across different life phases, and reflecting back what you observe.`
+        : `The client has completed their education and career sections. Here is what they have recorded:\n\nEDUCATION:\n${educationContext}\n\nCAREER HISTORY:\n${careerContext}\n\nLIFE HISTORY ACHIEVEMENTS (for context):\n${achievementsContext}\n\nYour role is to explore the relationship between their formal career path and their actual motivated behaviour — these often diverge significantly, and that divergence is itself informative.`;
+
+      // Build conversation history for the LLM
+      const existingMessages: ChatMessage[] = JSON.parse(session.messages || "[]");
+      const isFirstMessage = existingMessages.length === 0;
+
+      // Save the user's message
+      const userMsg: ChatMessage = {
+        role: "client",
+        content: input.userMessage,
+        timestamp: Date.now(),
+      };
+      await appendChatMessage(session.id, userMsg);
+
+      // Build LLM messages array
+      const llmMessages: Array<{ role: string; content: string }> = [
+        {
+          role: "system",
+          content: `${PETER_SYSTEM_PROMPT}\n\n---\nCLIENT PROFILE CONTEXT:\n${sectionContext}`,
+        },
+        // Include conversation history
+        ...existingMessages.map(m => ({
+          role: m.role === "peter" ? "assistant" : "user",
+          content: m.content,
+        })),
+        // Add the new user message
+        { role: "user", content: input.userMessage },
+      ];
+
+      // If this is the first message, Peter should open the conversation
+      // by reflecting back what he has read before responding to the user's opener
+      if (isFirstMessage) {
+        llmMessages[llmMessages.length - 1] = {
+          role: "user",
+          content: `[The client has just opened the chat. Their first message is: "${input.userMessage}". Begin by briefly acknowledging what you have read in their profile, then respond to their message and ask one specific, grounded question.]`,
+        };
+      }
+
+      // Get Peter's response
+      const response = await invokeLLM({
+        messages: llmMessages as any,
+        max_tokens: 400,
+      });
+
+      const peterResponse = response.choices[0]?.message?.content as string;
+
+      // Save Peter's response
+      const peterMsg: ChatMessage = {
+        role: "peter",
+        content: peterResponse,
+        timestamp: Date.now(),
+      };
+      await appendChatMessage(session.id, peterMsg);
+
+      return {
+        sessionId: session.id,
+        peterResponse,
+        messageCount: existingMessages.length + 2, // user + peter
+      };
+    }),
+
+  // Generate a summary of the conversation for use in analysis
+  generateSummary: protectedProcedure
+    .input(z.object({ sessionId: z.number() }))
+    .mutation(async ({ ctx, input }) => {
+      const profile = await getOrCreateClientProfile(ctx.user.id);
+      const session = await getChatSessionById(input.sessionId);
+      if (!session || session.clientId !== profile.id) {
+        throw new TRPCError({ code: "NOT_FOUND" });
+      }
+
+      const messages: ChatMessage[] = JSON.parse(session.messages || "[]");
+      if (messages.length < 2) {
+        throw new TRPCError({ code: "BAD_REQUEST", message: "Not enough conversation to summarise" });
+      }
+
+      const transcript = messages
+        .map(m => `${m.role === "peter" ? "Peter" : "Client"}: ${m.content}`)
+        .join("\n\n");
+
+      const summaryResponse = await invokeLLM({
+        messages: [
+          {
+            role: "system",
+            content: `You are distilling a career counselling conversation into a concise insight paragraph for use in a formal career analysis report. Focus on: (1) the specific motivated strengths and patterns that emerged, (2) any new information or clarifications the client offered that were not in their original written responses, (3) the client's own language for describing what they find rewarding. Write in the third person. Be specific and grounded — avoid generalities. Maximum 200 words.`,
+          },
+          {
+            role: "user",
+            content: `Here is the conversation transcript:\n\n${transcript}\n\nPlease write the insight paragraph.`,
+          },
+        ],
+        max_tokens: 350,
+      });
+
+      const summary = summaryResponse.choices[0]?.message?.content as string;
+      await saveChatSummary(input.sessionId, summary);
+
+      return { summary };
+    }),
+
+  // Reset/start a new conversation
+  resetSession: protectedProcedure
+    .input(z.object({ section: z.enum(["life_history", "career_education"]) }))
+    .mutation(async ({ ctx, input }) => {
+      const profile = await getOrCreateClientProfile(ctx.user.id);
+      const session = await resetChatSession(profile.id, input.section);
+      return { sessionId: session.id };
+    }),
+});
+
 // ─── App Router ─────────────────────────────────────────────────────────────
 export const appRouter = router({
   system: systemRouter,
@@ -943,6 +1153,7 @@ export const appRouter = router({
   analysis: analysisRouter,
   counselor: counselorRouter,
   virtualPeter: virtualPeterRouter,
+  chatPeter: chatPeterRouter,
 });
 
 export type AppRouter = typeof appRouter;

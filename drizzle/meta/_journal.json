@@ -50,6 +50,13 @@
       "when": 1773076839896,
       "tag": "0006_boring_the_hunter",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "5",
+      "when": 1773136004432,
+      "tag": "0007_narrow_the_twelve",
+      "breakpoints": true
     }
   ]
 }

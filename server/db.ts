@@ -1,4 +1,4 @@
-import { eq, desc } from "drizzle-orm";
+import { eq, desc, and } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
 import {
   InsertUser,
@@ -15,8 +15,10 @@ import {
   cognitiveScreenerResults,
   historicalClients,
   parallelClientMatches,
+  chatSessions,
   type HistoricalClient,
   type InsertHistoricalClient,
+  type ChatSession,
 } from "../drizzle/schema";
 import { ENV } from "./_core/env";
 
@@ -439,4 +441,139 @@ export async function updateMatchNotes(matchId: number, notes: string) {
     .update(parallelClientMatches)
     .set({ counsellorNotes: notes })
     .where(eq(parallelClientMatches.id, matchId));
+}
+
+// ─── Chat Sessions ────────────────────────────────────────────────────────────
+
+export type ChatMessage = {
+  role: "peter" | "client";
+  content: string;
+  timestamp: number;
+};
+
+export async function getOrCreateChatSession(
+  clientId: number,
+  section: "life_history" | "career_education"
+): Promise<ChatSession> {
+  const db = await getDb();
+  if (!db) throw new Error("DB not available");
+
+  // Return the most recent incomplete session for this client+section, or create one
+  const existing = await db
+    .select()
+    .from(chatSessions)
+    .where(
+      and(
+        eq(chatSessions.clientId, clientId),
+        eq(chatSessions.section, section)
+      )
+    )
+    .orderBy(desc(chatSessions.createdAt))
+    .limit(1);
+
+  if (existing.length > 0) return existing[0];
+
+  // Create new session
+  const result = await db.insert(chatSessions).values({
+    clientId,
+    section,
+    messages: "[]",
+  });
+  const [newSession] = await db
+    .select()
+    .from(chatSessions)
+    .where(eq(chatSessions.id, (result as any).insertId))
+    .limit(1);
+  return newSession;
+}
+
+export async function appendChatMessage(
+  sessionId: number,
+  message: ChatMessage
+): Promise<void> {
+  const db = await getDb();
+  if (!db) throw new Error("DB not available");
+
+  const [session] = await db
+    .select()
+    .from(chatSessions)
+    .where(eq(chatSessions.id, sessionId))
+    .limit(1);
+  if (!session) throw new Error("Session not found");
+
+  const messages: ChatMessage[] = JSON.parse(session.messages || "[]");
+  messages.push(message);
+
+  await db
+    .update(chatSessions)
+    .set({ messages: JSON.stringify(messages) })
+    .where(eq(chatSessions.id, sessionId));
+}
+
+export async function saveChatSummary(
+  sessionId: number,
+  summary: string
+): Promise<void> {
+  const db = await getDb();
+  if (!db) throw new Error("DB not available");
+  await db
+    .update(chatSessions)
+    .set({ summary, isComplete: true })
+    .where(eq(chatSessions.id, sessionId));
+}
+
+export async function getChatSessionsByClient(
+  clientId: number
+): Promise<ChatSession[]> {
+  const db = await getDb();
+  if (!db) throw new Error("DB not available");
+  return db
+    .select()
+    .from(chatSessions)
+    .where(eq(chatSessions.clientId, clientId))
+    .orderBy(desc(chatSessions.createdAt));
+}
+
+export async function getChatSessionById(
+  sessionId: number
+): Promise<ChatSession | null> {
+  const db = await getDb();
+  if (!db) throw new Error("DB not available");
+  const [session] = await db
+    .select()
+    .from(chatSessions)
+    .where(eq(chatSessions.id, sessionId))
+    .limit(1);
+  return session ?? null;
+}
+
+export async function resetChatSession(
+  clientId: number,
+  section: "life_history" | "career_education"
+): Promise<ChatSession> {
+  const db = await getDb();
+  if (!db) throw new Error("DB not available");
+
+  // Delete existing sessions for this client+section
+  await db
+    .delete(chatSessions)
+    .where(
+      and(
+        eq(chatSessions.clientId, clientId),
+        eq(chatSessions.section, section)
+      )
+    );
+
+  // Create fresh session
+  const result = await db.insert(chatSessions).values({
+    clientId,
+    section,
+    messages: "[]",
+  });
+  const [newSession] = await db
+    .select()
+    .from(chatSessions)
+    .where(eq(chatSessions.id, (result as any).insertId))
+    .limit(1);
+  return newSession;
 }

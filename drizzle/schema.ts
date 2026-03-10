@@ -278,3 +278,23 @@ export const parallelClientMatches = mysqlTable("parallel_client_matches", {
 });
 
 export type ParallelClientMatch = typeof parallelClientMatches.$inferSelect;
+
+// ─── Chat to Peter: Conversational Sessions ──────────────────────────────────
+// Each session is one conversation between the client and "Peter".
+// section: which part of the profile triggered the chat ("life_history" | "career_education")
+// messages: JSON array of { role: "peter"|"client", content: string, timestamp: number }
+// summary: LLM-distilled insight paragraph, used as primary context in analysis report
+
+export const chatSessions = mysqlTable("chat_sessions", {
+  id: int("id").autoincrement().primaryKey(),
+  clientId: int("clientId").notNull(),
+  section: mysqlEnum("section", ["life_history", "career_education"]).notNull(),
+  messages: text("messages").notNull().default("[]"), // JSON array
+  summary: text("summary"), // distilled insight for analysis
+  isComplete: boolean("isComplete").default(false).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type ChatSession = typeof chatSessions.$inferSelect;
+export type InsertChatSession = typeof chatSessions.$inferInsert;
