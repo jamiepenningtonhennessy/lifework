@@ -172,3 +172,9 @@
 
 - [x] Diagnose "buttons blank out" after clicking OK on a life achievement entry
 - [x] Fix button visibility/state so they remain clearly visible after save
+
+## Counsellor View — Life History Visibility
+
+- [x] Display client's life history achievements in the Interview tab of ClientProfile
+- [x] Organise by decade/phase with ESF badge, age, title, and description
+- [x] Show Chat to Peter transcript summaries alongside the structured entries

@@ -257,25 +257,112 @@ export default function ClientProfile() {
             </div>
           )}
 
-          {activeTab === "interview" && (
-            <div className="max-w-3xl space-y-3">
-              {data.messages.length === 0 ? (
-                <p className="text-muted-foreground text-sm">No interview messages yet.</p>
-              ) : (
-                data.messages.map((msg) => (
-                  <div key={msg.id} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
-                    <div className={`max-w-[80%] rounded-xl px-4 py-3 text-sm leading-relaxed ${
-                      msg.role === "user"
-                        ? "bg-[var(--lw-gold)] text-white"
-                        : "bg-card border border-border text-foreground"
-                    }`}>
-                      {msg.role === "assistant" ? <Streamdown>{msg.content}</Streamdown> : msg.content}
+          {activeTab === "interview" && (() => {
+            // ── Phase definitions mirrored from Interview.tsx ──────────────────
+            const LIFE_PHASES = [
+              { label: "Early Childhood",   ageRange: "Ages 0–5",   decade: "childhood",    subPhase: "Early (0-5)" },
+              { label: "Mid Childhood",     ageRange: "Ages 6–11",  decade: "childhood",    subPhase: "Mid (6-11)" },
+              { label: "Late Childhood",    ageRange: "Ages 12–18", decade: "teens",        subPhase: "Late (12-18)" },
+              { label: "Your 20s",          ageRange: "Ages 19–29", decade: "twenties",     subPhase: "" },
+              { label: "Your 30s",          ageRange: "Ages 30–39", decade: "thirties",     subPhase: "" },
+              { label: "Your 40s",          ageRange: "Ages 40–49", decade: "forties",      subPhase: "" },
+              { label: "Your 50s",          ageRange: "Ages 50–59", decade: "fifties",      subPhase: "" },
+              { label: "Your 60s & beyond", ageRange: "Ages 60+",   decade: "sixties_plus", subPhase: "" },
+            ] as const;
+
+            const ESF_COLORS: Record<string, string> = {
+              enjoyable:  "bg-blue-100 text-blue-700",
+              satisfying: "bg-emerald-100 text-emerald-700",
+              fulfilling: "bg-purple-100 text-purple-700",
+            };
+
+            const achievements = data.achievements ?? [];
+            const chatSessions = (data as any).chatSessions ?? [];
+            const hasAny = achievements.length > 0;
+
+            return (
+              <div className="max-w-3xl space-y-8">
+                {!hasAny && (
+                  <p className="text-muted-foreground text-sm">No life history entries recorded yet.</p>
+                )}
+
+                {/* ── Structured life history by phase ── */}
+                {LIFE_PHASES.map((phase) => {
+                  const items = achievements.filter((a: any) => {
+                    if (a.decade !== phase.decade) return false;
+                    if (phase.subPhase) return a.title?.startsWith(`[${phase.subPhase}] `);
+                    return !a.title?.match(/^\[.+\] /);
+                  });
+                  if (items.length === 0) return null;
+                  return (
+                    <div key={`${phase.decade}-${phase.subPhase}`}>
+                      {/* Phase header */}
+                      <div className="flex items-baseline gap-3 mb-3">
+                        <h3 className="font-serif font-semibold text-foreground text-base">{phase.label}</h3>
+                        <span className="text-xs text-muted-foreground">{phase.ageRange}</span>
+                      </div>
+                      <div className="space-y-3">
+                        {items.map((a: any) => {
+                          const displayTitle = phase.subPhase
+                            ? (a.title ?? "").replace(`[${phase.subPhase}] `, "")
+                            : (a.title ?? "");
+                          return (
+                            <div key={a.id} className="p-4 rounded-xl border border-border bg-card">
+                              <div className="flex items-start justify-between gap-3 mb-1">
+                                <p className="font-semibold text-sm text-foreground leading-snug">{displayTitle}</p>
+                                <div className="flex items-center gap-2 flex-shrink-0">
+                                  {a.age != null && (
+                                    <span className="text-xs text-muted-foreground">Age {a.age}</span>
+                                  )}
+                                  {a.esf && (
+                                    <span className={`text-xs px-2 py-0.5 rounded-full font-semibold capitalize ${
+                                      ESF_COLORS[a.esf] ?? "bg-muted text-muted-foreground"
+                                    }`}>{a.esf}</span>
+                                  )}
+                                </div>
+                              </div>
+                              {a.description && (
+                                <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-wrap">{a.description}</p>
+                              )}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  );
+                })}
+
+                {/* ── Chat to Peter summaries ── */}
+                {chatSessions.filter((s: any) => s.summary).length > 0 && (
+                  <div>
+                    <div className="flex items-center gap-2 mb-3">
+                      <MessageSquare className="w-4 h-4 text-[var(--lw-gold)]" />
+                      <h3 className="font-serif font-semibold text-foreground text-base">Chat to Peter — Summaries</h3>
+                    </div>
+                    <div className="space-y-3">
+                      {chatSessions
+                        .filter((s: any) => s.summary)
+                        .map((s: any) => (
+                          <div key={s.id} className="p-4 rounded-xl border border-[var(--lw-gold)]/20 bg-[var(--lw-gold-light)]/10">
+                            <div className="flex items-center gap-2 mb-2">
+                              <span className="text-xs font-semibold uppercase tracking-wide text-[var(--lw-gold)]">
+                                {s.section === "life_history" ? "Life History" : "Career & Education"}
+                              </span>
+                              {s.createdAt && (
+                                <span className="text-xs text-muted-foreground">
+                                  · {new Date(s.createdAt).toLocaleDateString()}
+                                </span>
+                              )}
+                            </div>
+                            <p className="text-sm text-foreground leading-relaxed whitespace-pre-wrap">{s.summary}</p>
+                          </div>
+                        ))}
                     </div>
                   </div>
-                ))
-              )}
-            </div>
-          )}
+                )}
+              </div>
+            );
+          })()}
 
           {activeTab === "background" && (
             <div className="max-w-3xl space-y-6">
