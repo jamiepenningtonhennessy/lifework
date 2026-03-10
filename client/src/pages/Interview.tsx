@@ -209,12 +209,15 @@ export default function Interview() {
   // ── Introduction screen ───────────────────────────────────────────────────────
   if (showIntro) {
     return (
-      <div className="min-h-screen bg-background">
-        <div className="border-b border-border bg-card/80 backdrop-blur-sm sticky top-0 z-10">
-          <div className="container flex items-center h-14">
-            <Button variant="ghost" size="sm" onClick={() => navigate("/dashboard")}>
+      <div className="min-h-screen" style={{ background: "var(--lw-cream)" }}>
+        <div className="sticky top-0 z-10" style={{ background: "var(--lw-navy)", borderBottom: "2px solid var(--lw-gold)" }}>
+          <div className="container flex items-center justify-between h-14">
+            <Button variant="ghost" size="sm" onClick={() => navigate("/dashboard")}
+              style={{ color: "rgba(255,255,255,0.7)" }}
+              className="hover:text-white">
               <ArrowLeft className="w-4 h-4 mr-1" /> Dashboard
             </Button>
+            <span className="font-serif font-semibold" style={{ color: "var(--lw-gold)", fontSize: "0.85rem", letterSpacing: "0.05em" }}>LIFEWORK</span>
           </div>
         </div>
 
@@ -393,13 +396,15 @@ export default function Interview() {
 
   // ── Phase entry form ──────────────────────────────────────────────────────────
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen" style={{ background: "var(--lw-cream)" }}>
       {/* Sticky header with progress */}
-      <div className="border-b border-border bg-card/80 backdrop-blur-sm sticky top-0 z-10">
+      <div className="sticky top-0 z-10" style={{ background: "var(--lw-navy)", borderBottom: "2px solid var(--lw-gold)" }}>
         <div className="container flex items-center justify-between h-14">
           <Button
             variant="ghost"
             size="sm"
+            style={{ color: "rgba(255,255,255,0.7)" }}
+            className="hover:text-white"
             onClick={() =>
               phaseIndex === 0 ? setShowIntro(true) : setPhaseIndex((i) => i - 1)
             }
@@ -408,7 +413,7 @@ export default function Interview() {
             {phaseIndex === 0 ? "Introduction" : PHASES[phaseIndex - 1].label}
           </Button>
           <div className="flex items-center gap-3">
-            <span className="text-xs text-muted-foreground hidden sm:block">
+            <span className="text-xs hidden sm:block" style={{ color: "rgba(255,255,255,0.6)" }}>
               Phase {phaseIndex + 1} of {PHASES.length}
             </span>
             <div className="flex gap-1 items-center">

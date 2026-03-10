@@ -148,3 +148,15 @@
 - [x] Restyle client dashboard and counsellor dashboard headers to PH navy/gold style
 - [x] Update logo/wordmark to "L" monogram in gold-bordered square + Lifework wordmark
 - [x] Replace all --plum CSS tokens with --lw-gold / --lw-navy throughout all client files
+
+## Bug Fix
+
+- [ ] Restore Peter Daws quote on home page (accidentally removed when removing dates)
+
+## Home Page & Inner Page Polish
+
+- [x] Add "About the Methodology" section to home page (Haldane/Dependable Strengths lineage, Peter's 30 years, 965 clients, psychometrics as lenses)
+- [x] Add Pennington Hennessy footer with clickable gold link to penningtonhennessy.com
+- [x] Style Interview page with navy/gold sticky header (both intro and phase views)
+- [x] Style VIA survey page with navy/gold sticky header and gold progress bar
+- [x] Style IPIP survey page with navy/gold sticky header, gold domain tabs, gold progress bar

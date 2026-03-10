@@ -249,6 +249,33 @@ export default function Home() {
         </div>
       </section>
 
+      {/* About the Methodology — cream section */}
+      <section className="py-20" style={{ background: "white", borderTop: "1px solid rgba(15,31,53,0.08)" }}>
+        <div className="container max-w-4xl">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-16 items-start">
+            <div>
+              <p className="font-medium tracking-widest uppercase mb-4" style={{ fontSize: "0.7rem", color: "var(--lw-gold)", letterSpacing: "0.12em" }}>
+                — THE METHODOLOGY
+              </p>
+              <h2 className="font-serif font-bold mb-6" style={{ fontSize: "2rem", lineHeight: 1.2, color: "var(--lw-navy)" }}>
+                A different kind of career conversation
+              </h2>
+            </div>
+            <div className="space-y-5" style={{ color: "var(--lw-navy-light)", fontSize: "0.95rem", lineHeight: 1.75 }}>
+              <p>
+                Lifework is built on the Dependable Strengths methodology, developed by Bernard Haldane at Columbia University in the 1940s and refined over decades of research at the University of Washington. The core insight is simple but profound: the most reliable guide to a fulfilling career is not a questionnaire about preferences, but a careful reading of the life you have already lived.
+              </p>
+              <p>
+                Peter Daws spent thirty years applying this approach in individual practice, working with over 965 clients across every stage of working life — from graduates finding their first direction to senior professionals facing retirement. He believed that every life history, read attentively, contains a pattern of motivated achievement that points clearly toward the work that will be most rewarding.
+              </p>
+              <p>
+                Lifework makes that conversation available at scale, guided by a counsellor who knows the methodology and the database of real outcomes behind it. The psychometric instruments — personality, character strengths, cognitive profile — are not the analysis. They are lenses through which the life history is read more clearly.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Quote — navy section */}
       <section className="py-20" style={{ background: "var(--lw-navy)" }}>
         <div className="container max-w-3xl">
@@ -276,7 +303,17 @@ export default function Home() {
             </span>
           </div>
           <p style={{ fontSize: "0.75rem", color: "rgba(255,255,255,0.4)" }}>
-            Inspired by the work of Peter Daws · A Pennington Hennessy service
+            Inspired by the work of Peter Daws · A{" "}
+            <a
+              href="https://www.penningtonhennessy.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ color: "var(--lw-gold)", textDecoration: "none" }}
+              onMouseEnter={e => (e.currentTarget.style.textDecoration = "underline")}
+              onMouseLeave={e => (e.currentTarget.style.textDecoration = "none")}
+            >
+              Pennington Hennessy
+            </a>{" "}service
           </p>
         </div>
       </footer>

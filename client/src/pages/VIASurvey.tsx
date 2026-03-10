@@ -85,26 +85,27 @@ export default function VIASurvey() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen" style={{ background: "var(--lw-cream)" }}>
       {/* Header */}
-      <div className="border-b border-border bg-card/80 backdrop-blur-sm sticky top-0 z-10">
+      <div className="sticky top-0 z-10" style={{ background: "var(--lw-navy)", borderBottom: "2px solid var(--lw-gold)" }}>
         <div className="container flex items-center justify-between h-14">
           <div className="flex items-center gap-3">
-            <Button variant="ghost" size="sm" onClick={() => navigate("/background")}>
+            <Button variant="ghost" size="sm" onClick={() => navigate("/background")}
+              style={{ color: "rgba(255,255,255,0.7)" }} className="hover:text-white">
               <ArrowLeft className="w-4 h-4 mr-1" /> Background
             </Button>
-            <div className="h-4 w-px bg-border" />
-            <span className="font-serif font-semibold text-foreground">VIA Character Strengths</span>
+            <div className="h-4 w-px" style={{ background: "rgba(255,255,255,0.2)" }} />
+            <span className="font-serif font-semibold" style={{ color: "var(--lw-gold)" }}>VIA Character Strengths</span>
           </div>
-          <span className="text-sm text-muted-foreground">
+          <span className="text-xs" style={{ color: "rgba(255,255,255,0.6)" }}>
             {totalAnswered} / {questions.length} answered
           </span>
         </div>
         {/* Progress bar */}
-        <div className="h-1 bg-muted">
+        <div className="h-1" style={{ background: "rgba(255,255,255,0.1)" }}>
           <div
-            className="h-full bg-[var(--lw-gold)] transition-all duration-300"
-            style={{ width: `${progress}%` }}
+            className="h-full transition-all duration-300"
+            style={{ width: `${progress}%`, background: "var(--lw-gold)" }}
           />
         </div>
       </div>

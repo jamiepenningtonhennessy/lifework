@@ -110,18 +110,20 @@ export default function IpipSurvey() {
   const isLastPage = domainIndex === 4;
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen" style={{ background: "var(--lw-cream)" }}>
       {/* Header */}
-      <div className="sticky top-0 z-10 bg-background/95 backdrop-blur border-b border-border">
+      <div className="sticky top-0 z-10" style={{ background: "var(--lw-navy)", borderBottom: "2px solid var(--lw-gold)" }}>
         <div className="max-w-3xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
           <div className="flex items-center gap-2">
-            <Brain className="h-5 w-5 text-primary" />
-            <span className="font-semibold text-sm">Personality Profile</span>
+            <Brain className="h-5 w-5" style={{ color: "var(--lw-gold)" }} />
+            <span className="font-serif font-semibold text-sm" style={{ color: "var(--lw-gold)" }}>Personality Profile</span>
           </div>
           <div className="flex-1 max-w-xs">
-            <Progress value={progressPct} className="h-2" />
+            <div className="h-1.5" style={{ background: "rgba(255,255,255,0.15)" }}>
+              <div className="h-full transition-all duration-300" style={{ width: `${progressPct}%`, background: "var(--lw-gold)" }} />
+            </div>
           </div>
-          <span className="text-xs text-muted-foreground whitespace-nowrap">
+          <span className="text-xs whitespace-nowrap" style={{ color: "rgba(255,255,255,0.6)" }}>
             {totalAnswered} / 120
           </span>
         </div>
@@ -135,13 +137,12 @@ export default function IpipSurvey() {
               <button
                 key={dk}
                 onClick={() => setDomainIndex(i)}
-                className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap transition-colors ${
-                  i === domainIndex
-                    ? "bg-primary text-primary-foreground"
-                    : done
-                    ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300"
-                    : "bg-muted text-muted-foreground hover:bg-muted/80"
-                }`}
+                style={i === domainIndex
+                  ? { background: "var(--lw-gold)", color: "var(--lw-navy)", border: "none" }
+                  : done
+                  ? { background: "rgba(201,151,58,0.2)", color: "var(--lw-gold)", border: "none" }
+                  : { background: "rgba(255,255,255,0.08)", color: "rgba(255,255,255,0.6)", border: "none" }}
+                className="flex items-center gap-1.5 px-3 py-1 text-xs font-medium whitespace-nowrap transition-colors"
               >
                 {done && <CheckCircle2 className="h-3 w-3" />}
                 {d.name}
