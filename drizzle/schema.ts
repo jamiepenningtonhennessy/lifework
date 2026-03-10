@@ -274,6 +274,8 @@ export const parallelClientMatches = mysqlTable("parallel_client_matches", {
   matchNarrative: text("match_narrative"),
   // LLM-generated conversation starter questions (JSON array of strings)
   conversationStarters: text("conversation_starters"),
+  // Gender-appropriate imaginary first name for this parallel client
+  personaName: varchar("persona_name", { length: 50 }),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
 });
 

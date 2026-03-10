@@ -160,3 +160,10 @@
 - [x] Style Interview page with navy/gold sticky header (both intro and phase views)
 - [x] Style VIA survey page with navy/gold sticky header and gold progress bar
 - [x] Style IPIP survey page with navy/gold sticky header, gold domain tabs, gold progress bar
+
+## Virtual Peter — Persona Names
+
+- [x] Infer gender from career description text in findMatches procedure
+- [x] Assign a gender-appropriate imaginary first name to each match
+- [x] Store persona name in parallel_client_matches table
+- [x] Display persona name prominently on each Virtual Peter card

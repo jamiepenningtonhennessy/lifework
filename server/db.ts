@@ -416,6 +416,7 @@ export async function saveParallelMatches(
     rank: number;
     matchNarrative?: string;
     conversationStarters?: string;
+    personaName?: string;
   }>
 ) {
   const db = await getDb();

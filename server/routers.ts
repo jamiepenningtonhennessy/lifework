@@ -866,9 +866,10 @@ A historical client from Peter Daws' database has been identified as a parallel 
 - Their motivation: ${historicalTags.motivation ?? ""}
 - Life history sample: ${m.hc.narrativeSample ? (m.hc.narrativeSample as string[]).slice(0, 2).join(" | ") : ""}
 
-Return a JSON object with exactly these two fields:
+Return a JSON object with exactly these three fields:
 1. "matchNarrative": A single paragraph (3-5 sentences) explaining WHY this historical client is a meaningful parallel. Focus on the shared life history pattern — not just the job title. Be specific about what the two profiles have in common at the level of motivated behaviour.
 2. "conversationStarters": An array of exactly 3 questions the counsellor could ask the client during the feedback session, grounded in this specific parallel. Each question should be open, exploratory, and rooted in the life history — not generic career questions.
+3. "personaName": A single common British first name appropriate to the inferred gender of this historical client. Infer gender from the career description and life history sample — look for pronouns (he/his/him vs she/her/hers), role titles (e.g. "headmistress" suggests female), or other contextual clues. If genuinely ambiguous, choose a name that works for either gender (e.g. "Alex", "Sam", "Chris"). Use everyday names that feel real and warm — Peter, David, James, Michael, Robert, Thomas for men; Sarah, Helen, Susan, Emma, Claire, Rachel for women. Do not use unusual or invented names.
 
 Return ONLY valid JSON.`;
 
@@ -884,6 +885,7 @@ Return ONLY valid JSON.`;
               rank: i + 1,
               matchNarrative: enrichData.matchNarrative as string,
               conversationStarters: enrichData.conversationStarters as string[],
+              personaName: (enrichData.personaName as string) || null,
             };
           } catch {
             return {
@@ -891,6 +893,7 @@ Return ONLY valid JSON.`;
               rank: i + 1,
               matchNarrative: null,
               conversationStarters: null,
+              personaName: null,
             };
           }
         })
@@ -907,6 +910,7 @@ Return ONLY valid JSON.`;
           conversationStarters: m.conversationStarters
             ? JSON.stringify(m.conversationStarters)
             : undefined,
+          personaName: m.personaName ?? undefined,
         }))
       );
 
@@ -922,6 +926,7 @@ Return ONLY valid JSON.`;
             similarityScore: m.similarity,
             matchNarrative: m.matchNarrative,
             conversationStarters: m.conversationStarters,
+            personaName: m.personaName,
             historicalClient: {
               id: m.hc.id,
               careerDescription: m.hc.careerDescription,

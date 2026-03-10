@@ -1,0 +1,1 @@
+ALTER TABLE `parallel_client_matches` ADD `persona_name` varchar(50);

@@ -463,11 +463,19 @@ export default function ClientProfile() {
                           className="w-full text-left p-4 flex items-start gap-4 hover:bg-muted/30 transition-colors"
                           onClick={() => setExpandedMatchId(isExpanded ? null : match.id)}
                         >
-                          <div className="flex-shrink-0 w-8 h-8 rounded-full bg-[var(--lw-gold-light)]/30 flex items-center justify-center text-sm font-bold text-[var(--lw-gold)]">
-                            {match.rank}
+                          <div className="flex-shrink-0 flex flex-col items-center gap-0.5">
+                            <div className="w-10 h-10 rounded-full bg-[var(--lw-navy)] flex items-center justify-center text-sm font-bold text-[var(--lw-gold)]">
+                              {match.rank}
+                            </div>
+                            {match.personaName && (
+                              <span className="text-[10px] font-semibold text-[var(--lw-navy)] tracking-wide">{match.personaName}</span>
+                            )}
                           </div>
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2 flex-wrap mb-1">
+                              {match.personaName && (
+                                <span className="font-semibold text-[var(--lw-navy)] text-base">{match.personaName}</span>
+                              )}
                               <span className="font-medium text-foreground text-sm">{hc.careerDescription}</span>
                               <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${tierColor}`}>{tierLabel}</span>
                             </div>
@@ -498,7 +506,9 @@ export default function ClientProfile() {
                             {/* Why this match? */}
                             {match.matchNarrative && (
                               <div className="space-y-2">
-                                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Why This Match?</p>
+                                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+                                  {match.personaName ? `Why ${match.personaName}?` : "Why This Match?"}
+                                </p>
                                 <div className="bg-[var(--lw-gold-light)]/10 border border-[var(--lw-gold)]/20 rounded-lg p-3">
                                   <p className="text-sm text-foreground leading-relaxed">{match.matchNarrative}</p>
                                 </div>
@@ -513,7 +523,9 @@ export default function ClientProfile() {
                                   : match.conversationStarters;
                                 return questions.length > 0 ? (
                                   <div className="space-y-2">
-                                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Conversation Starters</p>
+                                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+                                      {match.personaName ? `Conversation Starters — using ${match.personaName}'s story` : "Conversation Starters"}
+                                    </p>
                                     <div className="space-y-2">
                                       {questions.map((q: string, qi: number) => (
                                         <div key={qi} className="flex gap-2.5 items-start">
