@@ -82,7 +82,7 @@ const ESF_OPTIONS = [
   },
 ];
 
-type Action = { title: string; age: string; description: string; esf: string };
+type Action = { id?: number; title: string; age: string; description: string; esf: string };
 const emptyAction = (): Action => ({ title: "", age: "", description: "", esf: "" });
 
 // ─── Main component ───────────────────────────────────────────────────────────
@@ -118,17 +118,19 @@ export default function Interview() {
     PHASES.forEach((phase) => {
       const items = existing.filter((a: any) => {
         if (a.decade !== phase.decade) return false;
-        // For childhood/teens phases that share a decade, match by subPhase prefix in title
+        // For phases that share a decade (childhood sub-phases), match ONLY by exact prefix
         if (phase.subPhase) {
-          return a.title?.startsWith(`[${phase.subPhase}] `) || a.decade === phase.decade;
+          return a.title?.startsWith(`[${phase.subPhase}] `);
         }
-        return true;
+        // For adult decades, exclude any items that have a subPhase prefix
+        return !a.title?.match(/^\[.+\] /);
       });
       items.slice(0, 4).forEach((a: any, i: number) => {
         const rawTitle = phase.subPhase
           ? (a.title ?? "").replace(`[${phase.subPhase}] `, "")
           : (a.title ?? "");
         loaded[phase.id][i] = {
+          id: a.id,
           title: rawTitle,
           age: a.age != null ? String(a.age) : "",
           description: a.description ?? "",
@@ -169,17 +171,21 @@ export default function Interview() {
   const handleSaveAndNext = async () => {
     setSaving(true);
     try {
-      const toSave = actions.filter((a) => a.title.trim() || a.description.trim());
+      // Work over all 4 slots (including empty ones, to handle deletions gracefully)
+      const updatedActions = [...actions];
 
-      // Save each action individually (the API takes one at a time)
-      for (let i = 0; i < toSave.length; i++) {
-        const a = toSave[i];
+      for (let i = 0; i < actions.length; i++) {
+        const a = actions[i];
+        const hasContent = a.title.trim() || a.description.trim();
+        if (!hasContent) continue; // skip blank slots
+
         // Prefix title with subPhase so we can distinguish early/mid/late childhood
         const titleWithPrefix = currentPhase.subPhase
           ? `[${currentPhase.subPhase}] ${a.title.trim()}`
           : a.title.trim();
 
-        await saveAchievement.mutateAsync({
+        const result = await saveAchievement.mutateAsync({
+          id: a.id,          // pass existing id → UPDATE; undefined → INSERT
           title: titleWithPrefix,
           age: a.age ? parseInt(a.age) : undefined,
           description: a.description.trim() || undefined,
@@ -187,7 +193,15 @@ export default function Interview() {
           decade: currentPhase.decade,
           sortOrder: i,
         });
+
+        // Store the returned id so the next save on the same session does an UPDATE
+        if (result?.id && !a.id) {
+          updatedActions[i] = { ...a, id: result.id };
+        }
       }
+
+      // Update local state with the new ids (prevents duplicate inserts if user navigates back)
+      setPhaseActions((prev) => ({ ...prev, [currentPhase.id]: updatedActions }));
 
       if (phaseIndex < PHASES.length - 1) {
         setPhaseIndex((i) => i + 1);

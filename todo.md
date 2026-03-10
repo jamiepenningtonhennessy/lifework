@@ -167,3 +167,8 @@
 - [x] Assign a gender-appropriate imaginary first name to each match
 - [x] Store persona name in parallel_client_matches table
 - [x] Display persona name prominently on each Virtual Peter card
+
+## Bug Fix — Life Achievement Buttons
+
+- [x] Diagnose "buttons blank out" after clicking OK on a life achievement entry
+- [x] Fix button visibility/state so they remain clearly visible after save
