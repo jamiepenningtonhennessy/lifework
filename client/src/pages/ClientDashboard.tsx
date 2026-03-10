@@ -115,26 +115,30 @@ export default function ClientDashboard() {
     getStatus("ipipStatus") === "completed";
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen" style={{ background: "var(--lw-cream)" }}>
       {/* Header */}
-      <div className="border-b border-border bg-card/80 backdrop-blur-sm sticky top-0 z-10">
+      <div className="sticky top-0 z-10" style={{ background: "var(--lw-navy)", borderBottom: "1px solid rgba(201,151,58,0.25)" }}>
         <div className="container flex items-center justify-between h-14">
           <div className="flex items-center gap-2">
-            <div className="w-7 h-7 rounded-full bg-[var(--plum)] flex items-center justify-center">
-              <span className="text-white text-xs font-bold">PT</span>
+            <div className="w-7 h-7 flex items-center justify-center" style={{ border: "1px solid var(--lw-gold)" }}>
+              <span style={{ color: "var(--lw-gold)", fontFamily: "'Playfair Display', serif", fontWeight: 700, fontSize: "0.65rem" }}>L</span>
             </div>
-            <span className="font-serif font-semibold text-foreground">Plum Trees</span>
+            <span className="font-serif font-semibold" style={{ color: "white" }}>Lifework</span>
           </div>
           <div className="flex items-center gap-2">
             {user?.role === "admin" && (
-              <Button variant="outline" size="sm" onClick={() => navigate("/counselor")}>
-                Counselor View
-              </Button>
+              <button
+                onClick={() => navigate("/counselor")}
+                className="px-3 py-1.5 text-xs font-medium tracking-wide uppercase cursor-pointer"
+                style={{ border: "1px solid rgba(201,151,58,0.5)", color: "var(--lw-gold)", background: "transparent", letterSpacing: "0.08em" }}
+              >
+                Counsellor View
+              </button>
             )}
-            <span className="text-sm text-muted-foreground hidden sm:block">{user?.name}</span>
-            <Button variant="ghost" size="sm" onClick={logout} className="gap-1 text-muted-foreground">
+            <span className="text-sm hidden sm:block" style={{ color: "rgba(255,255,255,0.6)" }}>{user?.name}</span>
+            <button onClick={logout} className="p-1.5 cursor-pointer" style={{ color: "rgba(255,255,255,0.5)" }}>
               <LogOut className="w-4 h-4" />
-            </Button>
+            </button>
           </div>
         </div>
       </div>
@@ -160,11 +164,11 @@ export default function ClientDashboard() {
             <div className="mb-8 p-5 rounded-xl bg-card border border-border">
               <div className="flex items-center justify-between mb-3">
                 <span className="text-sm font-medium text-foreground">Overall Progress</span>
-                <span className="text-sm font-bold text-[var(--plum)]">{completedSteps} of {totalSteps} steps complete</span>
+                <span className="text-sm font-bold text-[var(--lw-gold)]">{completedSteps} of {totalSteps} steps complete</span>
               </div>
               <div className="h-2.5 bg-muted rounded-full overflow-hidden">
                 <div
-                  className="h-full bg-[var(--plum)] rounded-full transition-all duration-500"
+                  className="h-full bg-[var(--lw-gold)] rounded-full transition-all duration-500"
                   style={{ width: `${progressPct}%` }}
                 />
               </div>
@@ -185,7 +189,7 @@ export default function ClientDashboard() {
                       isCompleted
                         ? "border-green-200 bg-green-50/50"
                         : isInProgress
-                        ? "border-[var(--plum)]/40 bg-[var(--plum-light)]/20"
+                        ? "border-[var(--lw-gold)]/40 bg-[var(--lw-gold-light)]/20"
                         : "border-border"
                     }`}
                   >
@@ -196,7 +200,7 @@ export default function ClientDashboard() {
                             isCompleted
                               ? "bg-green-100 text-green-600"
                               : isInProgress
-                              ? "bg-[var(--plum-light)] text-[var(--plum)]"
+                              ? "bg-[var(--lw-gold-light)] text-[var(--lw-gold)]"
                               : "bg-muted text-muted-foreground"
                           }`}
                         >
@@ -207,7 +211,7 @@ export default function ClientDashboard() {
                             <h3 className="font-serif font-semibold text-foreground">{step.title}</h3>
                             {isCompleted && <CheckCircle2 className="w-4 h-4 text-green-500" />}
                             {isInProgress && (
-                              <span className="text-xs bg-[var(--plum)] text-white px-2 py-0.5 rounded-full">In Progress</span>
+                              <span className="text-xs bg-[var(--lw-gold)] text-white px-2 py-0.5 rounded-full">In Progress</span>
                             )}
                           </div>
                           <p className="text-sm text-muted-foreground leading-relaxed">{step.description}</p>
@@ -243,7 +247,7 @@ export default function ClientDashboard() {
                               <Button
                                 size="sm"
                                 onClick={() => generateAnalysis.mutate()}
-                                className="bg-[var(--plum)] hover:bg-[var(--plum-dark)] text-white gap-1"
+                                className="bg-[var(--lw-gold)] hover:bg-[oklch(0.60 0.13 72)] text-white gap-1"
                               >
                                 Generate Analysis <ArrowRight className="w-3.5 h-3.5" />
                               </Button>
@@ -253,7 +257,7 @@ export default function ClientDashboard() {
                               size="sm"
                               variant={isCompleted ? "outline" : "default"}
                               onClick={() => navigate(step.path!)}
-                              className={!isCompleted ? "bg-[var(--plum)] hover:bg-[var(--plum-dark)] text-white gap-1" : "gap-1"}
+                              className={!isCompleted ? "bg-[var(--lw-gold)] hover:bg-[oklch(0.60 0.13 72)] text-white gap-1" : "gap-1"}
                             >
                               {isCompleted ? "Review" : isInProgress ? step.ctaInProgress : step.cta}
                               {!isCompleted && <ArrowRight className="w-3.5 h-3.5" />}
@@ -269,7 +273,7 @@ export default function ClientDashboard() {
 
             {/* VIA Results shortcut if completed */}
             {getStatus("viaStatus") === "completed" && (
-              <div className="mt-6 p-4 rounded-xl bg-[var(--gold-light)] border border-[var(--gold)]/30">
+              <div className="mt-6 p-4 rounded-xl bg-[var(--lw-gold-light)] border border-[var(--gold)]/30">
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm font-medium text-foreground">Your VIA results are ready</p>

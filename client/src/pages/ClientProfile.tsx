@@ -128,7 +128,7 @@ export default function ClientProfile() {
                 size="sm"
                 onClick={() => triggerAnalysis.mutate({ clientId })}
                 disabled={triggerAnalysis.isPending}
-                className="gap-1 bg-[var(--plum)] hover:bg-[var(--plum-dark)] text-white"
+                className="gap-1 bg-[var(--lw-gold)] hover:bg-[oklch(0.60 0.13 72)] text-white"
               >
                 {triggerAnalysis.isPending ? (
                   <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -174,7 +174,7 @@ export default function ClientProfile() {
                 onClick={() => setActiveTab(tab.id)}
                 className={`flex items-center gap-1.5 px-4 py-2.5 text-sm font-medium transition-colors border-b-2 -mb-px whitespace-nowrap ${
                   activeTab === tab.id
-                    ? "border-[var(--plum)] text-[var(--plum)]"
+                    ? "border-[var(--lw-gold)] text-[var(--lw-gold)]"
                     : "border-transparent text-muted-foreground hover:text-foreground"
                 }`}
               >
@@ -248,7 +248,7 @@ export default function ClientProfile() {
                     size="sm"
                     onClick={() => saveNotes.mutate({ clientId, notes: counselorNotes })}
                     disabled={saveNotes.isPending}
-                    className="bg-[var(--plum)] hover:bg-[var(--plum-dark)] text-white"
+                    className="bg-[var(--lw-gold)] hover:bg-[oklch(0.60 0.13 72)] text-white"
                   >
                     Save Notes
                   </Button>
@@ -266,7 +266,7 @@ export default function ClientProfile() {
                   <div key={msg.id} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
                     <div className={`max-w-[80%] rounded-xl px-4 py-3 text-sm leading-relaxed ${
                       msg.role === "user"
-                        ? "bg-[var(--plum)] text-white"
+                        ? "bg-[var(--lw-gold)] text-white"
                         : "bg-card border border-border text-foreground"
                     }`}>
                       {msg.role === "assistant" ? <Streamdown>{msg.content}</Streamdown> : msg.content}
@@ -337,17 +337,17 @@ export default function ClientProfile() {
                     const strength = strengthsMap.get(s.strengthId);
                     const pct = Math.round((s.score / 25) * 100);
                     return (
-                      <div key={s.strengthId} className={`p-4 rounded-xl border ${i < 5 ? "border-[var(--plum)]/30 bg-[var(--plum-light)]/20" : "border-border"}`}>
+                      <div key={s.strengthId} className={`p-4 rounded-xl border ${i < 5 ? "border-[var(--lw-gold)]/30 bg-[var(--lw-gold-light)]/20" : "border-border"}`}>
                         <div className="flex items-center justify-between mb-2">
                           <div className="flex items-center gap-2">
-                            <span className="text-sm font-bold text-[var(--plum)] w-5">{i + 1}</span>
+                            <span className="text-sm font-bold text-[var(--lw-gold)] w-5">{i + 1}</span>
                             <span className="text-sm font-semibold text-foreground">{strength?.name ?? s.strengthId}</span>
                             {strength?.virtue && <span className="text-xs text-muted-foreground capitalize">({strength.virtue})</span>}
                           </div>
-                          <span className="text-sm font-bold text-[var(--plum)]">{s.score}/25</span>
+                          <span className="text-sm font-bold text-[var(--lw-gold)]">{s.score}/25</span>
                         </div>
                         <div className="h-1.5 bg-muted rounded-full overflow-hidden">
-                          <div className="h-full bg-[var(--plum)] rounded-full" style={{ width: `${pct}%` }} />
+                          <div className="h-full bg-[var(--lw-gold)] rounded-full" style={{ width: `${pct}%` }} />
                         </div>
                         {strength?.description && <p className="text-xs text-muted-foreground mt-2">{strength.description}</p>}
                       </div>
@@ -367,7 +367,7 @@ export default function ClientProfile() {
                   <Button
                     onClick={() => triggerAnalysis.mutate({ clientId })}
                     disabled={triggerAnalysis.isPending}
-                    className="bg-[var(--plum)] hover:bg-[var(--plum-dark)] text-white gap-2"
+                    className="bg-[var(--lw-gold)] hover:bg-[oklch(0.60 0.13 72)] text-white gap-2"
                   >
                     {triggerAnalysis.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Brain className="w-4 h-4" />}
                     Generate Analysis
@@ -384,9 +384,9 @@ export default function ClientProfile() {
           {activeTab === "virtual-peter" && (
             <div className="max-w-4xl">
               {/* Header explanation */}
-              <div className="mb-6 p-5 rounded-xl bg-[var(--plum-light)]/15 border border-[var(--plum)]/20">
+              <div className="mb-6 p-5 rounded-xl bg-[var(--lw-gold-light)]/15 border border-[var(--lw-gold)]/20">
                 <div className="flex items-start gap-3">
-                  <div className="w-9 h-9 rounded-full bg-[var(--plum)] flex items-center justify-center flex-shrink-0 mt-0.5">
+                  <div className="w-9 h-9 rounded-full bg-[var(--lw-gold)] flex items-center justify-center flex-shrink-0 mt-0.5">
                     <Sparkles className="w-4 h-4 text-white" />
                   </div>
                   <div>
@@ -420,7 +420,7 @@ export default function ClientProfile() {
                 <Button
                   onClick={() => findMatches.mutate({ clientId, topN: 8 })}
                   disabled={findMatches.isPending}
-                  className="bg-[var(--plum)] hover:bg-[var(--plum-dark)] text-white gap-2"
+                  className="bg-[var(--lw-gold)] hover:bg-[oklch(0.60 0.13 72)] text-white gap-2"
                 >
                   {findMatches.isPending ? (
                     <><Loader2 className="w-4 h-4 animate-spin" /> Analysing patterns &amp; writing insights…</>
@@ -455,7 +455,7 @@ export default function ClientProfile() {
                       <div
                         key={match.id}
                         className={`border rounded-xl overflow-hidden transition-all ${
-                          hc.tier === 1 ? "border-[var(--plum)]/40" : "border-border"
+                          hc.tier === 1 ? "border-[var(--lw-gold)]/40" : "border-border"
                         }`}
                       >
                         {/* Card header - always visible */}
@@ -463,7 +463,7 @@ export default function ClientProfile() {
                           className="w-full text-left p-4 flex items-start gap-4 hover:bg-muted/30 transition-colors"
                           onClick={() => setExpandedMatchId(isExpanded ? null : match.id)}
                         >
-                          <div className="flex-shrink-0 w-8 h-8 rounded-full bg-[var(--plum-light)]/30 flex items-center justify-center text-sm font-bold text-[var(--plum)]">
+                          <div className="flex-shrink-0 w-8 h-8 rounded-full bg-[var(--lw-gold-light)]/30 flex items-center justify-center text-sm font-bold text-[var(--lw-gold)]">
                             {match.rank}
                           </div>
                           <div className="flex-1 min-w-0">
@@ -478,7 +478,7 @@ export default function ClientProfile() {
                               <div className="flex items-center gap-1.5">
                                 <div className="h-1.5 w-20 bg-muted rounded-full overflow-hidden">
                                   <div
-                                    className="h-full bg-[var(--plum)] rounded-full"
+                                    className="h-full bg-[var(--lw-gold)] rounded-full"
                                     style={{ width: `${similarityPct}%` }}
                                   />
                                 </div>
@@ -499,7 +499,7 @@ export default function ClientProfile() {
                             {match.matchNarrative && (
                               <div className="space-y-2">
                                 <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Why This Match?</p>
-                                <div className="bg-[var(--plum-light)]/10 border border-[var(--plum)]/20 rounded-lg p-3">
+                                <div className="bg-[var(--lw-gold-light)]/10 border border-[var(--lw-gold)]/20 rounded-lg p-3">
                                   <p className="text-sm text-foreground leading-relaxed">{match.matchNarrative}</p>
                                 </div>
                               </div>
@@ -517,7 +517,7 @@ export default function ClientProfile() {
                                     <div className="space-y-2">
                                       {questions.map((q: string, qi: number) => (
                                         <div key={qi} className="flex gap-2.5 items-start">
-                                          <span className="flex-shrink-0 w-5 h-5 rounded-full bg-[var(--plum)] text-white text-xs flex items-center justify-center font-medium mt-0.5">{qi + 1}</span>
+                                          <span className="flex-shrink-0 w-5 h-5 rounded-full bg-[var(--lw-gold)] text-white text-xs flex items-center justify-center font-medium mt-0.5">{qi + 1}</span>
                                           <p className="text-sm text-foreground leading-relaxed">{q}</p>
                                         </div>
                                       ))}
@@ -533,7 +533,7 @@ export default function ClientProfile() {
                                 <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Pattern Tags</p>
                                 <div className="flex flex-wrap gap-1.5">
                                   {tags.themes?.map((t: string) => (
-                                    <span key={t} className="flex items-center gap-1 text-xs px-2 py-0.5 rounded-full bg-[var(--plum-light)]/20 text-[var(--plum)] border border-[var(--plum)]/20">
+                                    <span key={t} className="flex items-center gap-1 text-xs px-2 py-0.5 rounded-full bg-[var(--lw-gold-light)]/20 text-[var(--lw-gold)] border border-[var(--lw-gold)]/20">
                                       <Tag className="w-2.5 h-2.5" />{t}
                                     </span>
                                   ))}
@@ -558,7 +558,7 @@ export default function ClientProfile() {
                                 <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Life History Samples</p>
                                 <div className="space-y-1.5">
                                   {narrativeSamples.slice(0, 3).map((sample: string, i: number) => (
-                                    <p key={i} className="text-xs text-muted-foreground pl-3 border-l-2 border-[var(--plum)]/30 italic leading-relaxed">
+                                    <p key={i} className="text-xs text-muted-foreground pl-3 border-l-2 border-[var(--lw-gold)]/30 italic leading-relaxed">
                                       {sample.slice(0, 180)}{sample.length > 180 ? "…" : ""}
                                     </p>
                                   ))}

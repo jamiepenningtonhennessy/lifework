@@ -2,13 +2,13 @@ import { useAuth } from "@/_core/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { getLoginUrl } from "@/const";
 import { useLocation } from "wouter";
-import { ArrowRight, BookOpen, Brain, Star, Users } from "lucide-react";
+import { ArrowRight, BookOpen, Brain, Star } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 
 export default function Home() {
-  const { user, loading, isAuthenticated } = useAuth();
+  const { user, isAuthenticated } = useAuth();
   const [, navigate] = useLocation();
-  const { data: profile } = trpc.profile.getMyProfile.useQuery(undefined, {
+  const { data: _profile } = trpc.profile.getMyProfile.useQuery(undefined, {
     enabled: isAuthenticated,
   });
 
@@ -29,140 +29,254 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Nav */}
-      <nav className="border-b border-border bg-card/80 backdrop-blur-sm sticky top-0 z-50">
+    <div className="min-h-screen" style={{ background: "var(--lw-cream)" }}>
+
+      {/* Navigation — navy bar */}
+      <nav style={{ background: "var(--lw-navy)", borderBottom: "1px solid rgba(201,151,58,0.25)" }}
+        className="sticky top-0 z-50">
         <div className="container flex items-center justify-between h-16">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-full bg-[var(--plum)] flex items-center justify-center">
-              <span className="text-white text-sm font-bold">PT</span>
+          {/* Wordmark */}
+          <div className="flex items-center gap-3">
+            <div className="flex items-center justify-center w-8 h-8"
+              style={{ border: "1px solid var(--lw-gold)" }}>
+              <span style={{ color: "var(--lw-gold)", fontFamily: "'Playfair Display', serif", fontWeight: 700, fontSize: "0.8rem" }}>L</span>
             </div>
-            <span className="font-serif font-semibold text-lg text-foreground">Plum Trees</span>
+            <span style={{ color: "white", fontFamily: "'Playfair Display', serif", fontWeight: 600, fontSize: "1.1rem", letterSpacing: "0.02em" }}>
+              Lifework
+            </span>
           </div>
+          {/* Nav actions */}
           <div className="flex items-center gap-3">
             {isAuthenticated ? (
               <>
-                <span className="text-sm text-muted-foreground hidden sm:block">
+                <span className="text-sm hidden sm:block" style={{ color: "rgba(255,255,255,0.6)" }}>
                   Welcome, {user?.name?.split(" ")[0]}
                 </span>
                 {user?.role === "admin" && (
-                  <Button variant="outline" size="sm" onClick={() => navigate("/counselor")}>
-                    Counselor View
-                  </Button>
+                  <button
+                    onClick={() => navigate("/counselor")}
+                    className="px-4 py-2 text-sm font-medium tracking-wide uppercase cursor-pointer transition-colors"
+                    style={{
+                      border: "1px solid rgba(201,151,58,0.6)",
+                      color: "var(--lw-gold)",
+                      background: "transparent",
+                      letterSpacing: "0.08em",
+                      fontSize: "0.75rem"
+                    }}
+                    onMouseEnter={e => { (e.target as HTMLButtonElement).style.background = "rgba(201,151,58,0.1)"; }}
+                    onMouseLeave={e => { (e.target as HTMLButtonElement).style.background = "transparent"; }}
+                  >
+                    Counsellor View
+                  </button>
                 )}
-                <Button size="sm" onClick={() => navigate("/dashboard")}>
+                <button
+                  onClick={() => navigate("/dashboard")}
+                  className="px-4 py-2 text-sm font-medium tracking-wide uppercase cursor-pointer transition-colors"
+                  style={{
+                    background: "var(--lw-gold)",
+                    color: "var(--lw-navy)",
+                    letterSpacing: "0.08em",
+                    fontSize: "0.75rem",
+                    fontWeight: 600
+                  }}
+                  onMouseEnter={e => { (e.target as HTMLButtonElement).style.background = "oklch(0.60 0.13 72)"; }}
+                  onMouseLeave={e => { (e.target as HTMLButtonElement).style.background = "var(--lw-gold)"; }}
+                >
                   My Dashboard
-                </Button>
+                </button>
               </>
             ) : (
-              <Button size="sm" onClick={() => window.location.href = getLoginUrl()}>
+              <button
+                onClick={() => window.location.href = getLoginUrl()}
+                className="px-4 py-2 text-sm font-medium tracking-wide uppercase cursor-pointer"
+                style={{
+                  background: "var(--lw-gold)",
+                  color: "var(--lw-navy)",
+                  letterSpacing: "0.08em",
+                  fontSize: "0.75rem",
+                  fontWeight: 600
+                }}
+              >
                 Sign In
-              </Button>
+              </button>
             )}
           </div>
         </div>
       </nav>
 
-      {/* Hero */}
-      <section className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-[var(--plum-light)] via-background to-[var(--gold-light)] opacity-60" />
-        <div className="container relative py-24 lg:py-32">
-          <div className="max-w-3xl">
-            <p className="text-sm font-medium text-[var(--plum)] uppercase tracking-widest mb-4">
+      {/* Hero — full-bleed dark navy */}
+      <section style={{ background: "var(--lw-navy)", minHeight: "520px" }}
+        className="relative overflow-hidden">
+        {/* Subtle texture overlay */}
+        <div className="absolute inset-0 opacity-10"
+          style={{ backgroundImage: "radial-gradient(circle at 70% 50%, oklch(0.68 0.13 72) 0%, transparent 60%)" }} />
+        <div className="container relative py-28 lg:py-36">
+          <div className="max-w-2xl">
+            {/* Eyebrow */}
+            <div className="lw-eyebrow mb-6" style={{ color: "var(--lw-gold)" }}>
               Career Analysis
-            </p>
-            <h1 className="text-5xl lg:text-6xl font-serif font-bold text-foreground leading-tight mb-6">
+            </div>
+            <h1 className="font-serif font-bold leading-tight mb-6"
+              style={{ fontSize: "clamp(2.4rem, 5vw, 3.6rem)", color: "white" }}>
               Discover the story<br />
-              <em className="text-[var(--plum)]">your life is telling.</em>
+              <em style={{ color: "var(--lw-gold)", fontStyle: "italic" }}>your life is telling.</em>
             </h1>
-            <p className="text-lg text-muted-foreground leading-relaxed mb-8 max-w-2xl">
-              Plum Trees guides you through a reflective journey of your life history — your achievements, 
-              your strengths, your values — to reveal the career that is authentically yours. 
+            <p className="leading-relaxed mb-10"
+              style={{ fontSize: "1.05rem", color: "rgba(255,255,255,0.72)", maxWidth: "520px" }}>
+              Lifework guides you through a reflective journey of your life history — your achievements,
+              your strengths, your values — to reveal the career that is authentically yours.
               Based on the pioneering methodology of career analyst Peter Daws.
             </p>
-            <div className="flex flex-col sm:flex-row gap-3">
-              <Button size="lg" onClick={handleStart} className="gap-2 bg-[var(--plum)] hover:bg-[var(--plum-dark)] text-white">
+            <div className="flex flex-col sm:flex-row gap-4">
+              <button
+                onClick={handleStart}
+                className="inline-flex items-center gap-2 px-7 py-3 font-medium tracking-wide uppercase cursor-pointer transition-opacity"
+                style={{
+                  background: "var(--lw-gold)",
+                  color: "var(--lw-navy)",
+                  letterSpacing: "0.08em",
+                  fontSize: "0.8rem",
+                  fontWeight: 600
+                }}
+                onMouseEnter={e => { (e.target as HTMLButtonElement).style.opacity = "0.88"; }}
+                onMouseLeave={e => { (e.target as HTMLButtonElement).style.opacity = "1"; }}
+              >
                 Begin Your Journey <ArrowRight className="w-4 h-4" />
-              </Button>
+              </button>
               {(!isAuthenticated || user?.role === "admin") && (
-                <Button size="lg" variant="outline" onClick={handleCounselor}>
-                  Counselor Access
-                </Button>
+                <button
+                  onClick={handleCounselor}
+                  className="inline-flex items-center gap-2 px-7 py-3 font-medium tracking-wide uppercase cursor-pointer transition-colors"
+                  style={{
+                    border: "1px solid rgba(255,255,255,0.4)",
+                    color: "white",
+                    background: "transparent",
+                    letterSpacing: "0.08em",
+                    fontSize: "0.8rem"
+                  }}
+                  onMouseEnter={e => { (e.target as HTMLButtonElement).style.borderColor = "var(--lw-gold)"; (e.target as HTMLButtonElement).style.color = "var(--lw-gold)"; }}
+                  onMouseLeave={e => { (e.target as HTMLButtonElement).style.borderColor = "rgba(255,255,255,0.4)"; (e.target as HTMLButtonElement).style.color = "white"; }}
+                >
+                  Counsellor Access
+                </button>
               )}
             </div>
           </div>
         </div>
       </section>
 
-      {/* How it works */}
-      <section className="py-20 bg-card border-y border-border">
-        <div className="container">
-          <div className="text-center mb-14">
-            <h2 className="text-3xl font-serif font-bold text-foreground mb-3">How it works</h2>
-            <p className="text-muted-foreground max-w-xl mx-auto">
-              A three-stage process that reveals the career that is authentically yours.
-            </p>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
+      {/* Stats bar — mid-navy */}
+      <section style={{ background: "var(--lw-navy-mid)", borderTop: "1px solid rgba(201,151,58,0.2)", borderBottom: "1px solid rgba(201,151,58,0.2)" }}>
+        <div className="container py-10">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
             {[
-              {
-                icon: <BookOpen className="w-6 h-6" />,
-                step: "01",
-                title: "Life History Interview",
-                desc: "A structured conversation explores your achievements decade by decade — childhood through to today.",
-              },
-              {
-                icon: <Star className="w-6 h-6" />,
-                step: "02",
-                title: "Psychometric Instruments",
-                desc: "A small set of validated assessments that act as lenses through which we consider the you that your life shows.",
-              },
-              {
-                icon: <Brain className="w-6 h-6" />,
-                step: "03",
-                title: "Analysis & Report",
-                desc: "Your counsellor will take all the information given and write a summary report, setting out what he believes may be true, and setting out some questions to explore together.",
-              },
-            ].map((item) => (
-              <div
-                key={item.step}
-                className="relative p-6 rounded-xl border border-border bg-background hover:shadow-md transition-shadow"
-              >
-                <div className="absolute top-4 right-4 text-3xl font-serif font-bold text-border">
-                  {item.step}
+              { num: "965", label: "Clients Analysed" },
+              { num: "35+", label: "Years of Research" },
+              { num: "3", label: "Stage Process" },
+              { num: "1", label: "Counsellor, Personally" },
+            ].map(stat => (
+              <div key={stat.label}>
+                <div className="font-serif font-bold mb-1"
+                  style={{ fontSize: "2rem", color: "var(--lw-gold)" }}>
+                  {stat.num}
                 </div>
-                <div className="w-10 h-10 rounded-lg bg-[var(--plum-light)] flex items-center justify-center text-[var(--plum)] mb-4">
-                  {item.icon}
+                <div className="uppercase tracking-widest"
+                  style={{ fontSize: "0.65rem", color: "rgba(255,255,255,0.55)", letterSpacing: "0.14em" }}>
+                  {stat.label}
                 </div>
-                <h3 className="font-serif font-semibold text-foreground mb-2">{item.title}</h3>
-                <p className="text-sm text-muted-foreground leading-relaxed">{item.desc}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Quote */}
-      <section className="py-20">
-        <div className="container max-w-3xl text-center">
-          <blockquote className="text-2xl font-serif italic text-foreground leading-relaxed mb-6">
+      {/* How it works — cream section */}
+      <section className="py-24" style={{ background: "var(--lw-cream)" }}>
+        <div className="container">
+          <div className="mb-14">
+            <div className="lw-eyebrow mb-4">The Process</div>
+            <h2 className="font-serif font-bold text-foreground"
+              style={{ fontSize: "2rem" }}>
+              How it works
+            </h2>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-0 max-w-4xl" style={{ border: "1px solid rgba(201,151,58,0.3)" }}>
+            {[
+              {
+                icon: <BookOpen className="w-5 h-5" />,
+                step: "01",
+                title: "Life History Interview",
+                desc: "A structured conversation explores your achievements decade by decade — childhood through to today.",
+              },
+              {
+                icon: <Star className="w-5 h-5" />,
+                step: "02",
+                title: "Psychometric Instruments",
+                desc: "A small set of validated assessments that act as lenses through which we consider the you that your life shows.",
+              },
+              {
+                icon: <Brain className="w-5 h-5" />,
+                step: "03",
+                title: "Analysis & Report",
+                desc: "Your counsellor will take all the information given and write a summary report, setting out what he believes may be true, and setting out some questions to explore together.",
+              },
+            ].map((item, i) => (
+              <div
+                key={item.step}
+                className="p-8 relative"
+                style={{
+                  borderRight: i < 2 ? "1px solid rgba(201,151,58,0.25)" : "none",
+                  borderBottom: "none"
+                }}
+              >
+                <div className="font-serif font-bold mb-6"
+                  style={{ fontSize: "2.5rem", color: "rgba(201,151,58,0.18)" }}>
+                  {item.step}
+                </div>
+                <div className="mb-4" style={{ color: "var(--lw-gold)" }}>
+                  {item.icon}
+                </div>
+                <h3 className="font-serif font-semibold text-foreground mb-3"
+                  style={{ fontSize: "1.05rem" }}>
+                  {item.title}
+                </h3>
+                <p className="leading-relaxed" style={{ fontSize: "0.875rem", color: "var(--lw-navy-light)" }}>
+                  {item.desc}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Quote — navy section */}
+      <section className="py-20" style={{ background: "var(--lw-navy)" }}>
+        <div className="container max-w-3xl">
+          <blockquote className="font-serif italic leading-relaxed mb-6"
+            style={{ fontSize: "1.5rem", color: "white", borderLeft: "3px solid var(--lw-gold)", paddingLeft: "1.5rem" }}>
             "The most important thing is to find out what is important to you — not what others think should be important."
           </blockquote>
-          <p className="text-muted-foreground text-sm">— Peter Daws, Career Analyst (1982–2017)</p>
+          <p style={{ fontSize: "0.8rem", color: "rgba(255,255,255,0.5)", letterSpacing: "0.06em" }}>
+            — Peter Daws, Career Analyst (1982–2017)
+          </p>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-border py-8">
+      <footer style={{ background: "var(--lw-navy)", borderTop: "1px solid rgba(201,151,58,0.2)" }}
+        className="py-8">
         <div className="container flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-2">
-            <div className="w-6 h-6 rounded-full bg-[var(--plum)] flex items-center justify-center">
-              <span className="text-white text-xs font-bold">PT</span>
+          <div className="flex items-center gap-3">
+            <div className="flex items-center justify-center w-6 h-6"
+              style={{ border: "1px solid var(--lw-gold)" }}>
+              <span style={{ color: "var(--lw-gold)", fontFamily: "'Playfair Display', serif", fontWeight: 700, fontSize: "0.65rem" }}>L</span>
             </div>
-            <span className="text-sm text-muted-foreground">Plum Trees Career Analysis</span>
+            <span style={{ color: "rgba(255,255,255,0.6)", fontSize: "0.85rem", fontFamily: "'Playfair Display', serif" }}>
+              Lifework
+            </span>
           </div>
-          <p className="text-xs text-muted-foreground">
-            Inspired by the work of Peter Daws
+          <p style={{ fontSize: "0.75rem", color: "rgba(255,255,255,0.4)" }}>
+            Inspired by the work of Peter Daws · A Pennington Hennessy service
           </p>
         </div>
       </footer>

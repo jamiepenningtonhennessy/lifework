@@ -42,7 +42,7 @@ export default function VIAResults() {
             <div className="h-4 w-px bg-border" />
             <span className="font-serif font-semibold text-foreground">Your Character Strengths</span>
           </div>
-          <Button size="sm" onClick={() => navigate("/dashboard")} className="gap-1 bg-[var(--plum)] hover:bg-[var(--plum-dark)] text-white">
+          <Button size="sm" onClick={() => navigate("/dashboard")} className="gap-1 bg-[var(--lw-gold)] hover:bg-[oklch(0.60 0.13 72)] text-white">
             Dashboard <ArrowRight className="w-3.5 h-3.5" />
           </Button>
         </div>
@@ -56,7 +56,7 @@ export default function VIAResults() {
         ) : !results ? (
           <div className="text-center py-12">
             <p className="text-muted-foreground mb-4">You haven't completed the VIA survey yet.</p>
-            <Button onClick={() => navigate("/via")} className="bg-[var(--plum)] hover:bg-[var(--plum-dark)] text-white">
+            <Button onClick={() => navigate("/via")} className="bg-[var(--lw-gold)] hover:bg-[oklch(0.60 0.13 72)] text-white">
               Take the Survey
             </Button>
           </div>
@@ -76,9 +76,9 @@ export default function VIAResults() {
                   const strength = strengthsMap.get(s.strengthId);
                   const colorClass = VIRTUE_COLORS[strength?.virtue ?? ""] ?? "bg-gray-100 text-gray-800 border-gray-200";
                   return (
-                    <div key={s.strengthId} className="p-5 rounded-xl border-2 border-[var(--plum)]/30 bg-[var(--plum-light)]/30">
+                    <div key={s.strengthId} className="p-5 rounded-xl border-2 border-[var(--lw-gold)]/30 bg-[var(--lw-gold-light)]/30">
                       <div className="flex items-start gap-4">
-                        <div className="w-10 h-10 rounded-full bg-[var(--plum)] text-white flex items-center justify-center font-serif font-bold text-lg flex-shrink-0">
+                        <div className="w-10 h-10 rounded-full bg-[var(--lw-gold)] text-white flex items-center justify-center font-serif font-bold text-lg flex-shrink-0">
                           {i + 1}
                         </div>
                         <div className="flex-1">
@@ -92,11 +92,11 @@ export default function VIAResults() {
                           </div>
                           <p className="text-sm text-muted-foreground leading-relaxed">{strength?.description}</p>
                           {strength?.atWork && (
-                            <p className="text-xs text-[var(--plum)] mt-2 font-medium">{strength.atWork}</p>
+                            <p className="text-xs text-[var(--lw-gold)] mt-2 font-medium">{strength.atWork}</p>
                           )}
                         </div>
                         <div className="text-right flex-shrink-0">
-                          <div className="text-lg font-bold text-[var(--plum)]">{s.score}</div>
+                          <div className="text-lg font-bold text-[var(--lw-gold)]">{s.score}</div>
                           <div className="text-xs text-muted-foreground">/ 25</div>
                         </div>
                       </div>
@@ -122,7 +122,7 @@ export default function VIAResults() {
                           className="h-full rounded-full transition-all"
                           style={{
                             width: `${pct}%`,
-                            backgroundColor: i < 5 ? "var(--plum)" : i < 10 ? "var(--gold)" : "var(--color-muted-foreground)",
+                            backgroundColor: i < 5 ? "var(--lw-gold)" : i < 10 ? "var(--gold)" : "var(--color-muted-foreground)",
                           }}
                         />
                       </div>

@@ -219,7 +219,7 @@ export default function CognitiveResults() {
             If you would like a full clinical cognitive assessment, your
             counsellor can discuss options including the MAB-II (Multidimensional
             Aptitude Battery), which is the instrument used in the original
-            Plum Trees methodology.
+            Lifework methodology.
           </p>
         </div>
 

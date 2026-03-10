@@ -53,23 +53,27 @@ export default function CounselorDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen" style={{ background: "var(--lw-cream)" }}>
       {/* Header */}
-      <div className="border-b border-border bg-card/80 backdrop-blur-sm sticky top-0 z-10">
+      <div className="sticky top-0 z-10" style={{ background: "var(--lw-navy)", borderBottom: "1px solid rgba(201,151,58,0.25)" }}>
         <div className="container flex items-center justify-between h-14">
           <div className="flex items-center gap-3">
             <div className="flex items-center gap-2">
-              <div className="w-7 h-7 rounded-full bg-[var(--plum)] flex items-center justify-center">
-                <span className="text-white text-xs font-bold">PT</span>
+              <div className="w-7 h-7 flex items-center justify-center" style={{ border: "1px solid var(--lw-gold)" }}>
+                <span style={{ color: "var(--lw-gold)", fontFamily: "'Playfair Display', serif", fontWeight: 700, fontSize: "0.65rem" }}>L</span>
               </div>
-              <span className="font-serif font-semibold text-foreground">Plum Trees</span>
+              <span className="font-serif font-semibold" style={{ color: "white" }}>Lifework</span>
             </div>
-            <div className="h-4 w-px bg-border" />
-            <span className="text-sm text-muted-foreground">Counselor Dashboard</span>
+            <div className="h-4 w-px" style={{ background: "rgba(255,255,255,0.2)" }} />
+            <span className="text-sm" style={{ color: "rgba(255,255,255,0.55)" }}>Counsellor Dashboard</span>
           </div>
-          <Button variant="outline" size="sm" onClick={() => navigate("/dashboard")}>
+          <button
+            onClick={() => navigate("/dashboard")}
+            className="px-3 py-1.5 text-xs font-medium tracking-wide uppercase cursor-pointer"
+            style={{ border: "1px solid rgba(201,151,58,0.5)", color: "var(--lw-gold)", background: "transparent", letterSpacing: "0.08em" }}
+          >
             My Profile
-          </Button>
+          </button>
         </div>
       </div>
 

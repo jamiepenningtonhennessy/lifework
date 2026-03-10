@@ -35,7 +35,7 @@ export default function Background() {
             <div className="h-4 w-px bg-border" />
             <span className="font-serif font-semibold text-foreground">Background & History</span>
           </div>
-          <Button size="sm" onClick={() => navigate("/via")} className="gap-1 bg-[var(--plum)] hover:bg-[var(--plum-dark)] text-white">
+          <Button size="sm" onClick={() => navigate("/via")} className="gap-1 bg-[var(--lw-gold)] hover:bg-[oklch(0.60 0.13 72)] text-white">
             Next: VIA Survey <ArrowRight className="w-3.5 h-3.5" />
           </Button>
         </div>
@@ -50,7 +50,7 @@ export default function Background() {
               onClick={() => setActiveTab(tab)}
               className={`px-4 py-2.5 text-sm font-medium capitalize transition-colors border-b-2 -mb-px ${
                 activeTab === tab
-                  ? "border-[var(--plum)] text-[var(--plum)]"
+                  ? "border-[var(--lw-gold)] text-[var(--lw-gold)]"
                   : "border-transparent text-muted-foreground hover:text-foreground"
               }`}
             >
@@ -135,7 +135,7 @@ function FamilyForm() {
         <p className="text-xs text-muted-foreground mt-0.5 mb-1">People, books, events, or experiences that shaped who you became.</p>
         <Textarea className="mt-1" rows={3} value={form.significantInfluences} onChange={(e) => handleChange("significantInfluences", e.target.value)} placeholder="My grandfather was a huge influence because…" />
       </div>
-      <Button onClick={() => save.mutate(form)} disabled={save.isPending} className="bg-[var(--plum)] hover:bg-[var(--plum-dark)] text-white">
+      <Button onClick={() => save.mutate(form)} disabled={save.isPending} className="bg-[var(--lw-gold)] hover:bg-[oklch(0.60 0.13 72)] text-white">
         {save.isPending ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
         Save Family Background
       </Button>
@@ -184,7 +184,7 @@ function EducationForm() {
         </Card>
       ))}
       {adding ? (
-        <Card className="border-[var(--plum)] border-2">
+        <Card className="border-[var(--lw-gold)] border-2">
           <CardHeader className="pb-2"><CardTitle className="text-base font-serif">New Education Record</CardTitle></CardHeader>
           <CardContent className="space-y-3">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -198,7 +198,7 @@ function EducationForm() {
             </div>
             <div><Label>Highlights / notes</Label><Textarea className="mt-1" rows={2} value={newEntry.highlights} onChange={(e) => setNewEntry(n => ({ ...n, highlights: e.target.value }))} placeholder="Key experiences, achievements, or what you enjoyed most." /></div>
             <div className="flex gap-2">
-              <Button onClick={() => save.mutate({ ...newEntry, sortOrder: education.length })} disabled={!newEntry.institution || save.isPending} className="bg-[var(--plum)] hover:bg-[var(--plum-dark)] text-white">Save</Button>
+              <Button onClick={() => save.mutate({ ...newEntry, sortOrder: education.length })} disabled={!newEntry.institution || save.isPending} className="bg-[var(--lw-gold)] hover:bg-[oklch(0.60 0.13 72)] text-white">Save</Button>
               <Button variant="outline" onClick={() => setAdding(false)}>Cancel</Button>
             </div>
           </CardContent>
@@ -252,7 +252,7 @@ function CareerForm() {
         </Card>
       ))}
       {adding ? (
-        <Card className="border-[var(--plum)] border-2">
+        <Card className="border-[var(--lw-gold)] border-2">
           <CardHeader className="pb-2"><CardTitle className="text-base font-serif">New Career Record</CardTitle></CardHeader>
           <CardContent className="space-y-3">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -267,7 +267,7 @@ function CareerForm() {
             <div><Label>Why did you leave?</Label><Textarea className="mt-1" rows={2} value={newEntry.whyLeft} onChange={(e) => setNewEntry(n => ({ ...n, whyLeft: e.target.value }))} placeholder="What prompted the move?" /></div>
             <div><Label>Highlights / what you enjoyed</Label><Textarea className="mt-1" rows={2} value={newEntry.highlights} onChange={(e) => setNewEntry(n => ({ ...n, highlights: e.target.value }))} placeholder="The best parts of this role were…" /></div>
             <div className="flex gap-2">
-              <Button onClick={() => save.mutate({ ...newEntry, sortOrder: career.length })} disabled={!newEntry.organisation || save.isPending} className="bg-[var(--plum)] hover:bg-[var(--plum-dark)] text-white">Save</Button>
+              <Button onClick={() => save.mutate({ ...newEntry, sortOrder: career.length })} disabled={!newEntry.organisation || save.isPending} className="bg-[var(--lw-gold)] hover:bg-[oklch(0.60 0.13 72)] text-white">Save</Button>
               <Button variant="outline" onClick={() => setAdding(false)}>Cancel</Button>
             </div>
           </CardContent>

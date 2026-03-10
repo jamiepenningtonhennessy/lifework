@@ -136,3 +136,15 @@
 - [x] Consolidate "How it works" from 4 steps to 3 stages (Life History / Psychometrics / Analysis & Report)
 - [x] Update grid from 4-column to 3-column (max-w-4xl centred)
 - [x] Update subtitle to "A three-stage process that reveals the career that is authentically yours"
+
+## Rename & Restyle — Lifework / Pennington Hennessy
+
+- [x] Analyse penningtonhennessy.com design: navy #0f1f35, gold #c9973a, cream #f5f0e8, Playfair Display serif, rectangular buttons, gold eyebrow rules
+- [x] Rename all user-facing "Plum Trees" references to "Lifework" (6 files + PDF export)
+- [x] Update browser tab title (index.html) to "Lifework"
+- [x] Apply PH colour palette to CSS variables (--lw-navy, --lw-gold, --lw-cream tokens)
+- [x] Apply PH typography: Playfair Display for all h1-h4, Inter for body, radius: 0rem
+- [x] Restyle home page: dark navy hero, gold eyebrow rules, stats bar, cream process section, navy quote section
+- [x] Restyle client dashboard and counsellor dashboard headers to PH navy/gold style
+- [x] Update logo/wordmark to "L" monogram in gold-bordered square + Lifework wordmark
+- [x] Replace all --plum CSS tokens with --lw-gold / --lw-navy throughout all client files

@@ -62,8 +62,8 @@ export default function VIASurvey() {
     return (
       <div className="min-h-screen bg-background flex flex-col items-center justify-center p-8">
         <div className="max-w-md text-center">
-          <div className="w-16 h-16 rounded-full bg-[var(--plum-light)] flex items-center justify-center mx-auto mb-6">
-            <CheckCircle2 className="w-8 h-8 text-[var(--plum)]" />
+          <div className="w-16 h-16 rounded-full bg-[var(--lw-gold-light)] flex items-center justify-center mx-auto mb-6">
+            <CheckCircle2 className="w-8 h-8 text-[var(--lw-gold)]" />
           </div>
           <h1 className="text-3xl font-serif font-bold text-foreground mb-3">
             VIA Survey Complete
@@ -72,7 +72,7 @@ export default function VIASurvey() {
             Your character strengths have been recorded. Your counsellor will incorporate these into your career analysis.
           </p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
-            <Button onClick={() => navigate("/via/results")} className="bg-[var(--plum)] hover:bg-[var(--plum-dark)] text-white gap-2">
+            <Button onClick={() => navigate("/via/results")} className="bg-[var(--lw-gold)] hover:bg-[oklch(0.60 0.13 72)] text-white gap-2">
               View My Results <ArrowRight className="w-4 h-4" />
             </Button>
             <Button variant="outline" onClick={() => navigate("/dashboard")}>
@@ -103,7 +103,7 @@ export default function VIASurvey() {
         {/* Progress bar */}
         <div className="h-1 bg-muted">
           <div
-            className="h-full bg-[var(--plum)] transition-all duration-300"
+            className="h-full bg-[var(--lw-gold)] transition-all duration-300"
             style={{ width: `${progress}%` }}
           />
         </div>
@@ -112,7 +112,7 @@ export default function VIASurvey() {
       <div className="container max-w-2xl py-8">
         {/* Intro on first page */}
         {page === 0 && (
-          <div className="mb-8 p-5 rounded-xl bg-[var(--plum-light)] border border-[var(--plum)]/20">
+          <div className="mb-8 p-5 rounded-xl bg-[var(--lw-gold-light)] border border-[var(--lw-gold)]/20">
             <h2 className="font-serif font-semibold text-foreground mb-2">About the VIA Survey</h2>
             <p className="text-sm text-muted-foreground leading-relaxed">
               The VIA Character Strengths survey identifies your core personal qualities — the things that come naturally to you and energise you. 
@@ -147,8 +147,8 @@ export default function VIASurvey() {
                     onClick={() => setAnswers((a) => ({ ...a, [q.id]: s.value }))}
                     className={`flex-1 min-w-[52px] py-2 px-1 rounded-lg text-xs font-medium transition-all border ${
                       answers[q.id] === s.value
-                        ? "bg-[var(--plum)] text-white border-[var(--plum)]"
-                        : "bg-background text-muted-foreground border-border hover:border-[var(--plum)] hover:text-foreground"
+                        ? "bg-[var(--lw-gold)] text-white border-[var(--lw-gold)]"
+                        : "bg-background text-muted-foreground border-border hover:border-[var(--lw-gold)] hover:text-foreground"
                     }`}
                     title={s.label}
                   >
@@ -178,7 +178,7 @@ export default function VIASurvey() {
             <Button
               onClick={() => setPage((p) => p + 1)}
               disabled={answeredOnPage < pageQuestions.length}
-              className="gap-2 bg-[var(--plum)] hover:bg-[var(--plum-dark)] text-white"
+              className="gap-2 bg-[var(--lw-gold)] hover:bg-[oklch(0.60 0.13 72)] text-white"
             >
               Next <ArrowRight className="w-4 h-4" />
             </Button>
@@ -186,7 +186,7 @@ export default function VIASurvey() {
             <Button
               onClick={() => submitSurvey.mutate({ answers })}
               disabled={!allAnswered || submitSurvey.isPending}
-              className="gap-2 bg-[var(--plum)] hover:bg-[var(--plum-dark)] text-white"
+              className="gap-2 bg-[var(--lw-gold)] hover:bg-[oklch(0.60 0.13 72)] text-white"
             >
               {submitSurvey.isPending ? (
                 <Loader2 className="w-4 h-4 animate-spin" />

@@ -163,7 +163,7 @@ function buildReportHTML(data: {
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Plum Trees Career Analysis — ${clientName}</title>
+<title>Lifework Career Analysis — ${clientName}</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap');
   
@@ -253,7 +253,7 @@ function buildReportHTML(data: {
     <div>
       <div class="cover-logo">
         <div class="cover-logo-circle">PT</div>
-        <div class="cover-logo-text">Plum Trees</div>
+        <div class="cover-logo-text">Lifework</div>
       </div>
       <div class="cover-title">Career Analysis<br>Report</div>
       <div class="cover-subtitle">A narrative life history analysis</div>
@@ -269,7 +269,7 @@ function buildReportHTML(data: {
       </div>
     </div>
     <div class="cover-footer">
-      Plum Trees Career Analysis — Based on the methodology of Peter Daws (1982–2017) — Confidential
+      Lifework Career Analysis — Based on the methodology of Peter Daws (1982–2017) — Confidential
     </div>
   </div>
 
@@ -430,7 +430,7 @@ function buildReportHTML(data: {
   ` : ""}
 
   <div style="margin-top:60px;padding-top:20px;border-top:1px solid #e8d5f5;text-align:center;font-size:11px;color:#9a8a78;">
-    Plum Trees Career Analysis — Confidential — Prepared ${date} — Based on the methodology of Peter Daws
+    Lifework Career Analysis — Confidential — Prepared ${date} — Based on the methodology of Peter Daws
   </div>
 
 </div>

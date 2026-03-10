@@ -219,7 +219,7 @@ export default function Interview() {
         </div>
 
         <div className="container max-w-2xl py-10">
-          <p className="text-xs uppercase tracking-widest text-[var(--plum)] font-semibold mb-2">
+          <p className="text-xs uppercase tracking-widest text-[var(--lw-gold)] font-semibold mb-2">
             Life History
           </p>
           <h1 className="text-3xl font-serif font-bold text-foreground mb-5">
@@ -243,7 +243,7 @@ export default function Interview() {
           {/* How it works */}
           <div className="p-5 rounded-xl bg-card border border-border mb-5">
             <h2 className="font-serif font-semibold text-foreground text-lg mb-3 flex items-center gap-2">
-              <BookOpen className="w-5 h-5 text-[var(--plum)]" /> How it works
+              <BookOpen className="w-5 h-5 text-[var(--lw-gold)]" /> How it works
             </h2>
             <div className="space-y-3 text-sm text-foreground leading-relaxed">
               <p>
@@ -266,9 +266,9 @@ export default function Interview() {
           </div>
 
           {/* ESF Definitions */}
-          <div className="p-5 rounded-xl bg-[var(--plum-light)]/30 border border-[var(--plum)]/20 mb-5">
+          <div className="p-5 rounded-xl bg-[var(--lw-gold-light)]/30 border border-[var(--lw-gold)]/20 mb-5">
             <h2 className="font-serif font-semibold text-foreground text-lg mb-3 flex items-center gap-2">
-              <Info className="w-5 h-5 text-[var(--plum)]" /> Enjoyable, Satisfying, or Fulfilling?
+              <Info className="w-5 h-5 text-[var(--lw-gold)]" /> Enjoyable, Satisfying, or Fulfilling?
             </h2>
             <p className="text-sm text-muted-foreground mb-4 leading-relaxed">
               For each action you record, you must say whether it was Enjoyable, Satisfying, or
@@ -333,13 +333,13 @@ export default function Interview() {
           <div className="mb-8">
             <button
               onClick={() => setShowExample((v) => !v)}
-              className="text-sm text-[var(--plum)] font-medium underline underline-offset-2 mb-3 block"
+              className="text-sm text-[var(--lw-gold)] font-medium underline underline-offset-2 mb-3 block"
             >
               {showExample ? "Hide example ↑" : "See a worked example ↓"}
             </button>
             {showExample && (
-              <div className="p-5 rounded-xl border-2 border-[var(--plum)]/30 bg-[var(--plum-light)]/20">
-                <p className="text-xs uppercase tracking-widest text-[var(--plum)] font-semibold mb-4">
+              <div className="p-5 rounded-xl border-2 border-[var(--lw-gold)]/30 bg-[var(--lw-gold-light)]/20">
+                <p className="text-xs uppercase tracking-widest text-[var(--lw-gold)] font-semibold mb-4">
                   Example — Early Childhood
                 </p>
                 <div className="grid grid-cols-[110px_1fr] gap-y-3 gap-x-4 text-sm">
@@ -382,7 +382,7 @@ export default function Interview() {
           <Button
             size="lg"
             onClick={() => setShowIntro(false)}
-            className="w-full bg-[var(--plum)] hover:bg-[var(--plum-dark)] text-white gap-2 text-base py-6"
+            className="w-full bg-[var(--lw-gold)] hover:bg-[oklch(0.60 0.13 72)] text-white gap-2 text-base py-6"
           >
             Begin — Early Childhood (Ages 0–5) <ArrowRight className="w-5 h-5" />
           </Button>
@@ -419,7 +419,7 @@ export default function Interview() {
                     i < phaseIndex
                       ? "w-4 bg-green-500"
                       : i === phaseIndex
-                      ? "w-6 bg-[var(--plum)]"
+                      ? "w-6 bg-[var(--lw-gold)]"
                       : "w-1.5 bg-muted"
                   }`}
                 />
@@ -432,7 +432,7 @@ export default function Interview() {
       <div className="container max-w-2xl py-8">
         {/* Phase header */}
         <div className="mb-6">
-          <p className="text-xs uppercase tracking-widest text-[var(--plum)] font-semibold mb-1">
+          <p className="text-xs uppercase tracking-widest text-[var(--lw-gold)] font-semibold mb-1">
             {currentPhase.phase}
           </p>
           <h1 className="text-2xl font-serif font-bold text-foreground mb-1">
@@ -442,7 +442,7 @@ export default function Interview() {
         </div>
 
         {/* Reminder banner */}
-        <div className="p-4 rounded-lg bg-[var(--plum-light)]/20 border border-[var(--plum)]/15 mb-6 text-sm text-foreground leading-relaxed">
+        <div className="p-4 rounded-lg bg-[var(--lw-gold-light)]/20 border border-[var(--lw-gold)]/15 mb-6 text-sm text-foreground leading-relaxed">
           Think of things where <strong>some skill was indicated</strong> — where you were
           personally pleased with what you did. Don't take any notice of what others thought. Record{" "}
           <strong>4 actions</strong> for this stage using short phrases.
@@ -469,7 +469,7 @@ export default function Interview() {
               key={idx}
               className={`p-5 rounded-xl border-2 transition-colors ${
                 action.title || action.description
-                  ? "border-[var(--plum)]/30 bg-card"
+                  ? "border-[var(--lw-gold)]/30 bg-card"
                   : "border-border bg-card"
               }`}
             >
@@ -478,7 +478,7 @@ export default function Interview() {
                 <div
                   className={`w-7 h-7 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0 ${
                     action.title || action.description
-                      ? "bg-[var(--plum)] text-white"
+                      ? "bg-[var(--lw-gold)] text-white"
                       : "bg-muted text-muted-foreground"
                   }`}
                 >
@@ -566,7 +566,7 @@ export default function Interview() {
                       className={`p-3 rounded-lg border-2 text-left transition-all ${
                         action.esf === opt.value
                           ? opt.selectedColor
-                          : "border-border bg-background hover:border-[var(--plum)]/40"
+                          : "border-border bg-background hover:border-[var(--lw-gold)]/40"
                       }`}
                     >
                       <div className="font-semibold text-sm mb-0.5">{opt.label}</div>
@@ -608,7 +608,7 @@ export default function Interview() {
           <Button
             onClick={handleSaveAndNext}
             disabled={saving}
-            className="bg-[var(--plum)] hover:bg-[var(--plum-dark)] text-white gap-1.5"
+            className="bg-[var(--lw-gold)] hover:bg-[oklch(0.60 0.13 72)] text-white gap-1.5"
           >
             {saving ? (
               <Loader2 className="w-4 h-4 animate-spin" />

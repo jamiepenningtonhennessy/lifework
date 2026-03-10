@@ -1,6 +1,6 @@
 @import "tailwindcss";
 @import "tw-animate-css";
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Inter:wght@300;400;500;600&display=swap');
 
 @custom-variant dark (&:is(.dark *));
 
@@ -44,79 +44,103 @@
 }
 
 :root {
-  /* Plum Trees warm earthy palette */
-  --primary: oklch(0.38 0.08 50);
-  --primary-foreground: oklch(0.98 0.005 80);
-  --sidebar-primary: oklch(0.42 0.12 310);
-  --sidebar-primary-foreground: oklch(0.98 0 0);
-  --chart-1: oklch(0.42 0.12 310);
-  --chart-2: oklch(0.72 0.14 75);
-  --chart-3: oklch(0.55 0.10 50);
-  --chart-4: oklch(0.65 0.08 200);
-  --chart-5: oklch(0.60 0.12 25);
-  --radius: 0.65rem;
-  --background: oklch(0.98 0.005 80);
-  --foreground: oklch(0.18 0.02 50);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.18 0.02 50);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.18 0.02 50);
-  --secondary: oklch(0.92 0.02 80);
-  --secondary-foreground: oklch(0.28 0.04 50);
-  --muted: oklch(0.94 0.01 80);
-  --muted-foreground: oklch(0.52 0.03 50);
-  --accent: oklch(0.88 0.06 310);
-  --accent-foreground: oklch(0.28 0.10 310);
+  /* Lifework / Pennington Hennessy palette */
+  /* Navy: #0f1f35 → oklch(0.19 0.05 240) */
+  /* Gold: #c9973a → oklch(0.68 0.13 72) */
+  /* Cream: #f5f0e8 → oklch(0.96 0.02 85) */
+
+  --radius: 0rem; /* Sharp rectangular corners — PH style */
+
+  /* Core semantic colours */
+  --background: oklch(0.96 0.015 85);          /* warm cream #f5f0e8 */
+  --foreground: oklch(0.19 0.05 240);           /* deep navy #0f1f35 */
+
+  --card: oklch(0.99 0.005 85);                 /* near-white card */
+  --card-foreground: oklch(0.19 0.05 240);
+
+  --popover: oklch(0.99 0.005 85);
+  --popover-foreground: oklch(0.19 0.05 240);
+
+  --primary: oklch(0.68 0.13 72);               /* gold #c9973a */
+  --primary-foreground: oklch(0.19 0.05 240);   /* navy text on gold */
+
+  --secondary: oklch(0.19 0.05 240);            /* navy as secondary */
+  --secondary-foreground: oklch(0.96 0.015 85); /* cream text on navy */
+
+  --muted: oklch(0.92 0.01 85);                 /* light cream */
+  --muted-foreground: oklch(0.42 0.03 240);     /* mid-navy grey */
+
+  --accent: oklch(0.68 0.13 72);                /* gold accent */
+  --accent-foreground: oklch(0.19 0.05 240);
+
   --destructive: oklch(0.55 0.22 25);
   --destructive-foreground: oklch(0.98 0 0);
-  --border: oklch(0.88 0.02 70);
-  --input: oklch(0.88 0.02 70);
-  --ring: oklch(0.42 0.12 310);
-  --sidebar: oklch(0.96 0.01 80);
-  --sidebar-foreground: oklch(0.18 0.02 50);
-  --sidebar-accent: oklch(0.92 0.02 80);
-  --sidebar-accent-foreground: oklch(0.18 0.02 50);
-  --sidebar-border: oklch(0.88 0.02 70);
-  --sidebar-ring: oklch(0.42 0.12 310);
-  --plum: oklch(0.42 0.12 310);
-  --plum-light: oklch(0.88 0.06 310);
-  --gold: oklch(0.72 0.14 75);
-  --gold-light: oklch(0.92 0.06 80);
+
+  --border: oklch(0.85 0.02 85);                /* warm grey border */
+  --input: oklch(0.90 0.01 85);
+  --ring: oklch(0.68 0.13 72);                  /* gold focus ring */
+
+  /* Charts */
+  --chart-1: oklch(0.68 0.13 72);              /* gold */
+  --chart-2: oklch(0.19 0.05 240);             /* navy */
+  --chart-3: oklch(0.55 0.10 72);              /* dark gold */
+  --chart-4: oklch(0.42 0.04 240);             /* mid navy */
+  --chart-5: oklch(0.80 0.08 72);              /* light gold */
+
+  /* Sidebar — navy background */
+  --sidebar: oklch(0.19 0.05 240);
+  --sidebar-foreground: oklch(0.96 0.015 85);
+  --sidebar-primary: oklch(0.68 0.13 72);
+  --sidebar-primary-foreground: oklch(0.19 0.05 240);
+  --sidebar-accent: oklch(0.25 0.05 240);
+  --sidebar-accent-foreground: oklch(0.96 0.015 85);
+  --sidebar-border: oklch(0.28 0.04 240);
+  --sidebar-ring: oklch(0.68 0.13 72);
+
+  /* Brand tokens */
+  --lw-navy: oklch(0.19 0.05 240);
+  --lw-navy-mid: oklch(0.25 0.05 240);
+  --lw-navy-light: oklch(0.32 0.05 240);
+  --lw-gold: oklch(0.68 0.13 72);
+  --lw-gold-light: oklch(0.88 0.07 80);
+  --lw-cream: oklch(0.96 0.015 85);
+  --lw-cream-dark: oklch(0.92 0.02 85);
 }
 
+/* Dark mode — navy-first, gold accents */
 .dark {
-  --primary: var(--color-blue-700);
-  --primary-foreground: var(--color-blue-50);
-  --sidebar-primary: var(--color-blue-500);
-  --sidebar-primary-foreground: var(--color-blue-50);
-  --background: oklch(0.141 0.005 285.823);
-  --foreground: oklch(0.85 0.005 65);
-  --card: oklch(0.21 0.006 285.885);
-  --card-foreground: oklch(0.85 0.005 65);
-  --popover: oklch(0.21 0.006 285.885);
-  --popover-foreground: oklch(0.85 0.005 65);
-  --secondary: oklch(0.24 0.006 286.033);
-  --secondary-foreground: oklch(0.7 0.005 65);
-  --muted: oklch(0.274 0.006 286.033);
-  --muted-foreground: oklch(0.705 0.015 286.067);
-  --accent: oklch(0.274 0.006 286.033);
-  --accent-foreground:  oklch(0.92 0.005 65);
+  --background: oklch(0.14 0.04 240);
+  --foreground: oklch(0.92 0.01 85);
+  --card: oklch(0.19 0.05 240);
+  --card-foreground: oklch(0.92 0.01 85);
+  --popover: oklch(0.19 0.05 240);
+  --popover-foreground: oklch(0.92 0.01 85);
+  --primary: oklch(0.68 0.13 72);
+  --primary-foreground: oklch(0.14 0.04 240);
+  --secondary: oklch(0.25 0.05 240);
+  --secondary-foreground: oklch(0.92 0.01 85);
+  --muted: oklch(0.25 0.04 240);
+  --muted-foreground: oklch(0.65 0.03 240);
+  --accent: oklch(0.68 0.13 72);
+  --accent-foreground: oklch(0.14 0.04 240);
   --destructive: oklch(0.704 0.191 22.216);
   --destructive-foreground: oklch(0.985 0 0);
   --border: oklch(1 0 0 / 10%);
   --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.488 0.243 264.376);
-  --chart-1: var(--color-blue-300);
-  --chart-2: var(--color-blue-500);
-  --chart-3: var(--color-blue-600);
-  --chart-4: var(--color-blue-700);
-  --chart-5: var(--color-blue-800);
-  --sidebar: oklch(0.21 0.006 285.885);
-  --sidebar-foreground: oklch(0.85 0.005 65);
-  --sidebar-accent: oklch(0.274 0.006 286.033);
-  --sidebar-accent-foreground:  oklch(0.985 0 0);
+  --ring: oklch(0.68 0.13 72);
+  --chart-1: oklch(0.68 0.13 72);
+  --chart-2: oklch(0.80 0.08 72);
+  --chart-3: oklch(0.55 0.10 72);
+  --chart-4: oklch(0.42 0.04 240);
+  --chart-5: oklch(0.32 0.05 240);
+  --sidebar: oklch(0.14 0.04 240);
+  --sidebar-foreground: oklch(0.92 0.01 85);
+  --sidebar-primary: oklch(0.68 0.13 72);
+  --sidebar-primary-foreground: oklch(0.14 0.04 240);
+  --sidebar-accent: oklch(0.19 0.05 240);
+  --sidebar-accent-foreground: oklch(0.92 0.01 85);
   --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.488 0.243 264.376);
+  --sidebar-ring: oklch(0.68 0.13 72);
 }
 
 @layer base {
@@ -127,7 +151,7 @@
     @apply bg-background text-foreground;
     font-family: 'Inter', system-ui, sans-serif;
   }
-  h1, h2, h3 {
+  h1, h2, h3, h4 {
     font-family: 'Playfair Display', Georgia, serif;
   }
   button:not(:disabled),
@@ -144,24 +168,11 @@
 }
 
 @layer components {
-  /**
-   * Custom container utility that centers content and adds responsive padding.
-   *
-   * This overrides Tailwind's default container behavior to:
-   * - Auto-center content (mx-auto)
-   * - Add responsive horizontal padding
-   * - Set max-width for large screens
-   *
-   * Usage: <div className="container">...</div>
-   *
-   * For custom widths, use max-w-* utilities directly:
-   * <div className="max-w-6xl mx-auto px-4">...</div>
-   */
   .container {
     width: 100%;
     margin-left: auto;
     margin-right: auto;
-    padding-left: 1rem; /* 16px - mobile padding */
+    padding-left: 1rem;
     padding-right: 1rem;
   }
 
@@ -172,16 +183,44 @@
 
   @media (min-width: 640px) {
     .container {
-      padding-left: 1.5rem; /* 24px - tablet padding */
+      padding-left: 1.5rem;
       padding-right: 1.5rem;
     }
   }
 
   @media (min-width: 1024px) {
     .container {
-      padding-left: 2rem; /* 32px - desktop padding */
+      padding-left: 2rem;
       padding-right: 2rem;
-      max-width: 1280px; /* Standard content width */
+      max-width: 1280px;
     }
+  }
+
+  /* PH-style section eyebrow: gold rule + small caps label */
+  .lw-eyebrow {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 0.75rem;
+    font-family: 'Inter', sans-serif;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--lw-gold);
+  }
+  .lw-eyebrow::before {
+    content: '';
+    display: block;
+    width: 2rem;
+    height: 1px;
+    background: var(--lw-gold);
+    flex-shrink: 0;
+  }
+
+  /* Gold rule divider */
+  .lw-rule {
+    border: none;
+    border-top: 1px solid var(--lw-gold);
+    opacity: 0.4;
   }
 }

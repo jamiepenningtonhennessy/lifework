@@ -135,7 +135,7 @@ export function ChatToPeter({
       <Button
         onClick={() => setIsOpen(true)}
         variant="outline"
-        className="gap-2 border-[var(--plum)]/40 text-[var(--plum)] hover:bg-[var(--plum-light)]/10"
+        className="gap-2 border-[var(--lw-gold)]/40 text-[var(--lw-gold)] hover:bg-[var(--lw-gold-light)]/10"
       >
         <MessageCircle className="w-4 h-4" />
         {buttonLabel}
@@ -156,8 +156,8 @@ export function ChatToPeter({
                style={{ height: "min(600px, 85vh)" }}>
 
             {/* Header */}
-            <div className="flex items-center gap-3 px-4 py-3 border-b border-border bg-[var(--plum-light)]/10 rounded-t-2xl">
-              <div className="w-9 h-9 rounded-full bg-[var(--plum)] flex items-center justify-center text-white font-serif font-bold text-sm flex-shrink-0">
+            <div className="flex items-center gap-3 px-4 py-3 border-b border-border bg-[var(--lw-gold-light)]/10 rounded-t-2xl">
+              <div className="w-9 h-9 rounded-full bg-[var(--lw-gold)] flex items-center justify-center text-white font-serif font-bold text-sm flex-shrink-0">
                 P
               </div>
               <div className="flex-1 min-w-0">
@@ -208,7 +208,7 @@ export function ChatToPeter({
             <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4">
               {/* Opening description — only shown before first message */}
               {messages.length === 0 && (
-                <div className="bg-[var(--plum-light)]/10 border border-[var(--plum)]/20 rounded-xl p-4 space-y-2">
+                <div className="bg-[var(--lw-gold-light)]/10 border border-[var(--lw-gold)]/20 rounded-xl p-4 space-y-2">
                   <p className="text-sm text-foreground leading-relaxed">
                     {sectionDescription || defaultDescription}
                   </p>
@@ -233,7 +233,7 @@ export function ChatToPeter({
                   className={`flex gap-2.5 ${msg.role === "client" ? "flex-row-reverse" : "flex-row"}`}
                 >
                   {msg.role === "peter" && (
-                    <div className="w-7 h-7 rounded-full bg-[var(--plum)] flex items-center justify-center text-white font-serif font-bold text-xs flex-shrink-0 mt-0.5">
+                    <div className="w-7 h-7 rounded-full bg-[var(--lw-gold)] flex items-center justify-center text-white font-serif font-bold text-xs flex-shrink-0 mt-0.5">
                       P
                     </div>
                   )}
@@ -241,7 +241,7 @@ export function ChatToPeter({
                     className={`max-w-[80%] rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed ${
                       msg.role === "peter"
                         ? "bg-muted text-foreground rounded-tl-sm"
-                        : "bg-[var(--plum)] text-white rounded-tr-sm"
+                        : "bg-[var(--lw-gold)] text-white rounded-tr-sm"
                     }`}
                   >
                     {msg.content}
@@ -252,7 +252,7 @@ export function ChatToPeter({
               {/* Typing indicator */}
               {sendMessage.isPending && (
                 <div className="flex gap-2.5">
-                  <div className="w-7 h-7 rounded-full bg-[var(--plum)] flex items-center justify-center text-white font-serif font-bold text-xs flex-shrink-0 mt-0.5">
+                  <div className="w-7 h-7 rounded-full bg-[var(--lw-gold)] flex items-center justify-center text-white font-serif font-bold text-xs flex-shrink-0 mt-0.5">
                     P
                   </div>
                   <div className="bg-muted rounded-2xl rounded-tl-sm px-4 py-3 flex items-center gap-1">
@@ -281,7 +281,7 @@ export function ChatToPeter({
                 />
                 <Button
                   size="sm"
-                  className="h-[60px] w-10 p-0 bg-[var(--plum)] hover:bg-[var(--plum-dark)] flex-shrink-0"
+                  className="h-[60px] w-10 p-0 bg-[var(--lw-gold)] hover:bg-[oklch(0.60 0.13 72)] flex-shrink-0"
                   onClick={handleSend}
                   disabled={!inputValue.trim() || sendMessage.isPending}
                 >
