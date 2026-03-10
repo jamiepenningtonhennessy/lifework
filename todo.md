@@ -115,3 +115,11 @@
 - [x] Add "Chat to Peter" button to Career & Education section of client dashboard
 - [x] Wire chat session summaries into analysis report generation as primary context
 - [x] Write tests for chat procedures (14 tests: transcript formatting, section context, first-message detection, message counting, summary threshold, analysis prompt injection)
+
+## Chat to Peter — Prompt Refinement
+
+- [x] Update life history system prompt: cover full chronological arc (childhood → adult decades) within ~30 mins, with explicit pacing guide per phase
+- [x] Update career/family system prompt: cover full career arc + family backdrop in ~30 mins, with pacing guide
+- [x] Add wrap-up signal detection — Peter responds to "ready to summarise", "let's wrap up", "that covers it" etc. with closing observations
+- [x] Update first-message instruction to reflect full-arc approach from the opening
+- [x] Add UI hint text: "You can tell Peter you're ready to wrap up, or click Save insights"

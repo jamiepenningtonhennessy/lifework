@@ -294,7 +294,7 @@ export function ChatToPeter({
               </div>
               <p className="text-xs text-muted-foreground mt-1.5 text-center">
                 {messages.length >= 4 && !isSummarised
-                  ? "When you're ready, click \"Save insights\" to include this conversation in your analysis."
+                  ? <>You can tell Peter you’re ready to wrap up, or click <strong>Save insights</strong> when you’re done. This conversation will be included in your analysis.</>
                   : "Your conversation is private and will only be used to inform your career analysis."}
               </p>
             </div>
