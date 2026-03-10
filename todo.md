@@ -123,3 +123,10 @@
 - [x] Add wrap-up signal detection — Peter responds to "ready to summarise", "let's wrap up", "that covers it" etc. with closing observations
 - [x] Update first-message instruction to reflect full-arc approach from the opening
 - [x] Add UI hint text: "You can tell Peter you're ready to wrap up, or click Save insights"
+
+## Copy Fixes
+
+- [x] Home page: correct "three-part" to "four-part"
+- [x] Home page step 01: remove "AI-guided", replace with "structured conversation"
+- [x] Home page step 04: remove "AI Analysis & Report", replace with counsellor-centred description
+- [x] Client dashboard: same AI reference fixes applied to step descriptions

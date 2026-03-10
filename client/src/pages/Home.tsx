@@ -100,7 +100,7 @@ export default function Home() {
           <div className="text-center mb-14">
             <h2 className="text-3xl font-serif font-bold text-foreground mb-3">How it works</h2>
             <p className="text-muted-foreground max-w-xl mx-auto">
-              A structured, three-part process that combines narrative life history with validated psychometrics.
+              A structured, four-part process that combines narrative life history with validated psychometrics.
             </p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -109,7 +109,7 @@ export default function Home() {
                 icon: <BookOpen className="w-6 h-6" />,
                 step: "01",
                 title: "Life History Interview",
-                desc: "An AI-guided conversation explores your achievements decade by decade — childhood through to today.",
+                desc: "A structured conversation explores your achievements decade by decade — childhood through to today.",
               },
               {
                 icon: <Users className="w-6 h-6" />,
@@ -126,8 +126,8 @@ export default function Home() {
               {
                 icon: <Brain className="w-6 h-6" />,
                 step: "04",
-                title: "AI Analysis & Report",
-                desc: "Your counsellor reviews an AI-generated analysis that weaves together all your data into career insights.",
+                title: "Analysis & Report",
+                desc: "Your counsellor will take all the information given and write a summary report, setting out what he believes may be true, and setting out some questions to explore together.",
               },
             ].map((item) => (
               <div
