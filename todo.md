@@ -187,3 +187,8 @@
 - [x] Add Career Explorer entry to client dashboard navigation
 - [ ] Add Career Explorer tab to counsellor ClientProfile view
 - [x] Write vitest tests for Career Explorer procedures
+
+## Bug Fix — Career Explorer null messages
+
+- [x] Guard against null messages column in getOrCreateCareerExplorerSession and appendCareerExplorerMessage
+- [x] Ensure insert always writes '[]' explicitly; guard all JSON.parse calls with null fallback

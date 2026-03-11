@@ -606,7 +606,7 @@ export async function getOrCreateCareerExplorerSession(
 
   const result = await db.insert(careerExplorerSessions).values({
     clientId,
-    messages: "[]",
+    messages: "[]", // always initialise to empty array string
   });
   const [newSession] = await db
     .select()
@@ -644,7 +644,7 @@ export async function appendCareerExplorerMessage(
     .limit(1);
   if (!session) throw new Error("Session not found");
 
-  const messages: CareerExplorerMessage[] = JSON.parse(session.messages || "[]");
+  const messages: CareerExplorerMessage[] = JSON.parse(session.messages ?? "[]");
   messages.push(message);
 
   await db

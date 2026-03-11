@@ -1173,7 +1173,7 @@ const careerExplorerRouter = router({
     const profile = await getOrCreateClientProfile(ctx.user.id);
     const session = await getCareerExplorerSession(profile.id);
     if (!session) return { messages: [] as CareerExplorerMessage[], sessionId: null };
-    const messages: CareerExplorerMessage[] = JSON.parse(session.messages || "[]");
+    const messages: CareerExplorerMessage[] = JSON.parse(session.messages ?? "[]");
     return { messages, sessionId: session.id };
   }),
 
@@ -1245,7 +1245,7 @@ ${ipipCtx}
 ${reportCtx}`;
 
       // Build conversation history
-      const existingMessages: CareerExplorerMessage[] = JSON.parse(session.messages || "[]");
+      const existingMessages: CareerExplorerMessage[] = JSON.parse(session.messages ?? "[]");
 
       // Save user message
       const userMsg: CareerExplorerMessage = {
