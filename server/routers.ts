@@ -47,6 +47,8 @@ import {
   getCareerExplorerSession,
   clearCareerExplorerSession,
   type CareerExplorerMessage,
+  getCoachingAnnex,
+  upsertCoachingAnnex,
 } from "./db";
 import { invokeLLM } from "./_core/llm";
 import { scoreVia, VIA_QUESTIONS, VIA_STRENGTHS } from "../shared/via-data";
@@ -1296,6 +1298,134 @@ ${reportCtx}`;
   }),
 });
 
+// ─── Coaching Annex Router ─────────────────────────────────────────────────
+const coachingAnnexRouter = router({
+  // Get the current annex for a client (counsellor only)
+  getAnnex: counselorProcedure
+    .input(z.object({ clientId: z.number() }))
+    .query(async ({ input }) => {
+      return getCoachingAnnex(input.clientId);
+    }),
+
+  // Save transcript text (without generating draft yet)
+  saveTranscript: counselorProcedure
+    .input(z.object({ clientId: z.number(), transcriptText: z.string().min(1) }))
+    .mutation(async ({ input }) => {
+      await upsertCoachingAnnex({ clientId: input.clientId, transcriptText: input.transcriptText, status: "draft" });
+      return { success: true };
+    }),
+
+  // Generate a draft annex from the transcript + existing report
+  generateDraft: counselorProcedure
+    .input(z.object({ clientId: z.number() }))
+    .mutation(async ({ input }) => {
+      const [annex, profile, achievements, family, education, career, via, ipip, report] = await Promise.all([
+        getCoachingAnnex(input.clientId),
+        getClientProfileById(input.clientId),
+        getAchievements(input.clientId),
+        getFamilyBackground(input.clientId),
+        getEducationHistory(input.clientId),
+        getCareerHistory(input.clientId),
+        getViaResults(input.clientId),
+        getIpipResults(input.clientId),
+        getAnalysisReport(input.clientId),
+      ]);
+
+      if (!annex?.transcriptText) throw new TRPCError({ code: "BAD_REQUEST", message: "No transcript uploaded" });
+
+      const clientName = profile?.firstName ? `${profile.firstName} ${profile.lastName ?? ""}`.trim() : "the client";
+
+      const achievementsCtx = achievements.length > 0
+        ? achievements.map(a => `[${a.decade}] ${a.title} (${a.esf ?? "untagged"}): ${a.description ?? ""}`).join("\n")
+        : "No achievements recorded.";
+
+      const viaCtx = via?.rankedStrengths
+        ? `Top VIA strengths: ${(via.rankedStrengths as any[]).slice(0, 10).map((s: any) => s.strength).join(", ")}`
+        : "VIA survey not completed.";
+
+      const ipipCtx = ipip?.domainScores
+        ? (() => { const d = ipip.domainScores as any; return `IPIP: Openness ${d.O ?? "?"}%, Conscientiousness ${d.C ?? "?"}%, Extraversion ${d.E ?? "?"}%, Agreeableness ${d.A ?? "?"}%, Neuroticism ${d.N ?? "?"}%`; })()
+        : "Personality survey not completed.";
+
+      const reportCtx = report?.fullReportMarkdown
+        ? `ANALYSIS REPORT SUMMARY:\n${report.careerThemes ?? ""}\n\nCareer suggestions: ${report.careerSuggestions ?? ""}`
+        : "No analysis report yet.";
+
+      const systemPrompt = `You are a reflective career counsellor writing a personal closing annex for a client named ${clientName}. You have just completed a two-hour coaching session with them. Write in the first person as the counsellor — warm, direct, and specific. Do not use bullet points. Write in full paragraphs only. The document should read like a thoughtful letter from counsellor to client.
+
+The annex has exactly five sections with these headings (use markdown ## for each):
+
+## The Pattern That Emerged
+A narrative paragraph drawing together the strongest themes from the life history, psychometrics, and what surfaced in the coaching conversation. Specific, not generic.
+
+## What the Conversation Added
+The insights, realisations, or shifts that the coaching session brought — things that deepened or nuanced the original picture. Reference specific moments from the transcript.
+
+## Where You Have Arrived
+A short, honest paragraph about what ${clientName} now knows about themselves that they did not know (or had not articulated) at the start of the process.
+
+## The Questions Worth Carrying Forward
+Two or three open questions — genuinely unresolved — that ${clientName} is invited to sit with as they move into career exploration.
+
+## A Note on What Comes Next
+A warm closing paragraph handing ${clientName} over to their own agency. Acknowledge the formal Lifework process is complete. Mention the Career Explorer is available for them to use in their own time.`;
+
+      const userPrompt = `CLIENT PROFILE DATA:
+
+LIFE HISTORY ACHIEVEMENTS:
+${achievementsCtx}
+
+${viaCtx}
+${ipipCtx}
+
+Family background: Father — ${family?.fatherOccupation ?? "unknown"}; Mother — ${family?.motherOccupation ?? "unknown"}; Sibling position — ${family?.siblingPosition ?? "unknown"}.
+
+${reportCtx}
+
+---
+
+COACHING SESSION TRANSCRIPT:
+${annex.transcriptText}
+
+---
+
+Now write the five-section closing annex for ${clientName}.`;
+
+      const response = await invokeLLM({
+        messages: [
+          { role: "system", content: systemPrompt },
+          { role: "user", content: userPrompt },
+        ] as any,
+        max_tokens: 1200,
+      });
+
+      const draftAnnex = response.choices[0]?.message?.content as string;
+      await upsertCoachingAnnex({ clientId: input.clientId, draftAnnex, status: "draft" });
+      return { draftAnnex };
+    }),
+
+  // Save counsellor edits to the draft
+  saveDraft: counselorProcedure
+    .input(z.object({ clientId: z.number(), draftAnnex: z.string() }))
+    .mutation(async ({ input }) => {
+      await upsertCoachingAnnex({ clientId: input.clientId, draftAnnex: input.draftAnnex });
+      return { success: true };
+    }),
+
+  // Approve the annex — marks it as the final approved version
+  approveAnnex: counselorProcedure
+    .input(z.object({ clientId: z.number(), approvedAnnex: z.string() }))
+    .mutation(async ({ input }) => {
+      await upsertCoachingAnnex({
+        clientId: input.clientId,
+        approvedAnnex: input.approvedAnnex,
+        status: "approved",
+        approvedAt: new Date(),
+      });
+      return { success: true };
+    }),
+});
+
 // ─── App Router ─────────────────────────────────────────────────────────────
 export const appRouter = router({
   system: systemRouter,
@@ -1319,6 +1449,7 @@ export const appRouter = router({
   virtualPeter: virtualPeterRouter,
   chatPeter: chatPeterRouter,
   careerExplorer: careerExplorerRouter,
+  coachingAnnex: coachingAnnexRouter,
 });
 
 export type AppRouter = typeof appRouter;

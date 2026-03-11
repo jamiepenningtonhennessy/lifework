@@ -10,6 +10,7 @@ import {
   getViaResults,
   getIpipResults,
   getAnalysisReport,
+  getCoachingAnnex,
 } from "./db";
 import { getUserByOpenId } from "./db";
 import { VIA_STRENGTHS } from "../shared/via-data";
@@ -41,7 +42,7 @@ pdfRouter.get("/api/export/report/:clientId?", async (req: Request, res: Respons
       clientId = profile.id;
     }
 
-    const [profile, achievements, family, education, career, via, ipip, report] = await Promise.all([
+    const [profile, achievements, family, education, career, via, ipip, report, coachingAnnex] = await Promise.all([
       getClientProfileById(clientId),
       getAchievements(clientId),
       getFamilyBackground(clientId),
@@ -50,6 +51,7 @@ pdfRouter.get("/api/export/report/:clientId?", async (req: Request, res: Respons
       getViaResults(clientId),
       getIpipResults(clientId),
       getAnalysisReport(clientId),
+      getCoachingAnnex(clientId),
     ]);
 
     if (!profile) {
@@ -84,6 +86,7 @@ pdfRouter.get("/api/export/report/:clientId?", async (req: Request, res: Respons
       ranked,
       ipip: ipip ?? null,
       report,
+      approvedAnnex: coachingAnnex?.status === "approved" ? (coachingAnnex.approvedAnnex ?? null) : null,
     });
 
     res.setHeader("Content-Type", "text/html; charset=utf-8");
@@ -110,8 +113,9 @@ function buildReportHTML(data: {
   ranked: any[];
   ipip: any;
   report: any;
+  approvedAnnex?: string | null;
 }): string {
-  const { clientName, date, achievements, family, education, career, top5, ranked, ipip, report } = data;
+  const { clientName, date, achievements, family, education, career, top5, ranked, ipip, report, approvedAnnex } = data;
 
   const achievementsByDecade = achievements.reduce((acc: Record<string, any[]>, a) => {
     if (!acc[a.decade]) acc[a.decade] = [];
@@ -428,6 +432,13 @@ function buildReportHTML(data: {
     ` : ""}
   </div>
   ` : ""}
+
+  ${approvedAnnex ? `
+  <div class="section" style="page-break-before:always;">
+    <div class="section-title">Coaching Session Annex</div>
+    <div style="font-size:12px;color:#6b5c4a;margin-bottom:20px;font-style:italic;">A personal reflection from your counsellor, drawing on your Lifework journey and our coaching conversation.</div>
+    <div class="analysis-content">${markdownToHTML(approvedAnnex)}</div>
+  </div>` : ""}
 
   <div style="margin-top:60px;padding-top:20px;border-top:1px solid #e8d5f5;text-align:center;font-size:11px;color:#9a8a78;">
     Lifework Career Analysis — Confidential — Prepared ${date} — Based on the methodology of Peter Daws

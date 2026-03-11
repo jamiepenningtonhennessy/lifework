@@ -17,10 +17,12 @@ import {
   parallelClientMatches,
   chatSessions,
   careerExplorerSessions,
+  coachingAnnexes,
   type HistoricalClient,
   type InsertHistoricalClient,
   type ChatSession,
   type CareerExplorerSession,
+  type CoachingAnnex,
 } from "../drizzle/schema";
 import { ENV } from "./_core/env";
 
@@ -661,4 +663,51 @@ export async function clearCareerExplorerSession(
   await db
     .delete(careerExplorerSessions)
     .where(eq(careerExplorerSessions.clientId, clientId));
+}
+
+// ─── Coaching Annex ───────────────────────────────────────────────────────────
+
+export async function getCoachingAnnex(clientId: number): Promise<CoachingAnnex | null> {
+  const db = await getDb();
+  if (!db) return null;
+  const [row] = await db
+    .select()
+    .from(coachingAnnexes)
+    .where(eq(coachingAnnexes.clientId, clientId))
+    .limit(1);
+  return row ?? null;
+}
+
+export async function upsertCoachingAnnex(data: {
+  clientId: number;
+  transcriptText?: string;
+  draftAnnex?: string;
+  approvedAnnex?: string;
+  status?: "draft" | "approved";
+  approvedAt?: Date;
+}): Promise<void> {
+  const db = await getDb();
+  if (!db) throw new Error("DB not available");
+  const existing = await getCoachingAnnex(data.clientId);
+  if (existing) {
+    await db
+      .update(coachingAnnexes)
+      .set({
+        ...(data.transcriptText !== undefined && { transcriptText: data.transcriptText }),
+        ...(data.draftAnnex !== undefined && { draftAnnex: data.draftAnnex }),
+        ...(data.approvedAnnex !== undefined && { approvedAnnex: data.approvedAnnex }),
+        ...(data.status !== undefined && { status: data.status }),
+        ...(data.approvedAt !== undefined && { approvedAt: data.approvedAt }),
+      })
+      .where(eq(coachingAnnexes.clientId, data.clientId));
+  } else {
+    await db.insert(coachingAnnexes).values({
+      clientId: data.clientId,
+      transcriptText: data.transcriptText ?? null,
+      draftAnnex: data.draftAnnex ?? null,
+      approvedAnnex: data.approvedAnnex ?? null,
+      status: data.status ?? "draft",
+      approvedAt: data.approvedAt ?? null,
+    });
+  }
 }

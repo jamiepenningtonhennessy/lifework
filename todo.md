@@ -192,3 +192,12 @@
 
 - [x] Guard against null messages column in getOrCreateCareerExplorerSession and appendCareerExplorerMessage
 - [x] Ensure insert always writes '[]' explicitly; guard all JSON.parse calls with null fallback
+
+## Coaching Session Annex
+
+- [x] Add coaching_annexes table to schema (clientId, transcriptText, draftAnnex, approvedAnnex, status, createdAt, approvedAt)
+- [x] Add server procedures: generateAnnexDraft (LLM from transcript + report), saveAnnexDraft, approveAnnex
+- [x] Seed an imagined coaching transcript for Jamie using his real profile data
+- [x] Build Coaching Annex tab in counsellor ClientProfile: upload/paste transcript, generate draft, rich-text review/edit, approve
+- [x] Update PDF/HTML export to include approved annex as final section
+- [x] Write vitest tests for annex procedures

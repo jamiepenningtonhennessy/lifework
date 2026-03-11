@@ -1,0 +1,9 @@
+{
+  "query": "CREATE TABLE IF NOT EXISTS `coaching_annexes` (\n  `id` int NOT NULL AUTO_INCREMENT,\n  `clientId` int NOT NULL,\n  `transcriptText` text,\n  `draftAnnex` text,\n  `approvedAnnex` text,\n  `status` enum('draft','approved') NOT NULL DEFAULT 'draft',\n  `createdAt` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,\n  `updatedAt` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,\n  `approvedAt` timestamp NULL,\n  PRIMARY KEY (`id`),\n  UNIQUE KEY `coaching_annexes_clientId_unique` (`clientId`)\n);",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 32u3a1hNYuu9Gj3.7d2282893346 --database kFbbE6kqNApXGDFpQJUGV7 --execute CREATE TABLE IF NOT EXISTS `coaching_annexes` (\n  `id` int NOT NULL AUTO_INCREMENT,\n  `clientId` int NOT NULL,\n  `transcriptText` text,\n  `draftAnnex` text,\n  `approvedAnnex` text,\n  `status` enum('draft','approved') NOT NULL DEFAULT 'draft',\n  `createdAt` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,\n  `updatedAt` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,\n  `approvedAt` timestamp NULL,\n  PRIMARY KEY (`id`),\n  UNIQUE KEY `coaching_annexes_clientId_unique` (`clientId`)\n);",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 301
+}

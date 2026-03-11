@@ -305,6 +305,26 @@ export type InsertChatSession = typeof chatSessions.$inferInsert;
 // Each session is one open-ended career exploration conversation.
 // messages: JSON array of { role: "advisor"|"client", content: string, timestamp: number }
 
+// ─── Coaching Session Annex ─────────────────────────────────────────────────
+// Counsellor uploads the coaching session transcript; the platform generates
+// a reflective closing annex in the counsellor's voice. The counsellor reviews,
+// edits if needed, then approves — at which point the annex is appended to the
+// client's report PDF.
+// status: 'draft' | 'approved'
+export const coachingAnnexes = mysqlTable("coaching_annexes", {
+  id: int("id").autoincrement().primaryKey(),
+  clientId: int("clientId").notNull().unique(), // one annex per client
+  transcriptText: text("transcriptText"),       // raw Sybill transcript (pasted/uploaded)
+  draftAnnex: text("draftAnnex"),               // LLM-generated draft
+  approvedAnnex: text("approvedAnnex"),          // counsellor-approved final text
+  status: mysqlEnum("status", ["draft", "approved"]).default("draft").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+  approvedAt: timestamp("approvedAt"),
+});
+export type CoachingAnnex = typeof coachingAnnexes.$inferSelect;
+export type InsertCoachingAnnex = typeof coachingAnnexes.$inferInsert;
+
 export const careerExplorerSessions = mysqlTable("career_explorer_sessions", {
   id: int("id").autoincrement().primaryKey(),
   clientId: int("clientId").notNull(),

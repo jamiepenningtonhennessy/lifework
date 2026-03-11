@@ -23,11 +23,14 @@ import {
   Sparkles,
   ChevronDown,
   ChevronUp,
+  CheckCircle2,
+  Upload,
+  Pencil,
 } from "lucide-react";
 import { Streamdown } from "streamdown";
 import { toast } from "sonner";
 
-type Tab = "overview" | "interview" | "background" | "via" | "report" | "virtual-peter";
+type Tab = "overview" | "interview" | "background" | "via" | "report" | "virtual-peter" | "coaching-annex";
 
 export default function ClientProfile() {
   const { isAuthenticated, loading, user } = useAuth();
@@ -93,6 +96,7 @@ export default function ClientProfile() {
     { id: "via", label: "VIA Strengths", icon: <Star className="w-4 h-4" /> },
     { id: "report", label: "Analysis Report", icon: <Brain className="w-4 h-4" /> },
     { id: "virtual-peter", label: "Virtual Peter", icon: <GitCompare className="w-4 h-4" /> },
+  { id: "coaching-annex", label: "Coaching Annex", icon: <FileText className="w-4 h-4" /> },
   ];
 
   return (
@@ -710,6 +714,246 @@ export default function ClientProfile() {
               )}
             </div>
           )}
+
+          {/* Coaching Annex tab */}
+          {activeTab === "coaching-annex" && (
+            <CoachingAnnexTab clientId={clientId} />
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── Coaching Annex Tab Component ────────────────────────────────────────────
+function CoachingAnnexTab({ clientId }: { clientId: number }) {
+  const utils = trpc.useUtils();
+  const [transcript, setTranscript] = useState("");
+  const [editingDraft, setEditingDraft] = useState("");
+  const [isEditing, setIsEditing] = useState(false);
+
+  const { data: annex, isLoading } = trpc.coachingAnnex.getAnnex.useQuery({ clientId });
+
+  // Sync editing state when annex loads
+  const [syncedDraft, setSyncedDraft] = useState(false);
+  if (!syncedDraft && annex?.draftAnnex) {
+    setEditingDraft(annex.draftAnnex);
+    setSyncedDraft(true);
+  }
+
+  const saveTranscript = trpc.coachingAnnex.saveTranscript.useMutation({
+    onSuccess: () => {
+      toast.success("Transcript saved.");
+      utils.coachingAnnex.getAnnex.invalidate({ clientId });
+    },
+    onError: () => toast.error("Failed to save transcript."),
+  });
+
+  const generateDraft = trpc.coachingAnnex.generateDraft.useMutation({
+    onSuccess: (result) => {
+      toast.success("Draft annex generated.");
+      setEditingDraft(result.draftAnnex);
+      setSyncedDraft(false);
+      utils.coachingAnnex.getAnnex.invalidate({ clientId });
+    },
+    onError: (e) => toast.error(e.message ?? "Failed to generate draft."),
+  });
+
+  const saveDraft = trpc.coachingAnnex.saveDraft.useMutation({
+    onSuccess: () => {
+      toast.success("Draft saved.");
+      setIsEditing(false);
+      utils.coachingAnnex.getAnnex.invalidate({ clientId });
+    },
+    onError: () => toast.error("Failed to save draft."),
+  });
+
+  const approveAnnex = trpc.coachingAnnex.approveAnnex.useMutation({
+    onSuccess: () => {
+      toast.success("Annex approved and appended to report.");
+      utils.coachingAnnex.getAnnex.invalidate({ clientId });
+    },
+    onError: () => toast.error("Failed to approve annex."),
+  });
+
+  const currentDraft = annex?.draftAnnex ?? "";
+  const isApproved = annex?.status === "approved";
+
+  return (
+    <div className="max-w-3xl space-y-6">
+      {/* Header */}
+      <div className="p-5 rounded-xl bg-[var(--lw-gold-light)]/15 border border-[var(--lw-gold)]/20">
+        <div className="flex items-start gap-3">
+          <div className="w-9 h-9 rounded-full bg-[var(--lw-gold)] flex items-center justify-center flex-shrink-0 mt-0.5">
+            <FileText className="w-4 h-4 text-white" />
+          </div>
+          <div>
+            <h3 className="font-serif font-semibold text-foreground mb-1">Coaching Session Annex</h3>
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              Upload or paste the coaching session transcript (from Sybill or any source). The platform will draft
+              a reflective closing annex in your voice — drawing on the transcript and the client's full Lifework
+              profile. Review, edit if needed, then approve to append it to the client's report.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Status badge */}
+      {isApproved && (
+        <div className="flex items-center gap-2 text-sm text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-lg px-4 py-2.5">
+          <CheckCircle2 className="w-4 h-4" />
+          <span>Annex approved and appended to report{annex?.approvedAt ? ` · ${new Date(annex.approvedAt).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })}` : ""}.</span>
+        </div>
+      )}
+
+      {/* Step 1: Transcript */}
+      <div className="space-y-3">
+        <div className="flex items-center gap-2">
+          <span className="w-6 h-6 rounded-full bg-[var(--lw-navy)] text-white text-xs font-bold flex items-center justify-center flex-shrink-0">1</span>
+          <h4 className="font-semibold text-foreground">Paste Coaching Session Transcript</h4>
+        </div>
+        {annex?.transcriptText ? (
+          <div className="rounded-lg border border-border bg-muted/30 p-4">
+            <p className="text-xs text-muted-foreground mb-2">Transcript saved ({annex.transcriptText.length.toLocaleString()} characters)</p>
+            <p className="text-sm text-muted-foreground line-clamp-3 italic">{annex.transcriptText.slice(0, 300)}…</p>
+            <button
+              className="mt-3 text-xs text-[var(--lw-gold)] hover:underline"
+              onClick={() => setTranscript(annex.transcriptText ?? "")}
+            >Replace transcript</button>
+          </div>
+        ) : (
+          <Textarea
+            value={transcript}
+            onChange={(e) => setTranscript(e.target.value)}
+            placeholder="Paste the full Sybill transcript here…"
+            className="min-h-[180px] font-mono text-xs"
+          />
+        )}
+        {!annex?.transcriptText && (
+          <Button
+            size="sm"
+            disabled={!transcript.trim() || saveTranscript.isPending}
+            onClick={() => saveTranscript.mutate({ clientId, transcriptText: transcript })}
+            className="bg-[var(--lw-navy)] text-white hover:opacity-90 gap-2"
+          >
+            {saveTranscript.isPending ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Upload className="w-3.5 h-3.5" />}
+            Save Transcript
+          </Button>
+        )}
+        {annex?.transcriptText && transcript && (
+          <Button
+            size="sm"
+            disabled={saveTranscript.isPending}
+            onClick={() => saveTranscript.mutate({ clientId, transcriptText: transcript })}
+            className="bg-[var(--lw-navy)] text-white hover:opacity-90 gap-2"
+          >
+            {saveTranscript.isPending ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Upload className="w-3.5 h-3.5" />}
+            Replace Transcript
+          </Button>
+        )}
+      </div>
+
+      {/* Step 2: Generate draft */}
+      {annex?.transcriptText && (
+        <div className="space-y-3">
+          <div className="flex items-center gap-2">
+            <span className="w-6 h-6 rounded-full bg-[var(--lw-navy)] text-white text-xs font-bold flex items-center justify-center flex-shrink-0">2</span>
+            <h4 className="font-semibold text-foreground">Generate Draft Annex</h4>
+          </div>
+          <p className="text-sm text-muted-foreground">
+            The platform will read the transcript alongside the client's full Lifework profile and draft a
+            reflective closing annex in your voice.
+          </p>
+          <Button
+            size="sm"
+            disabled={generateDraft.isPending}
+            onClick={() => generateDraft.mutate({ clientId })}
+            className="bg-[var(--lw-gold)] hover:bg-[oklch(0.60 0.13 72)] text-white gap-2"
+          >
+            {generateDraft.isPending ? (
+              <><Loader2 className="w-3.5 h-3.5 animate-spin" /> Drafting annex…</>
+            ) : (
+              <><Sparkles className="w-3.5 h-3.5" /> {currentDraft ? "Regenerate Draft" : "Generate Draft Annex"}</>
+            )}
+          </Button>
+        </div>
+      )}
+
+      {/* Step 3: Review and edit */}
+      {currentDraft && (
+        <div className="space-y-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <span className="w-6 h-6 rounded-full bg-[var(--lw-navy)] text-white text-xs font-bold flex items-center justify-center flex-shrink-0">3</span>
+              <h4 className="font-semibold text-foreground">Review &amp; Edit Draft</h4>
+            </div>
+            {!isEditing && !isApproved && (
+              <Button size="sm" variant="outline" onClick={() => { setEditingDraft(currentDraft); setIsEditing(true); }} className="gap-1.5">
+                <Pencil className="w-3.5 h-3.5" /> Edit
+              </Button>
+            )}
+          </div>
+
+          {isEditing ? (
+            <div className="space-y-2">
+              <Textarea
+                value={editingDraft}
+                onChange={(e) => setEditingDraft(e.target.value)}
+                className="min-h-[400px] font-mono text-xs"
+              />
+              <div className="flex gap-2">
+                <Button size="sm" disabled={saveDraft.isPending} onClick={() => saveDraft.mutate({ clientId, draftAnnex: editingDraft })} className="bg-[var(--lw-navy)] text-white hover:opacity-90">
+                  {saveDraft.isPending ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : "Save Edits"}
+                </Button>
+                <Button size="sm" variant="outline" onClick={() => setIsEditing(false)}>Cancel</Button>
+              </div>
+            </div>
+          ) : (
+            <div className="rounded-xl border border-border bg-card p-5">
+              <Streamdown>{currentDraft}</Streamdown>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Step 4: Approve */}
+      {currentDraft && !isApproved && (
+        <div className="space-y-3">
+          <div className="flex items-center gap-2">
+            <span className="w-6 h-6 rounded-full bg-[var(--lw-navy)] text-white text-xs font-bold flex items-center justify-center flex-shrink-0">4</span>
+            <h4 className="font-semibold text-foreground">Approve &amp; Append to Report</h4>
+          </div>
+          <p className="text-sm text-muted-foreground">
+            Once approved, this annex will appear as the final section of the client's printed report.
+            You can still edit the draft before approving.
+          </p>
+          <Button
+            size="sm"
+            disabled={approveAnnex.isPending}
+            onClick={() => approveAnnex.mutate({ clientId, approvedAnnex: isEditing ? editingDraft : currentDraft })}
+            className="bg-emerald-600 hover:bg-emerald-700 text-white gap-2"
+          >
+            {approveAnnex.isPending ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <CheckCircle2 className="w-3.5 h-3.5" />}
+            Approve Annex
+          </Button>
+        </div>
+      )}
+
+      {/* Approved view */}
+      {isApproved && annex?.approvedAnnex && (
+        <div className="space-y-3">
+          <h4 className="font-semibold text-foreground">Approved Annex</h4>
+          <div className="rounded-xl border border-emerald-200 bg-emerald-50/30 p-5">
+            <Streamdown>{annex.approvedAnnex}</Streamdown>
+          </div>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => approveAnnex.mutate({ clientId, approvedAnnex: currentDraft })}
+            className="text-xs"
+          >
+            Re-approve with current draft
+          </Button>
         </div>
       )}
     </div>
