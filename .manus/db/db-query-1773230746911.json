@@ -1,0 +1,9 @@
+{
+  "query": "ALTER TABLE client_profiles ADD COLUMN careerExplorerUnlocked BOOLEAN NOT NULL DEFAULT FALSE;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 32u3a1hNYuu9Gj3.7d2282893346 --database kFbbE6kqNApXGDFpQJUGV7 --execute ALTER TABLE client_profiles ADD COLUMN careerExplorerUnlocked BOOLEAN NOT NULL DEFAULT FALSE;",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 278
+}

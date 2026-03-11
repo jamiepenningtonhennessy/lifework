@@ -26,6 +26,9 @@ import {
   CheckCircle2,
   Upload,
   Pencil,
+  Compass,
+  Unlock,
+  Lock,
 } from "lucide-react";
 import { Streamdown } from "streamdown";
 import { toast } from "sonner";
@@ -78,6 +81,22 @@ export default function ClientProfile() {
   const updateMatchNotesMutation = trpc.virtualPeter.updateMatchNotes.useMutation({
     onSuccess: () => toast.success("Notes saved."),
     onError: () => toast.error("Failed to save notes."),
+  });
+
+  const unlockCareerExplorer = trpc.counselor.unlockCareerExplorer.useMutation({
+    onSuccess: () => {
+      toast.success("Career Explorer unlocked for this client.");
+      utils.counselor.getClientProfile.invalidate({ clientId });
+    },
+    onError: () => toast.error("Failed to unlock Career Explorer."),
+  });
+
+  const lockCareerExplorer = trpc.counselor.lockCareerExplorer.useMutation({
+    onSuccess: () => {
+      toast.success("Career Explorer locked.");
+      utils.counselor.getClientProfile.invalidate({ clientId });
+    },
+    onError: () => toast.error("Failed to lock Career Explorer."),
   });
 
   if (!loading && !isAuthenticated) {
@@ -256,6 +275,53 @@ export default function ClientProfile() {
                   >
                     Save Notes
                   </Button>
+                </CardContent>
+              </Card>
+              {/* Career Explorer unlock control */}
+              <Card className="md:col-span-2">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-base font-serif flex items-center gap-2">
+                    <Compass className="w-4 h-4" style={{ color: "var(--lw-gold)" }} />
+                    Career Explorer
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {data.profile?.careerExplorerUnlocked ? (
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm text-emerald-700 font-medium flex items-center gap-1.5">
+                          <CheckCircle2 className="w-4 h-4" /> Unlocked — client has access to Alex
+                        </p>
+                        <p className="text-xs text-muted-foreground mt-1">The client can now use the Career Explorer to explore careers in the context of their full Lifework profile.</p>
+                      </div>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        disabled={lockCareerExplorer.isPending}
+                        onClick={() => lockCareerExplorer.mutate({ clientId })}
+                        className="text-xs ml-4 flex-shrink-0"
+                      >
+                        {lockCareerExplorer.isPending ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : "Lock"}
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm text-muted-foreground">Not yet unlocked.</p>
+                        <p className="text-xs text-muted-foreground mt-1">Unlock after the coaching call so the client can explore careers with Alex using their full Lifework profile as context.</p>
+                      </div>
+                      <Button
+                        size="sm"
+                        disabled={unlockCareerExplorer.isPending}
+                        onClick={() => unlockCareerExplorer.mutate({ clientId })}
+                        className="bg-[var(--lw-navy)] text-white hover:opacity-90 gap-2 ml-4 flex-shrink-0"
+                      >
+                        {unlockCareerExplorer.isPending ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <>
+                          <Unlock className="w-3.5 h-3.5" /> Unlock Career Explorer
+                        </>}
+                      </Button>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             </div>

@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
-import { Loader2, ArrowLeft, Send, Trash2, Compass } from "lucide-react";
+import { Loader2, ArrowLeft, Send, Trash2, Compass, Lock } from "lucide-react";
 import { getLoginUrl } from "@/const";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { Streamdown } from "streamdown";
@@ -32,10 +32,16 @@ export default function CareerExplorer() {
   const bottomRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
+  // Load profile to check unlock status
+  const { data: profile } = trpc.profile.getMyProfile.useQuery(
+    undefined,
+    { enabled: isAuthenticated }
+  );
+
   // Load existing session
   const { data: sessionData, isLoading: loadingSession } = trpc.careerExplorer.getSession.useQuery(
     undefined,
-    { enabled: isAuthenticated }
+    { enabled: isAuthenticated && !!profile?.careerExplorerUnlocked }
   );
 
   useEffect(() => {
@@ -98,6 +104,35 @@ export default function CareerExplorer() {
   if (!loading && !isAuthenticated) {
     window.location.href = getLoginUrl();
     return null;
+  }
+
+  // Show locked state if counsellor hasn't unlocked Career Explorer yet
+  if (profile && !profile.careerExplorerUnlocked) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center" style={{ background: "var(--lw-cream)" }}>
+        <div className="max-w-md text-center px-6 space-y-5">
+          <div
+            className="w-16 h-16 rounded-full flex items-center justify-center mx-auto"
+            style={{ background: "rgba(15,31,53,0.08)", border: "1px solid rgba(201,151,58,0.3)" }}
+          >
+            <Lock className="w-7 h-7" style={{ color: "var(--lw-gold)" }} />
+          </div>
+          <h2 className="font-serif text-2xl font-semibold" style={{ color: "var(--lw-navy)" }}>Career Explorer</h2>
+          <p className="text-muted-foreground leading-relaxed">
+            Your Career Explorer will be activated by your counsellor after your coaching conversation.
+            Once unlocked, Alex will have access to your full Lifework profile and can help you explore
+            careers that are authentically yours.
+          </p>
+          <button
+            onClick={() => navigate("/dashboard")}
+            className="text-sm underline"
+            style={{ color: "var(--lw-gold)" }}
+          >
+            Return to dashboard
+          </button>
+        </div>
+      </div>
+    );
   }
 
   const isEmpty = localMessages.length === 0 && !loadingSession;

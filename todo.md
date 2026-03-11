@@ -201,3 +201,12 @@
 - [x] Build Coaching Annex tab in counsellor ClientProfile: upload/paste transcript, generate draft, rich-text review/edit, approve
 - [x] Update PDF/HTML export to include approved annex as final section
 - [x] Write vitest tests for annex procedures
+
+## Career Explorer — Counsellor-Controlled Unlock
+
+- [x] Add careerExplorerUnlocked boolean column to client_profiles table
+- [x] Add counselor.unlockCareerExplorer and counselor.lockCareerExplorer tRPC procedures
+- [x] Gate Career Explorer card on client dashboard behind careerExplorerUnlocked flag
+- [x] Show locked state message on /career-explorer if not yet unlocked
+- [x] Add "Unlock Career Explorer" button to counsellor ClientProfile overview tab
+- [x] Write vitest tests for unlock/lock procedures

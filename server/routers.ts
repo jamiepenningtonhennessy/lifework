@@ -541,6 +541,24 @@ const counselorRouter = router({
       return { success: true };
     }),
 
+  unlockCareerExplorer: counselorProcedure
+    .input(z.object({ clientId: z.number() }))
+    .mutation(async ({ input }) => {
+      const profile = await getClientProfileById(input.clientId);
+      if (!profile) throw new TRPCError({ code: "NOT_FOUND" });
+      await updateClientProfile(input.clientId, { careerExplorerUnlocked: true });
+      return { success: true };
+    }),
+
+  lockCareerExplorer: counselorProcedure
+    .input(z.object({ clientId: z.number() }))
+    .mutation(async ({ input }) => {
+      const profile = await getClientProfileById(input.clientId);
+      if (!profile) throw new TRPCError({ code: "NOT_FOUND" });
+      await updateClientProfile(input.clientId, { careerExplorerUnlocked: false });
+      return { success: true };
+    }),
+
   triggerAnalysis: counselorProcedure
     .input(z.object({ clientId: z.number() }))
     .mutation(async ({ input }) => {

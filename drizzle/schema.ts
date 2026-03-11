@@ -58,6 +58,7 @@ export const clientProfiles = mysqlTable("client_profiles", {
   ])
     .default("not_started")
     .notNull(),
+  careerExplorerUnlocked: boolean("careerExplorerUnlocked").default(false).notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });
