@@ -14,6 +14,7 @@ import {
   ArrowRight,
   Loader2,
   LogOut,
+  Compass,
 } from "lucide-react";
 import { ChatToPeter } from "@/components/ChatToPeter";
 
@@ -270,6 +271,33 @@ export default function ClientDashboard() {
                 );
               })}
             </div>
+
+            {/* Career Explorer — shown when analysis report is complete */}
+            {getStatus("analysisStatus") === "completed" && (
+              <div
+                className="mt-6 p-4 rounded-xl border cursor-pointer hover:opacity-90 transition-opacity"
+                style={{ background: "var(--lw-navy)", borderColor: "rgba(201,151,58,0.4)" }}
+                onClick={() => navigate("/career-explorer")}
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div
+                      className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0"
+                      style={{ background: "rgba(201,151,58,0.15)", border: "1px solid rgba(201,151,58,0.4)" }}
+                    >
+                      <Compass className="w-4 h-4" style={{ color: "var(--lw-gold)" }} />
+                    </div>
+                    <div>
+                      <p className="text-sm font-semibold" style={{ color: "white" }}>Career Explorer</p>
+                      <p className="text-xs mt-0.5" style={{ color: "rgba(255,255,255,0.6)" }}>
+                        Ask Alex how your profile matches any career — or discover what suits you best.
+                      </p>
+                    </div>
+                  </div>
+                  <ArrowRight className="w-4 h-4 flex-shrink-0" style={{ color: "var(--lw-gold)" }} />
+                </div>
+              </div>
+            )}
 
             {/* VIA Results shortcut if completed */}
             {getStatus("viaStatus") === "completed" && (

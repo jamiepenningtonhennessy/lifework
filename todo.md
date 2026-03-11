@@ -178,3 +178,12 @@
 - [x] Display client's life history achievements in the Interview tab of ClientProfile
 - [x] Organise by decade/phase with ESF badge, age, title, and description
 - [x] Show Chat to Peter transcript summaries alongside the structured entries
+
+## Career Explorer
+
+- [x] Add career_explorer_sessions table to schema and migrate
+- [x] Add server procedures: getSession, sendMessage (with full profile context), clearSession
+- [x] Build CareerExplorer page with chat interface
+- [x] Add Career Explorer entry to client dashboard navigation
+- [ ] Add Career Explorer tab to counsellor ClientProfile view
+- [x] Write vitest tests for Career Explorer procedures

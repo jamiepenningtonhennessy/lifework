@@ -300,3 +300,17 @@ export const chatSessions = mysqlTable("chat_sessions", {
 
 export type ChatSession = typeof chatSessions.$inferSelect;
 export type InsertChatSession = typeof chatSessions.$inferInsert;
+
+// ─── Career Explorer Sessions ────────────────────────────────────────────────
+// Each session is one open-ended career exploration conversation.
+// messages: JSON array of { role: "advisor"|"client", content: string, timestamp: number }
+
+export const careerExplorerSessions = mysqlTable("career_explorer_sessions", {
+  id: int("id").autoincrement().primaryKey(),
+  clientId: int("clientId").notNull(),
+  messages: text("messages").notNull(), // JSON array — set to '[]' on insert
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type CareerExplorerSession = typeof careerExplorerSessions.$inferSelect;

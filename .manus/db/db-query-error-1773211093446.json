@@ -1,0 +1,12 @@
+{
+  "query": "CREATE TABLE `career_explorer_sessions` (\n\t`id` int AUTO_INCREMENT NOT NULL,\n\t`clientId` int NOT NULL,\n\t`messages` text NOT NULL DEFAULT ('[]'),\n\t`createdAt` timestamp NOT NULL DEFAULT (now()),\n\t`updatedAt` timestamp NOT NULL DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP,\n\tCONSTRAINT `career_explorer_sessions_id` PRIMARY KEY(`id`)\n);",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 32u3a1hNYuu9Gj3.7d2282893346 --database kFbbE6kqNApXGDFpQJUGV7 --execute CREATE TABLE `career_explorer_sessions` (\n\t`id` int AUTO_INCREMENT NOT NULL,\n\t`clientId` int NOT NULL,\n\t`messages` text NOT NULL DEFAULT ('[]'),\n\t`createdAt` timestamp NOT NULL DEFAULT (now()),\n\t`updatedAt` timestamp NOT NULL DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP,\n\tCONSTRAINT `career_explorer_sessions_id` PRIMARY KEY(`id`)\n);",
+  "returncode": 1,
+  "logs": [
+    "ERROR 1064 (42000) at line 1: You have an error in your SQL syntax; check the manual that corresponds to your TiDB version for the right syntax to use line 4 column 40 near \"'[]'),",
+    "\t`createdAt` timestamp NOT NULL DEFAULT (now()),",
+    "\t`updatedAt` timestamp NOT NULL DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP,",
+    "\tCONSTRAINT `career_explorer_sessions_id` PRIMARY KEY(`id`)",
+    ")\""
+  ]
+}

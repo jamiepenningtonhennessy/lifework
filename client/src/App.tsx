@@ -17,6 +17,7 @@ import IpipResults from "./pages/IpipResults";
 import CognitiveScreener from "./pages/CognitiveScreener";
 import CognitiveResults from "./pages/CognitiveResults";
 import MyReport from "./pages/MyReport";
+import CareerExplorer from "./pages/CareerExplorer";
 
 function Router() {
   return (
@@ -32,6 +33,7 @@ function Router() {
       <Route path="/cognitive-screener" component={CognitiveScreener} />
       <Route path="/cognitive-results" component={CognitiveResults} />
       <Route path="/my-report" component={MyReport} />
+      <Route path="/career-explorer" component={CareerExplorer} />
       <Route path="/dashboard" component={ClientDashboard} />
       <Route path="/counselor" component={CounselorDashboard} />
       <Route path="/counselor/client/:id" component={ClientProfile} />

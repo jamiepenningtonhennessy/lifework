@@ -16,9 +16,11 @@ import {
   historicalClients,
   parallelClientMatches,
   chatSessions,
+  careerExplorerSessions,
   type HistoricalClient,
   type InsertHistoricalClient,
   type ChatSession,
+  type CareerExplorerSession,
 } from "../drizzle/schema";
 import { ENV } from "./_core/env";
 
@@ -577,4 +579,86 @@ export async function resetChatSession(
     .where(eq(chatSessions.id, (result as any).insertId))
     .limit(1);
   return newSession;
+}
+
+// ─── Career Explorer Sessions ────────────────────────────────────────────────
+
+export type CareerExplorerMessage = {
+  role: "advisor" | "client";
+  content: string;
+  timestamp: number;
+};
+
+export async function getOrCreateCareerExplorerSession(
+  clientId: number
+): Promise<CareerExplorerSession> {
+  const db = await getDb();
+  if (!db) throw new Error("DB not available");
+
+  const existing = await db
+    .select()
+    .from(careerExplorerSessions)
+    .where(eq(careerExplorerSessions.clientId, clientId))
+    .orderBy(desc(careerExplorerSessions.createdAt))
+    .limit(1);
+
+  if (existing.length > 0) return existing[0];
+
+  const result = await db.insert(careerExplorerSessions).values({
+    clientId,
+    messages: "[]",
+  });
+  const [newSession] = await db
+    .select()
+    .from(careerExplorerSessions)
+    .where(eq(careerExplorerSessions.id, (result as any).insertId))
+    .limit(1);
+  return newSession;
+}
+
+export async function getCareerExplorerSession(
+  clientId: number
+): Promise<CareerExplorerSession | null> {
+  const db = await getDb();
+  if (!db) return null;
+  const [session] = await db
+    .select()
+    .from(careerExplorerSessions)
+    .where(eq(careerExplorerSessions.clientId, clientId))
+    .orderBy(desc(careerExplorerSessions.createdAt))
+    .limit(1);
+  return session ?? null;
+}
+
+export async function appendCareerExplorerMessage(
+  sessionId: number,
+  message: CareerExplorerMessage
+): Promise<void> {
+  const db = await getDb();
+  if (!db) throw new Error("DB not available");
+
+  const [session] = await db
+    .select()
+    .from(careerExplorerSessions)
+    .where(eq(careerExplorerSessions.id, sessionId))
+    .limit(1);
+  if (!session) throw new Error("Session not found");
+
+  const messages: CareerExplorerMessage[] = JSON.parse(session.messages || "[]");
+  messages.push(message);
+
+  await db
+    .update(careerExplorerSessions)
+    .set({ messages: JSON.stringify(messages) })
+    .where(eq(careerExplorerSessions.id, sessionId));
+}
+
+export async function clearCareerExplorerSession(
+  clientId: number
+): Promise<void> {
+  const db = await getDb();
+  if (!db) throw new Error("DB not available");
+  await db
+    .delete(careerExplorerSessions)
+    .where(eq(careerExplorerSessions.clientId, clientId));
 }

@@ -42,6 +42,11 @@ import {
   getChatSessionById,
   resetChatSession,
   type ChatMessage,
+  getOrCreateCareerExplorerSession,
+  appendCareerExplorerMessage,
+  getCareerExplorerSession,
+  clearCareerExplorerSession,
+  type CareerExplorerMessage,
 } from "./db";
 import { invokeLLM } from "./_core/llm";
 import { scoreVia, VIA_QUESTIONS, VIA_STRENGTHS } from "../shared/via-data";
@@ -1147,6 +1152,150 @@ const chatPeterRouter = router({
     }),
 });
 
+// ─── Career Explorer Router ────────────────────────────────────────────────
+
+const CAREER_EXPLORER_SYSTEM_PROMPT = `You are a knowledgeable and encouraging career advisor named Alex. You have access to the client's full Lifework profile — their life history achievements (tagged as Enjoyable, Satisfying, or Fulfilling), their VIA character strengths, their personality profile (IPIP-NEO), their education and career history, and their career analysis report.
+
+Your role is to help the client explore careers, understand how their profile matches specific roles, and think clearly about their next steps. You are professional, warm, and direct.
+
+When a client asks about a specific career (e.g. "How do I match up to becoming a parliamentary researcher?"), you should:
+1. Identify which of their life history achievements, VIA strengths, and personality traits are directly relevant to that career.
+2. Name the specific skills and attributes that career typically requires — drawing on your broad knowledge of that field.
+3. Give an honest, structured assessment of fit: what aligns well, what gaps exist, and what the client could do to address them.
+4. End with one or two concrete questions or suggestions to help them think further.
+
+When a client asks open questions like "what careers suit me?" or "what should I do with my life?", draw out the recurring themes from their profile and suggest 3-5 specific career directions with brief explanations of why each fits.
+
+Always ground your answers in the specific evidence from their profile — name their actual achievements, actual strengths, actual traits. Do not give generic advice.`;
+
+const careerExplorerRouter = router({
+  getSession: protectedProcedure.query(async ({ ctx }) => {
+    const profile = await getOrCreateClientProfile(ctx.user.id);
+    const session = await getCareerExplorerSession(profile.id);
+    if (!session) return { messages: [] as CareerExplorerMessage[], sessionId: null };
+    const messages: CareerExplorerMessage[] = JSON.parse(session.messages || "[]");
+    return { messages, sessionId: session.id };
+  }),
+
+  sendMessage: protectedProcedure
+    .input(z.object({
+      userMessage: z.string().min(1).max(3000),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      const profile = await getOrCreateClientProfile(ctx.user.id);
+      const session = await getOrCreateCareerExplorerSession(profile.id);
+
+      // Load the full client context
+      const [achievementsList, educationList, careerList, bg, viaData, ipipData, report] =
+        await Promise.all([
+          getAchievements(profile.id),
+          getEducationHistory(profile.id),
+          getCareerHistory(profile.id),
+          getFamilyBackground(profile.id),
+          getViaResults(profile.id),
+          getIpipResults(profile.id),
+          getAnalysisReport(profile.id),
+        ]);
+
+      // Build context strings
+      const achievementsCtx = achievementsList.length > 0
+        ? achievementsList.map(a => `[${a.decade}] ${a.title} (${a.esf ?? "untagged"}): ${a.description ?? ""}`).join("\n")
+        : "No achievements recorded yet.";
+
+      const educationCtx = educationList.length > 0
+        ? educationList.map(e => `${e.yearFrom ?? "?"}–${e.yearTo ?? "?"}: ${e.qualification ?? ""} at ${e.institution}`).join("\n")
+        : "No education history recorded.";
+
+      const careerCtx = careerList.length > 0
+        ? careerList.map(c => `${c.yearFrom ?? "?"}–${c.yearTo ?? "present"}: ${c.role ?? ""} at ${c.organisation}`).join("\n")
+        : "No career history recorded.";
+
+      const viaCtx = viaData?.rankedStrengths
+        ? `Top VIA strengths: ${(viaData.rankedStrengths as any[]).slice(0, 10).map((s: any) => s.strength).join(", ")}`
+        : "VIA survey not yet completed.";
+
+      const ipipCtx = ipipData?.domainScores
+        ? (() => {
+            const d = ipipData.domainScores as any;
+            return `IPIP personality: Openness ${d.O ?? "?"}%, Conscientiousness ${d.C ?? "?"}%, Extraversion ${d.E ?? "?"}%, Agreeableness ${d.A ?? "?"}%, Neuroticism ${d.N ?? "?"}%`;
+          })()
+        : "Personality survey not yet completed.";
+
+      const reportCtx = report?.careerThemes
+        ? `Career themes from analysis: ${report.careerThemes}\n\nCareer suggestions: ${report.careerSuggestions ?? "none yet"}`
+        : "No analysis report generated yet.";
+
+      const profileContext = `CLIENT PROFILE:
+
+LIFE HISTORY ACHIEVEMENTS:
+${achievementsCtx}
+
+EDUCATION:
+${educationCtx}
+
+CAREER HISTORY:
+${careerCtx}
+
+FAMILY BACKGROUND: Father — ${bg?.fatherOccupation ?? "unknown"}; Mother — ${bg?.motherOccupation ?? "unknown"}; Sibling position — ${bg?.siblingPosition ?? "unknown"}.
+
+${viaCtx}
+
+${ipipCtx}
+
+${reportCtx}`;
+
+      // Build conversation history
+      const existingMessages: CareerExplorerMessage[] = JSON.parse(session.messages || "[]");
+
+      // Save user message
+      const userMsg: CareerExplorerMessage = {
+        role: "client",
+        content: input.userMessage,
+        timestamp: Date.now(),
+      };
+      await appendCareerExplorerMessage(session.id, userMsg);
+
+      // Build LLM messages
+      const llmMessages: Array<{ role: string; content: string }> = [
+        {
+          role: "system",
+          content: `${CAREER_EXPLORER_SYSTEM_PROMPT}\n\n---\n${profileContext}`,
+        },
+        ...existingMessages.map(m => ({
+          role: m.role === "advisor" ? "assistant" : "user",
+          content: m.content,
+        })),
+        { role: "user", content: input.userMessage },
+      ];
+
+      const response = await invokeLLM({
+        messages: llmMessages as any,
+        max_tokens: 600,
+      });
+
+      const advisorResponse = response.choices[0]?.message?.content as string;
+
+      const advisorMsg: CareerExplorerMessage = {
+        role: "advisor",
+        content: advisorResponse,
+        timestamp: Date.now(),
+      };
+      await appendCareerExplorerMessage(session.id, advisorMsg);
+
+      return {
+        sessionId: session.id,
+        advisorResponse,
+        messageCount: existingMessages.length + 2,
+      };
+    }),
+
+  clearSession: protectedProcedure.mutation(async ({ ctx }) => {
+    const profile = await getOrCreateClientProfile(ctx.user.id);
+    await clearCareerExplorerSession(profile.id);
+    return { success: true };
+  }),
+});
+
 // ─── App Router ─────────────────────────────────────────────────────────────
 export const appRouter = router({
   system: systemRouter,
@@ -1169,6 +1318,7 @@ export const appRouter = router({
   counselor: counselorRouter,
   virtualPeter: virtualPeterRouter,
   chatPeter: chatPeterRouter,
+  careerExplorer: careerExplorerRouter,
 });
 
 export type AppRouter = typeof appRouter;
