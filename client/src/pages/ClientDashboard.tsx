@@ -16,6 +16,8 @@ import {
   LogOut,
   Compass,
   Lock,
+  FileText,
+  Download,
 } from "lucide-react";
 import { ChatToPeter } from "@/components/ChatToPeter";
 
@@ -272,6 +274,65 @@ export default function ClientDashboard() {
                 );
               })}
             </div>
+
+            {/* View My Report — shown prominently once analysis is complete */}
+            {getStatus("analysisStatus") === "completed" && (
+              <div
+                className="mt-6 rounded-xl overflow-hidden"
+                style={{ border: "2px solid var(--lw-gold)", background: "var(--lw-navy)" }}
+              >
+                <div className="px-5 py-4">
+                  <div className="flex items-start gap-4">
+                    <div
+                      className="w-11 h-11 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5"
+                      style={{ background: "rgba(201,151,58,0.18)", border: "1px solid rgba(201,151,58,0.5)" }}
+                    >
+                      <FileText className="w-5 h-5" style={{ color: "var(--lw-gold)" }} />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p
+                        className="text-base font-serif font-semibold mb-1"
+                        style={{ color: "white" }}
+                      >
+                        Your Career Analysis Report is ready
+                      </p>
+                      <p className="text-sm" style={{ color: "rgba(255,255,255,0.65)" }}>
+                        Your counsellor has prepared a personalised analysis of your life history,
+                        character strengths, personality profile, and reasoning strengths.
+                      </p>
+                      <div className="flex flex-wrap gap-3 mt-4">
+                        <button
+                          onClick={() => navigate("/my-report")}
+                          className="flex items-center gap-2 px-4 py-2 text-sm font-medium cursor-pointer transition-opacity hover:opacity-90"
+                          style={{
+                            background: "var(--lw-gold)",
+                            color: "white",
+                            border: "none",
+                            letterSpacing: "0.04em",
+                          }}
+                        >
+                          <FileText className="w-4 h-4" />
+                          View My Report
+                        </button>
+                        <button
+                          onClick={() => window.open("/api/export/report", "_blank")}
+                          className="flex items-center gap-2 px-4 py-2 text-sm font-medium cursor-pointer transition-opacity hover:opacity-80"
+                          style={{
+                            background: "transparent",
+                            color: "var(--lw-gold)",
+                            border: "1px solid rgba(201,151,58,0.5)",
+                            letterSpacing: "0.04em",
+                          }}
+                        >
+                          <Download className="w-4 h-4" />
+                          Download PDF
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
 
             {/* Career Explorer — unlocked by counsellor after coaching call */}
             {getStatus("analysisStatus") === "completed" && (

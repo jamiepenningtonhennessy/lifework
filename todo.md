@@ -229,5 +229,9 @@
 
 ## Report — Section Order & Page Breaks
 
-- [ ] Reorder report: Analysis → Life History (achievements + background) → VIA → IPIP → Screener → Coaching Annex
-- [ ] Add page-break-before to each major section so each begins on a new page when printed
+- [x] Reorder report: Analysis → Life History (achievements + background) → VIA → IPIP → Screener → Coaching Annex
+- [x] Add page-break-before to each major section so each begins on a new page when printed
+
+## Client Dashboard — View My Report
+
+- [x] Add prominent "View My Report" card to client dashboard (visible once analysis is complete, links to /my-report and /api/export/report)
