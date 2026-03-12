@@ -11,10 +11,12 @@ import {
   getIpipResults,
   getAnalysisReport,
   getCoachingAnnex,
+  getCognitiveScreenerResult,
 } from "./db";
 import { getUserByOpenId } from "./db";
 import { VIA_STRENGTHS } from "../shared/via-data";
 import { IPIP_DOMAINS, IPIP_FACETS } from "../shared/ipip-data";
+import { interpretDomain } from "../shared/cognitive-screener-data";
 
 const strengthsMap = new Map(VIA_STRENGTHS.map((s) => [s.id, s]));
 
@@ -42,7 +44,7 @@ pdfRouter.get("/api/export/report/:clientId?", async (req: Request, res: Respons
       clientId = profile.id;
     }
 
-    const [profile, achievements, family, education, career, via, ipip, report, coachingAnnex] = await Promise.all([
+    const [profile, achievements, family, education, career, via, ipip, report, coachingAnnex, cognitive] = await Promise.all([
       getClientProfileById(clientId),
       getAchievements(clientId),
       getFamilyBackground(clientId),
@@ -52,6 +54,7 @@ pdfRouter.get("/api/export/report/:clientId?", async (req: Request, res: Respons
       getIpipResults(clientId),
       getAnalysisReport(clientId),
       getCoachingAnnex(clientId),
+      getCognitiveScreenerResult(clientId),
     ]);
 
     if (!profile) {
@@ -85,6 +88,7 @@ pdfRouter.get("/api/export/report/:clientId?", async (req: Request, res: Respons
       top5,
       ranked,
       ipip: ipip ?? null,
+      cognitive: cognitive ?? null,
       report,
       approvedAnnex: coachingAnnex?.status === "approved" ? (coachingAnnex.approvedAnnex ?? null) : null,
     });
@@ -112,10 +116,11 @@ function buildReportHTML(data: {
   top5: any[];
   ranked: any[];
   ipip: any;
+  cognitive: any;
   report: any;
   approvedAnnex?: string | null;
 }): string {
-  const { clientName, date, achievements, family, education, career, top5, ranked, ipip, report, approvedAnnex } = data;
+  const { clientName, date, achievements, family, education, career, top5, ranked, ipip, cognitive, report, approvedAnnex } = data;
 
   const achievementsByDecade = achievements.reduce((acc: Record<string, any[]>, a) => {
     if (!acc[a.decade]) acc[a.decade] = [];
@@ -375,6 +380,45 @@ function buildReportHTML(data: {
         <div class="via-bar-score">${s.score}</div>
       </div>`;
     }).join("")}
+  </div>
+  ` : ""}
+
+  ${cognitive?.scores ? `
+  <!-- Reasoning Strengths Screener -->
+  <div class="section">
+    <div class="section-title">Reasoning Strengths Screener</div>
+    <p style="font-size:14px;color:#6b5c4a;margin-bottom:20px;">
+      A 30-question indicative assessment covering verbal, numerical, and abstract reasoning. Scores are out of 10 per domain; the overall score is out of 30.
+      These results are indicative rather than definitive — they are one lens through which your life history pattern is read more clearly.
+    </p>
+    ${(['verbal', 'numerical', 'abstract'] as const).map(domain => {
+      const score: number = (cognitive.scores as any)[domain] ?? 0;
+      const interp = interpretDomain(domain, score);
+      const pct = Math.round((score / 10) * 100);
+      const domainLabel = domain.charAt(0).toUpperCase() + domain.slice(1);
+      const levelColors: Record<string, string> = { Developing: '#9ca3af', Solid: '#3b82f6', Strong: '#10b981', Exceptional: '#8b5cf6' };
+      const barColor = levelColors[interp.label] ?? '#5b2d8e';
+      return `
+      <div style="margin-bottom:24px;padding:16px;border:1px solid #e8d5f5;border-radius:10px;background:#faf5ff;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+          <span style="font-family:'Playfair Display',serif;font-size:16px;font-weight:600;color:#1a1008;">${domainLabel} Reasoning</span>
+          <div style="display:flex;align-items:center;gap:10px;">
+            <span style="font-size:18px;font-weight:700;color:#5b2d8e;">${score}/10</span>
+            <span style="font-size:11px;padding:2px 10px;border-radius:20px;color:white;font-weight:600;background:${barColor};">${interp.label}</span>
+          </div>
+        </div>
+        <div style="height:8px;background:#f0e8f8;border-radius:4px;overflow:hidden;margin-bottom:12px;">
+          <div style="height:100%;width:${pct}%;background:${barColor};border-radius:4px;"></div>
+        </div>
+        <p style="font-size:13px;color:#1a1008;line-height:1.65;margin-bottom:6px;">${interp.description}</p>
+        <p style="font-size:12px;color:#5b2d8e;font-weight:500;"><strong>Career implication:</strong> ${interp.careerImplication}</p>
+      </div>`;
+    }).join('')}
+    <div style="margin-top:16px;padding:12px 16px;background:#f0e8f8;border-radius:8px;display:flex;align-items:center;justify-content:space-between;">
+      <span style="font-size:13px;color:#6b5c4a;">Overall Score</span>
+      <span style="font-size:20px;font-weight:700;color:#5b2d8e;">${(cognitive.scores as any).total ?? 0} / 30</span>
+      ${(cognitive.scores as any).percentile ? `<span style="font-size:12px;color:#9a8a78;">~${(cognitive.scores as any).percentile}th percentile</span>` : ''}
+    </div>
   </div>
   ` : ""}
 

@@ -221,3 +221,8 @@
 - [ ] Update Home.tsx landing copy (hero, about section, footer attribution)
 - [ ] Update Virtual Peter description in ClientProfile.tsx
 - [ ] Update PDF export footer text in pdf-export.ts
+
+## Report — Add Missing Test Results
+
+- [x] Add cognitive screener results section to PDF/HTML report (verbal/numerical/abstract scores, interpretation, career implications)
+- [x] Verify IPIP personality section is present in report; add if missing
