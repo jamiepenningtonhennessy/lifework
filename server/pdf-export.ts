@@ -182,48 +182,49 @@ function buildReportHTML(data: {
   .page { max-width: 800px; margin: 0 auto; padding: 40px 48px; }
   
   /* Cover */
-  .cover { min-height: 100vh; display: flex; flex-direction: column; justify-content: space-between; border-bottom: 3px solid #5b2d8e; padding-bottom: 48px; }
+  .cover { min-height: 100vh; display: flex; flex-direction: column; justify-content: space-between; border-bottom: 3px solid #c9973a; padding-bottom: 48px; }
   .cover-logo { display: flex; align-items: center; gap: 10px; margin-bottom: 80px; }
-  .cover-logo-circle { width: 36px; height: 36px; border-radius: 50%; background: #5b2d8e; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 14px; }
-  .cover-logo-text { font-family: 'Playfair Display', serif; font-size: 18px; font-weight: 600; color: #1a1008; }
-  .cover-title { font-family: 'Playfair Display', serif; font-size: 48px; font-weight: 700; color: #1a1008; line-height: 1.15; margin-bottom: 16px; }
+  .cover-logo-square { width: 36px; height: 36px; border: 2px solid #c9973a; display: flex; align-items: center; justify-content: center; }
+  .cover-logo-circle { width: 36px; height: 36px; border: 2px solid #c9973a; display: flex; align-items: center; justify-content: center; color: #c9973a; font-weight: 700; font-size: 14px; }
+  .cover-logo-text { font-family: 'Playfair Display', serif; font-size: 18px; font-weight: 600; color: #0f1f35; }
+  .cover-title { font-family: 'Playfair Display', serif; font-size: 48px; font-weight: 700; color: #0f1f35; line-height: 1.15; margin-bottom: 16px; }
   .cover-subtitle { font-size: 18px; color: #6b5c4a; margin-bottom: 48px; }
   .cover-meta { display: flex; gap: 32px; }
   .cover-meta-item label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: #9a8a78; display: block; margin-bottom: 4px; }
-  .cover-meta-item span { font-size: 16px; font-weight: 500; color: #1a1008; }
+  .cover-meta-item span { font-size: 16px; font-weight: 500; color: #0f1f35; }
   .cover-footer { font-size: 12px; color: #9a8a78; }
   
   /* Section */
   .section { margin-top: 56px; }
-  .section-title { font-family: 'Playfair Display', serif; font-size: 26px; font-weight: 700; color: #5b2d8e; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 2px solid #e8d5f5; }
+  .section-title { font-family: 'Playfair Display', serif; font-size: 26px; font-weight: 700; color: #0f1f35; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 2px solid #c9973a; }
   .section-subtitle { font-family: 'Playfair Display', serif; font-size: 18px; font-weight: 600; color: #1a1008; margin-top: 24px; margin-bottom: 12px; }
   
   /* VIA */
   .via-top5 { display: grid; gap: 12px; margin-bottom: 24px; }
-  .via-card { border: 2px solid #e8d5f5; border-radius: 12px; padding: 16px; background: #faf5ff; }
+  .via-card { border: 1px solid rgba(201,151,58,0.35); border-radius: 0; padding: 16px; background: #fdf9f3; }
   .via-card-header { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; }
-  .via-rank { width: 32px; height: 32px; border-radius: 50%; background: #5b2d8e; color: white; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; flex-shrink: 0; }
-  .via-name { font-family: 'Playfair Display', serif; font-size: 18px; font-weight: 600; color: #1a1008; }
-  .via-virtue { font-size: 11px; padding: 2px 8px; border-radius: 20px; font-weight: 500; text-transform: capitalize; }
-  .via-score { margin-left: auto; font-size: 18px; font-weight: 700; color: #5b2d8e; }
+  .via-rank { width: 32px; height: 32px; border: 1px solid #c9973a; display: flex; align-items: center; justify-content: center; color: #c9973a; font-weight: 700; font-size: 14px; flex-shrink: 0; }
+  .via-name { font-family: 'Playfair Display', serif; font-size: 18px; font-weight: 600; color: #0f1f35; }
+  .via-virtue { font-size: 11px; padding: 2px 8px; border-radius: 0; font-weight: 500; text-transform: capitalize; }
+  .via-score { margin-left: auto; font-size: 18px; font-weight: 700; color: #c9973a; }
   .via-desc { font-size: 13px; color: #6b5c4a; line-height: 1.5; }
-  .via-atwork { font-size: 12px; color: #5b2d8e; margin-top: 6px; font-weight: 500; }
+  .via-atwork { font-size: 12px; color: #0f1f35; margin-top: 6px; font-weight: 500; }
   .via-bar-row { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
   .via-bar-label { font-size: 12px; color: #1a1008; width: 160px; flex-shrink: 0; }
-  .via-bar-track { flex: 1; height: 6px; background: #f0e8f8; border-radius: 3px; overflow: hidden; }
-  .via-bar-fill { height: 100%; border-radius: 3px; }
+  .via-bar-track { flex: 1; height: 6px; background: #f0e8e0; border-radius: 0; overflow: hidden; }
+  .via-bar-fill { height: 100%; border-radius: 0; }
   .via-bar-score { font-size: 12px; color: #6b5c4a; width: 28px; text-align: right; }
   
   /* Achievements */
   .decade-block { margin-bottom: 20px; }
   .decade-label { font-size: 12px; text-transform: uppercase; letter-spacing: 0.1em; color: #9a8a78; font-weight: 600; margin-bottom: 8px; }
-  .achievement-item { padding: 10px 14px; border-left: 3px solid #e8d5f5; margin-bottom: 8px; }
+  .achievement-item { padding: 10px 14px; border-left: 3px solid #c9973a; margin-bottom: 8px; }
   .achievement-title { font-size: 14px; font-weight: 600; color: #1a1008; }
   .achievement-desc { font-size: 13px; color: #6b5c4a; margin-top: 2px; }
   .esf-badge { display: inline-block; font-size: 10px; padding: 1px 7px; border-radius: 20px; color: white; font-weight: 500; margin-left: 8px; text-transform: capitalize; vertical-align: middle; }
   
   /* Career / Education */
-  .timeline-item { padding: 12px 0; border-bottom: 1px solid #f0e8e0; }
+  .timeline-item { padding: 12px 0; border-bottom: 1px solid #e8e0d8; }
   .timeline-item:last-child { border-bottom: none; }
   .timeline-role { font-size: 14px; font-weight: 600; color: #1a1008; }
   .timeline-org { font-size: 14px; color: #6b5c4a; }
@@ -231,8 +232,8 @@ function buildReportHTML(data: {
   .timeline-notes { font-size: 13px; color: #6b5c4a; margin-top: 4px; }
   
   /* Analysis */
-  .analysis-content h1 { font-family: 'Playfair Display', serif; font-size: 22px; font-weight: 700; color: #5b2d8e; margin: 32px 0 12px; }
-  .analysis-content h2 { font-family: 'Playfair Display', serif; font-size: 18px; font-weight: 600; color: #1a1008; margin: 24px 0 10px; border-bottom: 1px solid #e8d5f5; padding-bottom: 6px; }
+  .analysis-content h1 { font-family: 'Playfair Display', serif; font-size: 22px; font-weight: 700; color: #0f1f35; margin: 32px 0 12px; }
+  .analysis-content h2 { font-family: 'Playfair Display', serif; font-size: 18px; font-weight: 600; color: #1a1008; margin: 24px 0 10px; border-bottom: 1px solid rgba(201,151,58,0.4); padding-bottom: 6px; }
   .analysis-content h3 { font-family: 'Playfair Display', serif; font-size: 15px; font-weight: 600; color: #1a1008; margin: 16px 0 8px; }
   .analysis-content p { font-size: 14px; color: #1a1008; line-height: 1.75; margin-bottom: 12px; }
   .analysis-content ul { padding-left: 20px; margin-bottom: 12px; }
@@ -276,7 +277,7 @@ function buildReportHTML(data: {
   <div class="cover">
     <div>
       <div class="cover-logo">
-        <div class="cover-logo-circle">PT</div>
+        <div class="cover-logo-circle">L</div>
         <div class="cover-logo-text">Lifework</div>
       </div>
       <div class="cover-title">Career Analysis<br>Report</div>
@@ -293,7 +294,7 @@ function buildReportHTML(data: {
       </div>
     </div>
     <div class="cover-footer">
-      Lifework Career Analysis — Based on the Dependable Strengths methodology of Bernard Haldane — Confidential
+      &copy; Pennington Hennessy ${new Date().getFullYear()} &mdash; Confidential
     </div>
   </div>
 
@@ -316,7 +317,7 @@ function buildReportHTML(data: {
     <div class="decade-block">
       <div class="decade-label">${decadeLabels[decade] ?? decade}</div>
       ${(items as any[]).map((a: any) => `
-      <div class="achievement-item" style="border-left-color:${esfColors[a.esf] ?? '#e8d5f5'}">
+      <div class="achievement-item" style="border-left-color:${esfColors[a.esf] ?? 'rgba(201,151,58,0.25)'}">
         <div class="achievement-title">${a.title}${a.esf ? `<span class="esf-badge" style="background:${esfColors[a.esf]}">${a.esf}</span>` : ""}</div>
         ${a.description ? `<div class="achievement-desc">${a.description}</div>` : ""}
       </div>`).join("")}
@@ -372,7 +373,7 @@ function buildReportHTML(data: {
     <div class="section-subtitle">Your Signature Strengths (Top 5)</div>
     <div class="via-top5">
       ${top5.map((s, i) => {
-        const vc = virtueColors[s.virtue?.toLowerCase()] ?? "#5b2d8e";
+        const vc = virtueColors[s.virtue?.toLowerCase()] ?? "#0f1f35";
         return `
         <div class="via-card">
           <div class="via-card-header">
@@ -391,7 +392,7 @@ function buildReportHTML(data: {
     ${ranked.map((s: any, i: number) => {
       const strength = strengthsMap.get(s.strengthId);
       const pct = Math.round((s.score / 25) * 100);
-      const color = i < 5 ? "#5b2d8e" : i < 10 ? "#c9a227" : "#c0b0a0";
+      const color = i < 5 ? "#c9973a" : i < 10 ? "#c9a227" : "#c0b0a0";
       return `
       <div class="via-bar-row">
         <div class="via-bar-label">${i + 1}. ${strength?.name ?? s.strengthId}</div>
@@ -420,7 +421,7 @@ function buildReportHTML(data: {
             <span style="font-size:14px;font-weight:600;color:#1a1008;">${domain.name}</span>
             <span style="font-size:12px;color:#6b5c4a;">${label} (${score}/100)</span>
           </div>
-          <div style="height:8px;background:#f0e8f8;border-radius:4px;overflow:hidden;">
+          <div style="height:8px;background:#f0e8d8;border-radius:4px;overflow:hidden;">
             <div style="height:100%;width:${pct}%;background:${domain.color};border-radius:4px;"></div>
           </div>
           <p style="font-size:12px;color:#6b5c4a;margin-top:4px;">${domain.description}</p>
@@ -442,7 +443,7 @@ function buildReportHTML(data: {
             <span style="font-size:13px;color:#1a1008;">${facet.name}</span>
             <span style="font-size:11px;color:#9a8a78;">${fs}/100</span>
           </div>
-          <div style="height:5px;background:#f0e8f8;border-radius:3px;overflow:hidden;">
+          <div style="height:5px;background:#f0e8d8;border-radius:3px;overflow:hidden;">
             <div style="height:100%;width:${pct}%;background:${domain.color};opacity:0.7;border-radius:3px;"></div>
           </div>
           <div style="display:flex;justify-content:space-between;font-size:10px;color:#9a8a78;margin-top:1px;">
@@ -468,26 +469,26 @@ function buildReportHTML(data: {
       const pct = Math.round((score / 10) * 100);
       const domainLabel = domain.charAt(0).toUpperCase() + domain.slice(1);
       const levelColors: Record<string, string> = { Developing: '#9ca3af', Solid: '#3b82f6', Strong: '#10b981', Exceptional: '#8b5cf6' };
-      const barColor = levelColors[interp.label] ?? '#5b2d8e';
+      const barColor = levelColors[interp.label] ?? '#0f1f35';
       return `
-      <div style="margin-bottom:24px;padding:16px;border:1px solid #e8d5f5;border-radius:10px;background:#faf5ff;">
+      <div style="margin-bottom:24px;padding:16px;border:1px solid rgba(201,151,58,0.25);border-radius:10px;background:#fdf9f3;">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
           <span style="font-family:'Playfair Display',serif;font-size:16px;font-weight:600;color:#1a1008;">${domainLabel} Reasoning</span>
           <div style="display:flex;align-items:center;gap:10px;">
-            <span style="font-size:18px;font-weight:700;color:#5b2d8e;">${score}/10</span>
+            <span style="font-size:18px;font-weight:700;color:#c9973a;">${score}/10</span>
             <span style="font-size:11px;padding:2px 10px;border-radius:20px;color:white;font-weight:600;background:${barColor};">${interp.label}</span>
           </div>
         </div>
-        <div style="height:8px;background:#f0e8f8;border-radius:4px;overflow:hidden;margin-bottom:12px;">
+        <div style="height:8px;background:#f0e8d8;border-radius:4px;overflow:hidden;margin-bottom:12px;">
           <div style="height:100%;width:${pct}%;background:${barColor};border-radius:4px;"></div>
         </div>
         <p style="font-size:13px;color:#1a1008;line-height:1.65;margin-bottom:6px;">${interp.description}</p>
-        <p style="font-size:12px;color:#5b2d8e;font-weight:500;"><strong>Career implication:</strong> ${interp.careerImplication}</p>
+        <p style="font-size:12px;color:#0f1f35;font-weight:500;"><strong>Career implication:</strong> ${interp.careerImplication}</p>
       </div>`;
     }).join('')}
-    <div style="margin-top:16px;padding:12px 16px;background:#f0e8f8;border-radius:8px;display:flex;align-items:center;justify-content:space-between;">
+    <div style="margin-top:16px;padding:12px 16px;background:#f0e8d8;border-radius:8px;display:flex;align-items:center;justify-content:space-between;">
       <span style="font-size:13px;color:#6b5c4a;">Overall Score</span>
-      <span style="font-size:20px;font-weight:700;color:#5b2d8e;">${(cognitive.scores as any).total ?? 0} / 30</span>
+      <span style="font-size:20px;font-weight:700;color:#c9973a;">${(cognitive.scores as any).total ?? 0} / 30</span>
       ${(cognitive.scores as any).percentile ? `<span style="font-size:12px;color:#9a8a78;">~${(cognitive.scores as any).percentile}th percentile</span>` : ''}
     </div>
   </div>
@@ -500,7 +501,7 @@ function buildReportHTML(data: {
     <div class="analysis-content">${markdownToHTML(approvedAnnex)}</div>
   </div>` : ""}
 
-  <div style="margin-top:60px;padding-top:20px;border-top:1px solid #e8d5f5;text-align:center;font-size:11px;color:#9a8a78;">
+  <div style="margin-top:60px;padding-top:20px;border-top:1px solid rgba(201,151,58,0.4);text-align:center;font-size:11px;color:#9a8a78;">
     &copy; Pennington Hennessy ${new Date().getFullYear()} &mdash; Confidential
   </div>
 
