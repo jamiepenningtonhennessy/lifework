@@ -157,8 +157,8 @@ export default function ClientDashboard() {
               <h1 className="text-3xl font-serif font-bold text-foreground mb-2">
                 Welcome{user?.name ? `, ${user.name.split(" ")[0]}` : ""}
               </h1>
-              <p className="text-muted-foreground">
-                Your career analysis journey. Complete each step at your own pace.
+              <p className="text-muted-foreground leading-relaxed">
+                Your career analysis journey. Complete each step at your own pace. You can leave and come back later during the Life History and Background &amp; History; some clients find they like the opportunity to pause and reflect. When you have finished these first two stages please click on the &ldquo;Chat to Jamie&rdquo; button. Jamie will have read what you have written, and will offer you some thoughts and ask you questions that may aid your reflection.
               </p>
             </div>
 
@@ -219,14 +219,6 @@ export default function ClientDashboard() {
                           <p className="text-sm text-muted-foreground leading-relaxed">{step.description}</p>
                         </div>
                         <div className="flex-shrink-0 flex flex-col items-end gap-2">
-                          {/* Chat to Peter — shown when life history is in progress or completed */}
-                          {(step.id === "interview" && (isCompleted || isInProgress)) && (
-                            <ChatToPeter
-                              section="life_history"
-                              buttonLabel="Chat to Jamie"
-                              sectionDescription="Jamie has read your life history achievements. He'd like to explore them with you — reflecting back what he's noticed and asking a few questions to help you see your own pattern more clearly."
-                            />
-                          )}
                           {step.id === "background" && (
                             <ChatToPeter
                               section="career_education"

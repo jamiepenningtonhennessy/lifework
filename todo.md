@@ -253,3 +253,8 @@
 
 - [x] Replace "L" monogram in website nav/headers with PH brand square image (CDN: https://d2xsxph8kpxj0f.cloudfront.net/107696804/kFbbE6kqNApXGDFpQJUGV7/phsquare_98c01de4.jpg)
 - [x] Replace "PT" / "L" logo on PDF report cover with PH brand square image
+
+## Client Dashboard — Welcome Text & Chat to Jamie
+
+- [x] Update welcome subtitle text with new wording about saving/returning and Chat to Jamie instruction
+- [x] Remove Chat to Jamie button from the Life History Interview step (keep only on Background & History step)
