@@ -197,7 +197,7 @@ function buildReportHTML(data: {
   .page { max-width: 800px; margin: 0 auto; padding: 40px 48px; }
   
   /* Cover */
-  .cover { min-height: 100vh; display: flex; flex-direction: column; justify-content: space-between; border-bottom: 3px solid #c9973a; padding-bottom: 48px; }
+  .cover { height: 247mm; display: flex; flex-direction: column; justify-content: space-between; border-bottom: 3px solid #c9973a; padding-bottom: 32px; box-sizing: border-box; overflow: hidden; }
   .cover-logo { display: flex; align-items: center; gap: 10px; margin-bottom: 80px; }
   .cover-logo-square { width: 36px; height: 36px; border: 2px solid #c9973a; display: flex; align-items: center; justify-content: center; }
   .cover-logo-circle { width: 36px; height: 36px; border: 2px solid #c9973a; display: flex; align-items: center; justify-content: center; color: #c9973a; font-weight: 700; font-size: 14px; }
@@ -516,7 +516,7 @@ function buildReportHTML(data: {
     <div class="analysis-content">${markdownToHTML(approvedAnnex)}</div>
   </div>` : ""}
 
-  <div style="margin-top:60px;padding-top:20px;border-top:1px solid rgba(201,151,58,0.4);text-align:center;font-size:11px;color:#9a8a78;">
+  <div style="page-break-inside:avoid;page-break-before:avoid;margin-top:32px;padding-top:16px;border-top:1px solid rgba(201,151,58,0.4);text-align:center;font-size:11px;color:#9a8a78;">
     &copy; Pennington Hennessy ${new Date().getFullYear()} &mdash; Confidential
   </div>
 
