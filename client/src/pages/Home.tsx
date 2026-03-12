@@ -125,7 +125,7 @@ export default function Home() {
               style={{ fontSize: "1.05rem", color: "rgba(255,255,255,0.72)", maxWidth: "520px" }}>
               Lifework guides you through a reflective journey of your life history — your achievements,
               your strengths, your values — to reveal the career that is authentically yours.
-              Based on the pioneering methodology of career analyst Peter Daws.
+              Based on the pioneering methodology of Bernard Haldane and the Dependable Strengths tradition.
             </p>
             <div className="flex flex-col sm:flex-row gap-4">
               <button
@@ -266,7 +266,7 @@ export default function Home() {
                 Lifework is built on the Dependable Strengths methodology, developed by Bernard Haldane at Columbia University in the 1940s and refined over decades of research at the University of Washington. The core insight is simple but profound: the most reliable guide to a fulfilling career is not a questionnaire about preferences, but a careful reading of the life you have already lived.
               </p>
               <p>
-                Peter Daws spent thirty years applying this approach in individual practice, working with over 965 clients across every stage of working life — from graduates finding their first direction to senior professionals facing retirement. He believed that every life history, read attentively, contains a pattern of motivated achievement that points clearly toward the work that will be most rewarding.
+                Bernard Haldane spent decades refining this approach, and his Dependable Strengths methodology has since been applied with thousands of clients across every stage of working life — from graduates finding their first direction to senior professionals facing retirement. The central conviction is that every life history, read attentively, contains a pattern of motivated achievement that points clearly toward the work that will be most rewarding.
               </p>
               <p>
                 Lifework makes that conversation available at scale, guided by a counsellor who knows the methodology and the database of real outcomes behind it. The psychometric instruments — personality, character strengths, cognitive profile — are not the analysis. They are lenses through which the life history is read more clearly.
@@ -284,7 +284,7 @@ export default function Home() {
             "The most important thing is to find out what is important to you — not what others think should be important."
           </blockquote>
           <p style={{ fontSize: "0.8rem", color: "rgba(255,255,255,0.5)", letterSpacing: "0.06em" }}>
-            — Peter Daws, Career Analyst
+            — Bernard Haldane, Dependable Strengths
           </p>
         </div>
       </section>
@@ -303,7 +303,7 @@ export default function Home() {
             </span>
           </div>
           <p style={{ fontSize: "0.75rem", color: "rgba(255,255,255,0.4)" }}>
-            Inspired by the work of Peter Daws · A{" "}
+            Inspired by the work of Bernard Haldane · A{" "}
             <a
               href="https://www.penningtonhennessy.com"
               target="_blank"

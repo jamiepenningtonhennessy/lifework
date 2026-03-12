@@ -223,15 +223,15 @@ export default function ClientDashboard() {
                           {(step.id === "interview" && (isCompleted || isInProgress)) && (
                             <ChatToPeter
                               section="life_history"
-                              buttonLabel="Chat to Peter"
-                              sectionDescription="Peter has read your life history achievements. He’d like to explore them with you — reflecting back what he’s noticed and asking a few questions to help you see your own pattern more clearly."
+                              buttonLabel="Chat to Jamie"
+                              sectionDescription="Jamie has read your life history achievements. He'd like to explore them with you — reflecting back what he's noticed and asking a few questions to help you see your own pattern more clearly."
                             />
                           )}
                           {step.id === "background" && (
                             <ChatToPeter
                               section="career_education"
-                              buttonLabel="Chat to Peter"
-                              sectionDescription="Peter has read your education and career history. He’d like to explore the relationship between your formal career path and what you’ve actually found most rewarding."
+                              buttonLabel="Chat to Jamie"
+                              sectionDescription="Jamie has read your education and career history. He'd like to explore the relationship between your formal career path and what you've actually found most rewarding."
                             />
                           )}
                           {step.id === "analysis" ? (

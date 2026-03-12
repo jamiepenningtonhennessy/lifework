@@ -215,3 +215,9 @@
 
 - [ ] Add IPIP personality tab to counsellor ClientProfile view (Big Five scores with bar chart and interpretation)
 - [ ] Add Cognitive Screener tab to counsellor ClientProfile view (verbal/numerical/abstract scores with interpretation)
+
+## Branding — Replace Peter Daws with Bernard Haldane in public-facing copy
+
+- [ ] Update Home.tsx landing copy (hero, about section, footer attribution)
+- [ ] Update Virtual Peter description in ClientProfile.tsx
+- [ ] Update PDF export footer text in pdf-export.ts

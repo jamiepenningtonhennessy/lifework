@@ -158,11 +158,11 @@ export function ChatToPeter({
             {/* Header */}
             <div className="flex items-center gap-3 px-4 py-3 border-b border-border bg-[var(--lw-gold-light)]/10 rounded-t-2xl">
               <div className="w-9 h-9 rounded-full bg-[var(--lw-gold)] flex items-center justify-center text-white font-serif font-bold text-sm flex-shrink-0">
-                P
+                J
               </div>
               <div className="flex-1 min-w-0">
-                <p className="font-semibold text-foreground text-sm">Peter Daws</p>
-                <p className="text-xs text-muted-foreground">Career Analyst · Dependable Strengths</p>
+                <p className="font-semibold text-foreground text-sm">Jamie</p>
+                <p className="text-xs text-muted-foreground">Your Lifework Counsellor</p>
               </div>
               <div className="flex items-center gap-1">
                 {messages.length >= 4 && !isSummarised && (

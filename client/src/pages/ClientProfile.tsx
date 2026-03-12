@@ -559,9 +559,9 @@ export default function ClientProfile() {
                   <div>
                     <h3 className="font-serif font-semibold text-foreground mb-1">Virtual Peter — Parallel Clients</h3>
                     <p className="text-sm text-muted-foreground leading-relaxed">
-                      Peter Daws maintained a mental library of 449 clients whose life histories he knew well.
-                      This feature replicates that knowledge: it analyses this client's achievements and themes,
-                      then finds the most similar historical clients from Peter's database — matched by life pattern,
+                      Bernard Haldane's Dependable Strengths methodology was built on recognising patterns across many life histories.
+                      This feature replicates that insight: it analyses this client's achievements and themes,
+                      then finds the most similar historical clients from the Lifework database — matched by life pattern,
                       not by psychometric scores.
                     </p>
                     <p className="text-xs text-muted-foreground mt-2 italic">

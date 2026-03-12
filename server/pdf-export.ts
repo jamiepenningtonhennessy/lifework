@@ -273,7 +273,7 @@ function buildReportHTML(data: {
       </div>
     </div>
     <div class="cover-footer">
-      Lifework Career Analysis — Based on the methodology of Peter Daws (1982–2017) — Confidential
+      Lifework Career Analysis — Based on the Dependable Strengths methodology of Bernard Haldane — Confidential
     </div>
   </div>
 
@@ -441,7 +441,7 @@ function buildReportHTML(data: {
   </div>` : ""}
 
   <div style="margin-top:60px;padding-top:20px;border-top:1px solid #e8d5f5;text-align:center;font-size:11px;color:#9a8a78;">
-    Lifework Career Analysis — Confidential — Prepared ${date} — Based on the methodology of Peter Daws
+    Lifework Career Analysis — Confidential — Prepared ${date} — Based on the Dependable Strengths methodology of Bernard Haldane
   </div>
 
 </div>
