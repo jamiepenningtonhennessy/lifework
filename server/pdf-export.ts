@@ -13,7 +13,9 @@ import {
   getCoachingAnnex,
   getCognitiveScreenerResult,
 } from "./db";
-import { getUserByOpenId } from "./db";
+import { getUserByOpenId, getDb } from "./db";
+import { users } from "../drizzle/schema";
+import { eq } from "drizzle-orm";
 import { VIA_STRENGTHS } from "../shared/via-data";
 import { IPIP_DOMAINS, IPIP_FACETS } from "../shared/ipip-data";
 import { interpretDomain } from "../shared/cognitive-screener-data";
@@ -69,9 +71,22 @@ pdfRouter.get("/api/export/report/:clientId?", async (req: Request, res: Respons
     });
 
     // Build markdown content for PDF
-    const clientName = profile.firstName && profile.lastName
-      ? `${profile.firstName} ${profile.lastName}`
-      : user.name ?? "Client";
+    // When admin exports a client's report, look up the CLIENT's user record for their name
+    // (never fall back to the logged-in admin's name)
+    let clientName: string;
+    if (profile.firstName && profile.lastName) {
+      clientName = `${profile.firstName} ${profile.lastName}`;
+    } else if (profile.firstName) {
+      clientName = profile.firstName;
+    } else {
+      // Look up the client's own user record
+      const db = await getDb();
+      const clientUserRows = db
+        ? await db.select().from(users).where(eq(users.id, profile.userId)).limit(1)
+        : [];
+      const clientUser = clientUserRows[0] ?? null;
+      clientName = clientUser?.name ?? "Client";
+    }
 
     const now = new Date().toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
 
@@ -255,8 +270,8 @@ function buildReportHTML(data: {
   html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   
   .print-bar { position: fixed; top: 0; left: 0; right: 0; z-index: 200; background: #0f1f35; border-bottom: 2px solid #c9973a; padding: 10px 24px; display: flex; align-items: center; justify-content: space-between; gap: 16px; font-family: 'Inter', sans-serif; }
-  .print-bar-tip { font-size: 12px; color: rgba(255,255,255,0.7); line-height: 1.4; }
-  .print-bar-tip strong { color: #c9973a; }
+  .print-bar-tip { font-size: 13px; color: rgba(255,255,255,0.85); line-height: 1.4; }
+  .print-bar-tip strong { color: #f0c060; font-weight: 700; }
   .print-btn { background: #c9973a; color: white; border: none; padding: 9px 20px; cursor: pointer; font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 600; letter-spacing: 0.04em; white-space: nowrap; }
   .print-btn:hover { background: #b8862e; }
   @media print { .print-bar { display: none; } body { padding-top: 0 !important; } }
@@ -267,7 +282,7 @@ function buildReportHTML(data: {
 <body>
 <div class="print-bar">
   <div class="print-bar-tip">
-    <strong>Before printing:</strong> In the print dialog, open <strong>More settings</strong> and turn off <strong>Headers and footers</strong> to remove the browser URL and page numbers.
+    <strong>&#9888; Important:</strong> In the print dialog, set <strong>Margins = None</strong> and uncheck <strong>Headers and footers</strong> — otherwise the browser will add the URL and date to every page.
   </div>
   <button class="print-btn" onclick="window.print()">Print / Save as PDF</button>
 </div>
