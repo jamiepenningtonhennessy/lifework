@@ -210,3 +210,8 @@
 - [x] Show locked state message on /career-explorer if not yet unlocked
 - [x] Add "Unlock Career Explorer" button to counsellor ClientProfile overview tab
 - [x] Write vitest tests for unlock/lock procedures
+
+## Counsellor View — IPIP & Cognitive Screener Tabs
+
+- [ ] Add IPIP personality tab to counsellor ClientProfile view (Big Five scores with bar chart and interpretation)
+- [ ] Add Cognitive Screener tab to counsellor ClientProfile view (verbal/numerical/abstract scores with interpretation)

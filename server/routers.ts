@@ -511,7 +511,7 @@ const counselorRouter = router({
   getClientProfile: counselorProcedure
     .input(z.object({ clientId: z.number() }))
     .query(async ({ input }) => {
-      const [profile, achievementsList, family, education, career, via, ipip, report, messages, chatSessions] =
+      const [profile, achievementsList, family, education, career, via, ipip, cognitive, report, messages, chatSessions] =
         await Promise.all([
           getClientProfileById(input.clientId),
           getAchievements(input.clientId),
@@ -520,11 +520,12 @@ const counselorRouter = router({
           getCareerHistory(input.clientId),
           getViaResults(input.clientId),
           getIpipResults(input.clientId),
+          getCognitiveScreenerResult(input.clientId),
           getAnalysisReport(input.clientId),
           getInterviewMessages(input.clientId),
           getChatSessionsByClient(input.clientId),
         ]);
-      return { profile, achievements: achievementsList, family, education, career, via, ipip, report, messages, chatSessions };
+      return { profile, achievements: achievementsList, family, education, career, via, ipip, cognitive, report, messages, chatSessions };
     }),
 
   saveNotes: counselorProcedure

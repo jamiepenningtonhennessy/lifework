@@ -33,7 +33,7 @@ import {
 import { Streamdown } from "streamdown";
 import { toast } from "sonner";
 
-type Tab = "overview" | "interview" | "background" | "via" | "report" | "virtual-peter" | "coaching-annex";
+type Tab = "overview" | "interview" | "background" | "via" | "ipip" | "cognitive" | "report" | "virtual-peter" | "coaching-annex";
 
 export default function ClientProfile() {
   const { isAuthenticated, loading, user } = useAuth();
@@ -113,6 +113,8 @@ export default function ClientProfile() {
     { id: "interview", label: "Interview", icon: <MessageSquare className="w-4 h-4" /> },
     { id: "background", label: "Background", icon: <Briefcase className="w-4 h-4" /> },
     { id: "via", label: "VIA Strengths", icon: <Star className="w-4 h-4" /> },
+    { id: "ipip", label: "Personality", icon: <Users className="w-4 h-4" /> },
+    { id: "cognitive", label: "Cognitive", icon: <Brain className="w-4 h-4" /> },
     { id: "report", label: "Analysis Report", icon: <Brain className="w-4 h-4" /> },
     { id: "virtual-peter", label: "Virtual Peter", icon: <GitCompare className="w-4 h-4" /> },
   { id: "coaching-annex", label: "Coaching Annex", icon: <FileText className="w-4 h-4" /> },
@@ -513,6 +515,14 @@ export default function ClientProfile() {
                 </div>
               )}
             </div>
+          )}
+
+          {activeTab === "ipip" && (
+            <IpipTab ipip={data.ipip} />
+          )}
+
+          {activeTab === "cognitive" && (
+            <CognitiveTab cognitive={data.cognitive} />
           )}
 
           {activeTab === "report" && (
@@ -1022,6 +1032,194 @@ function CoachingAnnexTab({ clientId }: { clientId: number }) {
           </Button>
         </div>
       )}
+    </div>
+  );
+}
+
+// ─── IPIP Personality Tab ─────────────────────────────────────────────────────
+const IPIP_DOMAINS_INFO = [
+  { key: "N", name: "Neuroticism", color: "#7C3AED", lowLabel: "Emotionally stable, calm", highLabel: "Emotionally reactive, prone to stress",
+    facets: [
+      { key: "N1", name: "Anxiety" }, { key: "N2", name: "Anger" }, { key: "N3", name: "Depression" },
+      { key: "N4", name: "Self-Consciousness" }, { key: "N5", name: "Immoderation" }, { key: "N6", name: "Vulnerability" },
+    ]},
+  { key: "E", name: "Extraversion", color: "#D97706", lowLabel: "Reserved, reflective", highLabel: "Outgoing, energetic, sociable",
+    facets: [
+      { key: "E1", name: "Friendliness" }, { key: "E2", name: "Gregariousness" }, { key: "E3", name: "Assertiveness" },
+      { key: "E4", name: "Activity Level" }, { key: "E5", name: "Excitement-Seeking" }, { key: "E6", name: "Cheerfulness" },
+    ]},
+  { key: "O", name: "Openness to Experience", color: "#059669", lowLabel: "Practical, conventional", highLabel: "Curious, creative, open to new ideas",
+    facets: [
+      { key: "O1", name: "Imagination" }, { key: "O2", name: "Artistic Interests" }, { key: "O3", name: "Emotionality" },
+      { key: "O4", name: "Adventurousness" }, { key: "O5", name: "Intellect" }, { key: "O6", name: "Liberalism" },
+    ]},
+  { key: "A", name: "Agreeableness", color: "#DB2777", lowLabel: "Competitive, sceptical", highLabel: "Cooperative, trusting, empathetic",
+    facets: [
+      { key: "A1", name: "Trust" }, { key: "A2", name: "Morality" }, { key: "A3", name: "Altruism" },
+      { key: "A4", name: "Cooperation" }, { key: "A5", name: "Modesty" }, { key: "A6", name: "Sympathy" },
+    ]},
+  { key: "C", name: "Conscientiousness", color: "#2563EB", lowLabel: "Spontaneous, flexible", highLabel: "Organised, disciplined, goal-directed",
+    facets: [
+      { key: "C1", name: "Self-Efficacy" }, { key: "C2", name: "Orderliness" }, { key: "C3", name: "Dutifulness" },
+      { key: "C4", name: "Achievement-Striving" }, { key: "C5", name: "Self-Discipline" }, { key: "C6", name: "Cautiousness" },
+    ]},
+];
+
+function IpipTab({ ipip }: { ipip: any }) {
+  const [expandedDomain, setExpandedDomain] = useState<string | null>(null);
+  if (!ipip) {
+    return (
+      <div className="max-w-3xl text-center py-12 border-2 border-dashed border-border rounded-xl">
+        <Users className="w-10 h-10 text-muted-foreground mx-auto mb-3" />
+        <p className="text-muted-foreground">Personality assessment not yet completed.</p>
+      </div>
+    );
+  }
+  const domainScores: Record<string, number> = (() => {
+    try { return typeof ipip.domainScores === "string" ? JSON.parse(ipip.domainScores) : (ipip.domainScores ?? {}); }
+    catch { return {}; }
+  })();
+  const facetScores: Record<string, number> = (() => {
+    try { return typeof ipip.facetScores === "string" ? JSON.parse(ipip.facetScores) : (ipip.facetScores ?? {}); }
+    catch { return {}; }
+  })();
+
+  return (
+    <div className="max-w-3xl space-y-4">
+      <div className="p-4 rounded-xl bg-[var(--lw-gold-light)]/15 border border-[var(--lw-gold)]/20 mb-2">
+        <p className="text-sm text-muted-foreground">
+          Big Five (IPIP-NEO) personality profile. Scores are 0–100 percentile within the general population.
+          Click any domain to expand the six facet scores.
+        </p>
+      </div>
+      {IPIP_DOMAINS_INFO.map((domain) => {
+        const score = domainScores[domain.key] ?? 50;
+        const isExpanded = expandedDomain === domain.key;
+        return (
+          <div key={domain.key} className="border border-border rounded-xl overflow-hidden">
+            <button
+              className="w-full text-left p-4 hover:bg-muted/20 transition-colors"
+              onClick={() => setExpandedDomain(isExpanded ? null : domain.key)}
+            >
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-2">
+                  <span className="font-serif font-semibold text-foreground">{domain.name}</span>
+                  <span className="text-xs text-muted-foreground">{isExpanded ? "▲" : "▼"}</span>
+                </div>
+                <span className="text-sm font-bold" style={{ color: domain.color }}>{score}</span>
+              </div>
+              <div className="h-2 bg-muted rounded-full overflow-hidden mb-1">
+                <div className="h-full rounded-full transition-all" style={{ width: `${score}%`, backgroundColor: domain.color }} />
+              </div>
+              <div className="flex justify-between text-[11px] text-muted-foreground">
+                <span>{domain.lowLabel}</span>
+                <span>{domain.highLabel}</span>
+              </div>
+            </button>
+            {isExpanded && (
+              <div className="px-4 pb-4 pt-2 border-t border-border/50 grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {domain.facets.map((facet) => {
+                  const fs = facetScores[facet.key] ?? 50;
+                  return (
+                    <div key={facet.key} className="space-y-1">
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-medium text-foreground">{facet.name}</span>
+                        <span className="text-xs font-bold" style={{ color: domain.color }}>{fs}</span>
+                      </div>
+                      <div className="h-1.5 bg-muted rounded-full overflow-hidden">
+                        <div className="h-full rounded-full" style={{ width: `${fs}%`, backgroundColor: domain.color }} />
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+// ─── Cognitive Screener Tab ───────────────────────────────────────────────────
+const COG_DOMAINS = [
+  { key: "verbal", label: "Verbal Reasoning", color: "#2563EB",
+    desc: "Ability to understand and reason using language, identify logical relationships, and draw conclusions from written information." },
+  { key: "numerical", label: "Numerical Reasoning", color: "#059669",
+    desc: "Ability to work with numbers, interpret quantitative data, and reason through mathematical relationships." },
+  { key: "abstract", label: "Abstract Reasoning", color: "#7C3AED",
+    desc: "Ability to identify patterns, rules, and relationships in novel, non-verbal information." },
+];
+
+function interpretLevel(score: number): { label: string; color: string } {
+  if (score <= 3) return { label: "Developing", color: "text-amber-600" };
+  if (score <= 6) return { label: "Solid", color: "text-blue-600" };
+  if (score <= 8) return { label: "Strong", color: "text-emerald-600" };
+  return { label: "Exceptional", color: "text-purple-600" };
+}
+
+function CognitiveTab({ cognitive }: { cognitive: any }) {
+  if (!cognitive) {
+    return (
+      <div className="max-w-3xl text-center py-12 border-2 border-dashed border-border rounded-xl">
+        <Brain className="w-10 h-10 text-muted-foreground mx-auto mb-3" />
+        <p className="text-muted-foreground">Cognitive screener not yet completed.</p>
+      </div>
+    );
+  }
+  const scores: Record<string, number> = (() => {
+    try { return typeof cognitive.scores === "string" ? JSON.parse(cognitive.scores) : (cognitive.scores ?? {}); }
+    catch { return {}; }
+  })();
+  const verbal = scores.verbal ?? 0;
+  const numerical = scores.numerical ?? 0;
+  const abstract = scores.abstract ?? 0;
+  const total = scores.total ?? (verbal + numerical + abstract);
+  const percentile = scores.percentile ?? 0;
+  const timeMins = cognitive.timeTakenSeconds ? Math.round(cognitive.timeTakenSeconds / 60) : null;
+
+  return (
+    <div className="max-w-3xl space-y-6">
+      {/* Summary card */}
+      <div className="p-5 rounded-xl bg-[var(--lw-gold-light)]/15 border border-[var(--lw-gold)]/20">
+        <div className="flex items-center justify-between mb-1">
+          <span className="font-serif font-semibold text-foreground">Overall Score</span>
+          <span className="text-2xl font-bold text-[var(--lw-gold)]">{total}<span className="text-sm font-normal text-muted-foreground">/30</span></span>
+        </div>
+        <div className="h-2.5 bg-muted rounded-full overflow-hidden mb-2">
+          <div className="h-full bg-[var(--lw-gold)] rounded-full" style={{ width: `${(total / 30) * 100}%` }} />
+        </div>
+        <div className="flex items-center justify-between text-sm text-muted-foreground">
+          <span>Indicative percentile: <span className="font-semibold text-foreground">{percentile}th</span></span>
+          {timeMins !== null && <span>Completed in {timeMins} min</span>}
+        </div>
+        <p className="text-xs text-muted-foreground mt-2 italic">
+          Scores are indicative only — not clinically validated. Presented as a relative guide within this platform.
+        </p>
+      </div>
+
+      {/* Domain breakdown */}
+      <div className="space-y-4">
+        {COG_DOMAINS.map((d) => {
+          const s = d.key === "verbal" ? verbal : d.key === "numerical" ? numerical : abstract;
+          const { label, color } = interpretLevel(s);
+          return (
+            <div key={d.key} className="border border-border rounded-xl p-4 space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="font-serif font-semibold text-foreground">{d.label}</span>
+                <div className="flex items-center gap-2">
+                  <span className={`text-xs font-semibold ${color}`}>{label}</span>
+                  <span className="text-sm font-bold" style={{ color: d.color }}>{s}<span className="text-xs font-normal text-muted-foreground">/10</span></span>
+                </div>
+              </div>
+              <div className="h-2 bg-muted rounded-full overflow-hidden">
+                <div className="h-full rounded-full transition-all" style={{ width: `${(s / 10) * 100}%`, backgroundColor: d.color }} />
+              </div>
+              <p className="text-xs text-muted-foreground">{d.desc}</p>
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }
