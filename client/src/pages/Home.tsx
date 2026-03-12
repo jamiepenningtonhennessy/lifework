@@ -37,10 +37,7 @@ export default function Home() {
         <div className="container flex items-center justify-between h-16">
           {/* Wordmark */}
           <div className="flex items-center gap-3">
-            <div className="flex items-center justify-center w-8 h-8"
-              style={{ border: "1px solid var(--lw-gold)" }}>
-              <span style={{ color: "var(--lw-gold)", fontFamily: "'Playfair Display', serif", fontWeight: 700, fontSize: "0.8rem" }}>L</span>
-            </div>
+            <img src="https://d2xsxph8kpxj0f.cloudfront.net/107696804/kFbbE6kqNApXGDFpQJUGV7/phsquare_98c01de4.jpg" alt="Pennington Hennessy" className="w-8 h-8 object-cover" />
             <span style={{ color: "white", fontFamily: "'Playfair Display', serif", fontWeight: 600, fontSize: "1.1rem", letterSpacing: "0.02em" }}>
               Lifework
             </span>
@@ -294,10 +291,7 @@ export default function Home() {
         className="py-8">
         <div className="container flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <div className="flex items-center justify-center w-6 h-6"
-              style={{ border: "1px solid var(--lw-gold)" }}>
-              <span style={{ color: "var(--lw-gold)", fontFamily: "'Playfair Display', serif", fontWeight: 700, fontSize: "0.65rem" }}>L</span>
-            </div>
+            <img src="https://d2xsxph8kpxj0f.cloudfront.net/107696804/kFbbE6kqNApXGDFpQJUGV7/phsquare_98c01de4.jpg" alt="Pennington Hennessy" className="w-6 h-6 object-cover" />
             <span style={{ color: "rgba(255,255,255,0.6)", fontSize: "0.85rem", fontFamily: "'Playfair Display', serif" }}>
               Lifework
             </span>

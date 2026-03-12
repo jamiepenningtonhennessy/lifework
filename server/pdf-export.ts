@@ -200,7 +200,7 @@ function buildReportHTML(data: {
   .cover { height: 247mm; display: flex; flex-direction: column; justify-content: space-between; border-bottom: 3px solid #c9973a; padding-bottom: 32px; box-sizing: border-box; overflow: hidden; }
   .cover-logo { display: flex; align-items: center; gap: 10px; margin-bottom: 80px; }
   .cover-logo-square { width: 36px; height: 36px; border: 2px solid #c9973a; display: flex; align-items: center; justify-content: center; }
-  .cover-logo-circle { width: 36px; height: 36px; border: 2px solid #c9973a; display: flex; align-items: center; justify-content: center; color: #c9973a; font-weight: 700; font-size: 14px; }
+  .cover-logo-circle { width: 36px; height: 36px; overflow: hidden; display: block; }
   .cover-logo-text { font-family: 'Playfair Display', serif; font-size: 18px; font-weight: 600; color: #0f1f35; }
   .cover-title { font-family: 'Playfair Display', serif; font-size: 48px; font-weight: 700; color: #0f1f35; line-height: 1.15; margin-bottom: 16px; }
   .cover-subtitle { font-size: 18px; color: #6b5c4a; margin-bottom: 48px; }
@@ -292,7 +292,7 @@ function buildReportHTML(data: {
   <div class="cover">
     <div>
       <div class="cover-logo">
-        <div class="cover-logo-circle">L</div>
+        <img src="https://d2xsxph8kpxj0f.cloudfront.net/107696804/kFbbE6kqNApXGDFpQJUGV7/phsquare_98c01de4.jpg" style="width:36px;height:36px;object-fit:cover;display:block;" alt="Pennington Hennessy" />
         <div class="cover-logo-text">Lifework</div>
       </div>
       <div class="cover-title">Career Analysis<br>Report</div>

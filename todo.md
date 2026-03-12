@@ -248,3 +248,8 @@
 - [x] Auto-advance phaseIndex to first incomplete phase when client returns to Interview
 - [x] Show "Resume from where you left off" message on intro screen when partial data exists
 - [x] Add "Save progress" button so client can save mid-phase without advancing
+
+## Branding — PH Logo Square
+
+- [x] Replace "L" monogram in website nav/headers with PH brand square image (CDN: https://d2xsxph8kpxj0f.cloudfront.net/107696804/kFbbE6kqNApXGDFpQJUGV7/phsquare_98c01de4.jpg)
+- [x] Replace "PT" / "L" logo on PDF report cover with PH brand square image

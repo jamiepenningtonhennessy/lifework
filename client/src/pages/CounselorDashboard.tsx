@@ -59,9 +59,7 @@ export default function CounselorDashboard() {
         <div className="container flex items-center justify-between h-14">
           <div className="flex items-center gap-3">
             <div className="flex items-center gap-2">
-              <div className="w-7 h-7 flex items-center justify-center" style={{ border: "1px solid var(--lw-gold)" }}>
-                <span style={{ color: "var(--lw-gold)", fontFamily: "'Playfair Display', serif", fontWeight: 700, fontSize: "0.65rem" }}>L</span>
-              </div>
+              <img src="https://d2xsxph8kpxj0f.cloudfront.net/107696804/kFbbE6kqNApXGDFpQJUGV7/phsquare_98c01de4.jpg" alt="Pennington Hennessy" className="w-7 h-7 object-cover" />
               <span className="font-serif font-semibold" style={{ color: "white" }}>Lifework</span>
             </div>
             <div className="h-4 w-px" style={{ background: "rgba(255,255,255,0.2)" }} />
