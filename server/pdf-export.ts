@@ -282,9 +282,10 @@ function buildReportHTML(data: {
     </div>
   </div>
 
+
   ${report?.fullReportMarkdown ? `
   <!-- Analysis Report -->
-  <div class="section">
+  <div class="section" style="page-break-before:always;">
     <div class="section-title">Career Analysis</div>
     <div class="analysis-content">
       ${markdownToHTML(report.fullReportMarkdown)}
@@ -292,13 +293,107 @@ function buildReportHTML(data: {
   </div>
   ` : ""}
 
+  ${achievements.length > 0 ? `
+  <!-- Life History -->
+  <div class="section" style="page-break-before:always;">
+    <div class="section-title">Life History</div>
+    ${Object.entries(achievementsByDecade).map(([decade, items]) => `
+    <div class="decade-block">
+      <div class="decade-label">${decadeLabels[decade] ?? decade}</div>
+      ${(items as any[]).map((a: any) => `
+      <div class="achievement-item" style="border-left-color:${esfColors[a.esf] ?? '#e8d5f5'}">
+        <div class="achievement-title">${a.title}${a.esf ? `<span class="esf-badge" style="background:${esfColors[a.esf]}">${a.esf}</span>` : ""}</div>
+        ${a.description ? `<div class="achievement-desc">${a.description}</div>` : ""}
+      </div>`).join("")}
+    </div>`).join("")}
+  </div>
+  ` : ""}
+
+  ${(education.length > 0 || career.length > 0 || family) ? `
+  <!-- Background -->
+  <div class="section" style="page-break-before:always;">
+    <div class="section-title">Career &amp; Family Background</div>
+
+    ${family ? `
+    <div class="section-subtitle">Family Background</div>
+    <table style="width:100%;border-collapse:collapse;font-size:13px;margin-bottom:16px;">
+      ${family.fatherOccupation ? `<tr><td style="color:#9a8a78;padding:4px 0;width:160px">Father's occupation</td><td>${family.fatherOccupation}</td></tr>` : ""}
+      ${family.motherOccupation ? `<tr><td style="color:#9a8a78;padding:4px 0">Mother's occupation</td><td>${family.motherOccupation}</td></tr>` : ""}
+      ${family.siblingPosition ? `<tr><td style="color:#9a8a78;padding:4px 0">Sibling position</td><td>${family.siblingPosition}</td></tr>` : ""}
+      ${family.upbringingLocation ? `<tr><td style="color:#9a8a78;padding:4px 0">Upbringing</td><td>${family.upbringingLocation}</td></tr>` : ""}
+    </table>
+    ${family.familyNarrative ? `<p style="font-size:13px;color:#1a1008;margin-bottom:8px">${family.familyNarrative}</p>` : ""}
+    ` : ""}
+
+    ${education.length > 0 ? `
+    <div class="section-subtitle">Education</div>
+    ${education.map((e: any) => `
+    <div class="timeline-item">
+      <div class="timeline-role">${e.institution}</div>
+      <div class="timeline-org">${[e.qualification, e.subject].filter(Boolean).join(" \u2014 ")}</div>
+      <div class="timeline-years">${e.yearFrom ?? ""}${e.yearTo ? ` \u2013 ${e.yearTo}` : ""}</div>
+      ${e.highlights ? `<div class="timeline-notes">${e.highlights}</div>` : ""}
+    </div>`).join("")}
+    ` : ""}
+
+    ${career.length > 0 ? `
+    <div class="section-subtitle">Career History</div>
+    ${career.map((c: any) => `
+    <div class="timeline-item">
+      <div class="timeline-role">${c.role ?? ""} <span class="timeline-org">at ${c.organisation}</span></div>
+      <div class="timeline-years">${c.yearFrom ?? ""}${c.yearTo ? ` \u2013 ${c.yearTo}` : " \u2013 present"}</div>
+      ${c.highlights ? `<div class="timeline-notes">${c.highlights}</div>` : ""}
+    </div>`).join("")}
+    ` : ""}
+  </div>
+  ` : ""}
+
+  ${top5.length > 0 ? `
+  <!-- VIA Character Strengths -->
+  <div class="section" style="page-break-before:always;">
+    <div class="section-title">VIA Character Strengths</div>
+    <p style="font-size:14px;color:#6b5c4a;margin-bottom:20px;">Your character strengths are the positive traits that come most naturally to you. The top 5 are your <em>signature strengths</em> \u2014 the ones to build your career around.</p>
+
+    <div class="section-subtitle">Your Signature Strengths (Top 5)</div>
+    <div class="via-top5">
+      ${top5.map((s, i) => {
+        const vc = virtueColors[s.virtue?.toLowerCase()] ?? "#5b2d8e";
+        return `
+        <div class="via-card">
+          <div class="via-card-header">
+            <div class="via-rank">${i + 1}</div>
+            <div class="via-name">${s.name}</div>
+            ${s.virtue ? `<span class="via-virtue" style="background:${vc}20;color:${vc};border:1px solid ${vc}40">${s.virtue}</span>` : ""}
+            <div class="via-score">${s.score}/25</div>
+          </div>
+          <div class="via-desc">${s.description}</div>
+          ${s.atWork ? `<div class="via-atwork">${s.atWork}</div>` : ""}
+        </div>`;
+      }).join("")}
+    </div>
+
+    <div class="section-subtitle">All 24 Strengths Ranked</div>
+    ${ranked.map((s: any, i: number) => {
+      const strength = strengthsMap.get(s.strengthId);
+      const pct = Math.round((s.score / 25) * 100);
+      const color = i < 5 ? "#5b2d8e" : i < 10 ? "#c9a227" : "#c0b0a0";
+      return `
+      <div class="via-bar-row">
+        <div class="via-bar-label">${i + 1}. ${strength?.name ?? s.strengthId}</div>
+        <div class="via-bar-track"><div class="via-bar-fill" style="width:${pct}%;background:${color}"></div></div>
+        <div class="via-bar-score">${s.score}</div>
+      </div>`;
+    }).join("")}
+  </div>
+  ` : ""}
+
   ${ipip && ipip.domainScores ? `
   <!-- IPIP-NEO-120 Personality Profile -->
-  <div class="section">
+  <div class="section" style="page-break-before:always;">
     <div class="section-title">Personality Profile (IPIP-NEO-120)</div>
     <p style="font-size:14px;color:#6b5c4a;margin-bottom:20px;">The IPIP-NEO-120 measures personality across five broad domains and thirty specific facets. It is the modern open-science equivalent of the 16PF assessment used in traditional career counselling, and is validated against the same underlying model.</p>
-    
-    <div class="section-subtitle">The Big Five — Domain Overview</div>
+
+    <div class="section-subtitle">The Big Five \u2014 Domain Overview</div>
     <div style="margin-bottom:24px;">
       ${IPIP_DOMAINS.map((domain) => {
         const score = (ipip.domainScores as any)[domain.key] ?? 50;
@@ -317,12 +412,12 @@ function buildReportHTML(data: {
         </div>`;
       }).join("")}
     </div>
-    
+
     ${IPIP_DOMAINS.map((domain) => {
       const facets = IPIP_FACETS.filter((f) => f.domain === domain.key);
       const domainScore = (ipip.domainScores as any)[domain.key] ?? 50;
       return `
-      <div class="section-subtitle" style="color:${domain.color};">${domain.name} — Facet Detail (Domain score: ${domainScore}/100)</div>
+      <div class="section-subtitle" style="color:${domain.color};">${domain.name} \u2014 Facet Detail (Domain score: ${domainScore}/100)</div>
       ${facets.map((facet) => {
         const fs = (ipip.facetScores as any)[facet.key] ?? 50;
         const pct = fs;
@@ -344,52 +439,13 @@ function buildReportHTML(data: {
   </div>
   ` : ""}
 
-  ${top5.length > 0 ? `
-  <!-- VIA Character Strengths -->
-  <div class="section">
-    <div class="section-title">VIA Character Strengths</div>
-    <p style="font-size:14px;color:#6b5c4a;margin-bottom:20px;">Your character strengths are the positive traits that come most naturally to you. The top 5 are your <em>signature strengths</em> — the ones to build your career around.</p>
-    
-    <div class="section-subtitle">Your Signature Strengths (Top 5)</div>
-    <div class="via-top5">
-      ${top5.map((s, i) => {
-        const vc = virtueColors[s.virtue?.toLowerCase()] ?? "#5b2d8e";
-        return `
-        <div class="via-card">
-          <div class="via-card-header">
-            <div class="via-rank">${i + 1}</div>
-            <div class="via-name">${s.name}</div>
-            ${s.virtue ? `<span class="via-virtue" style="background:${vc}20;color:${vc};border:1px solid ${vc}40">${s.virtue}</span>` : ""}
-            <div class="via-score">${s.score}/25</div>
-          </div>
-          <div class="via-desc">${s.description}</div>
-          ${s.atWork ? `<div class="via-atwork">${s.atWork}</div>` : ""}
-        </div>`;
-      }).join("")}
-    </div>
-    
-    <div class="section-subtitle">All 24 Strengths Ranked</div>
-    ${ranked.map((s: any, i: number) => {
-      const strength = strengthsMap.get(s.strengthId);
-      const pct = Math.round((s.score / 25) * 100);
-      const color = i < 5 ? "#5b2d8e" : i < 10 ? "#c9a227" : "#c0b0a0";
-      return `
-      <div class="via-bar-row">
-        <div class="via-bar-label">${i + 1}. ${strength?.name ?? s.strengthId}</div>
-        <div class="via-bar-track"><div class="via-bar-fill" style="width:${pct}%;background:${color}"></div></div>
-        <div class="via-bar-score">${s.score}</div>
-      </div>`;
-    }).join("")}
-  </div>
-  ` : ""}
-
   ${cognitive?.scores ? `
   <!-- Reasoning Strengths Screener -->
-  <div class="section">
+  <div class="section" style="page-break-before:always;">
     <div class="section-title">Reasoning Strengths Screener</div>
     <p style="font-size:14px;color:#6b5c4a;margin-bottom:20px;">
       A 30-question indicative assessment covering verbal, numerical, and abstract reasoning. Scores are out of 10 per domain; the overall score is out of 30.
-      These results are indicative rather than definitive — they are one lens through which your life history pattern is read more clearly.
+      These results are indicative rather than definitive \u2014 they are one lens through which your life history pattern is read more clearly.
     </p>
     ${(['verbal', 'numerical', 'abstract'] as const).map(domain => {
       const score: number = (cognitive.scores as any)[domain] ?? 0;
@@ -422,61 +478,6 @@ function buildReportHTML(data: {
   </div>
   ` : ""}
 
-  ${achievements.length > 0 ? `
-  <!-- Life Achievements -->
-  <div class="section">
-    <div class="section-title">Life Achievements</div>
-    ${Object.entries(achievementsByDecade).map(([decade, items]) => `
-    <div class="decade-block">
-      <div class="decade-label">${decadeLabels[decade] ?? decade}</div>
-      ${(items as any[]).map((a: any) => `
-      <div class="achievement-item" style="border-left-color:${esfColors[a.esf] ?? '#e8d5f5'}">
-        <div class="achievement-title">${a.title}${a.esf ? `<span class="esf-badge" style="background:${esfColors[a.esf]}">${a.esf}</span>` : ""}</div>
-        ${a.description ? `<div class="achievement-desc">${a.description}</div>` : ""}
-      </div>`).join("")}
-    </div>`).join("")}
-  </div>
-  ` : ""}
-
-  ${(education.length > 0 || career.length > 0) ? `
-  <!-- Background -->
-  <div class="section">
-    <div class="section-title">Background</div>
-    
-    ${family ? `
-    <div class="section-subtitle">Family Background</div>
-    <table style="width:100%;border-collapse:collapse;font-size:13px;margin-bottom:16px;">
-      ${family.fatherOccupation ? `<tr><td style="color:#9a8a78;padding:4px 0;width:160px">Father's occupation</td><td>${family.fatherOccupation}</td></tr>` : ""}
-      ${family.motherOccupation ? `<tr><td style="color:#9a8a78;padding:4px 0">Mother's occupation</td><td>${family.motherOccupation}</td></tr>` : ""}
-      ${family.siblingPosition ? `<tr><td style="color:#9a8a78;padding:4px 0">Sibling position</td><td>${family.siblingPosition}</td></tr>` : ""}
-      ${family.upbringingLocation ? `<tr><td style="color:#9a8a78;padding:4px 0">Upbringing</td><td>${family.upbringingLocation}</td></tr>` : ""}
-    </table>
-    ${family.familyNarrative ? `<p style="font-size:13px;color:#1a1008;margin-bottom:8px">${family.familyNarrative}</p>` : ""}
-    ` : ""}
-    
-    ${education.length > 0 ? `
-    <div class="section-subtitle">Education</div>
-    ${education.map((e: any) => `
-    <div class="timeline-item">
-      <div class="timeline-role">${e.institution}</div>
-      <div class="timeline-org">${[e.qualification, e.subject].filter(Boolean).join(" — ")}</div>
-      <div class="timeline-years">${e.yearFrom ?? ""}${e.yearTo ? ` – ${e.yearTo}` : ""}</div>
-      ${e.highlights ? `<div class="timeline-notes">${e.highlights}</div>` : ""}
-    </div>`).join("")}
-    ` : ""}
-    
-    ${career.length > 0 ? `
-    <div class="section-subtitle">Career History</div>
-    ${career.map((c: any) => `
-    <div class="timeline-item">
-      <div class="timeline-role">${c.role ?? ""} <span class="timeline-org">at ${c.organisation}</span></div>
-      <div class="timeline-years">${c.yearFrom ?? ""}${c.yearTo ? ` – ${c.yearTo}` : " – present"}</div>
-      ${c.highlights ? `<div class="timeline-notes">${c.highlights}</div>` : ""}
-    </div>`).join("")}
-    ` : ""}
-  </div>
-  ` : ""}
-
   ${approvedAnnex ? `
   <div class="section" style="page-break-before:always;">
     <div class="section-title">Coaching Session Annex</div>
@@ -485,7 +486,7 @@ function buildReportHTML(data: {
   </div>` : ""}
 
   <div style="margin-top:60px;padding-top:20px;border-top:1px solid #e8d5f5;text-align:center;font-size:11px;color:#9a8a78;">
-    Lifework Career Analysis — Confidential — Prepared ${date} — Based on the Dependable Strengths methodology of Bernard Haldane
+    Lifework Career Analysis \u2014 Confidential \u2014 Prepared ${date} \u2014 Based on the Dependable Strengths methodology of Bernard Haldane
   </div>
 
 </div>

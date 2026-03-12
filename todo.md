@@ -226,3 +226,8 @@
 
 - [x] Add cognitive screener results section to PDF/HTML report (verbal/numerical/abstract scores, interpretation, career implications)
 - [x] Verify IPIP personality section is present in report; add if missing
+
+## Report — Section Order & Page Breaks
+
+- [ ] Reorder report: Analysis → Life History (achievements + background) → VIA → IPIP → Screener → Coaching Annex
+- [ ] Add page-break-before to each major section so each begins on a new page when printed
