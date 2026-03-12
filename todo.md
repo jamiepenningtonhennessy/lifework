@@ -242,3 +242,9 @@
 - [x] Add on-screen instruction bar telling user to disable headers/footers in print dialog
 - [x] Fix cover "Prepared for" to show client name (was showing raw variable)
 - [x] Replace bottom footer with © Pennington Hennessy [year] — Confidential
+
+## Interview — Save & Resume
+
+- [x] Auto-advance phaseIndex to first incomplete phase when client returns to Interview
+- [x] Show "Resume from where you left off" message on intro screen when partial data exists
+- [x] Add "Save progress" button so client can save mid-phase without advancing

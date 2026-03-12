@@ -100,6 +100,8 @@ export default function Interview() {
   const [showIntro, setShowIntro] = useState(true);
   const [showExample, setShowExample] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [savingProgress, setSavingProgress] = useState(false);
+  const [hasResumed, setHasResumed] = useState(false);
 
   const utils = trpc.useUtils();
 
@@ -139,7 +141,16 @@ export default function Interview() {
       });
     });
     setPhaseActions(loaded);
-  }, [existing]);
+    // Auto-resume: on first load, advance to the first phase with no saved entries
+    if (!hasResumed) {
+      const firstIncomplete = PHASES.findIndex((p) =>
+        loaded[p.id].every((a) => !a.title.trim() && !a.description.trim())
+      );
+      const resumeIdx = firstIncomplete === -1 ? PHASES.length - 1 : firstIncomplete;
+      if (resumeIdx > 0) setPhaseIndex(resumeIdx);
+      setHasResumed(true);
+    }
+  }, [existing, hasResumed]);
 
   const saveAchievement = trpc.achievements.save.useMutation({
     onSuccess: () => utils.achievements.list.invalidate(),
@@ -219,6 +230,43 @@ export default function Interview() {
   const completedPhases = PHASES.filter((p) =>
     phaseActions[p.id].some((a) => a.title.trim() || a.description.trim())
   ).length;
+  const hasAnyData = completedPhases > 0;
+  const firstIncompleteIdx = PHASES.findIndex((p) =>
+    phaseActions[p.id].every((a) => !a.title.trim() && !a.description.trim())
+  );
+  const resumePhase = firstIncompleteIdx === -1 ? PHASES[PHASES.length - 1] : PHASES[firstIncompleteIdx];
+  const resumeIdx = firstIncompleteIdx === -1 ? PHASES.length - 1 : firstIncompleteIdx;
+
+  // Save current phase without advancing
+  const handleSaveProgress = async () => {
+    setSavingProgress(true);
+    try {
+      const updatedActions = [...actions];
+      for (let i = 0; i < actions.length; i++) {
+        const a = actions[i];
+        if (!a.title.trim() && !a.description.trim()) continue;
+        const titleWithPrefix = currentPhase.subPhase
+          ? `[${currentPhase.subPhase}] ${a.title.trim()}`
+          : a.title.trim();
+        const result = await saveAchievement.mutateAsync({
+          id: a.id,
+          title: titleWithPrefix,
+          age: a.age ? parseInt(a.age) : undefined,
+          description: a.description.trim() || undefined,
+          esf: (a.esf as "enjoyable" | "satisfying" | "fulfilling") || undefined,
+          decade: currentPhase.decade,
+          sortOrder: i,
+        });
+        if (result?.id && !a.id) updatedActions[i] = { ...a, id: result.id };
+      }
+      setPhaseActions((prev) => ({ ...prev, [currentPhase.id]: updatedActions }));
+      toast.success("Progress saved — you can safely close the browser and return later.");
+    } catch {
+      toast.error("Failed to save. Please try again.");
+    } finally {
+      setSavingProgress(false);
+    }
+  };
 
   // ── Introduction screen ───────────────────────────────────────────────────────
   if (showIntro) {
@@ -396,12 +444,33 @@ export default function Interview() {
             )}
           </div>
 
+          {hasAnyData && (
+            <div className="mb-4 p-4 rounded-lg border-2 border-[var(--lw-gold)]/40 bg-[var(--lw-gold)]/5 flex items-center justify-between gap-4">
+              <div>
+                <p className="text-sm font-semibold text-foreground">You have saved progress</p>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  {completedPhases} of {PHASES.length} phases started — resume from <strong>{resumePhase.label}</strong>
+                </p>
+              </div>
+              <Button
+                size="sm"
+                onClick={() => { setPhaseIndex(resumeIdx); setShowIntro(false); }}
+                className="bg-[var(--lw-gold)] hover:bg-[oklch(0.60 0.13 72)] text-white gap-1.5 whitespace-nowrap flex-shrink-0"
+              >
+                Resume <ArrowRight className="w-4 h-4" />
+              </Button>
+            </div>
+          )}
           <Button
             size="lg"
-            onClick={() => setShowIntro(false)}
-            className="w-full bg-[var(--lw-gold)] hover:bg-[oklch(0.60 0.13 72)] text-white gap-2 text-base py-6"
+            onClick={() => { setPhaseIndex(0); setShowIntro(false); }}
+            className={`w-full gap-2 text-base py-6 ${
+              hasAnyData
+                ? 'bg-transparent border-2 border-[var(--lw-gold)] text-[var(--lw-gold)] hover:bg-[var(--lw-gold)]/10'
+                : 'bg-[var(--lw-gold)] hover:bg-[oklch(0.60 0.13 72)] text-white'
+            }`}
           >
-            Begin — Early Childhood (Ages 0–5) <ArrowRight className="w-5 h-5" />
+            {hasAnyData ? 'Start from the beginning' : <>​Begin — Early Childhood (Ages 0–5) <ArrowRight className="w-5 h-5" /></>}
           </Button>
         </div>
       </div>
@@ -610,7 +679,7 @@ export default function Interview() {
         </div>
 
         {/* Navigation */}
-        <div className="mt-8 flex items-center justify-between">
+        <div className="mt-8 flex items-center justify-between gap-2">
           <Button
             variant="outline"
             onClick={() =>
@@ -620,9 +689,21 @@ export default function Interview() {
             <ArrowLeft className="w-4 h-4 mr-1" /> Back
           </Button>
 
-          <p className="text-xs text-muted-foreground text-center">
-            {completedPhases} of {PHASES.length} phases started
-          </p>
+          <div className="flex flex-col items-center gap-1">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleSaveProgress}
+              disabled={savingProgress}
+              className="text-xs border-[var(--lw-gold)]/50 text-[var(--lw-gold)] hover:bg-[var(--lw-gold)]/10 gap-1"
+            >
+              {savingProgress ? <Loader2 className="w-3 h-3 animate-spin" /> : null}
+              Save progress
+            </Button>
+            <p className="text-xs text-muted-foreground">
+              {completedPhases} of {PHASES.length} phases started
+            </p>
+          </div>
 
           <Button
             onClick={handleSaveAndNext}
