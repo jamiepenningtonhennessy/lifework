@@ -246,15 +246,30 @@ function buildReportHTML(data: {
     .via-card { page-break-inside: avoid; }
   }
   
-  @page { margin: 20mm; }
+  /* Single @page rule — suppresses browser URL/date/title print headers and footers */
+  @page {
+    size: A4;
+    margin: 15mm 20mm;
+  }
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   
-  .print-btn { position: fixed; top: 20px; right: 20px; background: #5b2d8e; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 500; z-index: 100; }
-  .print-btn:hover { background: #4a2470; }
-  @media print { .print-btn { display: none; } }
+  .print-bar { position: fixed; top: 0; left: 0; right: 0; z-index: 200; background: #0f1f35; border-bottom: 2px solid #c9973a; padding: 10px 24px; display: flex; align-items: center; justify-content: space-between; gap: 16px; font-family: 'Inter', sans-serif; }
+  .print-bar-tip { font-size: 12px; color: rgba(255,255,255,0.7); line-height: 1.4; }
+  .print-bar-tip strong { color: #c9973a; }
+  .print-btn { background: #c9973a; color: white; border: none; padding: 9px 20px; cursor: pointer; font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 600; letter-spacing: 0.04em; white-space: nowrap; }
+  .print-btn:hover { background: #b8862e; }
+  @media print { .print-bar { display: none; } body { padding-top: 0 !important; } }
+  body { padding-top: 64px; }
+  @media print { body { padding-top: 0; } }
 </style>
 </head>
 <body>
-<button class="print-btn" onclick="window.print()">Print / Save as PDF</button>
+<div class="print-bar">
+  <div class="print-bar-tip">
+    <strong>Before printing:</strong> In the print dialog, open <strong>More settings</strong> and turn off <strong>Headers and footers</strong> to remove the browser URL and page numbers.
+  </div>
+  <button class="print-btn" onclick="window.print()">Print / Save as PDF</button>
+</div>
 <div class="page">
 
   <!-- Cover -->
@@ -269,7 +284,7 @@ function buildReportHTML(data: {
       <div class="cover-meta">
         <div class="cover-meta-item">
           <label>Prepared for</label>
-          <span>${clientName}</span>
+          <span>${data.clientName}</span>
         </div>
         <div class="cover-meta-item">
           <label>Date</label>
@@ -486,7 +501,7 @@ function buildReportHTML(data: {
   </div>` : ""}
 
   <div style="margin-top:60px;padding-top:20px;border-top:1px solid #e8d5f5;text-align:center;font-size:11px;color:#9a8a78;">
-    Lifework Career Analysis \u2014 Confidential \u2014 Prepared ${date} \u2014 Based on the Dependable Strengths methodology of Bernard Haldane
+    &copy; Pennington Hennessy ${new Date().getFullYear()} &mdash; Confidential
   </div>
 
 </div>

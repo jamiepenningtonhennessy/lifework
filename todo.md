@@ -235,3 +235,10 @@
 ## Client Dashboard — View My Report
 
 - [x] Add prominent "View My Report" card to client dashboard (visible once analysis is complete, links to /my-report and /api/export/report)
+
+## PDF Export — Print Fixes
+
+- [x] Suppress browser URL/date/title print headers and footers via consolidated @page rule
+- [x] Add on-screen instruction bar telling user to disable headers/footers in print dialog
+- [x] Fix cover "Prepared for" to show client name (was showing raw variable)
+- [x] Replace bottom footer with © Pennington Hennessy [year] — Confidential
