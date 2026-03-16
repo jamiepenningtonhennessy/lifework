@@ -276,3 +276,7 @@
 - [x] Reasoning tab: score bars for verbal/numerical/abstract
 - [x] Wire CoachingView into counsellor ClientProfile page as a new "Coaching Session" tab
 - [x] Add tRPC procedure to generate coaching summaries (LLM, cached per client)
+
+## Bug Fix — Coaching Summary JSON Parse Error
+
+- [x] Fix generateCoachingSummary to handle malformed/truncated LLM JSON responses robustly

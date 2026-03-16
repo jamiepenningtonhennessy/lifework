@@ -618,79 +618,68 @@ const counselorRouter = router({
         ? `Father: ${family.fatherOccupation ?? "unknown"}; Mother: ${family.motherOccupation ?? "unknown"}; Sibling position: ${family.siblingPosition ?? "unknown"}; Family narrative: ${family.familyNarrative ?? "none"}`
         : "Family background not recorded.";
 
-      const prompt = `You are a career analyst preparing a guided coaching session for ${clientName}. Generate a structured JSON object with 5 sections, each designed to help a counsellor walk the client through their results one section at a time — revealing insights progressively rather than all at once.
+      // Build a concise prompt to avoid LLM output truncation
+      const prompt = `You are a career analyst preparing a guided coaching session for ${clientName}. Generate a structured JSON coaching summary with 5 sections.
 
 CLIENT DATA:
-
 LIFE HISTORY ACHIEVEMENTS:
 ${achievementsCtx}
-
 FAMILY BACKGROUND:
 ${familyCtx}
-
 EDUCATION:
 ${educationCtx}
-
 CAREER HISTORY:
 ${careerCtx}
-
 VIA CHARACTER STRENGTHS (top 10):
 ${viaCtx}
-
 IPIP PERSONALITY (Big Five domain scores):
 ${ipipCtx}
-
 REASONING SCREENER:
 ${cogCtx}
 
-Return ONLY valid JSON matching this exact schema:
-{
-  "lifeHistory": {
-    "summary": "2-3 paragraph narrative about the patterns visible in the life history and family backdrop. Specific, warm, grounded in their actual achievements. Reference 'Others said' observations where present.",
-    "examples": ["3-5 specific examples drawn verbatim or closely paraphrased from their achievements data"],
-    "questions": ["4-5 reflective questions the counsellor can use to explore this section with the client"]
-  },
-  "career": {
-    "summary": "2-3 paragraph narrative about the career arc — what they moved toward, what they moved away from, where the formal job description and the actual rewarding work diverged.",
-    "examples": ["3-5 specific examples from their career history"],
-    "questions": ["4-5 reflective questions about career choices, transitions, and what has remained constant"]
-  },
-  "via": {
-    "summary": "2-3 paragraph narrative interpreting their top VIA strengths in the context of their life history and career. What do these strengths explain? Where have they been most visible?",
-    "examples": ["3-5 specific moments from their life history or career where these strengths were clearly operating"],
-    "questions": ["4-5 reflective questions about their character strengths"]
-  },
-  "ipip": {
-    "summary": "2-3 paragraph narrative interpreting their Big Five personality profile in the context of their life and career. What does this profile explain about their working style, relationships, and career choices?",
-    "examples": ["3-5 specific examples from their history that illustrate their personality profile"],
-    "questions": ["4-5 reflective questions about their personality and working style"]
-  },
-  "reasoning": {
-    "summary": "1-2 paragraph narrative interpreting their reasoning screener results. What do the verbal/numerical/abstract scores suggest about how they process information and what environments suit them?",
-    "examples": ["2-3 specific examples from their history that illustrate their reasoning style"],
-    "questions": ["3-4 reflective questions about how they think and learn"]
-  }
-}`;
+IMPORTANT: Be concise. Each summary: 2-3 sentences max (under 60 words). Each example: 1 short sentence. Each question: 1 short sentence.`;
 
       const response = await invokeLLM({
         messages: [
-          { role: "system", content: "You are an expert career analyst. Return only valid JSON, no markdown fences, no commentary." },
+          { role: "system", content: "You are an expert career analyst. Return only valid JSON. No markdown fences, no commentary." },
           { role: "user", content: prompt },
         ],
+        response_format: {
+          type: "json_schema",
+          json_schema: {
+            name: "coaching_summary",
+            strict: true,
+            schema: {
+              type: "object",
+              properties: {
+                lifeHistory: { type: "object", properties: { summary: { type: "string" }, examples: { type: "array", items: { type: "string" } }, questions: { type: "array", items: { type: "string" } } }, required: ["summary", "examples", "questions"], additionalProperties: false },
+                career:      { type: "object", properties: { summary: { type: "string" }, examples: { type: "array", items: { type: "string" } }, questions: { type: "array", items: { type: "string" } } }, required: ["summary", "examples", "questions"], additionalProperties: false },
+                via:         { type: "object", properties: { summary: { type: "string" }, examples: { type: "array", items: { type: "string" } }, questions: { type: "array", items: { type: "string" } } }, required: ["summary", "examples", "questions"], additionalProperties: false },
+                ipip:        { type: "object", properties: { summary: { type: "string" }, examples: { type: "array", items: { type: "string" } }, questions: { type: "array", items: { type: "string" } } }, required: ["summary", "examples", "questions"], additionalProperties: false },
+                reasoning:   { type: "object", properties: { summary: { type: "string" }, examples: { type: "array", items: { type: "string" } }, questions: { type: "array", items: { type: "string" } } }, required: ["summary", "examples", "questions"], additionalProperties: false },
+              },
+              required: ["lifeHistory", "career", "via", "ipip", "reasoning"],
+              additionalProperties: false,
+            },
+          },
+        } as any,
       });
-
       const rawContent = response.choices[0]?.message?.content ?? "{}";
       const raw = typeof rawContent === "string" ? rawContent : JSON.stringify(rawContent);
       let summary: any;
       try {
-        summary = JSON.parse(raw);
-      } catch {
-        // Strip markdown fences if present
-        const cleaned = raw.replace(/^```json\s*/i, "").replace(/```\s*$/i, "").trim();
+        const cleaned = raw.replace(/^```json\s*/i, "").replace(/^```\s*/i, "").replace(/```\s*$/i, "").trim();
         summary = JSON.parse(cleaned);
+      } catch {
+        const match = raw.match(/\{[\s\S]*\}/);
+        if (match) {
+          try { summary = JSON.parse(match[0]); }
+          catch { throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Failed to parse coaching summary JSON" }); }
+        } else {
+          throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Failed to parse coaching summary JSON" });
+        }
       }
-
-      // Cache it
+            // Cache it
       if (existing) {
         await upsertAnalysisReport({ ...existing, coachingSummaryJson: JSON.stringify(summary) });
       }
