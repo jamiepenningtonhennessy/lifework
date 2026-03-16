@@ -261,7 +261,18 @@
 
 ## Interview — Others' Observations Field (Peter's "Others:" field)
 
-- [ ] Add others_observations column to achievements table in drizzle schema and run migration
-- [ ] Add "What did others say about you at this time?" textarea to each life history phase in Interview.tsx
-- [ ] Save others_observations to DB via tRPC mutation (update saveAchievement procedure)
-- [ ] Include others_observations data in the AI analysis prompt
+- [x] Add others_observations column to achievements table in drizzle schema and run migration
+- [x] Add "What did others say about you at this time?" textarea to each life history phase in Interview.tsx
+- [x] Save others_observations to DB via tRPC mutation (update saveAchievement procedure)
+- [x] Include others_observations data in the AI analysis prompt
+
+## Counsellor Dashboard — Guided Coaching View (Slow Reveal)
+
+- [x] Add CoachingView component with 5 tabs: Life History & Family, Career, VIA, IPIP Personality, Reasoning
+- [x] Each tab: AI-generated summary paragraph, 3-5 client-specific examples, 3-5 reflective questions
+- [x] Life History tab: bar chart of achievements by decade and ESF type
+- [x] VIA tab: horizontal bar chart of top 10 strengths
+- [x] IPIP tab: bar chart of Big Five dimensions
+- [x] Reasoning tab: score bars for verbal/numerical/abstract
+- [x] Wire CoachingView into counsellor ClientProfile page as a new "Coaching Session" tab
+- [x] Add tRPC procedure to generate coaching summaries (LLM, cached per client)

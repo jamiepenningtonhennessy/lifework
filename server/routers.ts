@@ -561,6 +561,151 @@ const counselorRouter = router({
       return { success: true };
     }),
 
+  generateCoachingSummary: counselorProcedure
+    .input(z.object({ clientId: z.number(), forceRegenerate: z.boolean().optional() }))
+    .mutation(async ({ input }) => {
+      const profile = await getClientProfileById(input.clientId);
+      if (!profile) throw new TRPCError({ code: "NOT_FOUND" });
+
+      // Return cached version unless forced
+      const existing = await getAnalysisReport(input.clientId);
+      if (existing?.coachingSummaryJson && !input.forceRegenerate) {
+        return { summary: JSON.parse(existing.coachingSummaryJson) };
+      }
+
+      const [achievementsList, family, education, career, via, ipip, cognitive] = await Promise.all([
+        getAchievements(input.clientId),
+        getFamilyBackground(input.clientId),
+        getEducationHistory(input.clientId),
+        getCareerHistory(input.clientId),
+        getViaResults(input.clientId),
+        getIpipResults(input.clientId),
+        getCognitiveScreenerResult(input.clientId),
+      ]);
+
+      const clientName = profile.firstName ? `${profile.firstName} ${profile.lastName ?? ""}`.trim() : "the client";
+
+      const achievementsCtx = achievementsList.map(a => {
+        const base = `[${a.decade}] ${a.title} (${a.esf ?? "?"}): ${a.description ?? ""}`;
+        const others = (a as any).othersObservations?.trim();
+        return others ? `${base}\n  Others said: ${others}` : base;
+      }).join("\n") || "None recorded.";
+
+      const careerCtx = career.map(c =>
+        `${c.yearFrom ?? "?"}–${c.yearTo ?? "present"}: ${c.role ?? ""} at ${c.organisation ?? ""}`
+      ).join("\n") || "None recorded.";
+
+      const educationCtx = education.map(e =>
+        `${e.yearFrom ?? "?"}–${e.yearTo ?? "?"}: ${e.qualification ?? ""} at ${e.institution}`
+      ).join("\n") || "None recorded.";
+
+      const viaCtx = via?.rankedStrengths
+        ? (via.rankedStrengths as any[]).slice(0, 10).map((s: any, i: number) => `${i + 1}. ${s.strength}`).join("\n")
+        : "VIA not completed.";
+
+      const DOMAINS = ["N", "E", "O", "A", "C"] as const;
+      const DOMAIN_NAMES: Record<string, string> = { N: "Neuroticism", E: "Extraversion", O: "Openness", A: "Agreeableness", C: "Conscientiousness" };
+      const ipipCtx = ipip?.domainScores
+        ? DOMAINS.map(d => `${DOMAIN_NAMES[d]}: ${Math.round(((ipip.domainScores as any)[d] ?? 0) * 100)}%`).join("\n")
+        : "IPIP not completed.";
+
+      const cogScores = cognitive?.scores as any;
+      const cogCtx = cognitive
+        ? `Verbal: ${cogScores?.verbal ?? "?"}/${cogScores?.verbalTotal ?? 10}, Numerical: ${cogScores?.numerical ?? "?"}/${cogScores?.numericalTotal ?? 10}, Abstract: ${cogScores?.abstract ?? "?"}/${cogScores?.abstractTotal ?? 10}, Total: ${cogScores?.total ?? "?"}/${cogScores?.totalMax ?? 30}`
+        : "Reasoning screener not completed.";
+
+      const familyCtx = family
+        ? `Father: ${family.fatherOccupation ?? "unknown"}; Mother: ${family.motherOccupation ?? "unknown"}; Sibling position: ${family.siblingPosition ?? "unknown"}; Family narrative: ${family.familyNarrative ?? "none"}`
+        : "Family background not recorded.";
+
+      const prompt = `You are a career analyst preparing a guided coaching session for ${clientName}. Generate a structured JSON object with 5 sections, each designed to help a counsellor walk the client through their results one section at a time — revealing insights progressively rather than all at once.
+
+CLIENT DATA:
+
+LIFE HISTORY ACHIEVEMENTS:
+${achievementsCtx}
+
+FAMILY BACKGROUND:
+${familyCtx}
+
+EDUCATION:
+${educationCtx}
+
+CAREER HISTORY:
+${careerCtx}
+
+VIA CHARACTER STRENGTHS (top 10):
+${viaCtx}
+
+IPIP PERSONALITY (Big Five domain scores):
+${ipipCtx}
+
+REASONING SCREENER:
+${cogCtx}
+
+Return ONLY valid JSON matching this exact schema:
+{
+  "lifeHistory": {
+    "summary": "2-3 paragraph narrative about the patterns visible in the life history and family backdrop. Specific, warm, grounded in their actual achievements. Reference 'Others said' observations where present.",
+    "examples": ["3-5 specific examples drawn verbatim or closely paraphrased from their achievements data"],
+    "questions": ["4-5 reflective questions the counsellor can use to explore this section with the client"]
+  },
+  "career": {
+    "summary": "2-3 paragraph narrative about the career arc — what they moved toward, what they moved away from, where the formal job description and the actual rewarding work diverged.",
+    "examples": ["3-5 specific examples from their career history"],
+    "questions": ["4-5 reflective questions about career choices, transitions, and what has remained constant"]
+  },
+  "via": {
+    "summary": "2-3 paragraph narrative interpreting their top VIA strengths in the context of their life history and career. What do these strengths explain? Where have they been most visible?",
+    "examples": ["3-5 specific moments from their life history or career where these strengths were clearly operating"],
+    "questions": ["4-5 reflective questions about their character strengths"]
+  },
+  "ipip": {
+    "summary": "2-3 paragraph narrative interpreting their Big Five personality profile in the context of their life and career. What does this profile explain about their working style, relationships, and career choices?",
+    "examples": ["3-5 specific examples from their history that illustrate their personality profile"],
+    "questions": ["4-5 reflective questions about their personality and working style"]
+  },
+  "reasoning": {
+    "summary": "1-2 paragraph narrative interpreting their reasoning screener results. What do the verbal/numerical/abstract scores suggest about how they process information and what environments suit them?",
+    "examples": ["2-3 specific examples from their history that illustrate their reasoning style"],
+    "questions": ["3-4 reflective questions about how they think and learn"]
+  }
+}`;
+
+      const response = await invokeLLM({
+        messages: [
+          { role: "system", content: "You are an expert career analyst. Return only valid JSON, no markdown fences, no commentary." },
+          { role: "user", content: prompt },
+        ],
+      });
+
+      const rawContent = response.choices[0]?.message?.content ?? "{}";
+      const raw = typeof rawContent === "string" ? rawContent : JSON.stringify(rawContent);
+      let summary: any;
+      try {
+        summary = JSON.parse(raw);
+      } catch {
+        // Strip markdown fences if present
+        const cleaned = raw.replace(/^```json\s*/i, "").replace(/```\s*$/i, "").trim();
+        summary = JSON.parse(cleaned);
+      }
+
+      // Cache it
+      if (existing) {
+        await upsertAnalysisReport({ ...existing, coachingSummaryJson: JSON.stringify(summary) });
+      }
+
+      return { summary };
+    }),
+
+  getCoachingSummary: counselorProcedure
+    .input(z.object({ clientId: z.number() }))
+    .query(async ({ input }) => {
+      const report = await getAnalysisReport(input.clientId);
+      if (!report?.coachingSummaryJson) return { summary: null };
+      return { summary: JSON.parse(report.coachingSummaryJson) };
+    }),
+
   triggerAnalysis: counselorProcedure
     .input(z.object({ clientId: z.number() }))
     .mutation(async ({ input }) => {

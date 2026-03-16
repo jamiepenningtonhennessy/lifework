@@ -32,8 +32,9 @@ import {
 } from "lucide-react";
 import { Streamdown } from "streamdown";
 import { toast } from "sonner";
+import CoachingSessionTab from "@/components/CoachingSessionTab";
 
-type Tab = "overview" | "interview" | "background" | "via" | "ipip" | "cognitive" | "report" | "virtual-peter" | "coaching-annex";
+type Tab = "overview" | "interview" | "background" | "via" | "ipip" | "cognitive" | "report" | "virtual-peter" | "coaching-annex" | "coaching-session";
 
 export default function ClientProfile() {
   const { isAuthenticated, loading, user } = useAuth();
@@ -118,6 +119,7 @@ export default function ClientProfile() {
     { id: "report", label: "Analysis Report", icon: <Brain className="w-4 h-4" /> },
     { id: "virtual-peter", label: "Virtual Peter", icon: <GitCompare className="w-4 h-4" /> },
   { id: "coaching-annex", label: "Coaching Annex", icon: <FileText className="w-4 h-4" /> },
+  { id: "coaching-session", label: "Coaching Session", icon: <Sparkles className="w-4 h-4" /> },
   ];
 
   return (
@@ -794,6 +796,21 @@ export default function ClientProfile() {
           {/* Coaching Annex tab */}
           {activeTab === "coaching-annex" && (
             <CoachingAnnexTab clientId={clientId} />
+          )}
+
+          {/* Coaching Session tab */}
+          {activeTab === "coaching-session" && (
+            <CoachingSessionTab
+              clientId={clientId}
+              clientData={{
+                achievements: data.achievements,
+                via: data.via,
+                ipip: data.ipip,
+                cognitive: data.cognitive,
+                career: data.career,
+                family: data.family,
+              }}
+            />
           )}
         </div>
       )}
