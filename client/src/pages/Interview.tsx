@@ -82,8 +82,8 @@ const ESF_OPTIONS = [
   },
 ];
 
-type Action = { id?: number; title: string; age: string; description: string; esf: string };
-const emptyAction = (): Action => ({ title: "", age: "", description: "", esf: "" });
+type Action = { id?: number; title: string; age: string; description: string; esf: string; othersObservations: string };
+const emptyAction = (): Action => ({ title: "", age: "", description: "", esf: "", othersObservations: "" });
 
 // ─── Main component ───────────────────────────────────────────────────────────
 
@@ -137,6 +137,7 @@ export default function Interview() {
           age: a.age != null ? String(a.age) : "",
           description: a.description ?? "",
           esf: a.esf ?? "",
+          othersObservations: a.othersObservations ?? "",
         };
       });
     });
@@ -201,6 +202,7 @@ export default function Interview() {
           age: a.age ? parseInt(a.age) : undefined,
           description: a.description.trim() || undefined,
           esf: (a.esf as "enjoyable" | "satisfying" | "fulfilling") || undefined,
+          othersObservations: a.othersObservations.trim() || undefined,
           decade: currentPhase.decade,
           sortOrder: i,
         });
@@ -254,6 +256,7 @@ export default function Interview() {
           age: a.age ? parseInt(a.age) : undefined,
           description: a.description.trim() || undefined,
           esf: (a.esf as "enjoyable" | "satisfying" | "fulfilling") || undefined,
+          othersObservations: a.othersObservations.trim() || undefined,
           decade: currentPhase.decade,
           sortOrder: i,
         });
@@ -634,6 +637,23 @@ export default function Interview() {
                       : "Describe what you were doing and thinking. Short phrases are fine."
                   }
                   rows={3}
+                  className="text-sm resize-none"
+                />
+              </div>
+
+              {/* Others' observations */}
+              <div className="mb-4">
+                <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide block mb-1.5">
+                  Others{" "}
+                  <span className="font-normal normal-case text-muted-foreground">
+                    — what did others say about you at this time? (a teacher's comment, a colleague's observation, a manager's feedback)
+                  </span>
+                </label>
+                <Textarea
+                  value={action.othersObservations}
+                  onChange={(e) => updateAction(idx, "othersObservations", e.target.value)}
+                  placeholder='e.g. "My teacher said I was always organising the other children" or "My manager said I was the one who always found a way through"'
+                  rows={2}
                   className="text-sm resize-none"
                 />
               </div>

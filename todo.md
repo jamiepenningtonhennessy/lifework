@@ -258,3 +258,10 @@
 
 - [x] Update welcome subtitle text with new wording about saving/returning and Chat to Jamie instruction
 - [x] Remove Chat to Jamie button from the Life History Interview step (keep only on Background & History step)
+
+## Interview — Others' Observations Field (Peter's "Others:" field)
+
+- [ ] Add others_observations column to achievements table in drizzle schema and run migration
+- [ ] Add "What did others say about you at this time?" textarea to each life history phase in Interview.tsx
+- [ ] Save others_observations to DB via tRPC mutation (update saveAchievement procedure)
+- [ ] Include others_observations data in the AI analysis prompt

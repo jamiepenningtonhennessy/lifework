@@ -71,6 +71,13 @@
       "when": 1773211086559,
       "tag": "0009_wet_spot",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "5",
+      "when": 1773658877699,
+      "tag": "0010_absent_zodiak",
+      "breakpoints": true
     }
   ]
 }

@@ -183,6 +183,7 @@ const achievementsRouter = router({
         description: z.string().optional(),
         esf: z.enum(["enjoyable", "satisfying", "fulfilling"]).optional(),
         skills: z.string().optional(),
+        othersObservations: z.string().optional(),
         sortOrder: z.number().optional(),
       })
     )
@@ -1041,9 +1042,11 @@ const chatPeterRouter = router({
       ]);
 
       const achievementsContext = achievementsList.length > 0
-        ? achievementsList.map(a =>
-            `[${a.decade || "?"}] ${a.title} (${a.esf || "?"}): ${a.description || ""}`
-          ).join("\n")
+        ? achievementsList.map(a => {
+            const base = `[${a.decade || "?"}] ${a.title} (${a.esf || "?"}): ${a.description || ""}`;
+            const others = (a as any).othersObservations?.trim();
+            return others ? `${base}\n  Others said: ${others}` : base;
+          }).join("\n")
         : "No achievements recorded yet.";
 
       const careerContext = careerList.length > 0
@@ -1220,7 +1223,11 @@ const careerExplorerRouter = router({
 
       // Build context strings
       const achievementsCtx = achievementsList.length > 0
-        ? achievementsList.map(a => `[${a.decade}] ${a.title} (${a.esf ?? "untagged"}): ${a.description ?? ""}`).join("\n")
+        ? achievementsList.map(a => {
+            const base = `[${a.decade}] ${a.title} (${a.esf ?? "untagged"}): ${a.description ?? ""}`;
+            const others = (a as any).othersObservations?.trim();
+            return others ? `${base}\n  Others said: ${others}` : base;
+          }).join("\n")
         : "No achievements recorded yet.";
 
       const educationCtx = educationList.length > 0
@@ -1355,7 +1362,11 @@ const coachingAnnexRouter = router({
       const clientName = profile?.firstName ? `${profile.firstName} ${profile.lastName ?? ""}`.trim() : "the client";
 
       const achievementsCtx = achievements.length > 0
-        ? achievements.map(a => `[${a.decade}] ${a.title} (${a.esf ?? "untagged"}): ${a.description ?? ""}`).join("\n")
+        ? achievements.map(a => {
+            const base = `[${a.decade}] ${a.title} (${a.esf ?? "untagged"}): ${a.description ?? ""}`;
+            const others = (a as any).othersObservations?.trim();
+            return others ? `${base}\n  Others said: ${others}` : base;
+          }).join("\n")
         : "No achievements recorded.";
 
       const viaCtx = via?.rankedStrengths

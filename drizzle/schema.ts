@@ -84,6 +84,7 @@ export const achievements = mysqlTable("achievements", {
   description: text("description"),
   esf: mysqlEnum("esf", ["enjoyable", "satisfying", "fulfilling"]),
   skills: text("skills"), // comma-separated or short text
+  othersObservations: text("othersObservations"), // what others said about the person at this time
   sortOrder: int("sortOrder").default(0),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
 });
