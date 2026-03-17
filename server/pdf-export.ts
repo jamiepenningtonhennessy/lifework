@@ -149,20 +149,21 @@ pdfRouter.get("/api/export/esf-report/:clientId", async (req: Request, res: Resp
     const date = new Date().toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
 
     // Group by ESF, sort chronologically within each group
-    const groups: Record<string, any[]> = { E: [], S: [], F: [], "?": [] };
+    // DB stores lowercase full words: "enjoyable", "satisfying", "fulfilling"
+    const groups: Record<string, any[]> = { enjoyable: [], satisfying: [], fulfilling: [], untagged: [] };
     for (const a of (achievements ?? [])) {
-      const key = (a.esf ?? "").toUpperCase();
-      if (key === "E" || key === "S" || key === "F") groups[key].push(a);
-      else groups["?"].push(a);
+      const key = (a.esf ?? "").toLowerCase().trim();
+      if (key === "enjoyable" || key === "satisfying" || key === "fulfilling") groups[key].push(a);
+      else groups["untagged"].push(a);
     }
     const sortByAge = (arr: any[]) => arr.sort((a, b) => (parseInt(a.age ?? "0") || 0) - (parseInt(b.age ?? "0") || 0));
-    for (const k of ["E", "S", "F", "?"]) sortByAge(groups[k]);
+    for (const k of ["enjoyable", "satisfying", "fulfilling", "untagged"]) sortByAge(groups[k]);
 
     const esfMeta: Record<string, { label: string; subtitle: string; color: string; bg: string }> = {
-      E: { label: "Enjoyable", subtitle: "\"in the moment\" — absorbed and engaged while doing it", color: "#1d6b3a", bg: "#edf7f1" },
-      S: { label: "Satisfying", subtitle: "\"rewarding\" — a sense of accomplishment", color: "#1a4a8a", bg: "#edf2fb" },
-      F: { label: "Fulfilling", subtitle: "\"longer-term satisfying\" — deeply meaningful", color: "#7a3a00", bg: "#fdf3e8" },
-      "?": { label: "Unclassified", subtitle: "not yet categorised", color: "#6b5c4a", bg: "#f5f0ea" },
+      enjoyable: { label: "Enjoyable", subtitle: "\"in the moment\" — absorbed and engaged while doing it", color: "#1d6b3a", bg: "#edf7f1" },
+      satisfying: { label: "Satisfying", subtitle: "\"rewarding\" — a sense of accomplishment", color: "#1a4a8a", bg: "#edf2fb" },
+      fulfilling: { label: "Fulfilling", subtitle: "\"longer-term satisfying\" — deeply meaningful", color: "#7a3a00", bg: "#fdf3e8" },
+      untagged: { label: "Untagged", subtitle: "not yet categorised", color: "#6b5c4a", bg: "#f5f0ea" },
     };
 
     const renderGroup = (key: string) => {
@@ -171,7 +172,7 @@ pdfRouter.get("/api/export/esf-report/:clientId", async (req: Request, res: Resp
       const m = esfMeta[key];
       return `<div style="margin-bottom:32px;">
         <div style="background:${m.bg};border-left:4px solid ${m.color};padding:10px 16px;border-radius:4px;margin-bottom:14px;">
-          <span style="font-size:17px;font-weight:700;color:${m.color};">${key === "?" ? "?" : key} — ${m.label}</span>
+          <span style="font-size:17px;font-weight:700;color:${m.color};">${m.label}</span>
           <span style="font-size:12px;color:#6b5c4a;margin-left:10px;">${m.subtitle}</span>
         </div>
         <table style="width:100%;border-collapse:collapse;font-size:12px;">

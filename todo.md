@@ -285,3 +285,7 @@
 
 - [x] Add /api/export/esf-report/:clientId route to pdf-export.ts — achievements grouped by E/S/F, chronological within each group, printable HTML
 - [x] Add "Print ESF Report" button to the Life History tab of CoachingSessionTab.tsx
+
+## Bug Fix — ESF Print Report Grouping
+
+- [x] Fix ESF grouping to use lowercase full words (enjoyable/satisfying/fulfilling) not uppercase letters
