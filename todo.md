@@ -289,3 +289,7 @@
 ## Bug Fix — ESF Print Report Grouping
 
 - [x] Fix ESF grouping to use lowercase full words (enjoyable/satisfying/fulfilling) not uppercase letters
+
+## Bug Fix — ESF Report Route 500 Error
+
+- [x] Fix ESF report route returning {"error":"Failed to generate ESF report"}

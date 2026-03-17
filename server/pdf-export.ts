@@ -226,7 +226,7 @@ pdfRouter.get("/api/export/esf-report/:clientId", async (req: Request, res: Resp
       <strong style="color:#0f1f35;font-size:14px;display:block;">${clientName}</strong>${date}
     </div>
   </div>
-  ${renderGroup("E")}${renderGroup("S")}${renderGroup("F")}${renderGroup("?")}
+  ${renderGroup("enjoyable")}${renderGroup("satisfying")}${renderGroup("fulfilling")}${renderGroup("untagged")}
   <div style="margin-top:20px;padding-top:10px;border-top:1px solid rgba(201,151,58,0.4);text-align:center;font-size:11px;color:#9a8a78;">
     &copy; Pennington Hennessy ${new Date().getFullYear()} &mdash; Confidential
   </div>
