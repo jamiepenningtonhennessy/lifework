@@ -280,3 +280,8 @@
 ## Bug Fix — Coaching Summary JSON Parse Error
 
 - [x] Fix generateCoachingSummary to handle malformed/truncated LLM JSON responses robustly
+
+## Coaching Session — ESF Life History Print Report
+
+- [x] Add /api/export/esf-report/:clientId route to pdf-export.ts — achievements grouped by E/S/F, chronological within each group, printable HTML
+- [x] Add "Print ESF Report" button to the Life History tab of CoachingSessionTab.tsx

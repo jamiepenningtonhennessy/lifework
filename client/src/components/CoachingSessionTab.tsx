@@ -331,6 +331,10 @@ export default function CoachingSessionTab({ clientId, clientData }: Props) {
 
   const currentSection = summary?.[activeSection];
 
+  const handlePrintEsf = () => {
+    window.open(`/api/export/esf-report/${clientId}`, "_blank");
+  };
+
   const chartFor = (key: SectionKey) => {
     if (key === "lifeHistory") return <AchievementsChart achievements={clientData.achievements} />;
     if (key === "via") return <ViaChart via={clientData.via} />;
@@ -429,6 +433,20 @@ export default function CoachingSessionTab({ clientId, clientData }: Props) {
               </button>
             ))}
           </div>
+
+          {/* ESF print button — shown only on Life History tab */}
+          {activeSection === "lifeHistory" && (
+            <div className="flex justify-end">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handlePrintEsf}
+                style={{ borderColor: GOLD, color: GOLD }}
+              >
+                🖨 Print ESF Life History
+              </Button>
+            </div>
+          )}
 
           {/* Section content */}
           {currentSection && (

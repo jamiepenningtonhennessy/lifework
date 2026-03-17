@@ -120,6 +120,128 @@ pdfRouter.get("/api/export/report/:clientId?", async (req: Request, res: Respons
   }
 });
 
+// ─── ESF Life History Print Report ────────────────────────────────────────
+pdfRouter.get("/api/export/esf-report/:clientId", async (req: Request, res: Response) => {
+  try {
+    let user;
+    try { user = await sdk.authenticateRequest(req); } catch { user = null; }
+    if (!user) { res.status(401).json({ error: "Unauthorised" }); return; }
+    if (user.role !== "admin") { res.status(403).json({ error: "Forbidden" }); return; }
+
+    const clientId = parseInt(req.params.clientId, 10);
+    if (isNaN(clientId)) { res.status(400).json({ error: "Invalid clientId" }); return; }
+
+    const [profile, achievements] = await Promise.all([
+      getClientProfileById(clientId),
+      getAchievements(clientId),
+    ]);
+    if (!profile) { res.status(404).json({ error: "Profile not found" }); return; }
+
+    const db = await getDb();
+    const clientUserRows = profile.userId && db
+      ? await db.select().from(users).where(eq(users.id, profile.userId)).limit(1)
+      : [];
+    const clientUser = clientUserRows[0] ?? null;
+    const clientName =
+      profile.firstName && profile.lastName ? `${profile.firstName} ${profile.lastName}`
+      : profile.firstName || profile.lastName || clientUser?.name || "Client";
+
+    const date = new Date().toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
+
+    // Group by ESF, sort chronologically within each group
+    const groups: Record<string, any[]> = { E: [], S: [], F: [], "?": [] };
+    for (const a of (achievements ?? [])) {
+      const key = (a.esf ?? "").toUpperCase();
+      if (key === "E" || key === "S" || key === "F") groups[key].push(a);
+      else groups["?"].push(a);
+    }
+    const sortByAge = (arr: any[]) => arr.sort((a, b) => (parseInt(a.age ?? "0") || 0) - (parseInt(b.age ?? "0") || 0));
+    for (const k of ["E", "S", "F", "?"]) sortByAge(groups[k]);
+
+    const esfMeta: Record<string, { label: string; subtitle: string; color: string; bg: string }> = {
+      E: { label: "Enjoyable", subtitle: "\"in the moment\" — absorbed and engaged while doing it", color: "#1d6b3a", bg: "#edf7f1" },
+      S: { label: "Satisfying", subtitle: "\"rewarding\" — a sense of accomplishment", color: "#1a4a8a", bg: "#edf2fb" },
+      F: { label: "Fulfilling", subtitle: "\"longer-term satisfying\" — deeply meaningful", color: "#7a3a00", bg: "#fdf3e8" },
+      "?": { label: "Unclassified", subtitle: "not yet categorised", color: "#6b5c4a", bg: "#f5f0ea" },
+    };
+
+    const renderGroup = (key: string) => {
+      const items = groups[key];
+      if (!items.length) return "";
+      const m = esfMeta[key];
+      return `<div style="margin-bottom:32px;">
+        <div style="background:${m.bg};border-left:4px solid ${m.color};padding:10px 16px;border-radius:4px;margin-bottom:14px;">
+          <span style="font-size:17px;font-weight:700;color:${m.color};">${key === "?" ? "?" : key} — ${m.label}</span>
+          <span style="font-size:12px;color:#6b5c4a;margin-left:10px;">${m.subtitle}</span>
+        </div>
+        <table style="width:100%;border-collapse:collapse;font-size:12px;">
+          <thead><tr style="border-bottom:2px solid #e8e0d0;">
+            <th style="text-align:left;padding:5px 8px;color:#9a8a78;font-size:10px;text-transform:uppercase;letter-spacing:.05em;width:50px;">Age</th>
+            <th style="text-align:left;padding:5px 8px;color:#9a8a78;font-size:10px;text-transform:uppercase;letter-spacing:.05em;width:180px;">Action / Title</th>
+            <th style="text-align:left;padding:5px 8px;color:#9a8a78;font-size:10px;text-transform:uppercase;letter-spacing:.05em;">Description</th>
+            <th style="text-align:left;padding:5px 8px;color:#9a8a78;font-size:10px;text-transform:uppercase;letter-spacing:.05em;width:200px;">Others said</th>
+          </tr></thead>
+          <tbody>${items.map((a: any, i: number) => `
+            <tr style="border-bottom:1px solid #f0e8d8;background:${i % 2 === 0 ? "#fff" : "#faf7f2"};">
+              <td style="padding:7px 8px;color:#6b5c4a;vertical-align:top;">${a.age ?? ""}</td>
+              <td style="padding:7px 8px;font-weight:600;color:#0f1f35;vertical-align:top;">${a.title ?? ""}</td>
+              <td style="padding:7px 8px;color:#1a1008;vertical-align:top;line-height:1.5;">${a.description ?? ""}</td>
+              <td style="padding:7px 8px;color:#6b5c4a;vertical-align:top;font-style:italic;line-height:1.5;">${a.othersObservations ?? ""}</td>
+            </tr>`).join("")}
+          </tbody>
+        </table>
+      </div>`;
+    };
+
+    const html = `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>ESF Life History — ${clientName}</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@400;500;600&display=swap');
+  @page { size: A4 landscape; margin: 12mm 16mm; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Inter', sans-serif; color: #1a1008; background: #fff; }
+  .print-bar { background: #0f1f35; color: #fff; padding: 10px 20px; display: flex; align-items: center; justify-content: space-between; }
+  .print-bar button { background: #c9973a; color: #fff; border: none; padding: 7px 18px; border-radius: 4px; font-size: 13px; cursor: pointer; font-family: inherit; }
+  .print-bar p { font-size: 11px; color: #c9d4e0; margin-top: 2px; }
+  @media print { .print-bar { display: none; } }
+</style>
+</head>
+<body>
+<div class="print-bar">
+  <div><strong style="font-size:14px;">ESF Life History — ${clientName}</strong>
+  <p>⚠ In the print dialog: set Margins = None and uncheck Headers and footers</p></div>
+  <button onclick="window.print()">Print / Save as PDF</button>
+</div>
+<div style="padding:16px 20px;">
+  <div style="border-bottom:2px solid #c9973a;padding-bottom:14px;margin-bottom:24px;display:flex;align-items:flex-end;justify-content:space-between;">
+    <div>
+      <div style="font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:#0f1f35;">Life History — ESF Analysis</div>
+      <div style="font-size:12px;color:#6b5c4a;margin-top:3px;">Achievements grouped by Enjoyable · Satisfying · Fulfilling, in chronological order</div>
+    </div>
+    <div style="text-align:right;font-size:12px;color:#9a8a78;">
+      <strong style="color:#0f1f35;font-size:14px;display:block;">${clientName}</strong>${date}
+    </div>
+  </div>
+  ${renderGroup("E")}${renderGroup("S")}${renderGroup("F")}${renderGroup("?")}
+  <div style="margin-top:20px;padding-top:10px;border-top:1px solid rgba(201,151,58,0.4);text-align:center;font-size:11px;color:#9a8a78;">
+    &copy; Pennington Hennessy ${new Date().getFullYear()} &mdash; Confidential
+  </div>
+</div>
+</body>
+</html>`;
+
+    res.setHeader("Content-Type", "text/html; charset=utf-8");
+    res.setHeader("Content-Disposition", `inline; filename="esf-life-history-${clientName.replace(/\s+/g, "-").toLowerCase()}.html"`);
+    res.send(html);
+  } catch (err) {
+    console.error("[ESF Report] Error:", err);
+    res.status(500).json({ error: "Failed to generate ESF report" });
+  }
+});
+
 function buildReportHTML(data: {
   clientName: string;
   date: string;
