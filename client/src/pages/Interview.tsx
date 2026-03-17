@@ -294,7 +294,7 @@ export default function Interview() {
             The story of who you are
           </h1>
 
-          {/* Peter's opening framing — verbatim */}
+          {/* Opening framing — verbatim */}
           <div className="space-y-4 text-[15px] leading-relaxed text-foreground mb-8">
             <p>
               Who you are now is a continuation of who you were one year, three years, five years,

@@ -22,6 +22,44 @@ const SUGGESTED_QUESTIONS = [
   "How do my life history themes point toward a career direction?",
 ];
 
+/**
+ * Parse a Sage message that may contain a [behaviour: ...] or [Sage ...] tag.
+ * Returns { behaviour: string | null, speech: string }
+ */
+function parseSageMessage(content: string): { behaviour: string | null; speech: string } {
+  // Match [behaviour: ...] or [Sage ...] patterns at the start of the message
+  const match = content.match(/^\[([^\]]+)\]\s*/);
+  if (match) {
+    const tag = match[1].trim();
+    // Only treat as a behaviour tag if it starts with "behaviour:" or "Sage"
+    if (/^behaviour:/i.test(tag) || /^Sage\b/i.test(tag)) {
+      const behaviour = tag.replace(/^behaviour:\s*/i, "");
+      return {
+        behaviour,
+        speech: content.slice(match[0].length).trim(),
+      };
+    }
+  }
+  return { behaviour: null, speech: content };
+}
+
+/** Renders a Sage message bubble, splitting out the behaviour tag if present */
+function SageMessageBubble({ content }: { content: string }) {
+  const { behaviour, speech } = parseSageMessage(content);
+  return (
+    <div className="max-w-[80%] space-y-1.5">
+      {behaviour && (
+        <p className="text-xs italic text-muted-foreground px-1 leading-relaxed">
+          {behaviour}
+        </p>
+      )}
+      <div className="bg-card border border-border text-foreground rounded-2xl rounded-bl-sm px-4 py-3 text-sm leading-relaxed">
+        <Streamdown>{speech}</Streamdown>
+      </div>
+    </div>
+  );
+}
+
 export default function CareerExplorer() {
   const { isAuthenticated, loading } = useAuth();
   const [, navigate] = useLocation();
@@ -120,7 +158,7 @@ export default function CareerExplorer() {
           <h2 className="font-serif text-2xl font-semibold" style={{ color: "var(--lw-navy)" }}>Career Explorer</h2>
           <p className="text-muted-foreground leading-relaxed">
             Your Career Explorer will be activated by your counsellor after your coaching conversation.
-            Once unlocked, Alex will have access to your full Lifework profile and can help you explore
+            Once unlocked, Sage will have access to your full Lifework profile and can help you explore
             careers that are authentically yours.
           </p>
           <button
@@ -159,7 +197,7 @@ export default function CareerExplorer() {
                 className="font-serif font-semibold"
                 style={{ color: "white", fontSize: "1rem" }}
               >
-                Career Explorer
+                Career Explorer — with Sage
               </span>
             </div>
           </div>
@@ -188,15 +226,19 @@ export default function CareerExplorer() {
                 className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-5"
                 style={{ background: "var(--lw-gold-light)", border: "1px solid rgba(201,151,58,0.3)" }}
               >
-                <Compass className="w-7 h-7" style={{ color: "var(--lw-gold)" }} />
+                <span
+                  className="text-2xl font-bold font-serif"
+                  style={{ color: "var(--lw-gold)" }}
+                >
+                  S
+                </span>
               </div>
               <h2 className="font-serif font-bold text-foreground text-xl mb-2">
-                Explore your career options
+                Explore your career options with Sage
               </h2>
               <p className="text-muted-foreground text-sm max-w-md mx-auto mb-8 leading-relaxed">
-                Ask anything about careers, roles, or how your Lifework profile matches up to a
-                specific path. Alex has read your full profile and will give you grounded, specific
-                answers.
+                Sage has read your full Lifework profile. Ask her about a specific career, or ask what
+                suits you — she'll draw on your actual achievements, strengths, and personality.
               </p>
               <div className="flex flex-col gap-2 max-w-lg mx-auto">
                 {SUGGESTED_QUESTIONS.map((q) => (
@@ -235,24 +277,20 @@ export default function CareerExplorer() {
                     className="text-xs font-bold"
                     style={{ color: "var(--lw-gold)", fontFamily: "'Playfair Display', serif" }}
                   >
-                    A
+                    S
                   </span>
                 </div>
               )}
-              <div
-                className={`max-w-[80%] rounded-2xl px-4 py-3 text-sm leading-relaxed ${
-                  msg.role === "client"
-                    ? "text-white rounded-br-sm"
-                    : "bg-card border border-border text-foreground rounded-bl-sm"
-                }`}
-                style={msg.role === "client" ? { background: "var(--lw-navy)" } : {}}
-              >
-                {msg.role === "advisor" ? (
-                  <Streamdown>{msg.content}</Streamdown>
-                ) : (
-                  msg.content
-                )}
-              </div>
+              {msg.role === "advisor" ? (
+                <SageMessageBubble content={msg.content} />
+              ) : (
+                <div
+                  className="max-w-[80%] rounded-2xl px-4 py-3 text-sm leading-relaxed text-white rounded-br-sm"
+                  style={{ background: "var(--lw-navy)" }}
+                >
+                  {msg.content}
+                </div>
+              )}
             </div>
           ))}
 
@@ -267,7 +305,7 @@ export default function CareerExplorer() {
                   className="text-xs font-bold"
                   style={{ color: "var(--lw-gold)", fontFamily: "'Playfair Display', serif" }}
                 >
-                  A
+                  S
                 </span>
               </div>
               <div className="bg-card border border-border rounded-2xl rounded-bl-sm px-4 py-3">
@@ -296,7 +334,7 @@ export default function CareerExplorer() {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder="Ask about a career, or ask what suits you…"
+              placeholder="Ask Sage about a career, or ask what suits you…"
               rows={1}
               className="flex-1 resize-none bg-transparent text-sm text-foreground placeholder:text-muted-foreground focus:outline-none leading-relaxed"
               style={{ maxHeight: "120px", overflowY: "auto" }}
@@ -320,7 +358,7 @@ export default function CareerExplorer() {
             </Button>
           </div>
           <p className="text-xs text-muted-foreground text-center mt-2">
-            Alex has access to your full Lifework profile. Press Enter to send, Shift+Enter for a new line.
+            Sage has access to your full Lifework profile. Press Enter to send, Shift+Enter for a new line.
           </p>
         </div>
       </div>

@@ -21,9 +21,41 @@ interface ChatToPeterProps {
   sectionDescription?: string;
 }
 
+/**
+ * Parse a Sage message that may contain a [behaviour: ...] tag.
+ * Returns { behaviour: string | null, speech: string }
+ */
+function parseSageMessage(content: string): { behaviour: string | null; speech: string } {
+  const match = content.match(/^\[behaviour:\s*(.*?)\]\s*/i);
+  if (match) {
+    return {
+      behaviour: match[1].trim(),
+      speech: content.slice(match[0].length).trim(),
+    };
+  }
+  return { behaviour: null, speech: content };
+}
+
+/** Renders a Sage message bubble, splitting out the behaviour tag if present */
+function SageMessageBubble({ content }: { content: string }) {
+  const { behaviour, speech } = parseSageMessage(content);
+  return (
+    <div className="max-w-[82%] space-y-1.5">
+      {behaviour && (
+        <p className="text-xs italic text-muted-foreground px-1 leading-relaxed">
+          {behaviour}
+        </p>
+      )}
+      <div className="bg-muted text-foreground rounded-2xl rounded-tl-sm px-3.5 py-2.5 text-sm leading-relaxed whitespace-pre-wrap">
+        {speech}
+      </div>
+    </div>
+  );
+}
+
 export function ChatToPeter({
   section,
-  buttonLabel = "Chat to Peter",
+  buttonLabel = "Chat to Sage",
   sectionDescription,
 }: ChatToPeterProps) {
   const [isOpen, setIsOpen] = useState(false);
@@ -58,19 +90,19 @@ export function ChatToPeter({
 
   const sendMessage = trpc.chatPeter.sendMessage.useMutation({
     onSuccess: (data) => {
-      const peterMsg: Message = {
+      const sageMsg: Message = {
         role: "peter",
         content: data.peterResponse,
         timestamp: Date.now(),
       };
-      setMessages(prev => [...prev, peterMsg]);
+      setMessages(prev => [...prev, sageMsg]);
       setSessionId(data.sessionId);
     },
     onError: () => toast.error("Failed to get a response. Please try again."),
   });
 
   const generateSummary = trpc.chatPeter.generateSummary.useMutation({
-    onSuccess: (data) => {
+    onSuccess: () => {
       setIsSummarised(true);
       toast.success("Conversation summarised — this will be included in your analysis.");
     },
@@ -126,8 +158,8 @@ export function ChatToPeter({
   }, [isOpen]);
 
   const defaultDescription = section === "life_history"
-    ? "Peter has read your life history achievements. He'd like to explore them with you — reflecting back what he's noticed and asking a few questions to help you see your own pattern more clearly."
-    : "Peter has read your education and career history. He'd like to explore the relationship between your formal career path and what you've actually found rewarding.";
+    ? "Sage has read your life history achievements. She'd like to explore them with you — reflecting back what she's noticed and asking a few questions to help you see your own pattern more clearly."
+    : "Sage has read your education and career history. She'd like to explore the relationship between your formal career path and what you've actually found most rewarding.";
 
   return (
     <>
@@ -153,16 +185,16 @@ export function ChatToPeter({
 
           {/* Chat panel */}
           <div className="relative pointer-events-auto w-full max-w-lg bg-card border border-border rounded-2xl shadow-2xl flex flex-col"
-               style={{ height: "min(600px, 85vh)" }}>
+               style={{ height: "min(640px, 88vh)" }}>
 
             {/* Header */}
             <div className="flex items-center gap-3 px-4 py-3 border-b border-border bg-[var(--lw-gold-light)]/10 rounded-t-2xl">
               <div className="w-9 h-9 rounded-full bg-[var(--lw-gold)] flex items-center justify-center text-white font-serif font-bold text-sm flex-shrink-0">
-                J
+                S
               </div>
               <div className="flex-1 min-w-0">
-                <p className="font-semibold text-foreground text-sm">Jamie</p>
-                <p className="text-xs text-muted-foreground">Your Lifework Counsellor</p>
+                <p className="font-semibold text-foreground text-sm">Sage</p>
+                <p className="text-xs text-muted-foreground">Your Lifework Coach</p>
               </div>
               <div className="flex items-center gap-1">
                 {messages.length >= 4 && !isSummarised && (
@@ -213,7 +245,7 @@ export function ChatToPeter({
                     {sectionDescription || defaultDescription}
                   </p>
                   <p className="text-xs text-muted-foreground italic">
-                    Start by saying hello, or ask Peter what he noticed.
+                    Start by saying hello, or ask Sage what she noticed.
                   </p>
                 </div>
               )}
@@ -234,18 +266,16 @@ export function ChatToPeter({
                 >
                   {msg.role === "peter" && (
                     <div className="w-7 h-7 rounded-full bg-[var(--lw-gold)] flex items-center justify-center text-white font-serif font-bold text-xs flex-shrink-0 mt-0.5">
-                      P
+                      S
                     </div>
                   )}
-                  <div
-                    className={`max-w-[80%] rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed ${
-                      msg.role === "peter"
-                        ? "bg-muted text-foreground rounded-tl-sm"
-                        : "bg-[var(--lw-gold)] text-white rounded-tr-sm"
-                    }`}
-                  >
-                    {msg.content}
-                  </div>
+                  {msg.role === "peter" ? (
+                    <SageMessageBubble content={msg.content} />
+                  ) : (
+                    <div className="max-w-[80%] rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed bg-[var(--lw-gold)] text-white rounded-tr-sm">
+                      {msg.content}
+                    </div>
+                  )}
                 </div>
               ))}
 
@@ -253,7 +283,7 @@ export function ChatToPeter({
               {sendMessage.isPending && (
                 <div className="flex gap-2.5">
                   <div className="w-7 h-7 rounded-full bg-[var(--lw-gold)] flex items-center justify-center text-white font-serif font-bold text-xs flex-shrink-0 mt-0.5">
-                    P
+                    S
                   </div>
                   <div className="bg-muted rounded-2xl rounded-tl-sm px-4 py-3 flex items-center gap-1">
                     <span className="w-1.5 h-1.5 rounded-full bg-muted-foreground/60 animate-bounce" style={{ animationDelay: "0ms" }} />
@@ -294,7 +324,7 @@ export function ChatToPeter({
               </div>
               <p className="text-xs text-muted-foreground mt-1.5 text-center">
                 {messages.length >= 4 && !isSummarised
-                  ? <>You can tell Peter you’re ready to wrap up, or click <strong>Save insights</strong> when you’re done. This conversation will be included in your analysis.</>
+                  ? <>You can tell Sage you're ready to wrap up, or click <strong>Save insights</strong> when you're done.</>
                   : "Your conversation is private and will only be used to inform your career analysis."}
               </p>
             </div>

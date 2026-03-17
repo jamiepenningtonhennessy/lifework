@@ -117,7 +117,7 @@ export default function ClientProfile() {
     { id: "ipip", label: "Personality", icon: <Users className="w-4 h-4" /> },
     { id: "cognitive", label: "Cognitive", icon: <Brain className="w-4 h-4" /> },
     { id: "report", label: "Analysis Report", icon: <Brain className="w-4 h-4" /> },
-    { id: "virtual-peter", label: "Virtual Peter", icon: <GitCompare className="w-4 h-4" /> },
+    { id: "virtual-peter", label: "Parallel Clients", icon: <GitCompare className="w-4 h-4" /> },
   { id: "coaching-annex", label: "Coaching Annex", icon: <FileText className="w-4 h-4" /> },
   { id: "coaching-session", label: "Coaching Session", icon: <Sparkles className="w-4 h-4" /> },
   ];
@@ -411,7 +411,7 @@ export default function ClientProfile() {
                   <div>
                     <div className="flex items-center gap-2 mb-3">
                       <MessageSquare className="w-4 h-4 text-[var(--lw-gold)]" />
-                      <h3 className="font-serif font-semibold text-foreground text-base">Chat to Peter — Summaries</h3>
+                      <h3 className="font-serif font-semibold text-foreground text-base">Chat to Sage — Summaries</h3>
                     </div>
                     <div className="space-y-3">
                       {chatSessions
@@ -559,7 +559,7 @@ export default function ClientProfile() {
                     <Sparkles className="w-4 h-4 text-white" />
                   </div>
                   <div>
-                    <h3 className="font-serif font-semibold text-foreground mb-1">Virtual Peter — Parallel Clients</h3>
+                    <h3 className="font-serif font-semibold text-foreground mb-1">Parallel Clients</h3>
                     <p className="text-sm text-muted-foreground leading-relaxed">
                       Bernard Haldane's Dependable Strengths methodology was built on recognising patterns across many life histories.
                       This feature replicates that insight: it analyses this client's achievements and themes,

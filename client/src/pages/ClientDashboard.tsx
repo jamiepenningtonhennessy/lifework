@@ -158,7 +158,7 @@ export default function ClientDashboard() {
                 Welcome{user?.name ? `, ${user.name.split(" ")[0]}` : ""}
               </h1>
               <p className="text-muted-foreground leading-relaxed">
-                Your career analysis journey. Complete each step at your own pace. You can leave and come back later during the Life History and Background &amp; History; some clients find they like the opportunity to pause and reflect. When you have finished these first two stages please click on the &ldquo;Chat to Jamie&rdquo; button. Jamie will have read what you have written, and will offer you some thoughts and ask you questions that may aid your reflection.
+                Your career analysis journey. Complete each step at your own pace. You can leave and come back later during the Life History and Background &amp; History; some clients find they like the opportunity to pause and reflect. When you have finished these first two stages please click on the &ldquo;Chat to Sage&rdquo; button. Sage will have read what you have written, and will offer you some thoughts and ask you questions that may aid your reflection.
               </p>
             </div>
 
@@ -222,8 +222,8 @@ export default function ClientDashboard() {
                           {step.id === "background" && (
                             <ChatToPeter
                               section="career_education"
-                              buttonLabel="Chat to Jamie"
-                              sectionDescription="Jamie has read your education and career history. He'd like to explore the relationship between your formal career path and what you've actually found most rewarding."
+                              buttonLabel="Chat to Sage"
+                              sectionDescription="Sage has read your education and career history. She'd like to explore the relationship between your formal career path and what you've actually found most rewarding."
                             />
                           )}
                           {step.id === "analysis" ? (

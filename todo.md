@@ -293,3 +293,12 @@
 ## Bug Fix — ESF Report Route 500 Error
 
 - [x] Fix ESF report route returning {"error":"Failed to generate ESF report"}
+
+## AI Coach — Rename to Sage & Coaching Redesign
+
+- [x] Rename "Jamie" to "Sage" in all UI text (ClientDashboard, chat intro screens, report, etc.)
+- [x] Rename "Jamie"/"Peter" references in all system prompts in routers.ts
+- [x] Rewrite career coaching (Background & History) system prompt: Sage as coach, observed behaviour format, 1-2 para max, question-led
+- [x] Rewrite career explorer system prompt: same Sage coaching persona
+- [x] Redesign chat UI to render Sage's observed behaviour as italic narrative above her spoken words
+- [x] Update any hardcoded "Jamie" in the PDF report cover or footer
