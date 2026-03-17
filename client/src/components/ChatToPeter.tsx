@@ -26,12 +26,18 @@ interface ChatToPeterProps {
  * Returns { behaviour: string | null, speech: string }
  */
 function parseSageMessage(content: string): { behaviour: string | null; speech: string } {
-  const match = content.match(/^\[behaviour:\s*(.*?)\]\s*/i);
+  // Match [behaviour: ...] or [Sage ...] at the start of the message
+  const match = content.match(/^\[([^\]]+)\]\s*/);
   if (match) {
-    return {
-      behaviour: match[1].trim(),
-      speech: content.slice(match[0].length).trim(),
-    };
+    const tag = match[1].trim();
+    if (/^behaviour:/i.test(tag) || /^Sage\b/i.test(tag)) {
+      // Strip "behaviour:" prefix; keep the rest as plain stage direction text
+      const behaviour = tag.replace(/^behaviour:\s*/i, "").trim();
+      return {
+        behaviour,
+        speech: content.slice(match[0].length).trim(),
+      };
+    }
   }
   return { behaviour: null, speech: content };
 }

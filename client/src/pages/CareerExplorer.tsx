@@ -33,7 +33,7 @@ function parseSageMessage(content: string): { behaviour: string | null; speech: 
     const tag = match[1].trim();
     // Only treat as a behaviour tag if it starts with "behaviour:" or "Sage"
     if (/^behaviour:/i.test(tag) || /^Sage\b/i.test(tag)) {
-      const behaviour = tag.replace(/^behaviour:\s*/i, "");
+      const behaviour = tag.replace(/^behaviour:\s*/i, "").trim();
       return {
         behaviour,
         speech: content.slice(match[0].length).trim(),
