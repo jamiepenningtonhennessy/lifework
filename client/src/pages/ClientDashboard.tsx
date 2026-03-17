@@ -343,7 +343,7 @@ export default function ClientDashboard() {
                       <div>
                         <p className="text-sm font-semibold" style={{ color: "white" }}>Career Explorer</p>
                         <p className="text-xs mt-0.5" style={{ color: "rgba(255,255,255,0.6)" }}>
-                          Ask Alex how your profile matches any career — or discover what suits you best.
+                          Ask Sage how your profile matches any career — or discover what suits you best.
                         </p>
                       </div>
                     </div>

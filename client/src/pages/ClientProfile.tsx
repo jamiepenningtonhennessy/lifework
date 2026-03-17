@@ -294,7 +294,7 @@ export default function ClientProfile() {
                     <div className="flex items-center justify-between">
                       <div>
                         <p className="text-sm text-emerald-700 font-medium flex items-center gap-1.5">
-                          <CheckCircle2 className="w-4 h-4" /> Unlocked — client has access to Alex
+                          <CheckCircle2 className="w-4 h-4" /> Unlocked — client has access to Sage
                         </p>
                         <p className="text-xs text-muted-foreground mt-1">The client can now use the Career Explorer to explore careers in the context of their full Lifework profile.</p>
                       </div>
@@ -312,7 +312,7 @@ export default function ClientProfile() {
                     <div className="flex items-center justify-between">
                       <div>
                         <p className="text-sm text-muted-foreground">Not yet unlocked.</p>
-                        <p className="text-xs text-muted-foreground mt-1">Unlock after the coaching call so the client can explore careers with Alex using their full Lifework profile as context.</p>
+                        <p className="text-xs text-muted-foreground mt-1">Unlock after the coaching call so the client can explore careers with Sage using their full Lifework profile as context.</p>
                       </div>
                       <Button
                         size="sm"
