@@ -344,3 +344,7 @@
 ## Bug Fix — Coaching Session Transcript Speaker Labels
 
 - [x] Fix Sage transcript in Past tab: client messages labelled "Sage" — should be labelled with client's first name
+
+## Bug Fix — OCEAN Score Display
+
+- [x] Fix OCEAN scores in Coaching Session Present tab showing as e.g. 5000% instead of 50%

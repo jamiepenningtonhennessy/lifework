@@ -555,10 +555,10 @@ function PresentTab({
               The Insights wheel maps personality tendencies to colour energies. This is a starting point for conversation — not a label.
             </p>
             <InsightsMapping
-              extraversion={Math.round((domainScores.E ?? 0.5) * 100)}
-              agreeableness={Math.round((domainScores.A ?? 0.5) * 100)}
-              openness={Math.round((domainScores.O ?? 0.5) * 100)}
-              conscientiousness={Math.round((domainScores.C ?? 0.5) * 100)}
+              extraversion={domainScores.E ?? 50}
+              agreeableness={domainScores.A ?? 50}
+              openness={domainScores.O ?? 50}
+              conscientiousness={domainScores.C ?? 50}
             />
           </div>
         </div>
@@ -609,7 +609,7 @@ function PresentTab({
           <div className="space-y-3">
             <p className="text-xs text-muted-foreground mb-3">Big Five (IPIP-NEO) scores — 0–100 percentile. Use these as conversation starters, not definitive labels.</p>
             {Object.entries(DOMAIN_INFO).map(([key, info]) => {
-              const score = Math.round((domainScores[key] ?? 0.5) * 100);
+              const score = domainScores[key] ?? 50;
               return (
                 <div key={key} className="p-3 rounded-xl border border-border">
                   <div className="flex items-center justify-between mb-2">
