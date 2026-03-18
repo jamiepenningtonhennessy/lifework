@@ -33,8 +33,9 @@ import {
 import { Streamdown } from "streamdown";
 import { toast } from "sonner";
 import CoachingSessionTab from "@/components/CoachingSessionTab";
+import { InsightsMapping } from "@/components/InsightsMapping";
 
-type Tab = "overview" | "interview" | "background" | "via" | "ipip" | "cognitive" | "report" | "virtual-peter" | "coaching-annex" | "coaching-session";
+type Tab = "overview" | "interview" | "background" | "via" | "ipip" | "report" | "virtual-peter" | "coaching-annex" | "coaching-session";
 
 export default function ClientProfile() {
   const { isAuthenticated, loading, user } = useAuth();
@@ -115,7 +116,6 @@ export default function ClientProfile() {
     { id: "background", label: "Background", icon: <Briefcase className="w-4 h-4" /> },
     { id: "via", label: "VIA Strengths", icon: <Star className="w-4 h-4" /> },
     { id: "ipip", label: "Personality", icon: <Users className="w-4 h-4" /> },
-    { id: "cognitive", label: "Cognitive", icon: <Brain className="w-4 h-4" /> },
     { id: "report", label: "Analysis Report", icon: <Brain className="w-4 h-4" /> },
     { id: "virtual-peter", label: "Parallel Clients", icon: <GitCompare className="w-4 h-4" /> },
   { id: "coaching-annex", label: "Coaching Annex", icon: <FileText className="w-4 h-4" /> },
@@ -523,9 +523,6 @@ export default function ClientProfile() {
             <IpipTab ipip={data.ipip} />
           )}
 
-          {activeTab === "cognitive" && (
-            <CognitiveTab cognitive={data.cognitive} />
-          )}
 
           {activeTab === "report" && (
             <div className="max-w-3xl">
@@ -806,7 +803,6 @@ export default function ClientProfile() {
                 achievements: data.achievements,
                 via: data.via,
                 ipip: data.ipip,
-                cognitive: data.cognitive,
                 career: data.career,
                 family: data.family,
               }}
@@ -815,9 +811,8 @@ export default function ClientProfile() {
         </div>
       )}
     </div>
-  );
+   );
 }
-
 // ─── Coaching Annex Tab Component ────────────────────────────────────────────
 function CoachingAnnexTab({ clientId }: { clientId: number }) {
   const utils = trpc.useUtils();
@@ -1158,85 +1153,3 @@ function IpipTab({ ipip }: { ipip: any }) {
   );
 }
 
-// ─── Cognitive Screener Tab ───────────────────────────────────────────────────
-const COG_DOMAINS = [
-  { key: "verbal", label: "Verbal Reasoning", color: "#2563EB",
-    desc: "Ability to understand and reason using language, identify logical relationships, and draw conclusions from written information." },
-  { key: "numerical", label: "Numerical Reasoning", color: "#059669",
-    desc: "Ability to work with numbers, interpret quantitative data, and reason through mathematical relationships." },
-  { key: "abstract", label: "Abstract Reasoning", color: "#7C3AED",
-    desc: "Ability to identify patterns, rules, and relationships in novel, non-verbal information." },
-];
-
-function interpretLevel(score: number): { label: string; color: string } {
-  if (score <= 3) return { label: "Developing", color: "text-amber-600" };
-  if (score <= 6) return { label: "Solid", color: "text-blue-600" };
-  if (score <= 8) return { label: "Strong", color: "text-emerald-600" };
-  return { label: "Exceptional", color: "text-purple-600" };
-}
-
-function CognitiveTab({ cognitive }: { cognitive: any }) {
-  if (!cognitive) {
-    return (
-      <div className="max-w-3xl text-center py-12 border-2 border-dashed border-border rounded-xl">
-        <Brain className="w-10 h-10 text-muted-foreground mx-auto mb-3" />
-        <p className="text-muted-foreground">Cognitive screener not yet completed.</p>
-      </div>
-    );
-  }
-  const scores: Record<string, number> = (() => {
-    try { return typeof cognitive.scores === "string" ? JSON.parse(cognitive.scores) : (cognitive.scores ?? {}); }
-    catch { return {}; }
-  })();
-  const verbal = scores.verbal ?? 0;
-  const numerical = scores.numerical ?? 0;
-  const abstract = scores.abstract ?? 0;
-  const total = scores.total ?? (verbal + numerical + abstract);
-  const percentile = scores.percentile ?? 0;
-  const timeMins = cognitive.timeTakenSeconds ? Math.round(cognitive.timeTakenSeconds / 60) : null;
-
-  return (
-    <div className="max-w-3xl space-y-6">
-      {/* Summary card */}
-      <div className="p-5 rounded-xl bg-[var(--lw-gold-light)]/15 border border-[var(--lw-gold)]/20">
-        <div className="flex items-center justify-between mb-1">
-          <span className="font-serif font-semibold text-foreground">Overall Score</span>
-          <span className="text-2xl font-bold text-[var(--lw-gold)]">{total}<span className="text-sm font-normal text-muted-foreground">/30</span></span>
-        </div>
-        <div className="h-2.5 bg-muted rounded-full overflow-hidden mb-2">
-          <div className="h-full bg-[var(--lw-gold)] rounded-full" style={{ width: `${(total / 30) * 100}%` }} />
-        </div>
-        <div className="flex items-center justify-between text-sm text-muted-foreground">
-          <span>Indicative percentile: <span className="font-semibold text-foreground">{percentile}th</span></span>
-          {timeMins !== null && <span>Completed in {timeMins} min</span>}
-        </div>
-        <p className="text-xs text-muted-foreground mt-2 italic">
-          Scores are indicative only — not clinically validated. Presented as a relative guide within this platform.
-        </p>
-      </div>
-
-      {/* Domain breakdown */}
-      <div className="space-y-4">
-        {COG_DOMAINS.map((d) => {
-          const s = d.key === "verbal" ? verbal : d.key === "numerical" ? numerical : abstract;
-          const { label, color } = interpretLevel(s);
-          return (
-            <div key={d.key} className="border border-border rounded-xl p-4 space-y-3">
-              <div className="flex items-center justify-between">
-                <span className="font-serif font-semibold text-foreground">{d.label}</span>
-                <div className="flex items-center gap-2">
-                  <span className={`text-xs font-semibold ${color}`}>{label}</span>
-                  <span className="text-sm font-bold" style={{ color: d.color }}>{s}<span className="text-xs font-normal text-muted-foreground">/10</span></span>
-                </div>
-              </div>
-              <div className="h-2 bg-muted rounded-full overflow-hidden">
-                <div className="h-full rounded-full transition-all" style={{ width: `${(s / 10) * 100}%`, backgroundColor: d.color }} />
-              </div>
-              <p className="text-xs text-muted-foreground">{d.desc}</p>
-            </div>
-          );
-        })}
-      </div>
-    </div>
-  );
-}

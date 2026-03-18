@@ -14,8 +14,6 @@ import ClientProfile from "./pages/ClientProfile";
 import Background from "./pages/Background";
 import IpipSurvey from "./pages/IpipSurvey";
 import IpipResults from "./pages/IpipResults";
-import CognitiveScreener from "./pages/CognitiveScreener";
-import CognitiveResults from "./pages/CognitiveResults";
 import MyReport from "./pages/MyReport";
 import CareerExplorer from "./pages/CareerExplorer";
 
@@ -30,8 +28,6 @@ function Router() {
       <Route path="/ipip-survey" component={IpipSurvey} />
       <Route path="/ipip-results" component={IpipResults} />
       <Route path="/ipip/results" component={IpipResults} />
-      <Route path="/cognitive-screener" component={CognitiveScreener} />
-      <Route path="/cognitive-results" component={CognitiveResults} />
       <Route path="/my-report" component={MyReport} />
       <Route path="/career-explorer" component={CareerExplorer} />
       <Route path="/dashboard" component={ClientDashboard} />

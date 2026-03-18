@@ -28,7 +28,6 @@ interface CoachingSummary {
   career: SectionData;
   via: SectionData;
   ipip: SectionData;
-  reasoning: SectionData;
 }
 
 type SectionKey = keyof CoachingSummary;
@@ -39,7 +38,6 @@ interface Props {
     achievements: any[];
     via: any;
     ipip: any;
-    cognitive: any;
     career: any[];
     family: any;
   };
@@ -67,7 +65,6 @@ const TABS: { id: SectionKey; label: string; icon: string }[] = [
   { id: "career", label: "Career", icon: "💼" },
   { id: "via", label: "VIA Strengths", icon: "⭐" },
   { id: "ipip", label: "Personality", icon: "🧠" },
-  { id: "reasoning", label: "Reasoning", icon: "🔢" },
 ];
 
 // ─── Chart: Achievements by decade & ESF ─────────────────────────────────────
@@ -172,39 +169,7 @@ function IpipChart({ ipip }: { ipip: any }) {
   );
 }
 
-// ─── Chart: Reasoning scores ──────────────────────────────────────────────────
 
-function ReasoningChart({ cognitive }: { cognitive: any }) {
-  if (!cognitive?.scores) return <p className="text-sm text-muted-foreground italic">Reasoning screener not completed.</p>;
-  const s = cognitive.scores as any;
-  const data = [
-    { name: "Verbal", score: s.verbal ?? 0, max: 10 },
-    { name: "Numerical", score: s.numerical ?? 0, max: 10 },
-    { name: "Abstract", score: s.abstract ?? 0, max: 10 },
-  ];
-  return (
-    <div className="mt-4">
-      <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-3">Reasoning screener scores (out of 10)</p>
-      <ResponsiveContainer width="100%" height={160}>
-        <BarChart data={data} margin={{ top: 0, right: 20, left: -10, bottom: 0 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-          <XAxis dataKey="name" tick={{ fontSize: 12 }} />
-          <YAxis domain={[0, 10]} tick={{ fontSize: 11 }} />
-          <Tooltip />
-          <Bar dataKey="score" radius={[4, 4, 0, 0]}>
-            {data.map((_, i) => (
-              <Cell key={i} fill={[GOLD, NAVY, "#5b8a6e"][i]} />
-            ))}
-          </Bar>
-        </BarChart>
-      </ResponsiveContainer>
-      <p className="text-xs text-muted-foreground mt-2 text-center">
-        Total: {s.total ?? "?"} / {s.totalMax ?? 30}
-        {s.percentile != null ? ` · Percentile: ${s.percentile}th` : ""}
-      </p>
-    </div>
-  );
-}
 
 // ─── Section panel ────────────────────────────────────────────────────────────
 
@@ -339,7 +304,6 @@ export default function CoachingSessionTab({ clientId, clientData }: Props) {
     if (key === "lifeHistory") return <AchievementsChart achievements={clientData.achievements} />;
     if (key === "via") return <ViaChart via={clientData.via} />;
     if (key === "ipip") return <IpipChart ipip={clientData.ipip} />;
-    if (key === "reasoning") return <ReasoningChart cognitive={clientData.cognitive} />;
     return undefined;
   };
 

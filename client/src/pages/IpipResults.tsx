@@ -12,6 +12,7 @@ import {
   type IpipDomainKey,
   type IpipFacetKey,
 } from "../../../shared/ipip-data";
+import { InsightsMapping } from "@/components/InsightsMapping";
 
 export default function IpipResults() {
   const [, setLocation] = useLocation();
@@ -149,6 +150,17 @@ export default function IpipResults() {
             </Card>
           );
         })}
+
+        {/* Insights Mapping */}
+        <div className="mb-8">
+          <h2 className="text-lg font-serif font-semibold text-foreground mb-4">Insights Discovery Colour Mapping</h2>
+          <InsightsMapping
+            extraversion={domainScores["E"] ?? 50}
+            agreeableness={domainScores["A"] ?? 50}
+            openness={domainScores["O"] ?? 50}
+            conscientiousness={domainScores["C"] ?? 50}
+          />
+        </div>
 
         {/* CTA */}
         <div className="mt-8 flex justify-center">

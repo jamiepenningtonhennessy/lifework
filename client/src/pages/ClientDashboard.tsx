@@ -63,16 +63,6 @@ const STEPS = [
     ctaInProgress: "Continue Survey",
   },
   {
-    id: "cognitive",
-    icon: <Brain className="w-5 h-5" />,
-    title: "Reasoning Strengths Screener",
-    description: "A 30-question indicative assessment covering verbal, numerical, and abstract reasoning — to help make sense of your cognitive strengths.",
-    path: "/cognitive-screener",
-    statusKey: "cognitiveStatus",
-    cta: "Take Screener",
-    ctaInProgress: "Retake Screener",
-  },
-  {
     id: "analysis",
     icon: <Brain className="w-5 h-5" />,
     title: "Career Analysis Report",
@@ -288,7 +278,7 @@ export default function ClientDashboard() {
                       </p>
                       <p className="text-sm" style={{ color: "rgba(255,255,255,0.65)" }}>
                         Your counsellor has prepared a personalised analysis of your life history,
-                        character strengths, personality profile, and reasoning strengths.
+                        character strengths, and personality profile.
                       </p>
                       <div className="flex flex-wrap gap-3 mt-4">
                         <button

@@ -29,8 +29,6 @@ import {
   addInterviewMessage,
   getAnalysisReport,
   upsertAnalysisReport,
-  getCognitiveScreenerResult,
-  upsertCognitiveScreenerResult,
   getAllHistoricalClients,
   getParallelMatches,
   saveParallelMatches,
@@ -53,7 +51,6 @@ import {
 import { invokeLLM } from "./_core/llm";
 import { scoreVia, VIA_QUESTIONS, VIA_STRENGTHS } from "../shared/via-data";
 import { scoreIpip, ipipCareerNarrative } from "../shared/ipip-data";
-import { scoreScreener, SCREENER_ITEMS } from "../shared/cognitive-screener-data";
 
 // ─── Helper: require counselor/admin role ────────────────────────────────────
 const counselorProcedure = protectedProcedure.use(({ ctx, next }) => {
@@ -512,7 +509,7 @@ const counselorRouter = router({
   getClientProfile: counselorProcedure
     .input(z.object({ clientId: z.number() }))
     .query(async ({ input }) => {
-      const [profile, achievementsList, family, education, career, via, ipip, cognitive, report, messages, chatSessions] =
+      const [profile, achievementsList, family, education, career, via, ipip, report, messages, chatSessions] =
         await Promise.all([
           getClientProfileById(input.clientId),
           getAchievements(input.clientId),
@@ -521,12 +518,11 @@ const counselorRouter = router({
           getCareerHistory(input.clientId),
           getViaResults(input.clientId),
           getIpipResults(input.clientId),
-          getCognitiveScreenerResult(input.clientId),
           getAnalysisReport(input.clientId),
           getInterviewMessages(input.clientId),
           getChatSessionsByClient(input.clientId),
         ]);
-      return { profile, achievements: achievementsList, family, education, career, via, ipip, cognitive, report, messages, chatSessions };
+      return { profile, achievements: achievementsList, family, education, career, via, ipip, report, messages, chatSessions };
     }),
 
   saveNotes: counselorProcedure
@@ -573,14 +569,13 @@ const counselorRouter = router({
         return { summary: JSON.parse(existing.coachingSummaryJson) };
       }
 
-      const [achievementsList, family, education, career, via, ipip, cognitive] = await Promise.all([
+      const [achievementsList, family, education, career, via, ipip] = await Promise.all([
         getAchievements(input.clientId),
         getFamilyBackground(input.clientId),
         getEducationHistory(input.clientId),
         getCareerHistory(input.clientId),
         getViaResults(input.clientId),
         getIpipResults(input.clientId),
-        getCognitiveScreenerResult(input.clientId),
       ]);
 
       const clientName = profile.firstName ? `${profile.firstName} ${profile.lastName ?? ""}`.trim() : "the client";
@@ -609,10 +604,6 @@ const counselorRouter = router({
         ? DOMAINS.map(d => `${DOMAIN_NAMES[d]}: ${Math.round(((ipip.domainScores as any)[d] ?? 0) * 100)}%`).join("\n")
         : "IPIP not completed.";
 
-      const cogScores = cognitive?.scores as any;
-      const cogCtx = cognitive
-        ? `Verbal: ${cogScores?.verbal ?? "?"}/${cogScores?.verbalTotal ?? 10}, Numerical: ${cogScores?.numerical ?? "?"}/${cogScores?.numericalTotal ?? 10}, Abstract: ${cogScores?.abstract ?? "?"}/${cogScores?.abstractTotal ?? 10}, Total: ${cogScores?.total ?? "?"}/${cogScores?.totalMax ?? 30}`
-        : "Reasoning screener not completed.";
 
       const familyCtx = family
         ? `Father: ${family.fatherOccupation ?? "unknown"}; Mother: ${family.motherOccupation ?? "unknown"}; Sibling position: ${family.siblingPosition ?? "unknown"}; Family narrative: ${family.familyNarrative ?? "none"}`
@@ -634,8 +625,6 @@ VIA CHARACTER STRENGTHS (top 10):
 ${viaCtx}
 IPIP PERSONALITY (Big Five domain scores):
 ${ipipCtx}
-REASONING SCREENER:
-${cogCtx}
 
 IMPORTANT: Be concise. Each summary: 2-3 sentences max (under 60 words). Each example: 1 short sentence. Each question: 1 short sentence.`;
 
@@ -656,9 +645,8 @@ IMPORTANT: Be concise. Each summary: 2-3 sentences max (under 60 words). Each ex
                 career:      { type: "object", properties: { summary: { type: "string" }, examples: { type: "array", items: { type: "string" } }, questions: { type: "array", items: { type: "string" } } }, required: ["summary", "examples", "questions"], additionalProperties: false },
                 via:         { type: "object", properties: { summary: { type: "string" }, examples: { type: "array", items: { type: "string" } }, questions: { type: "array", items: { type: "string" } } }, required: ["summary", "examples", "questions"], additionalProperties: false },
                 ipip:        { type: "object", properties: { summary: { type: "string" }, examples: { type: "array", items: { type: "string" } }, questions: { type: "array", items: { type: "string" } } }, required: ["summary", "examples", "questions"], additionalProperties: false },
-                reasoning:   { type: "object", properties: { summary: { type: "string" }, examples: { type: "array", items: { type: "string" } }, questions: { type: "array", items: { type: "string" } } }, required: ["summary", "examples", "questions"], additionalProperties: false },
               },
-              required: ["lifeHistory", "career", "via", "ipip", "reasoning"],
+              required: ["lifeHistory", "career", "via", "ipip"],
               additionalProperties: false,
             },
           },
@@ -803,40 +791,6 @@ Be specific, warm, and insightful. Use examples from their actual story.`;
     }),
 });
 
-// ─── App Rout// ─── Cognitive Screener Router ───────────────────────────────────────────
-const cognitiveRouter = router({
-  getResults: protectedProcedure.query(async ({ ctx }) => {
-    const profile = await getOrCreateClientProfile(ctx.user.id);
-    return getCognitiveScreenerResult(profile.id);
-  }),
-
-  saveResults: protectedProcedure
-    .input(
-      z.object({
-        // answers: { [itemId]: chosenOptionIndex }
-        answers: z.record(z.string(), z.number()),
-        timeTakenSeconds: z.number().optional(),
-      })
-    )
-    .mutation(async ({ ctx, input }) => {
-      const profile = await getOrCreateClientProfile(ctx.user.id);
-      // Convert string keys to number keys
-      const numericAnswers: Record<number, number> = {};
-      for (const [k, v] of Object.entries(input.answers)) {
-        numericAnswers[parseInt(k)] = v;
-      }
-      const scores = scoreScreener(numericAnswers);
-      await upsertCognitiveScreenerResult({
-        clientId: profile.id,
-        scores,
-        rawAnswers: numericAnswers,
-        timeTakenSeconds: input.timeTakenSeconds ?? null,
-        completedAt: new Date(),
-      });
-      await updateClientProfile(profile.id, { cognitiveStatus: "completed" });
-      return { success: true, scores };
-    }),
-});
 
 // ─── Virtual Peter Router ───────────────────────────────────────────────────
 // The core matching logic: given a client's analysis report, find the most
@@ -1630,7 +1584,6 @@ export const appRouter = router({
   background: backgroundRouter,
   via: viaRouter,
   ipip: ipipRouter,
-  cognitive: cognitiveRouter,
   analysis: analysisRouter,
   counselor: counselorRouter,
   virtualPeter: virtualPeterRouter,

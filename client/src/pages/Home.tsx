@@ -266,7 +266,7 @@ export default function Home() {
                 Bernard Haldane spent decades refining this approach, and his Dependable Strengths methodology has since been applied with thousands of clients across every stage of working life — from graduates finding their first direction to senior professionals facing retirement. The central conviction is that every life history, read attentively, contains a pattern of motivated achievement that points clearly toward the work that will be most rewarding.
               </p>
               <p>
-                Lifework makes that conversation available at scale, guided by a counsellor who knows the methodology and the database of real outcomes behind it. The psychometric instruments — personality, character strengths, cognitive profile — are not the analysis. They are lenses through which the life history is read more clearly.
+                Lifework makes that conversation available at scale, guided by a counsellor who knows the methodology and the database of real outcomes behind it. The psychometric instruments — personality and character strengths — are not the analysis. They are lenses through which the life history is read more clearly.
               </p>
             </div>
           </div>

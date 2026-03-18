@@ -302,3 +302,24 @@
 - [x] Rewrite career explorer system prompt: same Sage coaching persona
 - [x] Redesign chat UI to render Sage's observed behaviour as italic narrative above her spoken words
 - [x] Update any hardcoded "Jamie" in the PDF report cover or footer
+
+## Reasoning Screener — Remove
+
+- [x] Remove reasoning screener from client dashboard progress tracker and nav
+- [x] Remove Reasoning tab from CoachingView in counsellor ClientProfile
+- [x] Remove cognitive screener tRPC routes from routers.ts
+- [x] Remove cognitive_screener_results table from drizzle/schema.ts and run migration
+- [x] Remove CognitiveScreener.tsx and CognitiveResults.tsx pages
+- [x] Remove cognitive screener route from App.tsx
+- [x] Remove cognitive screener section from PDF/HTML export
+
+## OCEAN Visualisation — Graphical Client Display
+
+- [x] Design OCEAN results component: radar chart or horizontal bar chart with Insights-style colour coding
+- [x] Map OCEAN facets to Jungian E/I, T/F, S/N dimensions and derive approximate DISC/Insights quadrant
+- [x] Build InsightsMapping component showing client's position on Insights colour wheel
+- [x] Add InsightsMapping to client IpipResults page
+- [x] Add InsightsMapping to counsellor IPIP tab in ClientProfile
+- [ ] Add graphical OCEAN display to client dashboard (My Report or dedicated Personality page)
+- [ ] Add graphical OCEAN display to counsellor CoachingView IPIP tab
+- [ ] Update PDF export to include graphical OCEAN summary
