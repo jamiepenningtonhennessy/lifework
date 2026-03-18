@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { InsightsMapping } from "@/components/InsightsMapping";
 import { VIA_STRENGTHS, type ViaStrength } from "@shared/via-data";
+import { IPIP_FACETS } from "@shared/ipip-data";
 import {
   BarChart,
   Bar,
@@ -521,6 +522,79 @@ function PastTab({
   );
 }
 
+// ─── OCEAN Domains with facet drill-down ────────────────────────────────────
+function OceanDomains({
+  domainScores, facetScores, domainInfo,
+}: {
+  domainScores: Record<string, number>;
+  facetScores: Record<string, number>;
+  domainInfo: Record<string, { name: string; color: string; low: string; high: string }>;
+}) {
+  const [expanded, setExpanded] = useState<string | null>(null);
+  return (
+    <div className="space-y-2">
+      {Object.entries(domainInfo).map(([key, info]) => {
+        const score = domainScores[key] ?? 50;
+        const isOpen = expanded === key;
+        const facets = IPIP_FACETS.filter((f) => f.domain === key);
+        return (
+          <div key={key} className="rounded-xl border border-border overflow-hidden">
+            {/* Domain header row — clickable */}
+            <button
+              onClick={() => setExpanded(isOpen ? null : key)}
+              className="w-full p-3 text-left hover:bg-muted/30 transition-colors"
+            >
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-semibold text-foreground">{info.name}</span>
+                  <span className="text-xs text-muted-foreground">
+                    {isOpen ? "▲ hide facets" : "▼ show facets"}
+                  </span>
+                </div>
+                <span className="text-sm font-bold" style={{ color: info.color }}>{score}%</span>
+              </div>
+              <div className="h-2 bg-muted rounded-full overflow-hidden mb-1.5">
+                <div className="h-full rounded-full transition-all" style={{ width: `${score}%`, background: info.color }} />
+              </div>
+              <div className="flex justify-between text-xs text-muted-foreground">
+                <span>{info.low}</span>
+                <span>{info.high}</span>
+              </div>
+            </button>
+            {/* Facet drill-down */}
+            {isOpen && (
+              <div className="border-t border-border bg-muted/20 px-4 py-3 space-y-3">
+                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-2">Facet Subscales</p>
+                {facets.map((facet) => {
+                  const fScore = facetScores[facet.key] ?? 50;
+                  return (
+                    <div key={facet.key}>
+                      <div className="flex items-center justify-between mb-1">
+                        <div>
+                          <span className="text-xs font-semibold text-foreground">{facet.name}</span>
+                          <span className="text-xs text-muted-foreground ml-2">{facet.description}</span>
+                        </div>
+                        <span className="text-xs font-bold ml-3 shrink-0" style={{ color: info.color }}>{fScore}%</span>
+                      </div>
+                      <div className="h-1.5 bg-muted rounded-full overflow-hidden mb-0.5">
+                        <div className="h-full rounded-full" style={{ width: `${fScore}%`, background: info.color, opacity: 0.75 }} />
+                      </div>
+                      <div className="flex justify-between text-xs text-muted-foreground/70">
+                        <span>{facet.lowLabel}</span>
+                        <span>{facet.highLabel}</span>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
 // ─── PRESENT TAB ──────────────────────────────────────────────────────────────
 function PresentTab({
   clientId, via, ipip, notes, onNoteChange,
@@ -608,24 +682,7 @@ function PresentTab({
         ) : (
           <div className="space-y-3">
             <p className="text-xs text-muted-foreground mb-3">Big Five (IPIP-NEO) scores — 0–100 percentile. Use these as conversation starters, not definitive labels.</p>
-            {Object.entries(DOMAIN_INFO).map(([key, info]) => {
-              const score = domainScores[key] ?? 50;
-              return (
-                <div key={key} className="p-3 rounded-xl border border-border">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm font-semibold text-foreground">{info.name}</span>
-                    <span className="text-sm font-bold" style={{ color: info.color }}>{score}%</span>
-                  </div>
-                  <div className="h-2 bg-muted rounded-full overflow-hidden mb-1.5">
-                    <div className="h-full rounded-full" style={{ width: `${score}%`, background: info.color }} />
-                  </div>
-                  <div className="flex justify-between text-xs text-muted-foreground">
-                    <span>{info.low}</span>
-                    <span>{info.high}</span>
-                  </div>
-                </div>
-              );
-            })}
+            <OceanDomains domainScores={domainScores} facetScores={parseDomainScores(ipip?.facetScores)} domainInfo={DOMAIN_INFO} />
           </div>
         )}
       </div>

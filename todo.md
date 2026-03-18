@@ -348,3 +348,7 @@
 ## Bug Fix — OCEAN Score Display
 
 - [x] Fix OCEAN scores in Coaching Session Present tab showing as e.g. 5000% instead of 50%
+
+## Feature — OCEAN Facet Drill-Down
+
+- [x] OCEAN domains in Coaching Session Present tab: click to expand and show the 6 facet subscale scores
