@@ -808,6 +808,7 @@ export default function ClientProfile() {
                 education: data.education,
                 chatSessions: (data as any).chatSessions ?? [],
                 report: data.report,
+                clientFirstName: data.profile.firstName ?? undefined,
               }}
             />
           )}

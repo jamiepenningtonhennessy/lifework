@@ -340,3 +340,7 @@
 - [x] Future tab: Emerging Themes briefing (LLM synthesis of Past + Present + Focus)
 - [x] Future tab: Session Notes panel
 - [ ] Add video placeholder slots to client-side Life History, VIA, and Personality sections
+
+## Bug Fix — Coaching Session Transcript Speaker Labels
+
+- [x] Fix Sage transcript in Past tab: client messages labelled "Sage" — should be labelled with client's first name

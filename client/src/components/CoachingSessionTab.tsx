@@ -41,6 +41,7 @@ interface Props {
     education: any[];
     chatSessions: any[];
     report: any;
+    clientFirstName?: string;
   };
 }
 
@@ -67,7 +68,7 @@ function parseDomainScores(raw: any): Record<string, number> {
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
 
-function SageTranscript({ messages }: { messages: any[] }) {
+function SageTranscript({ messages, clientName }: { messages: any[]; clientName: string }) {
   const [open, setOpen] = useState(false);
   if (messages.length === 0) {
     return (
@@ -101,7 +102,7 @@ function SageTranscript({ messages }: { messages: any[] }) {
               <div key={i} className={`flex ${isClient ? "justify-end" : "justify-start"}`}>
                 <div className={`max-w-[85%] ${isClient ? "bg-[var(--lw-gold)]/10 border border-[var(--lw-gold)]/20" : "bg-muted/40 border border-border"} rounded-xl px-3 py-2`}>
                   <p className="text-xs font-semibold mb-1" style={{ color: isClient ? GOLD : NAVY }}>
-                    {isClient ? "Client" : "Sage"}
+                    {isClient ? clientName : "Sage"}
                   </p>
                   {stageDir && <p className="text-xs italic text-muted-foreground mb-1">[{stageDir}]</p>}
                   <p className="text-sm text-foreground leading-relaxed">{speech}</p>
@@ -312,12 +313,13 @@ function AchievementsChart({ achievements }: { achievements: any[] }) {
 // ─── PAST TAB ─────────────────────────────────────────────────────────────────
 function PastTab({
   clientId, achievements, family, career, education, chatSessions,
-  notes, onNoteChange, analyses, onRefreshAnalyses,
+  notes, onNoteChange, analyses, onRefreshAnalyses, clientName,
 }: {
   clientId: number; achievements: any[]; family: any; career: any[];
   education: any[]; chatSessions: any[]; notes: Record<string, string>;
   onNoteChange: (key: string, val: string) => void;
   analyses: Record<string, any>; onRefreshAnalyses: () => void;
+  clientName: string;
 }) {
   type PastSection = "lifeHistory" | "family" | "career";
   const [activeSection, setActiveSection] = useState<PastSection>("lifeHistory");
@@ -392,7 +394,7 @@ function PastTab({
           </div>
           <div>
             <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-2">Sage — Life History Conversation</p>
-            <SageTranscript messages={lifeMessages} />
+            <SageTranscript messages={lifeMessages} clientName={clientName} />
           </div>
           <div className="border border-[var(--lw-gold)]/20 rounded-xl p-4 bg-[var(--lw-gold-light)]/5">
             <div className="flex items-center gap-2 mb-3">
@@ -441,7 +443,7 @@ function PastTab({
           </div>
           <div>
             <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-2">Sage — Life History Conversation (includes family context)</p>
-            <SageTranscript messages={lifeMessages} />
+            <SageTranscript messages={lifeMessages} clientName={clientName} />
           </div>
           <div className="border border-[var(--lw-gold)]/20 rounded-xl p-4 bg-[var(--lw-gold-light)]/5">
             <div className="flex items-center gap-2 mb-3">
@@ -503,7 +505,7 @@ function PastTab({
           )}
           <div>
             <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-2">Sage — Career & Education Conversation</p>
-            <SageTranscript messages={careerMessages} />
+            <SageTranscript messages={careerMessages} clientName={clientName} />
           </div>
           <div className="border border-[var(--lw-gold)]/20 rounded-xl p-4 bg-[var(--lw-gold-light)]/5">
             <div className="flex items-center gap-2 mb-3">
@@ -791,7 +793,8 @@ function FutureTab({
 
 // ─── Main Component ───────────────────────────────────────────────────────────
 export default function CoachingSessionTab({ clientId, clientData }: Props) {
-  const { achievements, via, ipip, career, family, education, chatSessions } = clientData;
+  const { achievements, via, ipip, career, family, education, chatSessions, clientFirstName } = clientData;
+  const clientName = clientFirstName ?? "Client";
   const utils = trpc.useUtils();
 
   const [activeTab, setActiveTab] = useState<MainTab>("past");
@@ -867,6 +870,7 @@ export default function CoachingSessionTab({ clientId, clientData }: Props) {
           career={career} education={education ?? []} chatSessions={chatSessions}
           notes={notes} onNoteChange={handleNoteChange}
           analyses={analyses} onRefreshAnalyses={() => refetchAnalyses()}
+          clientName={clientName}
         />
       )}
       {activeTab === "present" && (
