@@ -323,3 +323,4 @@
 - [ ] Add graphical OCEAN display to client dashboard (My Report or dedicated Personality page)
 - [ ] Add graphical OCEAN display to counsellor CoachingView IPIP tab
 - [ ] Update PDF export to include graphical OCEAN summary
+- [x] Fix InsightsMapping SVG: expand viewBox so "Sunshine Yellow" label is not cropped

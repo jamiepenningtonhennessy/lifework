@@ -148,7 +148,7 @@ function getJungianType(
 }
 
 // ─── Circular Quadrant Wheel SVG ──────────────────────────────────────────────
-// ViewBox: 240×240, centre: 120,120, outer radius: 108, inner clip radius: 108
+// ViewBox: 300×300, centre: 150,150, outer radius: 108, label radius: 130
 
 function QuadrantWheel({
   extraversion,
@@ -163,22 +163,19 @@ function QuadrantWheel({
   const normX = (extraversion - 50) / 50;   // -1 to +1
   const normY = (agreeableness - 50) / 50;  // -1 to +1 (positive = feeler = down)
 
-  const cx = 120 + normX * 72;
-  const cy = 120 + normY * 72;
+  const cx = 150 + normX * 72;
+  const cy = 150 + normY * 72;
 
   const primaryKey = getColourEnergy(extraversion, agreeableness);
   const dotColour = COLOUR_ENERGIES[primaryKey].hex;
   const dotBorder = COLOUR_ENERGIES[primaryKey].borderHex;
 
   // Quadrant arc paths (each is a quarter circle)
-  // SVG arc: top-left=blue, top-right=red, bottom-left=green, bottom-right=yellow
-  // Outer ring radius: 108, inner clip: 0 (full circle, clipped by quadrant)
   const R = 108;
-  const cx0 = 120;
-  const cy0 = 120;
+  const cx0 = 150;
+  const cy0 = 150;
 
   // Helper: arc path for a quadrant
-  // startAngle, endAngle in degrees (0 = right, 90 = down)
   function quadrantPath(startDeg: number, endDeg: number): string {
     const toRad = (d: number) => (d * Math.PI) / 180;
     const x1 = cx0 + R * Math.cos(toRad(startDeg));
@@ -188,12 +185,10 @@ function QuadrantWheel({
     return `M ${cx0} ${cy0} L ${x1} ${y1} A ${R} ${R} 0 0 1 ${x2} ${y2} Z`;
   }
 
-  // Label path along the outer ring (just outside R+6)
-  const LR = R + 14;
-  function labelArcPath(startDeg: number, endDeg: number, id: string): string {
+  // Label path along the outer ring — radius 130 gives 22px clearance from wheel edge
+  const LR = R + 22;
+  function labelArcPath(startDeg: number, endDeg: number, _id: string): string {
     const toRad = (d: number) => (d * Math.PI) / 180;
-    const midDeg = (startDeg + endDeg) / 2;
-    // For bottom labels, we want text to read correctly — use a reversed arc
     const sweep = endDeg > startDeg ? 1 : 0;
     const x1 = cx0 + LR * Math.cos(toRad(startDeg));
     const y1 = cy0 + LR * Math.sin(toRad(startDeg));
@@ -204,8 +199,8 @@ function QuadrantWheel({
 
   return (
     <svg
-      viewBox="0 0 240 240"
-      className="w-full max-w-[280px] mx-auto drop-shadow-md"
+      viewBox="0 0 300 300"
+      className="w-full max-w-[320px] mx-auto drop-shadow-md"
       aria-label="Insights colour energy wheel"
     >
       <defs>
@@ -227,6 +222,7 @@ function QuadrantWheel({
       {/* Outer border ring */}
       <circle cx={cx0} cy={cy0} r={R + 3} fill="none" stroke="#d0d0d0" strokeWidth="2" />
 
+
       {/* Quadrant fills clipped to circle */}
       <g clipPath="url(#circleClip)">
         {/* Top-left: Cool Blue (270°→360° = top-left quarter) */}
@@ -242,6 +238,7 @@ function QuadrantWheel({
       {/* Dividing lines */}
       <line x1={cx0} y1={cy0 - R} x2={cx0} y2={cy0 + R} stroke="white" strokeWidth="2.5" />
       <line x1={cx0 - R} y1={cy0} x2={cx0 + R} y2={cy0} stroke="white" strokeWidth="2.5" />
+
 
       {/* Outer colour ring border per quadrant */}
       <g clipPath="url(#circleClip)">
@@ -266,10 +263,10 @@ function QuadrantWheel({
       </text>
 
       {/* Axis labels inside wheel */}
-      <text x={cx0} y={cy0 - R + 18} textAnchor="middle" fontSize="7.5" fill="rgba(255,255,255,0.85)" fontWeight="600">THINKER</text>
-      <text x={cx0} y={cy0 + R - 10} textAnchor="middle" fontSize="7.5" fill="rgba(255,255,255,0.85)" fontWeight="600">FEELER</text>
-      <text x={cx0 - R + 10} y={cy0 + 3} textAnchor="middle" fontSize="7.5" fill="rgba(255,255,255,0.85)" fontWeight="600" transform={`rotate(-90,${cx0 - R + 10},${cy0})`}>INTROVERT</text>
-      <text x={cx0 + R - 10} y={cy0 + 3} textAnchor="middle" fontSize="7.5" fill="rgba(255,255,255,0.85)" fontWeight="600" transform={`rotate(90,${cx0 + R - 10},${cy0})`}>EXTRAVERT</text>
+      <text x={cx0} y={cy0 - R + 18} textAnchor="middle" fontSize="8" fill="rgba(255,255,255,0.85)" fontWeight="600">THINKER</text>
+      <text x={cx0} y={cy0 + R - 10} textAnchor="middle" fontSize="8" fill="rgba(255,255,255,0.85)" fontWeight="600">FEELER</text>
+      <text x={cx0 - R + 10} y={cy0 + 3} textAnchor="middle" fontSize="8" fill="rgba(255,255,255,0.85)" fontWeight="600" transform={`rotate(-90,${cx0 - R + 10},${cy0})`}>INTROVERT</text>
+      <text x={cx0 + R - 10} y={cy0 + 3} textAnchor="middle" fontSize="8" fill="rgba(255,255,255,0.85)" fontWeight="600" transform={`rotate(90,${cx0 + R - 10},${cy0})`}>EXTRAVERT</text>
 
       {/* Client position dot */}
       <circle
