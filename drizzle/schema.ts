@@ -223,6 +223,8 @@ export const analysisReports = mysqlTable("analysis_reports", {
   counselorNotes: text("counselorNotes"),
   fullReportMarkdown: text("fullReportMarkdown"),
   coachingSummaryJson: text("coachingSummaryJson"),
+  coachNotesJson: text("coachNotesJson"),
+  sectionAnalysisJson: text("sectionAnalysisJson"),
   generatedAt: timestamp("generatedAt").defaultNow().notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),

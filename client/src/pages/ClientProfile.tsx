@@ -805,6 +805,9 @@ export default function ClientProfile() {
                 ipip: data.ipip,
                 career: data.career,
                 family: data.family,
+                education: data.education,
+                chatSessions: (data as any).chatSessions ?? [],
+                report: data.report,
               }}
             />
           )}

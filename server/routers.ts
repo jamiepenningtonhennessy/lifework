@@ -786,13 +786,208 @@ Be specific, warm, and insightful. Use examples from their actual story.`;
         generatedAt: new Date(),
       });
 
-      await updateClientProfile(profile.id, { analysisStatus: "completed" });
+       await updateClientProfile(profile.id, { analysisStatus: "completed" });
       return { success: true };
     }),
+  // ─── Coach Notes ────────────────────────────────────────────────────────────
+  saveCoachNotes: counselorProcedure
+    .input(z.object({
+      clientId: z.number(),
+      notes: z.record(z.string(), z.string()), // { lifeHistory: "...", family: "...", career: "...", present: "...", future: "...", sessionNotes: "..." }
+    }))
+    .mutation(async ({ input }) => {
+      const existing = await getAnalysisReport(input.clientId);
+      const merged = {
+        ...(existing?.coachNotesJson ? JSON.parse(existing.coachNotesJson) : {}),
+        ...input.notes,
+      };
+      if (existing) {
+        await upsertAnalysisReport({ ...existing, coachNotesJson: JSON.stringify(merged) });
+      } else {
+        await upsertAnalysisReport({ clientId: input.clientId, coachNotesJson: JSON.stringify(merged), generatedAt: new Date() });
+      }
+      return { success: true };
+    }),
+  getCoachNotes: counselorProcedure
+    .input(z.object({ clientId: z.number() }))
+    .query(async ({ input }) => {
+      const report = await getAnalysisReport(input.clientId);
+      if (!report?.coachNotesJson) return { notes: {} };
+      return { notes: JSON.parse(report.coachNotesJson) as Record<string, string> };
+    }),
+  // ─── On-demand section analysis ─────────────────────────────────────────────
+  generateSectionAnalysis: counselorProcedure
+    .input(z.object({
+      clientId: z.number(),
+      section: z.enum(["lifeHistory", "family", "career"]),
+      forceRegenerate: z.boolean().optional().default(false),
+    }))
+    .mutation(async ({ input }) => {
+      const existing = await getAnalysisReport(input.clientId);
+      const cachedAll = existing?.sectionAnalysisJson ? JSON.parse(existing.sectionAnalysisJson) : {};
+      if (cachedAll[input.section] && !input.forceRegenerate) {
+        return { analysis: cachedAll[input.section] };
+      }
+      const [achievementsList, family, career, chatSessionsList] = await Promise.all([
+        getAchievements(input.clientId),
+        getFamilyBackground(input.clientId),
+        getCareerHistory(input.clientId),
+        getChatSessionsByClient(input.clientId),
+      ]);
+      const profile = await getClientProfileById(input.clientId);
+      const clientName = profile?.firstName ? `${profile.firstName} ${profile.lastName ?? ""}`.trim() : "the client";
+      let systemPrompt = "";
+      let userPrompt = "";
+      if (input.section === "lifeHistory") {
+        const lifeSession = chatSessionsList.find((s) => s.section === "life_history");
+        const transcript = lifeSession?.messages
+          ? (JSON.parse(lifeSession.messages) as any[]).map((m: any) => `${m.role === "user" ? "Client" : "Sage"}: ${m.content}`).join("\n")
+          : "No Sage conversation recorded.";
+        const achievementsText = achievementsList.map((a) =>
+          `[${a.decade}] Age ${a.age ?? "?"}: ${a.title} (${a.esf ?? "unclassified"}) — ${a.description ?? ""} ${a.othersObservations ? `| Others said: ${a.othersObservations}` : ""}`
+        ).join("\n");
+        systemPrompt = "You are an expert career coach trained in Bernard Haldane methodology. Analyse the client's life history achievements and their Sage conversation transcript. Return a concise JSON analysis.";
+        userPrompt = `Client: ${clientName}\n\nACHIEVEMENTS (ESF-tagged):\n${achievementsText}\n\nSAGE CONVERSATION TRANSCRIPT:\n${transcript}\n\nProvide a JSON analysis with:\n- themes: array of 3-5 recurring themes across the life history (each: { theme: string, evidence: string })
+- esfPattern: a 1-2 sentence observation about the ESF distribution
+- peakMoments: array of 2-3 standout achievements that reveal the most about the person
+- coachingPrompts: array of 3 specific questions the coach could explore in the session`;
+      } else if (input.section === "family") {
+        const lifeSession = chatSessionsList.find((s) => s.section === "life_history");
+        const transcript = lifeSession?.messages
+          ? (JSON.parse(lifeSession.messages) as any[]).map((m: any) => `${m.role === "user" ? "Client" : "Sage"}: ${m.content}`).join("\n")
+          : "No Sage conversation recorded.";
+        const familyText = family
+          ? `Father: ${family.fatherOccupation ?? "unknown"}; Mother: ${family.motherOccupation ?? "unknown"}; Sibling position: ${family.siblingPosition ?? "unknown"}; Upbringing: ${family.upbringingLocation ?? "unknown"}; Narrative: ${family.familyNarrative ?? "none"}; Significant influences: ${family.significantInfluences ?? "none"}`
+          : "No family background recorded.";
+        systemPrompt = "You are an expert career coach. Analyse the client's family background to identify formative influences on their career values and motivations. Return a concise JSON analysis.";
+        userPrompt = `Client: ${clientName}\n\nFAMILY BACKGROUND:\n${familyText}\n\nSAGE CONVERSATION CONTEXT (life history):\n${transcript.slice(0, 2000)}\n\nProvide a JSON analysis with:\n- formativeInfluences: array of 2-3 key family/background factors that shaped the client's values or career orientation (each: { influence: string, implication: string })
+- valuesSuggested: array of 3-4 core values likely instilled by family background
+- coachingPrompts: array of 3 specific questions the coach could explore about family influences`;
+      } else {
+        // career
+        const careerSession = chatSessionsList.find((s) => s.section === "career_education");
+        const transcript = careerSession?.messages
+          ? (JSON.parse(careerSession.messages) as any[]).map((m: any) => `${m.role === "user" ? "Client" : "Sage"}: ${m.content}`).join("\n")
+          : "No Sage conversation recorded.";
+        const careerText = career.map((c) =>
+          `${c.yearFrom ?? "?"}-${c.yearTo ?? "?"}: ${c.role ?? "Role"} at ${c.organisation} ${c.highlights ? `| Highlights: ${c.highlights}` : ""} ${c.whyLeft ? `| Why left: ${c.whyLeft}` : ""}`
+        ).join("\n");
+        systemPrompt = "You are an expert career coach trained in Bernard Haldane methodology. Analyse the client's career history and their Sage conversation transcript. Return a concise JSON analysis.";
+        userPrompt = `Client: ${clientName}\n\nCAREER HISTORY:\n${careerText}\n\nSAGE CONVERSATION TRANSCRIPT:\n${transcript}\n\nProvide a JSON analysis with:\n- careerThemes: array of 3-4 recurring themes across the career (each: { theme: string, evidence: string })
+- transitionPatterns: a 1-2 sentence observation about how and why the client has moved between roles
+- standoutRoles: array of 2-3 roles that reveal the most about the client's strengths and motivations
+- coachingPrompts: array of 3 specific questions the coach could explore about the career journey`;
+      }
+      const response = await invokeLLM({
+        messages: [
+          { role: "system", content: systemPrompt },
+          { role: "user", content: userPrompt },
+        ] as any,
+        response_format: { type: "json_object" } as any,
+      });
+      const rawContent = response.choices[0]?.message?.content ?? "{}";
+      const raw = typeof rawContent === "string" ? rawContent : JSON.stringify(rawContent);
+      let analysis: any;
+      try {
+        analysis = JSON.parse(raw.replace(/^```json\s*/i, "").replace(/^```\s*/i, "").replace(/```\s*$/i, "").trim());
+      } catch {
+        const match = raw.match(/\{[\s\S]*\}/);
+        if (match) { try { analysis = JSON.parse(match[0]); } catch { analysis = { error: "Could not parse analysis" }; } }
+        else { analysis = { error: "Could not parse analysis" }; }
+      }
+      // Cache the result
+      const updatedAll = { ...cachedAll, [input.section]: analysis };
+      if (existing) {
+        await upsertAnalysisReport({ ...existing, sectionAnalysisJson: JSON.stringify(updatedAll) });
+      } else {
+        await upsertAnalysisReport({ clientId: input.clientId, sectionAnalysisJson: JSON.stringify(updatedAll), generatedAt: new Date() });
+      }
+      return { analysis };
+    }),
+  getSectionAnalysis: counselorProcedure
+    .input(z.object({ clientId: z.number() }))
+    .query(async ({ input }) => {
+      const report = await getAnalysisReport(input.clientId);
+      if (!report?.sectionAnalysisJson) return { analyses: {} };
+      return { analyses: JSON.parse(report.sectionAnalysisJson) as Record<string, any> };
+    }),
+  // ─── Future tab: Focus statement and session notes ───────────────────────────
+  saveFocusStatement: counselorProcedure
+    .input(z.object({ clientId: z.number(), focusStatement: z.string() }))
+    .mutation(async ({ input }) => {
+      const existing = await getAnalysisReport(input.clientId);
+      const notes = existing?.coachNotesJson ? JSON.parse(existing.coachNotesJson) : {};
+      notes.focusStatement = input.focusStatement;
+      if (existing) {
+        await upsertAnalysisReport({ ...existing, coachNotesJson: JSON.stringify(notes) });
+      } else {
+        await upsertAnalysisReport({ clientId: input.clientId, coachNotesJson: JSON.stringify(notes), generatedAt: new Date() });
+      }
+      return { success: true };
+    }),
+  generateEmergingThemes: counselorProcedure
+    .input(z.object({
+      clientId: z.number(),
+      forceRegenerate: z.boolean().optional().default(false),
+    }))
+    .mutation(async ({ input }) => {
+      const existing = await getAnalysisReport(input.clientId);
+      const cachedNotes = existing?.coachNotesJson ? JSON.parse(existing.coachNotesJson) : {};
+      if (cachedNotes.emergingThemes && !input.forceRegenerate) {
+        return { themes: cachedNotes.emergingThemes };
+      }
+      const [achievementsList, family, career, via, ipip, chatSessionsList] = await Promise.all([
+        getAchievements(input.clientId),
+        getFamilyBackground(input.clientId),
+        getCareerHistory(input.clientId),
+        getViaResults(input.clientId),
+        getIpipResults(input.clientId),
+        getChatSessionsByClient(input.clientId),
+      ]);
+      const profile = await getClientProfileById(input.clientId);
+      const clientName = profile?.firstName ? `${profile.firstName} ${profile.lastName ?? ""}`.trim() : "the client";
+      const sectionAnalyses = existing?.sectionAnalysisJson ? JSON.parse(existing.sectionAnalysisJson) : {};
+      const achievementsText = achievementsList.slice(0, 20).map((a) =>
+        `[${a.decade}] ${a.title} (${a.esf ?? "unclassified"})`
+      ).join(", ");
+      const careerText = career.map((c) => `${c.role ?? "Role"} at ${c.organisation}`).join(", ");
+      const viaTop5 = via?.rankedStrengths ? (via.rankedStrengths as any[]).slice(0, 5).map((s: any) => s.name ?? s.strengthId).join(", ") : "Not completed";
+      const domainScores = ipip?.domainScores ? (typeof ipip.domainScores === "string" ? JSON.parse(ipip.domainScores) : ipip.domainScores) : {};
+      const ipipSummary = Object.entries(domainScores).map(([k, v]) => `${k}: ${Math.round((v as number) * 100)}%`).join(", ");
+      const lifeAnalysis = sectionAnalyses.lifeHistory ? JSON.stringify(sectionAnalyses.lifeHistory).slice(0, 500) : "Not yet generated";
+      const careerAnalysis = sectionAnalyses.career ? JSON.stringify(sectionAnalyses.career).slice(0, 500) : "Not yet generated";
+      const focusStatement = cachedNotes.focusStatement ?? "Not yet set";
+      const systemPrompt = `You are a senior career coach synthesising a holistic picture of a client before a coaching session. Draw together patterns from life history, career, psychometrics, and the coach's focus statement to identify 3-5 emerging themes that should guide the coaching conversation.`;
+      const userPrompt = `Client: ${clientName}\n\nFOCUS STATEMENT: ${focusStatement}\n\nLIFE HISTORY HIGHLIGHTS: ${achievementsText}\n\nCAREER HISTORY: ${careerText}\n\nVIA TOP 5 STRENGTHS: ${viaTop5}\n\nIPIP PERSONALITY: ${ipipSummary}\n\nLIFE HISTORY ANALYSIS: ${lifeAnalysis}\n\nCAREER ANALYSIS: ${careerAnalysis}\n\nGenerate a JSON object with:\n- themes: array of 3-5 emerging themes (each: { title: string, synthesis: string (2-3 sentences drawing together evidence from multiple sources), implications: string (1 sentence on what this means for the client's future direction) })
+- coachingApproach: 2-3 sentences on the overall approach the coach should take in this session based on the full picture`;
+      const response = await invokeLLM({
+        messages: [
+          { role: "system", content: systemPrompt },
+          { role: "user", content: userPrompt },
+        ] as any,
+        response_format: { type: "json_object" } as any,
+      });
+      const rawContent = response.choices[0]?.message?.content ?? "{}";
+      const raw = typeof rawContent === "string" ? rawContent : JSON.stringify(rawContent);
+      let themes: any;
+      try {
+        themes = JSON.parse(raw.replace(/^```json\s*/i, "").replace(/^```\s*/i, "").replace(/```\s*$/i, "").trim());
+      } catch {
+        const match = raw.match(/\{[\s\S]*\}/);
+        if (match) { try { themes = JSON.parse(match[0]); } catch { themes = { error: "Could not parse themes" }; } }
+        else { themes = { error: "Could not parse themes" }; }
+      }
+      // Cache
+      cachedNotes.emergingThemes = themes;
+      if (existing) {
+        await upsertAnalysisReport({ ...existing, coachNotesJson: JSON.stringify(cachedNotes) });
+      } else {
+        await upsertAnalysisReport({ clientId: input.clientId, coachNotesJson: JSON.stringify(cachedNotes), generatedAt: new Date() });
+      }
+      return { themes };
+    }),
 });
-
-
-// ─── Virtual Peter Router ───────────────────────────────────────────────────
+// ─── Virtual Peter Router ────────────────────────────────────────────────────
 // The core matching logic: given a client's analysis report, find the most
 // similar historical clients from Peter's 449-client database.
 // Matching uses semantic tag overlap (themes, environment, motivation, sector)

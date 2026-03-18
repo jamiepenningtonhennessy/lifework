@@ -324,3 +324,19 @@
 - [ ] Add graphical OCEAN display to counsellor CoachingView IPIP tab
 - [ ] Update PDF export to include graphical OCEAN summary
 - [x] Fix InsightsMapping SVG: expand viewBox so "Sunshine Yellow" label is not cropped
+
+## Coaching Session Tab — Past / Present / Future Redesign
+
+- [x] Replace existing coaching session tab with Past / Present / Future three-tab structure (coach view)
+- [x] Past tab: Life History sub-group with ESF grouping, Sage transcript (collapsed), coach notes field
+- [x] Past tab: Family sub-group with verbatim text, Sage transcript (collapsed), coach notes field
+- [x] Past tab: Career History sub-group with verbatim text, Sage transcript (collapsed), coach notes field
+- [x] Past tab: on-demand Sage analysis per sub-group (Option A with caching + refresh button)
+- [x] Present tab: Insights colour wheel sub-group, clean coach display
+- [x] Present tab: VIA Signature Strengths sub-group
+- [x] Present tab: OCEAN sub-group, coach context notes
+- [x] Future tab: Focus statement (coach-set, saveable)
+- [x] Future tab: Sage questions (How do you know / Why now / What would success look like) with coach notes
+- [x] Future tab: Emerging Themes briefing (LLM synthesis of Past + Present + Focus)
+- [x] Future tab: Session Notes panel
+- [ ] Add video placeholder slots to client-side Life History, VIA, and Personality sections
