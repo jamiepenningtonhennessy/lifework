@@ -1149,6 +1149,12 @@ function IpipTab({ ipip }: { ipip: any }) {
           </div>
         );
       })}
+      <InsightsMapping
+        extraversion={domainScores["E"] ?? 50}
+        agreeableness={domainScores["A"] ?? 50}
+        openness={domainScores["O"] ?? 50}
+        conscientiousness={domainScores["C"] ?? 50}
+      />
     </div>
   );
 }
