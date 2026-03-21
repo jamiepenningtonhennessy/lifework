@@ -416,64 +416,346 @@ const analysisRouter = router({
       .map(s => s.summary!)
       .join("\n\n");
 
-    const prompt = `You are an expert career analyst using the narrative life history methodology of Bernard Haldane, as practised by Pennington Hennessy. You have been given a comprehensive set of data about a client. Your task is to produce a rich, insightful career analysis report.
+    // ── STAGE 1: Dependable Strengths from Life History ──────────────────────────
+    const stage1SystemPrompt = `You are an experienced career coach trained in the Dependable Strengths methodology.
+Your task is to analyse a client's Achievement Stories and identify their Dependable Strengths.
 
-## Client Data
+A Dependable Strength is a skill or quality that meets three criteria simultaneously:
+1. The client is genuinely good at it (demonstrated by outcome or recognition in the story).
+2. The client enjoys using it — it energises rather than drains them.
+3. It appears in more than one story, ideally across more than one life phase.
 
-### Life History Interview Conversation
-${conversationText || "No interview data yet."}
+A strength that appears only once may be a situational skill. A strength that appears
+across multiple phases of life — childhood, education, work, personal life — is dependable:
+it is part of who this person is, not just what they have learned to do.
 
-### Structured Achievements (by decade, with ESF classification)
+For each strength you identify:
+- Name it clearly (a short phrase, not a single generic word — e.g. "building trust with
+  sceptical audiences" rather than "communication").
+- Cite the specific stories in which it appears, quoting a brief phrase from each.
+- Note the life phases represented (to demonstrate the strength is not role-specific).
+- Indicate your confidence level: HIGH (3+ stories, multiple phases), MEDIUM (2 stories),
+  or EMERGING (1 story, but strongly evidenced).
+
+After listing the individual strengths, write a short synthesis paragraph (3–5 sentences)
+that describes the overall pattern — what kind of person this is, what they are most
+fundamentally good at, and what conditions bring out their best. This paragraph will be
+passed to the next stage of analysis.
+
+Do not speculate beyond the evidence. If a strength is only weakly supported, say so.
+The client will read this report; accuracy and honesty matter more than flattery.
+
+Output format:
+---
+DEPENDABLE STRENGTHS
+
+[Strength Name] — [Confidence: HIGH / MEDIUM / EMERGING]
+Evidence: [Story 1 title/phrase] · [Story 2 title/phrase] · [Story 3 title/phrase]
+Life phases: [e.g. Early Life, Mid Career, Personal Life]
+[One sentence describing what this strength looks like in practice.]
+
+[Repeat for each strength identified]
+
+---
+SYNTHESIS
+
+[3–5 sentence paragraph describing the overall pattern of strengths.]
+---`;
+
+    const stage1UserContent = `CLIENT ACHIEVEMENT STORIES:
+
 ${achievementsText || "No achievements recorded yet."}
 
-${lifeHistoryChat ? `### Chat with Sage: Life History Insights\n${lifeHistoryChat}\n` : ""}
-${careerEducationChat ? `### Chat with Sage: Career & Education Insights\n${careerEducationChat}\n` : ""}
-### Family Background
+${lifeHistoryChat ? `SAGE LIFE HISTORY CONVERSATION INSIGHTS:\n${lifeHistoryChat}\n` : ""}
+${careerEducationChat ? `SAGE CAREER & EDUCATION CONVERSATION INSIGHTS:\n${careerEducationChat}\n` : ""}
+FAMILY BACKGROUND:
 Father's occupation: ${family?.fatherOccupation ?? "Unknown"}
 Mother's occupation: ${family?.motherOccupation ?? "Unknown"}
 Sibling position: ${family?.siblingPosition ?? "Unknown"}
-Upbringing: ${family?.upbringingLocation ?? "Unknown"}
 Family narrative: ${family?.familyNarrative ?? "None"}
 Significant influences: ${family?.significantInfluences ?? "None"}
 
-### Education History
+EDUCATION:
 ${educationText || "None recorded."}
 
-### Career History
-${careerText || "None recorded."}
+CAREER HISTORY:
+${careerText || "None recorded."}`;
 
-### VIA Character Strengths (Top 10)
-${viaText}
-
-### IPIP-NEO-120 Personality Profile
-${ipipText}
-
-## Your Task
-
-Produce a comprehensive career analysis report in Markdown format with the following sections:
-
-1. **Executive Summary** — A 2-3 paragraph narrative portrait of this person.
-2. **Core Strengths & Skills** — The recurring capabilities that appear across their life story.
-3. **Driving Motivations** — What consistently energizes and fulfills them (not just what they are good at).
-4. **Preferred Environments** — The conditions, cultures, and contexts in which they thrive.
-5. **Career Themes** — The deeper patterns and threads running through their life and work.
-6. **VIA Character Strengths Correlation** — How their top VIA strengths connect to and reinforce the patterns found in their life story.
-7. **Personality Profile Interpretation (IPIP-NEO-120)** — Interpret the Big Five personality scores in the context of this person's career story. Note where personality traits reinforce or create tension with their life history patterns. This replaces the 16PF analysis used in traditional career counselling.
-8. **Career Directions & Possibilities** — 3-5 specific career archetypes or directions that align with all the above, with a brief rationale for each.
-9. **If this is true, these things will also be true...** — A set of bold, specific predictions about what this person needs, values, and will find meaningful in their next chapter.
-10. **Questions for the Feedback Session** — 5 powerful questions the counsellor might explore with the client.
-
-Write in a warm, insightful, and direct style. Be specific — use examples from their actual story. Avoid generic career advice.`;
-
-    const response = await invokeLLM({
+    const stage1Response = await invokeLLM({
       messages: [
-        { role: "system", content: "You are an expert career analyst. Produce detailed, insightful, and specific reports." },
-        { role: "user", content: prompt },
+        { role: "system", content: stage1SystemPrompt },
+        { role: "user", content: stage1UserContent },
       ],
     });
+    const stage1Output = (stage1Response.choices[0]?.message?.content as string) ?? "";
 
-    const reportMarkdown =
-      (response.choices[0]?.message?.content as string) ?? "Analysis could not be generated.";
+    // ── STAGE 2: VIA Character Strengths Analysis ─────────────────────────────
+    const stage2SystemPrompt = `You are an experienced career coach. You have already completed a Dependable Strengths
+analysis of this client's life history (provided below). You are now asked to analyse
+their VIA Character Strengths results in light of what you already know.
+
+Your task is NOT to produce a generic VIA report. Your task is to use the VIA results
+as a second lens on the same person — to see what they confirm, what they add, and
+(rarely) what they might gently challenge.
+
+Work through the following three questions:
+
+1. CONFIRMATION: Which of the client's top VIA strengths directly confirm or reinforce
+   the Dependable Strengths already identified? For each match, name the VIA strength,
+   name the Dependable Strength it echoes, and write one sentence explaining the
+   connection in plain language.
+
+2. ADDITION: Are there any top VIA strengths (typically top 5–7) that were NOT clearly
+   visible in the life history analysis? If so, treat these with interest but caution —
+   the VIA measures how a person sees themselves, not necessarily what the evidence
+   shows. Note any such strengths and suggest what they might mean, while acknowledging
+   that they are not yet confirmed by lived evidence.
+
+3. TENSION: Are there any apparent contradictions between the VIA results and the
+   Dependable Strengths? If so, name the tension and offer a possible explanation —
+   do not resolve it artificially.
+
+After working through these three questions, write an updated synthesis paragraph
+(3–5 sentences) that integrates what is now known from both the life history and the
+VIA. This paragraph will be passed to Stage 3.
+
+Be specific. Quote from the Stage 1 output and the VIA results. Avoid generic phrases
+like "you are a natural leader" unless the evidence specifically supports this.
+
+Output format:
+---
+VIA ANALYSIS
+
+CONFIRMATION
+[VIA Strength] echoes [Dependable Strength]: [One sentence explanation.]
+
+ADDITION
+[VIA Strength]: [Note of interest and what it might mean, with appropriate caution.]
+(or: None identified)
+
+TENSION
+[VIA Strength] vs [Dependable Strength or absence]: [One sentence naming the tension and a possible explanation.]
+(or: None identified)
+
+---
+UPDATED SYNTHESIS
+
+[3–5 sentence paragraph integrating life history and VIA findings.]
+---`;
+
+    const stage2UserContent = `STAGE 1 OUTPUT (Dependable Strengths Analysis):
+${stage1Output}
+
+VIA CHARACTER STRENGTHS (full ranked list):
+${viaText}`;
+
+    const stage2Response = await invokeLLM({
+      messages: [
+        { role: "system", content: stage2SystemPrompt },
+        { role: "user", content: stage2UserContent },
+      ],
+    });
+    const stage2Output = (stage2Response.choices[0]?.message?.content as string) ?? "";
+
+    // ── STAGE 3: OCEAN (Big Five) Personality Analysis ────────────────────────
+    const stage3SystemPrompt = `You are an experienced career coach. You have already completed a Dependable Strengths
+analysis and a VIA Character Strengths analysis of this client (both provided below).
+You are now asked to interpret their Big Five (OCEAN / IPIP-NEO) personality profile
+in light of everything you already know.
+
+Your task is NOT to produce a generic personality report. Your task is to use the OCEAN
+data as a third and final lens — asking what it explains, what it confirms, and what
+it adds to the picture already built from the client's own life evidence.
+
+Work through the following:
+
+1. EXPLANATORY VALUE: For each of the five domains, consider whether the score helps
+   explain something already observed in the life history or VIA analysis. Focus on
+   domains where the score is notably high (above 65) or notably low (below 35), as
+   these are most likely to be meaningfully informative. For mid-range scores (35–65),
+   note them briefly but do not over-interpret.
+
+   For each notable domain:
+   - State the score and what it means in plain language.
+   - Connect it explicitly to one or more Dependable Strengths or VIA findings.
+   - Explain what this adds to the coaching picture.
+
+2. FACET NUANCE: Look at the facet scores within each domain. Where a facet score
+   diverges significantly from its domain average (by more than ~15 points), note this
+   as it often reveals important nuance.
+
+3. WORKING CONDITIONS: Based on the combined picture from all three stages, write a
+   short paragraph (3–4 sentences) describing the conditions in which this client is
+   most likely to do their best work. Be specific and grounded in evidence.
+
+4. WATCH POINTS: Identify one or two areas where the OCEAN data, in combination with
+   the earlier analysis, suggests something the client may find genuinely challenging.
+   Frame these with care — as honest coaching intelligence, not criticism.
+
+After these sections, write a final integrated synthesis paragraph (4–6 sentences)
+that draws together all three stages into a coherent portrait of this person. This
+paragraph will form the opening of the client's report.
+
+Output format:
+---
+OCEAN ANALYSIS
+
+EXPLANATORY VALUE
+[Domain] — Score: [X]/100
+[Plain language meaning. Connection to earlier findings. What this adds.]
+
+FACET NUANCE
+[Domain] — [Facet name]: [Score] vs domain average [X]
+[One sentence on what this nuance reveals.]
+(or: No significant facet divergences noted.)
+
+WORKING CONDITIONS
+[3–4 sentence paragraph.]
+
+WATCH POINTS
+[Watch point 1: one or two sentences, framed with care.]
+[Watch point 2, if applicable.]
+
+---
+FINAL INTEGRATED SYNTHESIS
+
+[4–6 sentence paragraph drawing together all three stages.]
+---`;
+
+    const stage3UserContent = `STAGE 1 OUTPUT (Dependable Strengths):
+${stage1Output}
+
+STAGE 2 OUTPUT (VIA Analysis):
+${stage2Output}
+
+OCEAN PERSONALITY PROFILE (IPIP-NEO-120):
+${ipipText}`;
+
+    const stage3Response = await invokeLLM({
+      messages: [
+        { role: "system", content: stage3SystemPrompt },
+        { role: "user", content: stage3UserContent },
+      ],
+    });
+    const stage3Output = (stage3Response.choices[0]?.message?.content as string) ?? "";
+
+    // ── STAGE 4: Insights Discovery Profile (Standalone) ─────────────────────
+    const eScore = ipip?.domainScores ? (ipip.domainScores as any).E ?? 50 : 50;
+    const aScore = ipip?.domainScores ? (ipip.domainScores as any).A ?? 50 : 50;
+    const oScore = ipip?.domainScores ? (ipip.domainScores as any).O ?? 50 : 50;
+    const cScore = ipip?.domainScores ? (ipip.domainScores as any).C ?? 50 : 50;
+    const isExtravert = eScore >= 50;
+    const isFeeler = aScore >= 50;
+    const primaryColour = !isExtravert && !isFeeler ? "Cool Blue" : isExtravert && !isFeeler ? "Fiery Red" : !isExtravert && isFeeler ? "Earth Green" : "Sunshine Yellow";
+    const eDistance = Math.abs(eScore - 50);
+    const aDistance = Math.abs(aScore - 50);
+    const secondaryColour = (() => {
+      if (eDistance < aDistance) {
+        const flippedE = isExtravert ? 30 : 70;
+        const c2 = !(flippedE >= 50) && !isFeeler ? "Cool Blue" : (flippedE >= 50) && !isFeeler ? "Fiery Red" : !(flippedE >= 50) && isFeeler ? "Earth Green" : "Sunshine Yellow";
+        return c2 !== primaryColour ? c2 : (!isExtravert && !(aScore >= 50 ? false : true) ? "Cool Blue" : isExtravert && !(aScore >= 50 ? false : true) ? "Fiery Red" : !isExtravert ? "Earth Green" : "Sunshine Yellow");
+      } else {
+        const flippedA = isFeeler ? 30 : 70;
+        const c2 = !isExtravert && !(flippedA >= 50) ? "Cool Blue" : isExtravert && !(flippedA >= 50) ? "Fiery Red" : !isExtravert && (flippedA >= 50) ? "Earth Green" : "Sunshine Yellow";
+        return c2 !== primaryColour ? c2 : primaryColour;
+      }
+    })();
+    const jungianType = `${isExtravert ? "E" : "I"}${oScore >= 50 ? "N" : "S"}${isFeeler ? "F" : "T"}${cScore >= 50 ? "J" : "P"}`;
+    const insightsData = ipip?.domainScores
+      ? `Primary colour energy: ${primaryColour}\nSecondary colour energy: ${secondaryColour}\nJungian type approximation: ${jungianType}\nExtraversion: ${eScore}/100\nAgreeableness: ${aScore}/100\nOpenness: ${oScore}/100\nConscientiousness: ${cScore}/100`
+      : "IPIP-NEO data not available — Insights profile cannot be generated.";
+
+    const stage4SystemPrompt = `You are an experienced Insights Discovery practitioner. You are asked to write the
+Insights Discovery section of a client report based on their colour-energy profile.
+
+This section stands alone — it does not reference the life history or VIA analysis.
+It uses the Insights vocabulary (colour energies, wheel position) to give the client
+a clear, practical picture of how they tend to show up in professional settings.
+
+Write the following:
+
+1. COLOUR ENERGY PROFILE: Describe the client's primary and secondary colour energies
+   in plain language. Explain what each energy means in practice — how it shows up in
+   their communication style, decision-making, and relationships at work. Be specific
+   about the combination: a primary Cool Blue / secondary Earth Green person is
+   meaningfully different from a primary Cool Blue / secondary Fiery Red person.
+
+2. AT THEIR BEST: Describe what this person looks like when they are operating from
+   their strongest energies — what colleagues notice, how they contribute, what they
+   bring to a team.
+
+3. UNDER PRESSURE: Describe how this person is likely to behave when stressed or
+   outside their comfort zone. What might colleagues observe?
+
+4. WORKING WITH OTHERS: Give one or two practical observations about how this person
+   tends to work with people whose colour energies are very different from their own.
+
+Keep the tone warm, direct, and non-judgmental. Begin with a brief framing sentence
+acknowledging this is a tool for self-awareness, not a fixed label.
+
+Output format:
+---
+INSIGHTS DISCOVERY PROFILE
+
+[Brief framing sentence.]
+
+COLOUR ENERGY PROFILE
+[2–3 sentences.]
+
+AT THEIR BEST
+[2–3 sentences.]
+
+UNDER PRESSURE
+[2–3 sentences.]
+
+WORKING WITH OTHERS
+[2–3 sentences.]
+---`;
+
+    const stage4Response = await invokeLLM({
+      messages: [
+        { role: "system", content: stage4SystemPrompt },
+        { role: "user", content: insightsData },
+      ],
+    });
+    const stage4Output = (stage4Response.choices[0]?.message?.content as string) ?? "";
+
+    // ── Assemble the full report markdown ─────────────────────────────────────
+    const finalSynthesisMatch = stage3Output.match(/FINAL INTEGRATED SYNTHESIS[\s\S]*?(?=---|$)/);
+    const finalSynthesis = finalSynthesisMatch
+      ? finalSynthesisMatch[0].replace("FINAL INTEGRATED SYNTHESIS", "").replace(/---/g, "").trim()
+      : "";
+
+    const reportMarkdown = `# Lifework Career Analysis Report
+
+## Opening Portrait
+
+${finalSynthesis}
+
+---
+
+## Stage 1 — Dependable Strengths
+
+${stage1Output}
+
+---
+
+## Stage 2 — VIA Character Strengths
+
+${stage2Output}
+
+---
+
+## Stage 3 — Personality Profile (OCEAN)
+
+${stage3Output}
+
+---
+
+## Stage 4 — Insights Discovery Profile
+
+${stage4Output}
+`;
 
     // Parse sections from markdown
     const extractSection = (md: string, heading: string): string => {

@@ -352,3 +352,7 @@
 ## Feature — OCEAN Facet Drill-Down
 
 - [x] OCEAN domains in Coaching Session Present tab: click to expand and show the 6 facet subscale scores
+
+## Feature — Sequential Four-Stage Report Analysis
+
+- [x] Replace existing report generation prompts with new four-stage sequential analysis (Stage 1: Dependable Strengths, Stage 2: VIA, Stage 3: OCEAN, Stage 4: Insights standalone)
