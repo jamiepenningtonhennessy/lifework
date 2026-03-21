@@ -58,6 +58,7 @@ export const clientProfiles = mysqlTable("client_profiles", {
   ])
     .default("not_started")
     .notNull(),
+  pronouns: varchar("pronouns", { length: 32 }),
   careerExplorerUnlocked: boolean("careerExplorerUnlocked").default(false).notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),

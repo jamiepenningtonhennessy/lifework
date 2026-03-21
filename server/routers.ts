@@ -75,6 +75,7 @@ const profileRouter = router({
         dateOfBirth: z.string().optional(),
         currentRole: z.string().optional(),
         currentOrg: z.string().optional(),
+        pronouns: z.string().optional(),
       })
     )
     .mutation(async ({ ctx, input }) => {
@@ -405,20 +406,31 @@ const analysisRouter = router({
       .map((e) => `${e.yearFrom ?? "?"}-${e.yearTo ?? "?"}: ${e.qualification ?? ""} ${e.subject ?? ""} at ${e.institution}`)
       .join("\n");
 
-    // Build chat session summaries for injection into the prompt
+     // Build chat session summaries for injection into the prompt
     const lifeHistoryChat = chatSessions
       .filter(s => s.section === "life_history" && s.summary)
       .map(s => s.summary!)
       .join("\n\n");
-
     const careerEducationChat = chatSessions
       .filter(s => s.section === "career_education" && s.summary)
       .map(s => s.summary!)
       .join("\n\n");
-
-    // ── STAGE 1: Dependable Strengths from Life History ──────────────────────────
+    // Client identity helpers
+    const clientFirstName = profile.firstName?.trim() || "the client";
+    const clientFullName = profile.firstName
+      ? `${profile.firstName} ${profile.lastName ?? ""}`.trim()
+      : "the client";
+    const pronouns = (profile as any).pronouns?.trim() || "they/them";
+    const [subjectPronoun, objectPronoun, possessivePronoun] = (() => {
+      if (pronouns === "she/her") return ["she", "her", "her"];
+      if (pronouns === "he/him") return ["he", "him", "his"];
+      return ["they", "them", "their"];
+    })();
+    const pronounNote = `The client's name is ${clientFirstName}. Use their first name naturally throughout the report (not "the client"). Their preferred pronouns are ${pronouns} — use ${subjectPronoun}/${objectPronoun}/${possessivePronoun} consistently.`;
+    // ── STAGE 1: Dependable Strengths from Life Historyy ──────────────────────────
     const stage1SystemPrompt = `You are an experienced career coach trained in the Dependable Strengths methodology.
 Your task is to analyse a client's Achievement Stories and identify their Dependable Strengths.
+${pronounNote}
 
 A Dependable Strength is a skill or quality that meets three criteria simultaneously:
 1. The client is genuinely good at it (demonstrated by outcome or recognition in the story).
@@ -493,6 +505,7 @@ ${careerText || "None recorded."}`;
     const stage2SystemPrompt = `You are an experienced career coach. You have already completed a Dependable Strengths
 analysis of this client's life history (provided below). You are now asked to analyse
 their VIA Character Strengths results in light of what you already know.
+${pronounNote}
 
 Your task is NOT to produce a generic VIA report. Your task is to use the VIA results
 as a second lens on the same person — to see what they confirm, what they add, and
@@ -562,6 +575,7 @@ ${viaText}`;
 analysis and a VIA Character Strengths analysis of this client (both provided below).
 You are now asked to interpret their Big Five (OCEAN / IPIP-NEO) personality profile
 in light of everything you already know.
+${pronounNote}
 
 Your task is NOT to produce a generic personality report. Your task is to use the OCEAN
 data as a third and final lens — asking what it explains, what it confirms, and what
@@ -667,6 +681,7 @@ ${ipipText}`;
 
     const stage4SystemPrompt = `You are an experienced Insights Discovery practitioner. You are asked to write the
 Insights Discovery section of a client report based on their colour-energy profile.
+${pronounNote}
 
 This section stands alone — it does not reference the life history or VIA analysis.
 It uses the Insights vocabulary (colour energies, wheel position) to give the client
@@ -1118,6 +1133,14 @@ Be specific, warm, and insightful. Use examples from their actual story.`;
       ]);
       const profile = await getClientProfileById(input.clientId);
       const clientName = profile?.firstName ? `${profile.firstName} ${profile.lastName ?? ""}`.trim() : "the client";
+      const clientFirstNameSec = profile?.firstName?.trim() || "the client";
+      const pronounsSec = (profile as any)?.pronouns?.trim() || "they/them";
+      const [subjectSec, objectSec, possessiveSec] = (() => {
+        if (pronounsSec === "she/her") return ["she", "her", "her"];
+        if (pronounsSec === "he/him") return ["he", "him", "his"];
+        return ["they", "them", "their"];
+      })();
+      const pronounNoteSec = `The client's name is ${clientFirstNameSec}. Use their first name naturally (not "the client"). Preferred pronouns: ${pronounsSec} — use ${subjectSec}/${objectSec}/${possessiveSec} consistently.`;
       let systemPrompt = "";
       let userPrompt = "";
       if (input.section === "lifeHistory") {
@@ -1128,7 +1151,7 @@ Be specific, warm, and insightful. Use examples from their actual story.`;
         const achievementsText = achievementsList.map((a) =>
           `[${a.decade}] Age ${a.age ?? "?"}: ${a.title} (${a.esf ?? "unclassified"}) — ${a.description ?? ""} ${a.othersObservations ? `| Others said: ${a.othersObservations}` : ""}`
         ).join("\n");
-        systemPrompt = "You are an expert career coach trained in Bernard Haldane methodology. Analyse the client's life history achievements and their Sage conversation transcript. Return a concise JSON analysis.";
+        systemPrompt = `You are an expert career coach trained in Bernard Haldane methodology. Analyse the client's life history achievements and their Sage conversation transcript. Return a concise JSON analysis. ${pronounNoteSec}`;
         userPrompt = `Client: ${clientName}\n\nACHIEVEMENTS (ESF-tagged):\n${achievementsText}\n\nSAGE CONVERSATION TRANSCRIPT:\n${transcript}\n\nProvide a JSON analysis with:\n- themes: array of 3-5 recurring themes across the life history (each: { theme: string, evidence: string })
 - esfPattern: a 1-2 sentence observation about the ESF distribution
 - peakMoments: array of 2-3 standout achievements that reveal the most about the person
@@ -1141,7 +1164,7 @@ Be specific, warm, and insightful. Use examples from their actual story.`;
         const familyText = family
           ? `Father: ${family.fatherOccupation ?? "unknown"}; Mother: ${family.motherOccupation ?? "unknown"}; Sibling position: ${family.siblingPosition ?? "unknown"}; Upbringing: ${family.upbringingLocation ?? "unknown"}; Narrative: ${family.familyNarrative ?? "none"}; Significant influences: ${family.significantInfluences ?? "none"}`
           : "No family background recorded.";
-        systemPrompt = "You are an expert career coach. Analyse the client's family background to identify formative influences on their career values and motivations. Return a concise JSON analysis.";
+        systemPrompt = `You are an expert career coach. Analyse the client's family background to identify formative influences on their career values and motivations. Return a concise JSON analysis. ${pronounNoteSec}`;
         userPrompt = `Client: ${clientName}\n\nFAMILY BACKGROUND:\n${familyText}\n\nSAGE CONVERSATION CONTEXT (life history):\n${transcript.slice(0, 2000)}\n\nProvide a JSON analysis with:\n- formativeInfluences: array of 2-3 key family/background factors that shaped the client's values or career orientation (each: { influence: string, implication: string })
 - valuesSuggested: array of 3-4 core values likely instilled by family background
 - coachingPrompts: array of 3 specific questions the coach could explore about family influences`;
@@ -1154,7 +1177,7 @@ Be specific, warm, and insightful. Use examples from their actual story.`;
         const careerText = career.map((c) =>
           `${c.yearFrom ?? "?"}-${c.yearTo ?? "?"}: ${c.role ?? "Role"} at ${c.organisation} ${c.highlights ? `| Highlights: ${c.highlights}` : ""} ${c.whyLeft ? `| Why left: ${c.whyLeft}` : ""}`
         ).join("\n");
-        systemPrompt = "You are an expert career coach trained in Bernard Haldane methodology. Analyse the client's career history and their Sage conversation transcript. Return a concise JSON analysis.";
+        systemPrompt = `You are an expert career coach trained in Bernard Haldane methodology. Analyse the client's career history and their Sage conversation transcript. Return a concise JSON analysis. ${pronounNoteSec}`;
         userPrompt = `Client: ${clientName}\n\nCAREER HISTORY:\n${careerText}\n\nSAGE CONVERSATION TRANSCRIPT:\n${transcript}\n\nProvide a JSON analysis with:\n- careerThemes: array of 3-4 recurring themes across the career (each: { theme: string, evidence: string })
 - transitionPatterns: a 1-2 sentence observation about how and why the client has moved between roles
 - standoutRoles: array of 2-3 roles that reveal the most about the client's strengths and motivations

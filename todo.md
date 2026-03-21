@@ -360,3 +360,10 @@
 ## Bug Fix — Mobile Tab Overflow
 
 - [x] Counsellor dashboard tabs overlap on mobile — fix to wrap onto 2–3 rows
+
+## Feature — Client Name & Pronouns
+
+- [x] Add pronouns field to client_profiles schema and migrate
+- [x] Life history interview: collect first name and pronouns as first two questions before life story begins
+- [x] Save first name and pronouns to client_profiles when collected during interview
+- [x] Thread first name and pronouns into all four report generation prompts (use first name in body text, correct pronouns throughout)

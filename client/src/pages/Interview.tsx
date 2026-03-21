@@ -103,7 +103,26 @@ export default function Interview() {
   const [savingProgress, setSavingProgress] = useState(false);
   const [hasResumed, setHasResumed] = useState(false);
 
+  // Name & pronouns collection
+  const [showNameScreen, setShowNameScreen] = useState(false);
+  const [nameInput, setNameInput] = useState("");
+  const [pronounsInput, setPronounsInput] = useState("");
+  const [nameSaving, setNameSaving] = useState(false);
+
   const utils = trpc.useUtils();
+
+  // Load existing profile to pre-fill name/pronouns
+  const { data: myProfile } = trpc.profile.getMyProfile.useQuery(undefined, {
+    enabled: isAuthenticated,
+  });
+  useEffect(() => {
+    if (myProfile) {
+      if (myProfile.firstName) setNameInput(myProfile.firstName);
+      if (myProfile.pronouns) setPronounsInput(myProfile.pronouns);
+    }
+  }, [myProfile]);
+
+  const updateProfile = trpc.profile.updateProfile.useMutation();
 
   // Load existing achievements from the achievements router
   const { data: existing } = trpc.achievements.list.useQuery(undefined, {
@@ -270,6 +289,94 @@ export default function Interview() {
       setSavingProgress(false);
     }
   };
+
+  // ── Name & pronouns screen ─────────────────────────────────────────────────
+  if (showNameScreen) {
+    const PRONOUN_OPTIONS = [
+      { value: "she/her", label: "She / Her" },
+      { value: "he/him", label: "He / Him" },
+      { value: "they/them", label: "They / Them" },
+      { value: "prefer not to say", label: "Prefer not to say" },
+    ];
+    const handleNameContinue = async () => {
+      if (!nameInput.trim()) return;
+      setNameSaving(true);
+      try {
+        await updateProfile.mutateAsync({
+          firstName: nameInput.trim(),
+          pronouns: pronounsInput || undefined,
+        });
+        setShowNameScreen(false);
+        setShowIntro(true);
+      } catch {
+        toast.error("Failed to save. Please try again.");
+      } finally {
+        setNameSaving(false);
+      }
+    };
+    return (
+      <div className="min-h-screen" style={{ background: "var(--lw-cream)" }}>
+        <div className="sticky top-0 z-10" style={{ background: "var(--lw-navy)", borderBottom: "2px solid var(--lw-gold)" }}>
+          <div className="container flex items-center justify-between h-14">
+            <Button variant="ghost" size="sm" onClick={() => navigate("/dashboard")}
+              style={{ color: "rgba(255,255,255,0.7)" }}
+              className="hover:text-white">
+              <ArrowLeft className="w-4 h-4 mr-1" /> Dashboard
+            </Button>
+            <span className="font-serif font-semibold" style={{ color: "var(--lw-gold)", fontSize: "0.85rem", letterSpacing: "0.05em" }}>LIFEWORK</span>
+          </div>
+        </div>
+        <div className="container max-w-xl py-16">
+          <p className="text-xs uppercase tracking-widest text-[var(--lw-gold)] font-semibold mb-2">Before we begin</p>
+          <h1 className="text-3xl font-serif font-bold text-foreground mb-3">A couple of quick questions</h1>
+          <p className="text-[15px] text-muted-foreground leading-relaxed mb-10">
+            We'd like to use your first name throughout the process, and know your preferred pronouns so the report reads naturally.
+          </p>
+          <div className="space-y-8">
+            <div>
+              <label className="block text-sm font-semibold text-foreground mb-2">What is your first name?</label>
+              <Input
+                value={nameInput}
+                onChange={(e) => setNameInput(e.target.value)}
+                placeholder="e.g. Sarah"
+                className="max-w-xs text-base"
+                onKeyDown={(e) => { if (e.key === "Enter" && nameInput.trim()) handleNameContinue(); }}
+                autoFocus
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-semibold text-foreground mb-1">Your preferred pronouns</label>
+              <p className="text-xs text-muted-foreground mb-3">This helps us write the report in the right voice.</p>
+              <div className="flex flex-wrap gap-2">
+                {PRONOUN_OPTIONS.map((opt) => (
+                  <button
+                    key={opt.value}
+                    type="button"
+                    onClick={() => setPronounsInput(opt.value)}
+                    className={`px-4 py-2 rounded-full text-sm font-medium border-2 transition-colors ${
+                      pronounsInput === opt.value
+                        ? "border-[var(--lw-gold)] bg-[var(--lw-gold)] text-white"
+                        : "border-border text-foreground hover:border-[var(--lw-gold)]/60"
+                    }`}
+                  >
+                    {opt.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+          <Button
+            size="lg"
+            onClick={handleNameContinue}
+            disabled={!nameInput.trim() || nameSaving}
+            className="mt-10 w-full gap-2 text-base py-6 bg-[var(--lw-gold)] hover:bg-[oklch(0.60_0.13_72)] text-white"
+          >
+            {nameSaving ? <Loader2 className="w-5 h-5 animate-spin" /> : <>Continue <ArrowRight className="w-5 h-5" /></>}
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   // ── Introduction screen ───────────────────────────────────────────────────────
   if (showIntro) {
@@ -466,7 +573,15 @@ export default function Interview() {
           )}
           <Button
             size="lg"
-            onClick={() => { setPhaseIndex(0); setShowIntro(false); }}
+            onClick={() => {
+              if (!myProfile?.firstName) {
+                setShowIntro(false);
+                setShowNameScreen(true);
+              } else {
+                setPhaseIndex(0);
+                setShowIntro(false);
+              }
+            }}
             className={`w-full gap-2 text-base py-6 ${
               hasAnyData
                 ? 'bg-transparent border-2 border-[var(--lw-gold)] text-[var(--lw-gold)] hover:bg-[var(--lw-gold)]/10'
