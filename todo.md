@@ -356,3 +356,7 @@
 ## Feature — Sequential Four-Stage Report Analysis
 
 - [x] Replace existing report generation prompts with new four-stage sequential analysis (Stage 1: Dependable Strengths, Stage 2: VIA, Stage 3: OCEAN, Stage 4: Insights standalone)
+
+## Bug Fix — Mobile Tab Overflow
+
+- [x] Counsellor dashboard tabs overlap on mobile — fix to wrap onto 2–3 rows

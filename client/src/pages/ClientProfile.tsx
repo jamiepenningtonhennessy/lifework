@@ -194,21 +194,23 @@ export default function ClientProfile() {
           </div>
 
           {/* Tabs */}
-          <div className="flex gap-1 mb-6 border-b border-border overflow-x-auto">
-            {TABS.map((tab) => (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={`flex items-center gap-1.5 px-4 py-2.5 text-sm font-medium transition-colors border-b-2 -mb-px whitespace-nowrap ${
-                  activeTab === tab.id
-                    ? "border-[var(--lw-gold)] text-[var(--lw-gold)]"
-                    : "border-transparent text-muted-foreground hover:text-foreground"
-                }`}
-              >
-                {tab.icon}
-                {tab.label}
-              </button>
-            ))}
+          <div className="mb-6 border-b border-border">
+            <div className="flex flex-wrap">
+              {TABS.map((tab) => (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`flex items-center gap-1.5 px-3 py-2.5 text-sm font-medium transition-colors border-b-2 -mb-px whitespace-nowrap ${
+                    activeTab === tab.id
+                      ? "border-[var(--lw-gold)] text-[var(--lw-gold)]"
+                      : "border-transparent text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  {tab.icon}
+                  {tab.label}
+                </button>
+              ))}
+            </div>
           </div>
 
           {/* Tab content */}
