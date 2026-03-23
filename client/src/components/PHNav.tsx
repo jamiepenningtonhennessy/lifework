@@ -20,18 +20,12 @@ export function PHNav() {
     >
       <div className="container max-w-6xl flex items-center justify-between h-16">
         {/* Logo */}
-        <Link href="/" className="flex items-center gap-3 no-underline">
+        <Link href="/" className="flex items-center no-underline">
           <img
-            src="https://d2xsxph8kpxj0f.cloudfront.net/107696804/kFbbE6kqNApXGDFpQJUGV7/phsquare_98c01de4.jpg"
+            src="https://d2xsxph8kpxj0f.cloudfront.net/107696804/kFbbE6kqNApXGDFpQJUGV7/ph_logo_white_50c7173c.png"
             alt="Pennington Hennessy"
-            className="w-8 h-8 object-cover"
+            style={{ height: "40px", width: "auto", objectFit: "contain" }}
           />
-          <span
-            className="font-serif font-semibold tracking-wide text-base"
-            style={{ color: "white", letterSpacing: "0.02em" }}
-          >
-            Pennington Hennessy
-          </span>
         </Link>
 
         {/* Desktop nav */}
