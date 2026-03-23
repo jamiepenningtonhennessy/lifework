@@ -17,6 +17,10 @@ import IpipResults from "./pages/IpipResults";
 import MyReport from "./pages/MyReport";
 import CareerExplorer from "./pages/CareerExplorer";
 import AICoaching from "./pages/AICoaching";
+import PHHome from "./pages/ph/PHHome";
+import PHCoaching from "./pages/ph/PHCoaching";
+import PHTraining from "./pages/ph/PHTraining";
+import PHAbout from "./pages/ph/PHAbout";
 
 function Router() {
   return (
@@ -32,6 +36,10 @@ function Router() {
       <Route path="/my-report" component={MyReport} />
       <Route path="/career-explorer" component={CareerExplorer} />
       <Route path="/ai-coaching" component={AICoaching} />
+      <Route path="/ph" component={PHHome} />
+      <Route path="/ph/coaching" component={PHCoaching} />
+      <Route path="/ph/training" component={PHTraining} />
+      <Route path="/ph/about" component={PHAbout} />
       <Route path="/dashboard" component={ClientDashboard} />
       <Route path="/counselor" component={CounselorDashboard} />
       <Route path="/counselor/client/:id" component={ClientProfile} />

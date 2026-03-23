@@ -371,3 +371,13 @@
 ## First-Login Password Guidance
 
 - [x] Show a dismissible first-login welcome banner on the client dashboard explaining that the client sets their own password via the Manus login portal (persist dismissed state in localStorage)
+
+## Pennington Hennessy Marketing Site (penningtonhennessy.com)
+
+- [x] Build shared PHNav component (navy top nav with logo, Home/Coaching/Training/About links)
+- [x] Build shared PHFooter component (contact details, links to Lifework and AI Scenarios)
+- [x] Build PHHome page (hero, two service pillars, about teaser, clients strip)
+- [x] Build PHCoaching page (coaching services, Lifework link, Take Counsel methodology)
+- [x] Build PHTraining page (training programmes, AI Scenarios link, Qinect partnership)
+- [x] Build PHAbout page (bio, photo placeholder, selected clients)
+- [x] Register all PH routes in App.tsx (/ph, /ph/coaching, /ph/training, /ph/about)

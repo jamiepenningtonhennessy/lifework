@@ -1,0 +1,96 @@
+import { useState } from "react";
+import { Link, useLocation } from "wouter";
+import { Menu, X } from "lucide-react";
+
+const NAV_LINKS = [
+  { label: "Home", href: "/ph" },
+  { label: "Coaching", href: "/ph/coaching" },
+  { label: "Training", href: "/ph/training" },
+  { label: "About", href: "/ph/about" },
+];
+
+export function PHNav() {
+  const [location] = useLocation();
+  const [open, setOpen] = useState(false);
+
+  return (
+    <header
+      className="sticky top-0 z-50"
+      style={{ background: "var(--lw-navy)", borderBottom: "1px solid rgba(201,151,58,0.25)" }}
+    >
+      <div className="container max-w-6xl flex items-center justify-between h-16">
+        {/* Logo */}
+        <Link href="/ph" className="flex items-center gap-3 no-underline">
+          <img
+            src="https://d2xsxph8kpxj0f.cloudfront.net/107696804/kFbbE6kqNApXGDFpQJUGV7/phsquare_98c01de4.jpg"
+            alt="Pennington Hennessy"
+            className="w-8 h-8 object-cover"
+          />
+          <span
+            className="font-serif font-semibold tracking-wide text-base"
+            style={{ color: "white", letterSpacing: "0.02em" }}
+          >
+            Pennington Hennessy
+          </span>
+        </Link>
+
+        {/* Desktop nav */}
+        <nav className="hidden md:flex items-center gap-8">
+          {NAV_LINKS.map((link) => {
+            const active = location === link.href || (link.href !== "/ph" && location.startsWith(link.href));
+            return (
+              <Link
+                key={link.href}
+                href={link.href}
+                className="text-sm font-medium tracking-widest uppercase no-underline transition-colors"
+                style={{
+                  color: active ? "var(--lw-gold)" : "rgba(255,255,255,0.7)",
+                  letterSpacing: "0.1em",
+                }}
+              >
+                {link.label}
+              </Link>
+            );
+          })}
+        </nav>
+
+        {/* Mobile hamburger */}
+        <button
+          className="md:hidden p-2 cursor-pointer"
+          style={{ color: "rgba(255,255,255,0.7)" }}
+          onClick={() => setOpen(!open)}
+          aria-label="Toggle menu"
+        >
+          {open ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+        </button>
+      </div>
+
+      {/* Mobile menu */}
+      {open && (
+        <div
+          className="md:hidden border-t"
+          style={{ background: "var(--lw-navy-mid)", borderColor: "rgba(201,151,58,0.2)" }}
+        >
+          {NAV_LINKS.map((link) => {
+            const active = location === link.href || (link.href !== "/ph" && location.startsWith(link.href));
+            return (
+              <Link
+                key={link.href}
+                href={link.href}
+                className="block px-6 py-3 text-sm font-medium tracking-widest uppercase no-underline"
+                style={{
+                  color: active ? "var(--lw-gold)" : "rgba(255,255,255,0.75)",
+                  letterSpacing: "0.1em",
+                  borderBottom: "1px solid rgba(201,151,58,0.1)",
+                }}
+                onClick={() => setOpen(false)}
+              >
+                {link.label}
+              </Link>
+            );
+          })}
+        </div>
+      )}
+    </header>
+  );
+}
