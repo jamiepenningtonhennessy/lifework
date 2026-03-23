@@ -7,15 +7,12 @@ export function PHFooter() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
           {/* Brand */}
           <div>
-            <div className="flex items-center gap-3 mb-4">
+            <div className="mb-5">
               <img
-                src="https://d2xsxph8kpxj0f.cloudfront.net/107696804/kFbbE6kqNApXGDFpQJUGV7/phsquare_98c01de4.jpg"
+                src="https://d2xsxph8kpxj0f.cloudfront.net/107696804/kFbbE6kqNApXGDFpQJUGV7/ph_logo_white_50c7173c.png"
                 alt="Pennington Hennessy"
-                className="w-8 h-8 object-cover"
+                style={{ height: "36px", width: "auto", objectFit: "contain" }}
               />
-              <span className="font-serif font-semibold text-sm" style={{ color: "white" }}>
-                Pennington Hennessy
-              </span>
             </div>
             <p style={{ fontSize: "0.82rem", color: "rgba(255,255,255,0.5)", lineHeight: 1.7 }}>
               Coaching and training for lawyers and professional services firms. Thirty years of experience. Powered by the latest in AI.
