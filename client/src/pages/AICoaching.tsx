@@ -48,14 +48,14 @@ const TESTIMONIALS = [
   {
     quote:
       "The AI role-plays gave our team a safe way to practise difficult conversations. The impact was noticeable immediately. Our lawyers felt more confident, and client feedback improved within the first month.",
-    name: "Jane Chen",
-    role: "Managing Partner, Global Legal Associates",
+    name: "Managing Partner",
+    role: "",
   },
   {
     quote:
       "We integrated this into our partnership training program. The structured feedback loop helped junior lawyers develop commercial skills they would normally take years to acquire.",
-    name: "Michael Carter",
-    role: "Head of Talent Development, Sterling & Associates",
+    name: "Head of Talent Development",
+    role: "",
   },
 ];
 
@@ -120,21 +120,10 @@ export default function AICoaching() {
           {/* Wordmark */}
           <div className="flex items-center gap-3">
             <img
-              src="https://d2xsxph8kpxj0f.cloudfront.net/107696804/kFbbE6kqNApXGDFpQJUGV7/phsquare_98c01de4.jpg"
+              src="https://d2xsxph8kpxj0f.cloudfront.net/107696804/kFbbE6kqNApXGDFpQJUGV7/ph_logo_white_50c7173c.png"
               alt="Pennington Hennessy"
-              className="w-8 h-8 object-cover"
+              style={{ height: "36px", width: "auto", objectFit: "contain" }}
             />
-            <span
-              style={{
-                color: "white",
-                fontFamily: "'Playfair Display', serif",
-                fontWeight: 600,
-                fontSize: "1.1rem",
-                letterSpacing: "0.02em",
-              }}
-            >
-              Pennington Hennessy
-            </span>
           </div>
 
           {/* Nav links (hidden on mobile) + CTA */}
@@ -276,6 +265,7 @@ export default function AICoaching() {
                 src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=800&q=80"
                 alt="Lawyer preparing for a client conversation"
                 className="w-full h-full object-cover opacity-80"
+                style={{ objectPosition: "center 15%" }}
               />
             </div>
           </div>
@@ -741,22 +731,12 @@ export default function AICoaching() {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-10">
             {/* Brand */}
             <div className="md:col-span-2">
-              <div className="flex items-center gap-3 mb-4">
+              <div className="mb-5">
                 <img
-                  src="https://d2xsxph8kpxj0f.cloudfront.net/107696804/kFbbE6kqNApXGDFpQJUGV7/phsquare_98c01de4.jpg"
+                  src="https://d2xsxph8kpxj0f.cloudfront.net/107696804/kFbbE6kqNApXGDFpQJUGV7/ph_logo_white_50c7173c.png"
                   alt="Pennington Hennessy"
-                  className="w-7 h-7 object-cover"
+                  style={{ height: "32px", width: "auto", objectFit: "contain" }}
                 />
-                <span
-                  style={{
-                    color: "white",
-                    fontFamily: "'Playfair Display', serif",
-                    fontWeight: 600,
-                    fontSize: "1rem",
-                  }}
-                >
-                  Pennington Hennessy
-                </span>
               </div>
               <p
                 style={{ fontSize: "0.85rem", color: "rgba(255,255,255,0.5)" }}
