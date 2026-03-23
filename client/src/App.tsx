@@ -25,7 +25,35 @@ import PHAbout from "./pages/ph/PHAbout";
 function Router() {
   return (
     <Switch>
-      <Route path="/" component={Home} />
+      {/* ── Pennington Hennessy marketing site (root) ── */}
+      <Route path="/" component={PHHome} />
+      <Route path="/coaching" component={PHCoaching} />
+      <Route path="/training" component={PHTraining} />
+      <Route path="/about" component={PHAbout} />
+      <Route path="/ai-coaching" component={AICoaching} />
+
+      {/* ── Lifework app (under /lifework) ── */}
+      <Route path="/lifework" component={Home} />
+      <Route path="/lifework/interview" component={Interview} />
+      <Route path="/lifework/background" component={Background} />
+      <Route path="/lifework/via" component={VIASurvey} />
+      <Route path="/lifework/via/results" component={VIAResults} />
+      <Route path="/lifework/ipip-survey" component={IpipSurvey} />
+      <Route path="/lifework/ipip-results" component={IpipResults} />
+      <Route path="/lifework/ipip/results" component={IpipResults} />
+      <Route path="/lifework/my-report" component={MyReport} />
+      <Route path="/lifework/career-explorer" component={CareerExplorer} />
+      <Route path="/dashboard" component={ClientDashboard} />
+      <Route path="/counselor" component={CounselorDashboard} />
+      <Route path="/counselor/client/:id" component={ClientProfile} />
+
+      {/* Legacy /ph/* redirects kept for backward compatibility */}
+      <Route path="/ph" component={PHHome} />
+      <Route path="/ph/coaching" component={PHCoaching} />
+      <Route path="/ph/training" component={PHTraining} />
+      <Route path="/ph/about" component={PHAbout} />
+
+      {/* Legacy bare Lifework routes — kept so existing bookmarks still work */}
       <Route path="/interview" component={Interview} />
       <Route path="/background" component={Background} />
       <Route path="/via" component={VIASurvey} />
@@ -35,14 +63,7 @@ function Router() {
       <Route path="/ipip/results" component={IpipResults} />
       <Route path="/my-report" component={MyReport} />
       <Route path="/career-explorer" component={CareerExplorer} />
-      <Route path="/ai-coaching" component={AICoaching} />
-      <Route path="/ph" component={PHHome} />
-      <Route path="/ph/coaching" component={PHCoaching} />
-      <Route path="/ph/training" component={PHTraining} />
-      <Route path="/ph/about" component={PHAbout} />
-      <Route path="/dashboard" component={ClientDashboard} />
-      <Route path="/counselor" component={CounselorDashboard} />
-      <Route path="/counselor/client/:id" component={ClientProfile} />
+
       <Route path="/404" component={NotFound} />
       <Route component={NotFound} />
     </Switch>

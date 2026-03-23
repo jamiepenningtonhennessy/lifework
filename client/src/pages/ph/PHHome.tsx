@@ -52,7 +52,7 @@ export default function PHHome() {
             </p>
             <div className="flex flex-wrap gap-4">
               <Link
-                href="/ph/coaching"
+                href="/coaching"
                 className="inline-flex items-center gap-2 px-6 py-3 font-medium text-sm tracking-widest uppercase no-underline transition-opacity hover:opacity-80"
                 style={{
                   background: "var(--lw-gold)",
@@ -63,7 +63,7 @@ export default function PHHome() {
                 Coaching <ArrowRight className="w-4 h-4" />
               </Link>
               <Link
-                href="/ph/training"
+                href="/training"
                 className="inline-flex items-center gap-2 px-6 py-3 font-medium text-sm tracking-widest uppercase no-underline transition-opacity hover:opacity-80"
                 style={{
                   border: "1px solid rgba(201,151,58,0.6)",
@@ -144,7 +144,7 @@ export default function PHHome() {
             </p>
             <div className="mt-6 pt-6" style={{ borderTop: "1px solid rgba(15,31,53,0.08)" }}>
               <Link
-                href="/ph/coaching"
+                href="/coaching"
                 className="inline-flex items-center gap-2 text-sm font-medium tracking-widest uppercase no-underline transition-opacity hover:opacity-70"
                 style={{ color: "var(--lw-gold)", letterSpacing: "0.1em" }}
               >
@@ -175,7 +175,7 @@ export default function PHHome() {
             </p>
             <div className="mt-6 pt-6" style={{ borderTop: "1px solid rgba(15,31,53,0.08)" }}>
               <Link
-                href="/ph/training"
+                href="/training"
                 className="inline-flex items-center gap-2 text-sm font-medium tracking-widest uppercase no-underline transition-opacity hover:opacity-70"
                 style={{ color: "var(--lw-gold)", letterSpacing: "0.1em" }}
               >
@@ -242,7 +242,7 @@ export default function PHHome() {
               A pioneer in the use of AI for professional development, Jamie has developed a suite of AI-powered role-play scenarios in partnership with Qinect that allow professionals to practise and refine their skills in realistic, bespoke simulations.
             </p>
             <Link
-              href="/ph/about"
+              href="/about"
               className="inline-flex items-center gap-2 text-sm font-medium tracking-widest uppercase no-underline transition-opacity hover:opacity-70"
               style={{ color: "var(--lw-gold)", letterSpacing: "0.1em" }}
             >

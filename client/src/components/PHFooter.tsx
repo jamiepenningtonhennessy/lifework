@@ -32,10 +32,10 @@ export function PHFooter() {
             </p>
             <ul className="space-y-2">
               {[
-                { label: "Home", href: "/ph" },
-                { label: "Coaching", href: "/ph/coaching" },
-                { label: "Training", href: "/ph/training" },
-                { label: "About", href: "/ph/about" },
+                { label: "Home", href: "/" },
+                { label: "Coaching", href: "/coaching" },
+                { label: "Training", href: "/training" },
+                { label: "About", href: "/about" },
               ].map((l) => (
                 <li key={l.href}>
                   <Link

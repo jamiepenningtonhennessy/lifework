@@ -3,10 +3,10 @@ import { Link, useLocation } from "wouter";
 import { Menu, X } from "lucide-react";
 
 const NAV_LINKS = [
-  { label: "Home", href: "/ph" },
-  { label: "Coaching", href: "/ph/coaching" },
-  { label: "Training", href: "/ph/training" },
-  { label: "About", href: "/ph/about" },
+  { label: "Home", href: "/" },
+  { label: "Coaching", href: "/coaching" },
+  { label: "Training", href: "/training" },
+  { label: "About", href: "/about" },
 ];
 
 export function PHNav() {
@@ -20,7 +20,7 @@ export function PHNav() {
     >
       <div className="container max-w-6xl flex items-center justify-between h-16">
         {/* Logo */}
-        <Link href="/ph" className="flex items-center gap-3 no-underline">
+        <Link href="/" className="flex items-center gap-3 no-underline">
           <img
             src="https://d2xsxph8kpxj0f.cloudfront.net/107696804/kFbbE6kqNApXGDFpQJUGV7/phsquare_98c01de4.jpg"
             alt="Pennington Hennessy"
@@ -37,7 +37,7 @@ export function PHNav() {
         {/* Desktop nav */}
         <nav className="hidden md:flex items-center gap-8">
           {NAV_LINKS.map((link) => {
-            const active = location === link.href || (link.href !== "/ph" && location.startsWith(link.href));
+            const active = location === link.href || (link.href !== "/" && location.startsWith(link.href));
             return (
               <Link
                 key={link.href}
@@ -72,7 +72,7 @@ export function PHNav() {
           style={{ background: "var(--lw-navy-mid)", borderColor: "rgba(201,151,58,0.2)" }}
         >
           {NAV_LINKS.map((link) => {
-            const active = location === link.href || (link.href !== "/ph" && location.startsWith(link.href));
+            const active = location === link.href || (link.href !== "/" && location.startsWith(link.href));
             return (
               <Link
                 key={link.href}
