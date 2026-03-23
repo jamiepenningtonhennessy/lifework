@@ -16,6 +16,7 @@ import IpipSurvey from "./pages/IpipSurvey";
 import IpipResults from "./pages/IpipResults";
 import MyReport from "./pages/MyReport";
 import CareerExplorer from "./pages/CareerExplorer";
+import AICoaching from "./pages/AICoaching";
 
 function Router() {
   return (
@@ -30,6 +31,7 @@ function Router() {
       <Route path="/ipip/results" component={IpipResults} />
       <Route path="/my-report" component={MyReport} />
       <Route path="/career-explorer" component={CareerExplorer} />
+      <Route path="/ai-coaching" component={AICoaching} />
       <Route path="/dashboard" component={ClientDashboard} />
       <Route path="/counselor" component={CounselorDashboard} />
       <Route path="/counselor/client/:id" component={ClientProfile} />
