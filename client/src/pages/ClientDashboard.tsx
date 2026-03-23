@@ -18,8 +18,11 @@ import {
   Lock,
   FileText,
   Download,
+  X,
+  KeyRound,
 } from "lucide-react";
 import { ChatToPeter } from "@/components/ChatToPeter";
+import { useState, useEffect } from "react";
 
 const STEPS = [
   {
@@ -74,6 +77,70 @@ const STEPS = [
   },
 ];
 
+// ─── First-login password banner ─────────────────────────────────────────────
+const BANNER_KEY = "lw_password_banner_dismissed";
+
+function PasswordGuidanceBanner({ userId }: { userId?: number }) {
+  const storageKey = userId ? `${BANNER_KEY}_${userId}` : BANNER_KEY;
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    const dismissed = localStorage.getItem(storageKey);
+    if (!dismissed) setVisible(true);
+  }, [storageKey]);
+
+  const dismiss = () => {
+    localStorage.setItem(storageKey, "1");
+    setVisible(false);
+  };
+
+  if (!visible) return null;
+
+  return (
+    <div
+      className="relative"
+      style={{
+        background: "var(--lw-navy-mid)",
+        borderBottom: "1px solid rgba(201,151,58,0.35)",
+      }}
+    >
+      <div className="container max-w-3xl py-4 flex items-start gap-4">
+        <div
+          className="flex-shrink-0 mt-0.5 p-2 rounded-full"
+          style={{ background: "rgba(201,151,58,0.15)" }}
+        >
+          <KeyRound className="w-4 h-4" style={{ color: "var(--lw-gold)" }} />
+        </div>
+        <div className="flex-1 min-w-0">
+          <p
+            className="font-semibold mb-1"
+            style={{ fontSize: "0.9rem", color: "white" }}
+          >
+            Setting your password
+          </p>
+          <p style={{ fontSize: "0.85rem", color: "rgba(255,255,255,0.72)", lineHeight: 1.55 }}>
+            Lifework uses the Manus secure login portal. When you first signed in you will have been
+            asked to create your own password — that password is yours to keep and use each time you
+            return. If you haven't set one yet, or would like to change it, click{" "}
+            <strong style={{ color: "var(--lw-gold)" }}>Sign In</strong> on the home page and choose
+            {" "}"Forgot password" or "Create account" to set your credentials. Your counsellor does
+            not have access to your password.
+          </p>
+        </div>
+        <button
+          onClick={dismiss}
+          aria-label="Dismiss"
+          className="flex-shrink-0 p-1 cursor-pointer transition-opacity hover:opacity-70"
+          style={{ color: "rgba(255,255,255,0.45)" }}
+        >
+          <X className="w-4 h-4" />
+        </button>
+      </div>
+    </div>
+  );
+}
+// ─────────────────────────────────────────────────────────────────────────────
+
 export default function ClientDashboard() {
   const { isAuthenticated, loading, user, logout } = useAuth();
   const [, navigate] = useLocation();
@@ -110,6 +177,9 @@ export default function ClientDashboard() {
 
   return (
     <div className="min-h-screen" style={{ background: "var(--lw-cream)" }}>
+      {/* First-login password guidance banner */}
+      <PasswordGuidanceBanner userId={user?.id} />
+
       {/* Header */}
       <div className="sticky top-0 z-10" style={{ background: "var(--lw-navy)", borderBottom: "1px solid rgba(201,151,58,0.25)" }}>
         <div className="container flex items-center justify-between h-14">

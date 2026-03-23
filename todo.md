@@ -367,3 +367,7 @@
 - [x] Life history interview: collect first name and pronouns as first two questions before life story begins
 - [x] Save first name and pronouns to client_profiles when collected during interview
 - [x] Thread first name and pronouns into all four report generation prompts (use first name in body text, correct pronouns throughout)
+
+## First-Login Password Guidance
+
+- [x] Show a dismissible first-login welcome banner on the client dashboard explaining that the client sets their own password via the Manus login portal (persist dismissed state in localStorage)
