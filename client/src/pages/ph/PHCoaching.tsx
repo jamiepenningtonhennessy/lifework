@@ -49,7 +49,7 @@ export default function PHCoaching() {
           <p
             style={{ fontSize: "1rem", color: "rgba(255,255,255,0.68)", lineHeight: 1.8, maxWidth: "38rem" }}
           >
-            Bespoke coaching for individuals and groups in law firms and professional services firms. Grounded in thirty years of experience and a methodology that explores the whole person — not just the professional.
+            Bespoke coaching for individuals and groups. Subjects often cover leadership, practice development, business development, and sometimes career transition. Grounded in thirty years of experience and a methodology that explores the whole person — not just the professional.
           </p>
         </div>
       </section>

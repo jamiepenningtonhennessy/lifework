@@ -3,11 +3,7 @@ import { PHNav } from "@/components/PHNav";
 import { PHFooter } from "@/components/PHFooter";
 import { ArrowRight } from "lucide-react";
 
-const CLIENTS = [
-  "Reed Smith", "Latham & Watkins", "Stewarts", "Potter Clarkson",
-  "Keystone Law", "Roythornes", "Kingsley Napley", "Ankura",
-  "Edge Health", "Schroders",
-];
+const JAMIE_PHOTO_SRC = "https://d2xsxph8kpxj0f.cloudfront.net/107696804/kFbbE6kqNApXGDFpQJUGV7/jamie_portrait_clean_d350989c.png";
 
 export default function PHHome() {
   return (
@@ -19,7 +15,6 @@ export default function PHHome() {
         className="relative overflow-hidden"
         style={{ background: "var(--lw-navy)", paddingTop: "6rem", paddingBottom: "6rem" }}
       >
-        {/* Subtle diagonal accent */}
         <div
           className="absolute inset-0 pointer-events-none"
           style={{
@@ -79,30 +74,6 @@ export default function PHHome() {
         </div>
       </section>
 
-      {/* ── Clients strip ────────────────────────────────────────────────── */}
-      <section
-        style={{ background: "var(--lw-navy-mid)", borderBottom: "1px solid rgba(201,151,58,0.15)" }}
-      >
-        <div className="container max-w-6xl py-5">
-          <div className="flex flex-wrap items-center gap-x-8 gap-y-2">
-            <span
-              className="font-medium tracking-widest uppercase shrink-0"
-              style={{ fontSize: "0.65rem", color: "rgba(255,255,255,0.35)", letterSpacing: "0.15em" }}
-            >
-              Selected clients
-            </span>
-            {CLIENTS.map((c) => (
-              <span
-                key={c}
-                style={{ fontSize: "0.8rem", color: "rgba(255,255,255,0.45)", fontWeight: 500 }}
-              >
-                {c}
-              </span>
-            ))}
-          </div>
-        </div>
-      </section>
-
       {/* ── Two pillars ──────────────────────────────────────────────────── */}
       <section className="container max-w-6xl py-20">
         <div className="flex items-center gap-3 mb-3">
@@ -140,7 +111,7 @@ export default function PHHome() {
               Coaching
             </h3>
             <p style={{ color: "rgba(15,31,53,0.65)", lineHeight: 1.75, fontSize: "0.92rem", flex: 1 }}>
-              Bespoke coaching for individuals and groups — covering leadership and practice development, business development, and career transition. Underpinned by the <em>Take Counsel</em> methodology: a deep exploration of life history that reveals the patterns of motivation and behaviour that shape a career.
+              Bespoke coaching for individuals and groups. Subjects often cover leadership, practice development, business development, and sometimes career transition. Underpinned by the <em>Take Counsel</em> methodology: a deep exploration of life history that reveals the patterns of motivation and behaviour that shape a career.
             </p>
             <div className="mt-6 pt-6" style={{ borderTop: "1px solid rgba(15,31,53,0.08)" }}>
               <Link
@@ -171,7 +142,7 @@ export default function PHHome() {
               Training
             </h3>
             <p style={{ color: "rgba(15,31,53,0.65)", lineHeight: 1.75, fontSize: "0.92rem", flex: 1 }}>
-              Highly practical programmes for law firms and professional services organisations — from core professional skills to AI-powered role-play scenarios. In partnership with Qinect, I offer cutting-edge simulations that let professionals practise difficult conversations in a psychologically safe environment.
+              Highly practical programmes for law firms and professional services organisations — from core professional skills to AI-powered role-play scenarios. I offer cutting-edge simulations that let professionals practise difficult conversations in a psychologically safe environment.
             </p>
             <div className="mt-6 pt-6" style={{ borderTop: "1px solid rgba(15,31,53,0.08)" }}>
               <Link
@@ -239,7 +210,7 @@ export default function PHHome() {
               className="mb-6"
               style={{ color: "rgba(15,31,53,0.65)", lineHeight: 1.8, fontSize: "0.95rem" }}
             >
-              A pioneer in the use of AI for professional development, Jamie has developed a suite of AI-powered role-play scenarios in partnership with Qinect that allow professionals to practise and refine their skills in realistic, bespoke simulations.
+              A pioneer in the use of AI for professional development, Jamie has developed a suite of AI-powered role-play scenarios that allow professionals to practise and refine their skills in realistic, bespoke simulations.
             </p>
             <Link
               href="/about"
@@ -249,9 +220,9 @@ export default function PHHome() {
               Read more <ArrowRight className="w-3.5 h-3.5" />
             </Link>
           </div>
-          {/* Photo placeholder */}
+          {/* Photo — replaced by CDN image once uploaded */}
           <div
-            className="flex items-center justify-center"
+            className="overflow-hidden"
             style={{
               aspectRatio: "4/5",
               background: "var(--lw-cream-dark)",
@@ -259,20 +230,30 @@ export default function PHHome() {
               maxWidth: "380px",
             }}
           >
-            <div className="text-center p-8">
-              <div
-                className="w-16 h-16 flex items-center justify-center mx-auto mb-4 font-serif text-2xl font-bold"
-                style={{ border: "1px solid rgba(201,151,58,0.4)", color: "var(--lw-gold)" }}
-              >
-                JP
+            {JAMIE_PHOTO_SRC ? (
+              <img
+                src={JAMIE_PHOTO_SRC}
+                alt="Jamie Pennington"
+                className="w-full h-full object-cover object-top"
+              />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center">
+                <div className="text-center p-8">
+                  <div
+                    className="w-16 h-16 flex items-center justify-center mx-auto mb-4 font-serif text-2xl font-bold"
+                    style={{ border: "1px solid rgba(201,151,58,0.4)", color: "var(--lw-gold)" }}
+                  >
+                    JP
+                  </div>
+                  <p
+                    className="font-medium tracking-widest uppercase"
+                    style={{ fontSize: "0.65rem", color: "rgba(15,31,53,0.35)", letterSpacing: "0.15em" }}
+                  >
+                    Photo coming soon
+                  </p>
+                </div>
               </div>
-              <p
-                className="font-medium tracking-widest uppercase"
-                style={{ fontSize: "0.65rem", color: "rgba(15,31,53,0.35)", letterSpacing: "0.15em" }}
-              >
-                Photo coming soon
-              </p>
-            </div>
+            )}
           </div>
         </div>
       </section>

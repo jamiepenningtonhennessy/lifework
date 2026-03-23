@@ -1,18 +1,12 @@
 import { PHNav } from "@/components/PHNav";
 import { PHFooter } from "@/components/PHFooter";
 
-const CLIENTS = [
-  "Reed Smith", "Latham & Watkins", "Stewarts", "Potter Clarkson",
-  "Keystone Law", "Roythornes", "Kingsley Napley", "Ankura",
-  "Edge Health", "Schroders",
-];
-
 export default function PHAbout() {
   return (
     <div className="min-h-screen flex flex-col" style={{ background: "var(--lw-cream)" }}>
       <PHNav />
 
-      {/* ── Page hero ────────────────────────────────────────────────────── */}
+      {/* -- Page hero ------------------------------------------------------ */}
       <section
         style={{ background: "var(--lw-navy)", paddingTop: "5rem", paddingBottom: "5rem" }}
       >
@@ -36,40 +30,30 @@ export default function PHAbout() {
             className="mt-3"
             style={{ fontSize: "0.85rem", color: "rgba(255,255,255,0.45)", letterSpacing: "0.12em", textTransform: "uppercase", fontWeight: 500 }}
           >
-            Director · Visiting Professor, University of Law
+            Director &middot; Visiting Professor, University of Law
           </p>
         </div>
       </section>
 
-      {/* ── Bio + photo ──────────────────────────────────────────────────── */}
+      {/* -- Bio + photo ---------------------------------------------------- */}
       <section className="py-20" style={{ background: "white" }}>
         <div className="container max-w-6xl">
           <div className="grid md:grid-cols-5 gap-14 items-start">
             {/* Photo */}
             <div className="md:col-span-2">
               <div
-                className="w-full flex items-center justify-center"
+                className="w-full overflow-hidden"
                 style={{
-                  aspectRatio: "4/5",
-                  background: "var(--lw-cream-dark)",
+                  aspectRatio: "3/4",
                   border: "1px solid rgba(15,31,53,0.1)",
                   maxWidth: "360px",
                 }}
               >
-                <div className="text-center p-10">
-                  <div
-                    className="w-20 h-20 flex items-center justify-center mx-auto mb-5 font-serif text-3xl font-bold"
-                    style={{ border: "1px solid rgba(201,151,58,0.4)", color: "var(--lw-gold)" }}
-                  >
-                    JP
-                  </div>
-                  <p
-                    className="font-medium tracking-widest uppercase"
-                    style={{ fontSize: "0.62rem", color: "rgba(15,31,53,0.3)", letterSpacing: "0.15em" }}
-                  >
-                    Photograph coming soon
-                  </p>
-                </div>
+                <img
+                  src="https://d2xsxph8kpxj0f.cloudfront.net/107696804/kFbbE6kqNApXGDFpQJUGV7/jamie_portrait_clean_d350989c.png"
+                  alt="Jamie Pennington"
+                  className="w-full h-full object-cover object-top"
+                />
               </div>
             </div>
 
@@ -94,25 +78,25 @@ export default function PHAbout() {
                 className="mb-5"
                 style={{ color: "rgba(15,31,53,0.72)", lineHeight: 1.85, fontSize: "0.97rem" }}
               >
-                As Director of Pennington Hennessy and a Visiting Professor at the University of Law, Jamie brings both practical experience and academic rigour to his work. He has designed and delivered programmes for firms ranging from international practices such as Reed Smith and Latham &amp; Watkins to specialist firms like Stewarts and Potter Clarkson.
+                As Director of Pennington Hennessy and a Visiting Professor at the University of Law, Jamie brings both practical experience and academic rigour to his work. He has designed and delivered programmes for a wide range of firms, from large international practices to specialist boutiques.
               </p>
               <p
                 className="mb-5"
                 style={{ color: "rgba(15,31,53,0.72)", lineHeight: 1.85, fontSize: "0.97rem" }}
               >
-                Jamie is a pioneer in the use of AI for professional development, having developed a suite of AI-powered role-play scenarios in partnership with Qinect that allow professionals to practise and refine their skills in realistic, bespoke simulations. He describes himself as an "AI scenario evangelist" — continually exploring what's possible as the technology advances, and then applying it with his clients.
+                Jamie is a pioneer in the use of AI for professional development, having developed a suite of AI-powered role-play scenarios that allow professionals to practise and refine their skills in realistic, bespoke simulations. He describes himself as an "AI scenario evangelist" -- continually exploring what's possible as the technology advances, and then applying it with his clients.
               </p>
               <p
                 style={{ color: "rgba(15,31,53,0.72)", lineHeight: 1.85, fontSize: "0.97rem" }}
               >
-                His approach is grounded in a belief that lasting change comes not from instruction alone, but from understanding the deeper systems — cultural, behavioural and motivational — that shape how professionals work and grow.
+                His approach is grounded in a belief that lasting change comes not from instruction alone, but from understanding the deeper systems -- cultural, behavioural and motivational -- that shape how professionals work and grow.
               </p>
             </div>
           </div>
         </div>
       </section>
 
-      {/* ── Take Counsel / Lifework ──────────────────────────────────────── */}
+      {/* -- Take Counsel / Lifework ---------------------------------------- */}
       <section className="py-20" style={{ background: "var(--lw-cream)" }}>
         <div className="container max-w-6xl">
           <div className="max-w-3xl">
@@ -135,44 +119,18 @@ export default function PHAbout() {
               className="mb-4"
               style={{ color: "rgba(15,31,53,0.65)", lineHeight: 1.85, fontSize: "0.95rem" }}
             >
-              At the heart of Jamie's coaching practice is a conviction that the most powerful insights come not from personality questionnaires or competency frameworks, but from a careful examination of a person's own life history. The Take Counsel approach — rooted in the Dependable Strengths tradition of Bernard Haldane — begins by exploring the full arc of a client's achievements, from childhood to the present day.
+              At the heart of Jamie's coaching practice is a conviction that the most powerful insights come not from personality questionnaires or competency frameworks, but from a careful examination of a person's own life history. The Take Counsel approach -- rooted in the Dependable Strengths tradition of Bernard Haldane -- begins by exploring the full arc of a client's achievements, from childhood to the present day.
             </p>
             <p
               style={{ color: "rgba(15,31,53,0.65)", lineHeight: 1.85, fontSize: "0.95rem" }}
             >
-              This process is now supported by Lifework, a digital platform that guides clients through a structured life history interview, VIA Character Strengths survey, and IPIP-NEO personality profile — providing a rich, detailed picture that informs every coaching conversation that follows.
+              This process is now supported by Lifework, a digital platform that guides clients through a structured life history interview, VIA Character Strengths survey, and IPIP-NEO personality profile -- providing a rich, detailed picture that informs every coaching conversation that follows.
             </p>
           </div>
         </div>
       </section>
 
-      {/* ── Selected clients ─────────────────────────────────────────────── */}
-      <section className="py-16" style={{ background: "white", borderTop: "1px solid rgba(15,31,53,0.07)" }}>
-        <div className="container max-w-6xl">
-          <div className="flex items-center gap-3 mb-8">
-            <div style={{ width: "2rem", height: "1px", background: "var(--lw-gold)" }} />
-            <span
-              className="font-medium tracking-widest uppercase"
-              style={{ fontSize: "0.65rem", color: "var(--lw-gold)", letterSpacing: "0.18em" }}
-            >
-              Selected clients
-            </span>
-          </div>
-          <div className="flex flex-wrap gap-x-10 gap-y-4">
-            {CLIENTS.map((c) => (
-              <span
-                key={c}
-                className="font-medium"
-                style={{ fontSize: "0.9rem", color: "rgba(15,31,53,0.45)" }}
-              >
-                {c}
-              </span>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ── Contact ──────────────────────────────────────────────────────── */}
+      {/* -- Contact -------------------------------------------------------- */}
       <section
         className="py-16"
         style={{ background: "var(--lw-navy-mid)", borderTop: "1px solid rgba(201,151,58,0.15)" }}
