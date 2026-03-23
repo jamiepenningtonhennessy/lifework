@@ -77,7 +77,7 @@ const STEPS = [
     icon: <Compass className="w-5 h-5" />,
     title: "Career Explorer",
     description:
-      "Ask Sage how your profile matches any career — or discover what suits you best.",
+      "Come back to this site once you have had your Lifework Coaching Conversation, and you can ask Sage for her opinion on future careers, or perhaps discuss the challenges that a possible chosen career might bring.",
     path: "/career-explorer",
     statusKey: null,
     cta: "Open Career Explorer",
