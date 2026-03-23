@@ -15,21 +15,25 @@ import {
   Loader2,
   LogOut,
   Compass,
-  Lock,
-  FileText,
-  Download,
   X,
   KeyRound,
+  Sparkles,
 } from "lucide-react";
 import { ChatToPeter } from "@/components/ChatToPeter";
 import { useState, useEffect } from "react";
+
+// ─── Step definitions (5 steps) ──────────────────────────────────────────────
+// "sage" is a special step — no path, uses ChatToPeter inline
+// "psychometrics" groups VIA + IPIP under one card (two sub-paths)
+// "career_explorer" is always the final step
 
 const STEPS = [
   {
     id: "interview",
     icon: <MessageSquare className="w-5 h-5" />,
     title: "Life History Interview",
-    description: "A structured conversation exploring your achievements across the decades of your life.",
+    description:
+      "A structured conversation exploring your achievements across the decades of your life.",
     path: "/interview",
     statusKey: "interviewStatus",
     cta: "Begin Interview",
@@ -39,41 +43,45 @@ const STEPS = [
     id: "background",
     icon: <Users className="w-5 h-5" />,
     title: "Background & History",
-    description: "Capture your family background, education, and career timeline.",
+    description:
+      "Capture your family background, education, and career timeline.",
     path: "/background",
     statusKey: null,
     cta: "Add Background",
     ctaInProgress: "Update Background",
   },
   {
-    id: "via",
-    icon: <Star className="w-5 h-5" />,
-    title: "VIA Character Strengths",
-    description: "Complete the 120-question VIA survey to identify your core character strengths.",
-    path: "/via",
-    statusKey: "viaStatus",
-    cta: "Take VIA Survey",
-    ctaInProgress: "Continue Survey",
-  },
-  {
-    id: "ipip",
-    icon: <Brain className="w-5 h-5" />,
-    title: "Personality Profile (IPIP-NEO-120)",
-    description: "A 120-question personality assessment measuring 30 facets across the Big Five dimensions — the modern equivalent of the 16PF used in traditional career counselling.",
-    path: "/ipip-survey",
-    statusKey: "ipipStatus",
-    cta: "Take Personality Survey",
-    ctaInProgress: "Continue Survey",
-  },
-  {
-    id: "analysis",
-    icon: <Brain className="w-5 h-5" />,
-    title: "Career Analysis Report",
-    description: "Your counsellor will take all the information given and write a summary report, setting out what he believes may be true, and setting out some questions to explore together.",
+    id: "sage",
+    icon: <Sparkles className="w-5 h-5" />,
+    title: "Sage the Online Career Coach",
+    description:
+      "Sage will read what you have written and add depth by asking you some reflective questions.",
     path: null,
-    statusKey: "analysisStatus",
+    statusKey: null, // completion tracked via chat session, not a DB status field
     cta: null,
     ctaInProgress: null,
+  },
+  {
+    id: "psychometrics",
+    icon: <Star className="w-5 h-5" />,
+    title: "Psychometrics",
+    description:
+      "Two assessments — VIA Character Strengths (120 questions) and a Personality Profile (IPIP-NEO-120) — that provide additional lenses on who you are.",
+    path: "/via",
+    statusKey: "viaStatus",
+    cta: "Begin Psychometrics",
+    ctaInProgress: "Continue Psychometrics",
+  },
+  {
+    id: "career_explorer",
+    icon: <Compass className="w-5 h-5" />,
+    title: "Career Explorer",
+    description:
+      "Ask Sage how your profile matches any career — or discover what suits you best.",
+    path: "/career-explorer",
+    statusKey: null,
+    cta: "Open Career Explorer",
+    ctaInProgress: "Continue Career Explorer",
   },
 ];
 
@@ -150,12 +158,6 @@ export default function ClientDashboard() {
     { enabled: isAuthenticated }
   );
 
-  const generateAnalysis = trpc.analysis.generate.useMutation({
-    onSuccess: () => {
-      window.location.reload();
-    },
-  });
-
   if (!loading && !isAuthenticated) {
     window.location.href = getLoginUrl();
     return null;
@@ -166,14 +168,13 @@ export default function ClientDashboard() {
     return (profile as any)[statusKey] ?? "not_started";
   };
 
-  const completedSteps = STEPS.filter((s) => s.statusKey && getStatus(s.statusKey) === "completed").length;
-  const totalSteps = STEPS.filter((s) => s.statusKey).length;
+  // Progress counts only steps that have a meaningful statusKey
+  const trackableSteps = STEPS.filter((s) => s.statusKey);
+  const completedSteps = trackableSteps.filter(
+    (s) => getStatus(s.statusKey) === "completed"
+  ).length;
+  const totalSteps = STEPS.length; // always 5
   const progressPct = Math.round((completedSteps / totalSteps) * 100);
-
-  const canGenerateAnalysis =
-    getStatus("interviewStatus") === "completed" &&
-    getStatus("viaStatus") === "completed" &&
-    getStatus("ipipStatus") === "completed";
 
   return (
     <div className="min-h-screen" style={{ background: "var(--lw-cream)" }}>
@@ -181,24 +182,50 @@ export default function ClientDashboard() {
       <PasswordGuidanceBanner userId={user?.id} />
 
       {/* Header */}
-      <div className="sticky top-0 z-10" style={{ background: "var(--lw-navy)", borderBottom: "1px solid rgba(201,151,58,0.25)" }}>
+      <div
+        className="sticky top-0 z-10"
+        style={{
+          background: "var(--lw-navy)",
+          borderBottom: "1px solid rgba(201,151,58,0.25)",
+        }}
+      >
         <div className="container flex items-center justify-between h-14">
           <div className="flex items-center gap-2">
-            <img src="https://d2xsxph8kpxj0f.cloudfront.net/107696804/kFbbE6kqNApXGDFpQJUGV7/phsquare_98c01de4.jpg" alt="Pennington Hennessy" className="w-7 h-7 object-cover" />
-            <span className="font-serif font-semibold" style={{ color: "white" }}>Lifework</span>
+            <img
+              src="https://d2xsxph8kpxj0f.cloudfront.net/107696804/kFbbE6kqNApXGDFpQJUGV7/phsquare_98c01de4.jpg"
+              alt="Pennington Hennessy"
+              className="w-7 h-7 object-cover"
+            />
+            <span className="font-serif font-semibold" style={{ color: "white" }}>
+              Lifework
+            </span>
           </div>
           <div className="flex items-center gap-2">
             {user?.role === "admin" && (
               <button
                 onClick={() => navigate("/counselor")}
                 className="px-3 py-1.5 text-xs font-medium tracking-wide uppercase cursor-pointer"
-                style={{ border: "1px solid rgba(201,151,58,0.5)", color: "var(--lw-gold)", background: "transparent", letterSpacing: "0.08em" }}
+                style={{
+                  border: "1px solid rgba(201,151,58,0.5)",
+                  color: "var(--lw-gold)",
+                  background: "transparent",
+                  letterSpacing: "0.08em",
+                }}
               >
                 Counsellor View
               </button>
             )}
-            <span className="text-sm hidden sm:block" style={{ color: "rgba(255,255,255,0.6)" }}>{user?.name}</span>
-            <button onClick={logout} className="p-1.5 cursor-pointer" style={{ color: "rgba(255,255,255,0.5)" }}>
+            <span
+              className="text-sm hidden sm:block"
+              style={{ color: "rgba(255,255,255,0.6)" }}
+            >
+              {user?.name}
+            </span>
+            <button
+              onClick={logout}
+              className="p-1.5 cursor-pointer"
+              style={{ color: "rgba(255,255,255,0.5)" }}
+            >
               <LogOut className="w-4 h-4" />
             </button>
           </div>
@@ -218,7 +245,9 @@ export default function ClientDashboard() {
                 Welcome{user?.name ? `, ${user.name.split(" ")[0]}` : ""}
               </h1>
               <p className="text-muted-foreground leading-relaxed">
-                Your career analysis journey. Complete each step at your own pace. You can leave and come back later during the Life History and Background &amp; History; some clients find they like the opportunity to pause and reflect. When you have finished these first two stages please click on the &ldquo;Chat to Sage&rdquo; button. Sage will have read what you have written, and will offer you some thoughts and ask you questions that may aid your reflection.
+                Your career analysis journey. Complete each step at your own pace. You can leave
+                and come back at any time during the first two stages — some clients find they like
+                the opportunity to pause and reflect.
               </p>
             </div>
 
@@ -226,7 +255,9 @@ export default function ClientDashboard() {
             <div className="mb-8 p-5 rounded-xl bg-card border border-border">
               <div className="flex items-center justify-between mb-3">
                 <span className="text-sm font-medium text-foreground">Overall Progress</span>
-                <span className="text-sm font-bold text-[var(--lw-gold)]">{completedSteps} of {totalSteps} steps complete</span>
+                <span className="text-sm font-bold text-[var(--lw-gold)]">
+                  {completedSteps} of {totalSteps} steps complete
+                </span>
               </div>
               <div className="h-2.5 bg-muted rounded-full overflow-hidden">
                 <div
@@ -242,7 +273,14 @@ export default function ClientDashboard() {
                 const status = getStatus(step.statusKey);
                 const isCompleted = status === "completed";
                 const isInProgress = status === "in_progress";
-                const isLocked = idx > 0 && getStatus(STEPS[idx - 1]?.statusKey ?? null) === "not_started";
+
+                // For the Sage step: show as active once background is done (no hard lock)
+                const prevStep = STEPS[idx - 1];
+                const prevStatus = prevStep ? getStatus(prevStep.statusKey) : "completed";
+                const isLocked =
+                  idx > 0 &&
+                  prevStatus === "not_started" &&
+                  step.id !== "sage"; // Sage is never hard-locked
 
                 return (
                   <Card
@@ -257,67 +295,108 @@ export default function ClientDashboard() {
                   >
                     <CardContent className="pt-5 pb-5">
                       <div className="flex items-start gap-4">
+                        {/* Step number / status icon */}
                         <div
                           className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${
                             isCompleted
                               ? "bg-green-100 text-green-600"
                               : isInProgress
                               ? "bg-[var(--lw-gold-light)] text-[var(--lw-gold)]"
+                              : isLocked
+                              ? "bg-muted text-muted-foreground/40"
                               : "bg-muted text-muted-foreground"
                           }`}
                         >
-                          {step.icon}
+                          {isCompleted ? (
+                            <CheckCircle2 className="w-5 h-5" />
+                          ) : (
+                            step.icon
+                          )}
                         </div>
+
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 mb-1">
-                            <h3 className="font-serif font-semibold text-foreground">{step.title}</h3>
-                            {isCompleted && <CheckCircle2 className="w-4 h-4 text-green-500" />}
+                            <h3
+                              className="font-serif font-semibold"
+                              style={{
+                                color: isLocked
+                                  ? "rgba(0,0,0,0.35)"
+                                  : "var(--foreground)",
+                              }}
+                            >
+                              {step.title}
+                            </h3>
+                            {isCompleted && (
+                              <CheckCircle2 className="w-4 h-4 text-green-500" />
+                            )}
                             {isInProgress && (
-                              <span className="text-xs bg-[var(--lw-gold)] text-white px-2 py-0.5 rounded-full">In Progress</span>
+                              <span className="text-xs bg-[var(--lw-gold)] text-white px-2 py-0.5 rounded-full">
+                                In Progress
+                              </span>
                             )}
                           </div>
-                          <p className="text-sm text-muted-foreground leading-relaxed">{step.description}</p>
-                        </div>
-                        <div className="flex-shrink-0 flex flex-col items-end gap-2">
-                          {step.id === "background" && (
-                            <ChatToPeter
-                              section="career_education"
-                              buttonLabel="Chat to Sage"
-                              sectionDescription="Sage has read your education and career history. She'd like to explore the relationship between your formal career path and what you've actually found most rewarding."
-                            />
+                          <p
+                            className="text-sm leading-relaxed"
+                            style={{
+                              color: isLocked
+                                ? "rgba(0,0,0,0.3)"
+                                : "var(--muted-foreground)",
+                            }}
+                          >
+                            {step.description}
+                          </p>
+
+                          {/* Sage inline chat — shown when step is "sage" and not locked */}
+                          {step.id === "sage" && !isLocked && (
+                            <div className="mt-4">
+                              <ChatToPeter
+                                section="life_history"
+                                buttonLabel="Chat to Sage"
+                                sectionDescription="Sage has read your Life History and Background. She would like to explore what you have written and ask some reflective questions to deepen your self-understanding."
+                              />
+                            </div>
                           )}
-                          {step.id === "analysis" ? (
-                            isCompleted ? (
-                              <Button size="sm" variant="outline" onClick={() => navigate("/my-report")}>
-                                View Report
-                              </Button>
-                            ) : generateAnalysis.isPending ? (
-                              <Button size="sm" disabled>
-                                <Loader2 className="w-3.5 h-3.5 animate-spin mr-1" /> Generating...
-                              </Button>
-                            ) : !canGenerateAnalysis ? (
-                              <span className="text-xs text-muted-foreground">Complete steps 1–4 first</span>
-                            ) : (
+                        </div>
+
+                        {/* CTA button (right side) — not for sage step */}
+                        {step.id !== "sage" && (
+                          <div className="flex-shrink-0 flex flex-col items-end gap-2">
+                            {/* Career Explorer: show Chat to Sage button */}
+                            {step.id === "career_explorer" && (
+                              <ChatToPeter
+                                section="career_education"
+                                buttonLabel="Chat to Sage"
+                                sectionDescription="Sage has read your education and career history. She'd like to explore the relationship between your formal career path and what you've actually found most rewarding."
+                              />
+                            )}
+
+                            {step.path && !isLocked && (
                               <Button
                                 size="sm"
-                                onClick={() => generateAnalysis.mutate()}
-                                className="bg-[var(--lw-gold)] hover:bg-[oklch(0.60 0.13 72)] text-white gap-1"
+                                variant={isCompleted ? "outline" : "default"}
+                                onClick={() => navigate(step.path!)}
+                                className={
+                                  !isCompleted
+                                    ? "bg-[var(--lw-gold)] hover:bg-[oklch(0.60 0.13 72)] text-white gap-1"
+                                    : "gap-1"
+                                }
                               >
-                                Generate Analysis <ArrowRight className="w-3.5 h-3.5" />
+                                {isCompleted
+                                  ? "Review"
+                                  : isInProgress
+                                  ? step.ctaInProgress
+                                  : step.cta}
+                                {!isCompleted && <ArrowRight className="w-3.5 h-3.5" />}
                               </Button>
-                            )
-                          ) : step.path ? (
-                            <Button
-                              size="sm"
-                              variant={isCompleted ? "outline" : "default"}
-                              onClick={() => navigate(step.path!)}
-                              className={!isCompleted ? "bg-[var(--lw-gold)] hover:bg-[oklch(0.60 0.13 72)] text-white gap-1" : "gap-1"}
-                            >
-                              {isCompleted ? "Review" : isInProgress ? step.ctaInProgress : step.cta}
-                              {!isCompleted && <ArrowRight className="w-3.5 h-3.5" />}
-                            </Button>
-                          ) : null}
-                        </div>
+                            )}
+
+                            {isLocked && (
+                              <span className="text-xs text-muted-foreground/50">
+                                Complete previous step first
+                              </span>
+                            )}
+                          </div>
+                        )}
                       </div>
                     </CardContent>
                   </Card>
@@ -325,123 +404,23 @@ export default function ClientDashboard() {
               })}
             </div>
 
-            {/* View My Report — shown prominently once analysis is complete */}
-            {getStatus("analysisStatus") === "completed" && (
-              <div
-                className="mt-6 rounded-xl overflow-hidden"
-                style={{ border: "2px solid var(--lw-gold)", background: "var(--lw-navy)" }}
-              >
-                <div className="px-5 py-4">
-                  <div className="flex items-start gap-4">
-                    <div
-                      className="w-11 h-11 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5"
-                      style={{ background: "rgba(201,151,58,0.18)", border: "1px solid rgba(201,151,58,0.5)" }}
-                    >
-                      <FileText className="w-5 h-5" style={{ color: "var(--lw-gold)" }} />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p
-                        className="text-base font-serif font-semibold mb-1"
-                        style={{ color: "white" }}
-                      >
-                        Your Career Analysis Report is ready
-                      </p>
-                      <p className="text-sm" style={{ color: "rgba(255,255,255,0.65)" }}>
-                        Your counsellor has prepared a personalised analysis of your life history,
-                        character strengths, and personality profile.
-                      </p>
-                      <div className="flex flex-wrap gap-3 mt-4">
-                        <button
-                          onClick={() => navigate("/my-report")}
-                          className="flex items-center gap-2 px-4 py-2 text-sm font-medium cursor-pointer transition-opacity hover:opacity-90"
-                          style={{
-                            background: "var(--lw-gold)",
-                            color: "white",
-                            border: "none",
-                            letterSpacing: "0.04em",
-                          }}
-                        >
-                          <FileText className="w-4 h-4" />
-                          View My Report
-                        </button>
-                        <button
-                          onClick={() => window.open("/api/export/report", "_blank")}
-                          className="flex items-center gap-2 px-4 py-2 text-sm font-medium cursor-pointer transition-opacity hover:opacity-80"
-                          style={{
-                            background: "transparent",
-                            color: "var(--lw-gold)",
-                            border: "1px solid rgba(201,151,58,0.5)",
-                            letterSpacing: "0.04em",
-                          }}
-                        >
-                          <Download className="w-4 h-4" />
-                          Download PDF
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Career Explorer — unlocked by counsellor after coaching call */}
-            {getStatus("analysisStatus") === "completed" && (
-              profile?.careerExplorerUnlocked ? (
-                <div
-                  className="mt-6 p-4 rounded-xl border cursor-pointer hover:opacity-90 transition-opacity"
-                  style={{ background: "var(--lw-navy)", borderColor: "rgba(201,151,58,0.4)" }}
-                  onClick={() => navigate("/career-explorer")}
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div
-                        className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0"
-                        style={{ background: "rgba(201,151,58,0.15)", border: "1px solid rgba(201,151,58,0.4)" }}
-                      >
-                        <Compass className="w-4 h-4" style={{ color: "var(--lw-gold)" }} />
-                      </div>
-                      <div>
-                        <p className="text-sm font-semibold" style={{ color: "white" }}>Career Explorer</p>
-                        <p className="text-xs mt-0.5" style={{ color: "rgba(255,255,255,0.6)" }}>
-                          Ask Sage how your profile matches any career — or discover what suits you best.
-                        </p>
-                      </div>
-                    </div>
-                    <ArrowRight className="w-4 h-4 flex-shrink-0" style={{ color: "var(--lw-gold)" }} />
-                  </div>
-                </div>
-              ) : (
-                <div
-                  className="mt-6 p-4 rounded-xl border"
-                  style={{ background: "rgba(15,31,53,0.4)", borderColor: "rgba(201,151,58,0.2)" }}
-                >
-                  <div className="flex items-center gap-3">
-                    <div
-                      className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0"
-                      style={{ background: "rgba(201,151,58,0.08)", border: "1px solid rgba(201,151,58,0.2)" }}
-                    >
-                      <Lock className="w-4 h-4" style={{ color: "rgba(201,151,58,0.5)" }} />
-                    </div>
-                    <div>
-                      <p className="text-sm font-semibold" style={{ color: "rgba(255,255,255,0.5)" }}>Career Explorer</p>
-                      <p className="text-xs mt-0.5" style={{ color: "rgba(255,255,255,0.35)" }}>
-                        Available after your coaching conversation — your counsellor will activate this for you.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              )
-            )}
-
             {/* VIA Results shortcut if completed */}
             {getStatus("viaStatus") === "completed" && (
               <div className="mt-6 p-4 rounded-xl bg-[var(--lw-gold-light)] border border-[var(--gold)]/30">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm font-medium text-foreground">Your VIA results are ready</p>
-                    <p className="text-xs text-muted-foreground mt-0.5">View your ranked character strengths</p>
+                    <p className="text-sm font-medium text-foreground">
+                      Your VIA results are ready
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-0.5">
+                      View your ranked character strengths
+                    </p>
                   </div>
-                  <Button size="sm" variant="outline" onClick={() => navigate("/via/results")}>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => navigate("/via/results")}
+                  >
                     View Strengths
                   </Button>
                 </div>

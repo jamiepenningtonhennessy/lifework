@@ -382,3 +382,11 @@
 - [x] Build PHAbout page (bio, photo placeholder, selected clients)
 - [x] Register all PH routes in App.tsx (/ph, /ph/coaching, /ph/training, /ph/about)
 - [x] Embed Google Drive video on /interview page below "The Story of who you are" headline
+
+## Dashboard Restructure — 5 Steps
+- [x] Reorder dashboard to 5 steps: Life History, Background & History, Sage, Psychometrics, Career Explorer
+- [x] Remove Analysis & Report step from client dashboard
+- [x] Remove View Report button from client dashboard
+- [x] Remove Chat to Sage button from Background & History card
+- [x] Add dedicated Sage step 3 card with correct heading and sub-heading
+- [x] Update Sage step-3 context to Life History + Background & History only (no career/IPIP context)
