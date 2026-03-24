@@ -1,23 +1,60 @@
+import { useState } from "react";
 import { useAuth } from "@/_core/hooks/useAuth";
-import { Button } from "@/components/ui/button";
 import { getLoginUrl } from "@/const";
 import { useLocation } from "wouter";
-import { ArrowRight, BookOpen, Brain, Star } from "lucide-react";
+import { ArrowRight, CheckCircle, X, Lock } from "lucide-react";
 import { trpc } from "@/lib/trpc";
+
+const GOOGLE_DRIVE_VIDEO_ID = "1UA06Kdal_ANUxcxPK5jytkO5xYPexg7V";
 
 export default function Home() {
   const { user, isAuthenticated } = useAuth();
   const [, navigate] = useLocation();
-  const { data: _profile } = trpc.profile.getMyProfile.useQuery(undefined, {
-    enabled: isAuthenticated,
+
+  // Access code gate state
+  const [showCodeModal, setShowCodeModal] = useState(false);
+  const [accessCode, setAccessCode] = useState("");
+  const [codeError, setCodeError] = useState("");
+  const [codeVerified, setCodeVerified] = useState(false);
+
+  const verifyCode = trpc.auth.verifyAccessCode.useMutation({
+    onSuccess: (data) => {
+      if (data.valid) {
+        setCodeVerified(true);
+        setCodeError("");
+        // Store in sessionStorage so it survives a page refresh within the session
+        sessionStorage.setItem("lw_access_granted", "1");
+        // Proceed to sign-in
+        window.location.href = getLoginUrl();
+      } else {
+        setCodeError("That code doesn't match. Please check with your counsellor.");
+      }
+    },
+    onError: () => {
+      setCodeError("Something went wrong. Please try again.");
+    },
   });
 
-  const handleStart = () => {
-    if (!isAuthenticated) {
-      window.location.href = getLoginUrl();
-    } else {
+  const handleBeginJourney = () => {
+    if (isAuthenticated) {
       navigate("/dashboard");
+      return;
     }
+    // Check if already granted this session
+    if (sessionStorage.getItem("lw_access_granted") === "1") {
+      window.location.href = getLoginUrl();
+      return;
+    }
+    setShowCodeModal(true);
+  };
+
+  const handleSubmitCode = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!accessCode.trim()) {
+      setCodeError("Please enter your access code.");
+      return;
+    }
+    verifyCode.mutate({ code: accessCode.trim() });
   };
 
   const handleCounselor = () => {
@@ -31,18 +68,17 @@ export default function Home() {
   return (
     <div className="min-h-screen" style={{ background: "var(--lw-cream)" }}>
 
-      {/* Navigation — navy bar */}
+      {/* ── Navigation ── */}
       <nav style={{ background: "var(--lw-navy)", borderBottom: "1px solid rgba(201,151,58,0.25)" }}
         className="sticky top-0 z-50">
         <div className="container flex items-center justify-between h-16">
-          {/* Wordmark */}
           <div className="flex items-center gap-3">
-            <img src="https://d2xsxph8kpxj0f.cloudfront.net/107696804/kFbbE6kqNApXGDFpQJUGV7/phsquare_98c01de4.jpg" alt="Pennington Hennessy" className="w-8 h-8 object-cover" />
+            <img src="https://d2xsxph8kpxj0f.cloudfront.net/107696804/kFbbE6kqNApXGDFpQJUGV7/phsquare_98c01de4.jpg"
+              alt="Pennington Hennessy" className="w-8 h-8 object-cover" />
             <span style={{ color: "white", fontFamily: "'Playfair Display', serif", fontWeight: 600, fontSize: "1.1rem", letterSpacing: "0.02em" }}>
               Lifework
             </span>
           </div>
-          {/* Nav actions */}
           <div className="flex items-center gap-3">
             {isAuthenticated ? (
               <>
@@ -50,50 +86,22 @@ export default function Home() {
                   Welcome, {user?.name?.split(" ")[0]}
                 </span>
                 {user?.role === "admin" && (
-                  <button
-                    onClick={() => navigate("/counselor")}
+                  <button onClick={handleCounselor}
                     className="px-4 py-2 text-sm font-medium tracking-wide uppercase cursor-pointer transition-colors"
-                    style={{
-                      border: "1px solid rgba(201,151,58,0.6)",
-                      color: "var(--lw-gold)",
-                      background: "transparent",
-                      letterSpacing: "0.08em",
-                      fontSize: "0.75rem"
-                    }}
-                    onMouseEnter={e => { (e.target as HTMLButtonElement).style.background = "rgba(201,151,58,0.1)"; }}
-                    onMouseLeave={e => { (e.target as HTMLButtonElement).style.background = "transparent"; }}
-                  >
+                    style={{ border: "1px solid rgba(201,151,58,0.6)", color: "var(--lw-gold)", background: "transparent", letterSpacing: "0.08em", fontSize: "0.75rem" }}>
                     Counsellor View
                   </button>
                 )}
-                <button
-                  onClick={() => navigate("/dashboard")}
-                  className="px-4 py-2 text-sm font-medium tracking-wide uppercase cursor-pointer transition-colors"
-                  style={{
-                    background: "var(--lw-gold)",
-                    color: "var(--lw-navy)",
-                    letterSpacing: "0.08em",
-                    fontSize: "0.75rem",
-                    fontWeight: 600
-                  }}
-                  onMouseEnter={e => { (e.target as HTMLButtonElement).style.background = "oklch(0.60 0.13 72)"; }}
-                  onMouseLeave={e => { (e.target as HTMLButtonElement).style.background = "var(--lw-gold)"; }}
-                >
+                <button onClick={() => navigate("/dashboard")}
+                  className="px-4 py-2 text-sm font-medium tracking-wide uppercase cursor-pointer"
+                  style={{ background: "var(--lw-gold)", color: "var(--lw-navy)", letterSpacing: "0.08em", fontSize: "0.75rem", fontWeight: 600 }}>
                   My Dashboard
                 </button>
               </>
             ) : (
-              <button
-                onClick={() => window.location.href = getLoginUrl()}
+              <button onClick={handleBeginJourney}
                 className="px-4 py-2 text-sm font-medium tracking-wide uppercase cursor-pointer"
-                style={{
-                  background: "var(--lw-gold)",
-                  color: "var(--lw-navy)",
-                  letterSpacing: "0.08em",
-                  fontSize: "0.75rem",
-                  fontWeight: 600
-                }}
-              >
+                style={{ background: "var(--lw-gold)", color: "var(--lw-navy)", letterSpacing: "0.08em", fontSize: "0.75rem", fontWeight: 600 }}>
                 Sign In
               </button>
             )}
@@ -101,142 +109,150 @@ export default function Home() {
         </div>
       </nav>
 
-      {/* Hero — full-bleed dark navy */}
-      <section style={{ background: "var(--lw-navy)", minHeight: "520px" }}
-        className="relative overflow-hidden">
-        {/* Subtle texture overlay */}
+      {/* ── BEAT 1 & 2: Hero — The Character and Their Problem ── */}
+      <section style={{ background: "var(--lw-navy)", minHeight: "520px" }} className="relative overflow-hidden">
         <div className="absolute inset-0 opacity-10"
           style={{ backgroundImage: "radial-gradient(circle at 70% 50%, oklch(0.68 0.13 72) 0%, transparent 60%)" }} />
-        <div className="container relative py-28 lg:py-36">
+        <div className="container relative py-24 lg:py-32">
           <div className="max-w-2xl">
-            {/* Eyebrow */}
             <div className="lw-eyebrow mb-6" style={{ color: "var(--lw-gold)" }}>
-              Career Analysis
+              Career Analysis · Positive Psychology
             </div>
             <h1 className="font-serif font-bold leading-tight mb-6"
-              style={{ fontSize: "clamp(2.4rem, 5vw, 3.6rem)", color: "white" }}>
-              Discover the story<br />
-              <em style={{ color: "var(--lw-gold)", fontStyle: "italic" }}>your life is telling.</em>
+              style={{ fontSize: "clamp(2.2rem, 5vw, 3.4rem)", color: "white" }}>
+              What if the right career<br />
+              <em style={{ color: "var(--lw-gold)", fontStyle: "italic" }}>already lives inside you?</em>
             </h1>
             <p className="leading-relaxed mb-10"
-              style={{ fontSize: "1.05rem", color: "rgba(255,255,255,0.72)", maxWidth: "520px" }}>
-              Lifework guides you through a reflective journey of your life history — your achievements,
-              your strengths, your values — to reveal the career that is authentically yours.
-              Based on the pioneering methodology of Bernard Haldane and the Dependable Strengths tradition.
+              style={{ fontSize: "1.05rem", color: "rgba(255,255,255,0.75)", maxWidth: "540px" }}>
+              You have spent years acquiring experience, skills, and wisdom. But somewhere along the way,
+              the noise of other people's expectations may have drowned out the signal of what genuinely
+              energises you. Lifework helps you find it again.
             </p>
             <div className="flex flex-col sm:flex-row gap-4">
-              <button
-                onClick={handleStart}
+              <button onClick={handleBeginJourney}
                 className="inline-flex items-center gap-2 px-7 py-3 font-medium tracking-wide uppercase cursor-pointer transition-opacity"
-                style={{
-                  background: "var(--lw-gold)",
-                  color: "var(--lw-navy)",
-                  letterSpacing: "0.08em",
-                  fontSize: "0.8rem",
-                  fontWeight: 600
-                }}
-                onMouseEnter={e => { (e.target as HTMLButtonElement).style.opacity = "0.88"; }}
-                onMouseLeave={e => { (e.target as HTMLButtonElement).style.opacity = "1"; }}
-              >
+                style={{ background: "var(--lw-gold)", color: "var(--lw-navy)", letterSpacing: "0.08em", fontSize: "0.8rem", fontWeight: 600 }}>
                 Begin Your Journey <ArrowRight className="w-4 h-4" />
               </button>
-              {(!isAuthenticated || user?.role === "admin") && (
-                <button
-                  onClick={handleCounselor}
-                  className="inline-flex items-center gap-2 px-7 py-3 font-medium tracking-wide uppercase cursor-pointer transition-colors"
-                  style={{
-                    border: "1px solid rgba(255,255,255,0.4)",
-                    color: "white",
-                    background: "transparent",
-                    letterSpacing: "0.08em",
-                    fontSize: "0.8rem"
-                  }}
-                  onMouseEnter={e => { (e.target as HTMLButtonElement).style.borderColor = "var(--lw-gold)"; (e.target as HTMLButtonElement).style.color = "var(--lw-gold)"; }}
-                  onMouseLeave={e => { (e.target as HTMLButtonElement).style.borderColor = "rgba(255,255,255,0.4)"; (e.target as HTMLButtonElement).style.color = "white"; }}
-                >
-                  Counsellor Access
-                </button>
-              )}
+              <a href="mailto:jamie@penningtonhennessy.com"
+                className="inline-flex items-center gap-2 px-7 py-3 font-medium tracking-wide uppercase cursor-pointer transition-colors"
+                style={{ border: "1px solid rgba(255,255,255,0.4)", color: "white", background: "transparent", letterSpacing: "0.08em", fontSize: "0.8rem", textDecoration: "none" }}>
+                Ask Jamie a Question
+              </a>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Stats bar — mid-navy */}
-      <section style={{ background: "var(--lw-navy-mid)", borderTop: "1px solid rgba(201,151,58,0.2)", borderBottom: "1px solid rgba(201,151,58,0.2)" }}>
-        <div className="container py-10">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
-            {[
-              { num: "965", label: "Clients Analysed" },
-              { num: "35+", label: "Years of Research" },
-              { num: "3", label: "Stage Process" },
-              { num: "1", label: "Counsellor, Personally" },
-            ].map(stat => (
-              <div key={stat.label}>
-                <div className="font-serif font-bold mb-1"
-                  style={{ fontSize: "2rem", color: "var(--lw-gold)" }}>
-                  {stat.num}
-                </div>
-                <div className="uppercase tracking-widest"
-                  style={{ fontSize: "0.65rem", color: "rgba(255,255,255,0.55)", letterSpacing: "0.14em" }}>
-                  {stat.label}
-                </div>
-              </div>
-            ))}
+      {/* ── VIDEO SECTION ── */}
+      <section className="py-20" style={{ background: "var(--lw-navy-mid)", borderTop: "1px solid rgba(201,151,58,0.2)", borderBottom: "1px solid rgba(201,151,58,0.2)" }}>
+        <div className="container max-w-4xl">
+          <div className="mb-10 text-center">
+            <div className="lw-eyebrow mb-4" style={{ color: "var(--lw-gold)" }}>Watch First</div>
+            <h2 className="font-serif font-bold" style={{ fontSize: "1.8rem", color: "white" }}>
+              The story of Lifework — in four minutes
+            </h2>
+            <p className="mt-3" style={{ color: "rgba(255,255,255,0.6)", fontSize: "0.95rem" }}>
+              Rooted in positive psychology, anchored in your own life story.
+            </p>
+          </div>
+          {/* 16:9 Google Drive embed */}
+          <div style={{ position: "relative", paddingBottom: "56.25%", height: 0, overflow: "hidden", border: "2px solid rgba(201,151,58,0.4)", borderRadius: "2px" }}>
+            <iframe
+              src={`https://drive.google.com/file/d/${GOOGLE_DRIVE_VIDEO_ID}/preview`}
+              style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", border: "none" }}
+              allow="autoplay"
+              allowFullScreen
+              title="Lifework Overview"
+            />
           </div>
         </div>
       </section>
 
-      {/* How it works — cream section */}
-      <section className="py-24" style={{ background: "var(--lw-cream)" }}>
-        <div className="container">
+      {/* ── BEAT 3: The Guide — Empathy + Authority ── */}
+      <section className="py-20" style={{ background: "var(--lw-cream)" }}>
+        <div className="container max-w-4xl">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-16 items-start">
+            <div>
+              <div className="lw-eyebrow mb-4" style={{ color: "var(--lw-gold)" }}>The Guide</div>
+              <h2 className="font-serif font-bold mb-6" style={{ fontSize: "2rem", lineHeight: 1.2, color: "var(--lw-navy)" }}>
+                We understand what this feels like.
+              </h2>
+              <p className="leading-relaxed mb-4" style={{ color: "var(--lw-navy-light)", fontSize: "0.95rem" }}>
+                Whether you are a graduate standing at a crossroads, a mid-career professional who has built
+                a life that looks right on paper but feels hollow, someone returning to work after years away,
+                or a senior leader asking what comes next — the question is the same: <em>what is actually mine?</em>
+              </p>
+              <p className="leading-relaxed" style={{ color: "var(--lw-navy-light)", fontSize: "0.95rem" }}>
+                Lifework is built on thirty years of working with lawyers, professionals, and individuals at
+                every stage of life. The methodology is rooted in Bernard Haldane's Dependable Strengths
+                research — the insight that the most reliable guide to a fulfilling career is not a questionnaire
+                about preferences, but a careful reading of the life you have already lived.
+              </p>
+            </div>
+            <div className="space-y-5">
+              {[
+                { stage: "Graduates & school leavers", desc: "Choose a direction with confidence, not guesswork." },
+                { stage: "Mid-career professionals", desc: "Understand why some work feels effortless and other work drains you." },
+                { stage: "Returning to work", desc: "Discover that the years away built strengths, not gaps." },
+                { stage: "Approaching retirement", desc: "Find fresh, meaningful expressions of who you are — on your own terms." },
+              ].map(item => (
+                <div key={item.stage} className="flex gap-4 items-start">
+                  <CheckCircle className="w-5 h-5 mt-0.5 flex-shrink-0" style={{ color: "var(--lw-gold)" }} />
+                  <div>
+                    <p className="font-semibold text-sm" style={{ color: "var(--lw-navy)" }}>{item.stage}</p>
+                    <p className="text-sm" style={{ color: "var(--lw-navy-light)" }}>{item.desc}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── BEAT 4: The Plan — Three Stages ── */}
+      <section className="py-20" style={{ background: "white", borderTop: "1px solid rgba(15,31,53,0.08)" }}>
+        <div className="container max-w-4xl">
           <div className="mb-14">
-            <div className="lw-eyebrow mb-4">The Process</div>
-            <h2 className="font-serif font-bold text-foreground"
-              style={{ fontSize: "2rem" }}>
-              How it works
+            <div className="lw-eyebrow mb-4" style={{ color: "var(--lw-gold)" }}>The Plan</div>
+            <h2 className="font-serif font-bold" style={{ fontSize: "2rem", color: "var(--lw-navy)" }}>
+              Three stages. A lifetime of clarity.
             </h2>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-0 max-w-4xl" style={{ border: "1px solid rgba(201,151,58,0.3)" }}>
             {[
               {
-                icon: <BookOpen className="w-5 h-5" />,
                 step: "01",
-                title: "Life History Interview",
-                desc: "A structured conversation explores your achievements decade by decade — childhood through to today.",
+                title: "Your Past",
+                subtitle: "The story of who you are",
+                desc: "A structured life history interview explores your achievements decade by decade — from childhood to today. Not your CV. The moments when you were most fully yourself, mapped across Emotions, Skills, and Values.",
               },
               {
-                icon: <Star className="w-5 h-5" />,
                 step: "02",
-                title: "Psychometric Instruments",
-                desc: "A small set of validated assessments that act as lenses through which we consider the you that your life shows.",
+                title: "Your Present",
+                subtitle: "Lenses, not labels",
+                desc: "Validated psychometric tools — VIA Character Strengths and a Big Five personality profile — are used not to categorise you, but as fresh angles on the same timeline. They add depth and insight to what your life history has already revealed.",
               },
               {
-                icon: <Brain className="w-5 h-5" />,
                 step: "03",
-                title: "Analysis & Report",
-                desc: "Your counsellor will take all the information given and write a summary report, setting out what he believes may be true, and setting out some questions to explore together.",
+                title: "Your Future",
+                subtitle: "Wisdom for the road ahead",
+                desc: "Sage, your AI career coach, reads everything you have written and asks the reflective questions that help you see the pattern clearly. Your counsellor then brings it all together — a compass, not a prescription, for what comes next.",
               },
             ].map((item, i) => (
-              <div
-                key={item.step}
-                className="p-8 relative"
-                style={{
-                  borderRight: i < 2 ? "1px solid rgba(201,151,58,0.25)" : "none",
-                  borderBottom: "none"
-                }}
-              >
-                <div className="font-serif font-bold mb-6"
+              <div key={item.step} className="p-8 relative"
+                style={{ borderRight: i < 2 ? "1px solid rgba(201,151,58,0.25)" : "none" }}>
+                <div className="font-serif font-bold mb-4"
                   style={{ fontSize: "2.5rem", color: "rgba(201,151,58,0.18)" }}>
                   {item.step}
                 </div>
-                <div className="mb-4" style={{ color: "var(--lw-gold)" }}>
-                  {item.icon}
-                </div>
-                <h3 className="font-serif font-semibold text-foreground mb-3"
-                  style={{ fontSize: "1.05rem" }}>
+                <h3 className="font-serif font-bold mb-1" style={{ fontSize: "1.1rem", color: "var(--lw-navy)" }}>
                   {item.title}
                 </h3>
+                <p className="text-xs uppercase tracking-widest mb-4" style={{ color: "var(--lw-gold)", letterSpacing: "0.1em" }}>
+                  {item.subtitle}
+                </p>
                 <p className="leading-relaxed" style={{ fontSize: "0.875rem", color: "var(--lw-navy-light)" }}>
                   {item.desc}
                 </p>
@@ -246,71 +262,186 @@ export default function Home() {
         </div>
       </section>
 
-      {/* About the Methodology — cream section */}
-      <section className="py-20" style={{ background: "white", borderTop: "1px solid rgba(15,31,53,0.08)" }}>
-        <div className="container max-w-4xl">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-16 items-start">
-            <div>
-              <p className="font-medium tracking-widest uppercase mb-4" style={{ fontSize: "0.7rem", color: "var(--lw-gold)", letterSpacing: "0.12em" }}>
-                — THE METHODOLOGY
-              </p>
-              <h2 className="font-serif font-bold mb-6" style={{ fontSize: "2rem", lineHeight: 1.2, color: "var(--lw-navy)" }}>
-                A different kind of career conversation
-              </h2>
-            </div>
-            <div className="space-y-5" style={{ color: "var(--lw-navy-light)", fontSize: "0.95rem", lineHeight: 1.75 }}>
-              <p>
-                Lifework is built on the Dependable Strengths methodology, developed by Bernard Haldane at Columbia University in the 1940s and refined over decades of research at the University of Washington. The core insight is simple but profound: the most reliable guide to a fulfilling career is not a questionnaire about preferences, but a careful reading of the life you have already lived.
-              </p>
-              <p>
-                Bernard Haldane spent decades refining this approach, and his Dependable Strengths methodology has since been applied with thousands of clients across every stage of working life — from graduates finding their first direction to senior professionals facing retirement. The central conviction is that every life history, read attentively, contains a pattern of motivated achievement that points clearly toward the work that will be most rewarding.
-              </p>
-              <p>
-                Lifework makes that conversation available at scale, guided by a counsellor who knows the methodology and the database of real outcomes behind it. The psychometric instruments — personality and character strengths — are not the analysis. They are lenses through which the life history is read more clearly.
-              </p>
-            </div>
+      {/* ── BEAT 5 & 6: CTA + Stakes ── */}
+      <section className="py-24" style={{ background: "var(--lw-navy)" }}>
+        <div className="container max-w-3xl text-center">
+          <div className="lw-eyebrow mb-6" style={{ color: "var(--lw-gold)" }}>Take the Next Step</div>
+          <h2 className="font-serif font-bold mb-6" style={{ fontSize: "2.2rem", color: "white", lineHeight: 1.25 }}>
+            The right career already lives inside you.<br />
+            <em style={{ color: "var(--lw-gold)", fontStyle: "italic" }}>Let's find it together.</em>
+          </h2>
+          <p className="leading-relaxed mb-10" style={{ color: "rgba(255,255,255,0.7)", fontSize: "1rem", maxWidth: "560px", margin: "0 auto 2.5rem" }}>
+            The risk is not that you will fail. The risk is spending another five years — or ten — doing
+            work that never quite fits. Not because the right work doesn't exist, but because you never
+            took the time to find out what it was.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <a href="mailto:jamie@penningtonhennessy.com?subject=Lifework%20Enquiry"
+              className="inline-flex items-center gap-2 px-8 py-4 font-medium tracking-wide uppercase cursor-pointer"
+              style={{ background: "var(--lw-gold)", color: "var(--lw-navy)", letterSpacing: "0.08em", fontSize: "0.85rem", fontWeight: 700, textDecoration: "none" }}>
+              Email Jamie to Get Started <ArrowRight className="w-4 h-4" />
+            </a>
+            <button onClick={handleBeginJourney}
+              className="inline-flex items-center gap-2 px-8 py-4 font-medium tracking-wide uppercase cursor-pointer"
+              style={{ border: "1px solid rgba(255,255,255,0.4)", color: "white", background: "transparent", letterSpacing: "0.08em", fontSize: "0.85rem" }}>
+              I Have an Access Code
+            </button>
           </div>
-        </div>
-      </section>
-
-      {/* Quote — navy section */}
-      <section className="py-20" style={{ background: "var(--lw-navy)" }}>
-        <div className="container max-w-3xl">
-          <blockquote className="font-serif italic leading-relaxed mb-6"
-            style={{ fontSize: "1.5rem", color: "white", borderLeft: "3px solid var(--lw-gold)", paddingLeft: "1.5rem" }}>
-            "The most important thing is to find out what is important to you — not what others think should be important."
-          </blockquote>
-          <p style={{ fontSize: "0.8rem", color: "rgba(255,255,255,0.5)", letterSpacing: "0.06em" }}>
-            — Bernard Haldane, Dependable Strengths
+          <p className="mt-8 text-sm" style={{ color: "rgba(255,255,255,0.4)" }}>
+            Already a client?{" "}
+            <button onClick={handleBeginJourney}
+              className="cursor-pointer underline"
+              style={{ color: "var(--lw-gold)", background: "none", border: "none", padding: 0, fontSize: "inherit" }}>
+              Sign in here
+            </button>
           </p>
         </div>
       </section>
 
-      {/* Footer */}
-      <footer style={{ background: "var(--lw-navy)", borderTop: "1px solid rgba(201,151,58,0.2)" }}
-        className="py-8">
+      {/* ── BEAT 7: Success — What life looks like on the other side ── */}
+      <section className="py-20" style={{ background: "var(--lw-cream)" }}>
+        <div className="container max-w-4xl">
+          <div className="mb-12 text-center">
+            <div className="lw-eyebrow mb-4" style={{ color: "var(--lw-gold)" }}>What Success Looks Like</div>
+            <h2 className="font-serif font-bold" style={{ fontSize: "1.8rem", color: "var(--lw-navy)" }}>
+              A compass for every stage of life
+            </h2>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {[
+              {
+                quote: "I finally understood why some things feel effortless and others feel like swimming upstream. That changed everything.",
+                attribution: "Graduate, choosing between Law and Psychology",
+              },
+              {
+                quote: "I had spent twelve years building a career that looked right on paper. Lifework helped me understand why it never felt right — and what would.",
+                attribution: "Senior Manager, mid-career transition",
+              },
+              {
+                quote: "I kept telling myself I was out of date. Lifework showed me that the skills I was most worried about losing were actually the ones I'd spent five years strengthening.",
+                attribution: "Professional, returning to work after a career break",
+              },
+              {
+                quote: "I had assumed retirement meant stepping back. Lifework helped me see it as stepping forward — into something I actually chose.",
+                attribution: "Director, approaching retirement",
+              },
+            ].map((item, i) => (
+              <div key={i} className="p-8"
+                style={{ background: "white", borderLeft: "3px solid var(--lw-gold)", borderBottom: "1px solid rgba(201,151,58,0.2)" }}>
+                <blockquote className="font-serif italic leading-relaxed mb-4"
+                  style={{ fontSize: "1rem", color: "var(--lw-navy)", lineHeight: 1.7 }}>
+                  "{item.quote}"
+                </blockquote>
+                <p style={{ fontSize: "0.75rem", color: "var(--lw-navy-light)", letterSpacing: "0.06em", textTransform: "uppercase" }}>
+                  — {item.attribution}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── Final CTA strip ── */}
+      <section className="py-16" style={{ background: "var(--lw-navy-mid)", borderTop: "1px solid rgba(201,151,58,0.2)" }}>
+        <div className="container max-w-3xl text-center">
+          <p className="font-serif italic mb-6" style={{ fontSize: "1.3rem", color: "white" }}>
+            "The most important thing is to find out what is important to you — not what others think should be important."
+          </p>
+          <p className="mb-8" style={{ fontSize: "0.8rem", color: "rgba(255,255,255,0.5)", letterSpacing: "0.06em" }}>
+            — Bernard Haldane, Dependable Strengths
+          </p>
+          <a href="mailto:jamie@penningtonhennessy.com?subject=Lifework%20Enquiry"
+            className="inline-flex items-center gap-2 px-8 py-4 font-medium tracking-wide uppercase"
+            style={{ background: "var(--lw-gold)", color: "var(--lw-navy)", letterSpacing: "0.08em", fontSize: "0.85rem", fontWeight: 700, textDecoration: "none" }}>
+            Email Jamie — jamie@penningtonhennessy.com <ArrowRight className="w-4 h-4" />
+          </a>
+        </div>
+      </section>
+
+      {/* ── Footer ── */}
+      <footer style={{ background: "var(--lw-navy)", borderTop: "1px solid rgba(201,151,58,0.2)" }} className="py-8">
         <div className="container flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <img src="https://d2xsxph8kpxj0f.cloudfront.net/107696804/kFbbE6kqNApXGDFpQJUGV7/phsquare_98c01de4.jpg" alt="Pennington Hennessy" className="w-6 h-6 object-cover" />
+            <img src="https://d2xsxph8kpxj0f.cloudfront.net/107696804/kFbbE6kqNApXGDFpQJUGV7/phsquare_98c01de4.jpg"
+              alt="Pennington Hennessy" className="w-6 h-6 object-cover" />
             <span style={{ color: "rgba(255,255,255,0.6)", fontSize: "0.85rem", fontFamily: "'Playfair Display', serif" }}>
               Lifework
             </span>
           </div>
           <p style={{ fontSize: "0.75rem", color: "rgba(255,255,255,0.4)" }}>
             Inspired by the work of Bernard Haldane · A{" "}
-            <a
-              href="https://www.penningtonhennessy.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{ color: "var(--lw-gold)", textDecoration: "none" }}
-              onMouseEnter={e => (e.currentTarget.style.textDecoration = "underline")}
-              onMouseLeave={e => (e.currentTarget.style.textDecoration = "none")}
-            >
+            <a href="https://www.penningtonhennessy.com" target="_blank" rel="noopener noreferrer"
+              style={{ color: "var(--lw-gold)", textDecoration: "none" }}>
               Pennington Hennessy
             </a>{" "}service
           </p>
         </div>
       </footer>
+
+      {/* ── Access Code Modal ── */}
+      {showCodeModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center"
+          style={{ background: "rgba(15,31,53,0.85)", backdropFilter: "blur(4px)" }}>
+          <div className="relative w-full max-w-md mx-4 p-8"
+            style={{ background: "var(--lw-cream)", border: "1px solid rgba(201,151,58,0.4)" }}>
+            <button onClick={() => { setShowCodeModal(false); setCodeError(""); setAccessCode(""); }}
+              className="absolute top-4 right-4 cursor-pointer"
+              style={{ background: "none", border: "none", color: "var(--lw-navy-light)" }}>
+              <X className="w-5 h-5" />
+            </button>
+            <div className="flex items-center gap-3 mb-6">
+              <Lock className="w-5 h-5" style={{ color: "var(--lw-gold)" }} />
+              <h3 className="font-serif font-bold" style={{ fontSize: "1.3rem", color: "var(--lw-navy)" }}>
+                Enter Your Access Code
+              </h3>
+            </div>
+            <p className="mb-6 leading-relaxed" style={{ fontSize: "0.9rem", color: "var(--lw-navy-light)" }}>
+              Lifework is a personal coaching programme. To create an account, please enter the access
+              code provided by your counsellor. If you don't have one yet,{" "}
+              <a href="mailto:jamie@penningtonhennessy.com?subject=Lifework%20Access%20Code"
+                style={{ color: "var(--lw-gold)" }}>
+                email Jamie
+              </a>{" "}to get started.
+            </p>
+            <form onSubmit={handleSubmitCode}>
+              <input
+                type="text"
+                value={accessCode}
+                onChange={e => { setAccessCode(e.target.value); setCodeError(""); }}
+                placeholder="Enter access code"
+                className="w-full px-4 py-3 mb-2 outline-none"
+                style={{
+                  border: codeError ? "1px solid #c0392b" : "1px solid rgba(201,151,58,0.5)",
+                  background: "white",
+                  color: "var(--lw-navy)",
+                  fontSize: "1rem",
+                  fontFamily: "inherit",
+                  letterSpacing: "0.1em",
+                }}
+                autoFocus
+              />
+              {codeError && (
+                <p className="mb-3 text-sm" style={{ color: "#c0392b" }}>{codeError}</p>
+              )}
+              <button
+                type="submit"
+                disabled={verifyCode.isPending}
+                className="w-full py-3 font-medium tracking-wide uppercase cursor-pointer mt-2"
+                style={{
+                  background: "var(--lw-gold)",
+                  color: "var(--lw-navy)",
+                  letterSpacing: "0.08em",
+                  fontSize: "0.85rem",
+                  fontWeight: 700,
+                  border: "none",
+                  opacity: verifyCode.isPending ? 0.7 : 1,
+                }}>
+                {verifyCode.isPending ? "Checking…" : "Continue to Sign In →"}
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

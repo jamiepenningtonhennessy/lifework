@@ -1,4 +1,5 @@
 import { COOKIE_NAME } from "@shared/const";
+import { ENV } from "./_core/env";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { publicProcedure, protectedProcedure, router } from "./_core/trpc";
@@ -2076,6 +2077,12 @@ export const appRouter = router({
   system: systemRouter,
   auth: router({
     me: publicProcedure.query((opts) => opts.ctx.user),
+    verifyAccessCode: publicProcedure
+      .input(z.object({ code: z.string() }))
+      .mutation(({ input }) => {
+        const valid = input.code.trim().toLowerCase() === ENV.lifeworkAccessCode.trim().toLowerCase();
+        return { valid };
+      }),
     logout: publicProcedure.mutation(({ ctx }) => {
       const cookieOptions = getSessionCookieOptions(ctx.req);
       ctx.res.clearCookie(COOKIE_NAME, { ...cookieOptions, maxAge: -1 });

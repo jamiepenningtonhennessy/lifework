@@ -390,3 +390,8 @@
 - [x] Remove Chat to Sage button from Background & History card
 - [x] Add dedicated Sage step 3 card with correct heading and sub-heading
 - [x] Update Sage step-3 context to Life History + Background & History only (no career/IPIP context)
+
+## Lifework Landing Page Redesign
+- [x] Rewrite /lifework as StoryBrand 2.0 marketing page with video, CTA, and access code gate
+- [x] Add access code gate: server-side tRPC procedure to validate code, frontend modal before sign-in
+- [x] Set default access code via LIFEWORK_ACCESS_CODE env secret
