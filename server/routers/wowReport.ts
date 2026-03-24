@@ -364,8 +364,10 @@ async function renderWowPdf(sections: WowReportSections): Promise<Buffer> {
     margin: [0, 10, 0, 4] as [number, number, number, number],
   });
 
+  // Divider — using a table with a coloured top border (no canvas, avoids pdfmake height-check crash)
   const divider = () => ({
-    canvas: [{ type: "line", x1: 0, y1: 0, x2: 515, y2: 0, lineWidth: 0.5, lineColor: LIGHT_GOLD }],
+    table: { widths: ["*"], body: [[{ text: "", border: [false, true, false, false], borderColor: [LIGHT_GOLD, LIGHT_GOLD, LIGHT_GOLD, LIGHT_GOLD] }]] },
+    layout: "noBorders",
     margin: [0, 8, 0, 8] as [number, number, number, number],
   });
 
@@ -452,39 +454,29 @@ async function renderWowPdf(sections: WowReportSections): Promise<Buffer> {
     ...markdownToPdfContent(content),
   ];
 
-  // ── VIA bar chart (simple text-based) ──
+  // ── VIA bar chart — text-based using Unicode block chars (no canvas) ──
+  const makeBar = (ratio: number, highlight: boolean) => {
+    const filled = Math.max(1, Math.round(ratio * 30));
+    const empty = 30 - filled;
+    return [
+      { text: "█".repeat(filled), color: highlight ? GOLD : LIGHT_GOLD, fontSize: 8 },
+      { text: "█".repeat(empty), color: "#e8e0d0", fontSize: 8 },
+    ];
+  };
   const viaRows = sections.viaRanked.slice(0, 10).map((s, i) => [
     { text: `${i + 1}. ${s.name}`, font: "Roboto", fontSize: 9, color: DARK_GREY, bold: i < 3 },
-    {
-      canvas: [{
-        type: "rect",
-        x: 0, y: 2,
-        w: Math.round((s.score / 25) * 120),
-        h: 8,
-        color: i < 3 ? GOLD : LIGHT_GOLD,
-      }],
-      margin: [0, 0, 0, 2] as [number, number, number, number],
-    },
-    { text: s.score.toFixed(2), font: "Roboto", fontSize: 9, color: MID_GREY },
+    { text: makeBar(s.score / 25, i < 3), margin: [0, 2, 0, 2] as [number, number, number, number] },
+    { text: `${s.score}`, font: "Roboto", fontSize: 9, color: MID_GREY },
   ]);
 
-  // ── Big Five bars ──
+  // ── Big Five bars — text-based (no canvas) ──
   const BIG5_NAMES: Record<string, string> = {
     N: "Neuroticism", E: "Extraversion", O: "Openness",
     A: "Agreeableness", C: "Conscientiousness",
   };
   const big5Rows = Object.entries(sections.domainScores).map(([key, val]) => [
     { text: BIG5_NAMES[key] ?? key, font: "Roboto", fontSize: 9, color: DARK_GREY },
-    {
-      canvas: [{
-        type: "rect",
-        x: 0, y: 2,
-        w: Math.round((val / 100) * 120),
-        h: 8,
-        color: NAVY,
-      }],
-      margin: [0, 0, 0, 2] as [number, number, number, number],
-    },
+    { text: makeBar(val / 100, true).map(b => ({ ...b, color: b.color === GOLD ? NAVY : "#d0d8e8" })), margin: [0, 2, 0, 2] as [number, number, number, number] },
     { text: `${val}th`, font: "Roboto", fontSize: 9, color: MID_GREY },
   ]);
 
@@ -497,7 +489,9 @@ async function renderWowPdf(sections: WowReportSections): Promise<Buffer> {
     background: (currentPage: number) =>
       currentPage === 1
         ? {
-            // Full-bleed navy cover background
+            // absolutePosition bypasses pdfmake's height check (which returns false
+            // instead of an array, causing addAll/forEach to crash).
+            absolutePosition: { x: 0, y: 0 },
             canvas: [
               // Full page navy fill
               { type: "rect", x: 0, y: 0, w: 595, h: 842, color: NAVY },
@@ -509,7 +503,7 @@ async function renderWowPdf(sections: WowReportSections): Promise<Buffer> {
               { type: "rect", x: 0, y: 0, w: 595, h: 4, color: GOLD },
             ],
           }
-        : { canvas: [] },
+        : null,
 
     header: (currentPage: number) =>
       currentPage > 1
@@ -540,8 +534,11 @@ async function renderWowPdf(sections: WowReportSections): Promise<Buffer> {
       {
         columns: [
           {
-            canvas: [{ type: "line", x1: 0, y1: 5, x2: 24, y2: 5, lineWidth: 1.5, lineColor: GOLD }],
+            // Gold rule — using a table border (no canvas)
+            table: { widths: [24], body: [[{ text: "", border: [false, false, false, true], borderColor: [GOLD, GOLD, GOLD, GOLD] }]] },
+            layout: "noBorders",
             width: 32,
+            margin: [0, 4, 0, 0] as [number, number, number, number],
           },
           {
             text: "LIFEWORK CAREER ANALYSIS",
@@ -670,16 +667,24 @@ async function renderWowPdf(sections: WowReportSections): Promise<Buffer> {
       // ── Closing ──
       { text: "", margin: [0, 20, 0, 0] as [number, number, number, number] },
       {
-        canvas: [{ type: "rect", x: 0, y: 0, w: 515, h: 40, color: NAVY }],
+        // Navy closing bar — table with navy fill (no canvas)
+        table: {
+          widths: ["*"],
+          body: [[
+            {
+              text: "This report is confidential and prepared exclusively for the named individual.",
+              font: "Roboto",
+              fontSize: 8,
+              color: CREAM,
+              alignment: "center",
+              fillColor: NAVY,
+              border: [false, false, false, false],
+              margin: [0, 12, 0, 12] as [number, number, number, number],
+            },
+          ]],
+        },
+        layout: "noBorders",
         margin: [0, 0, 0, 0] as [number, number, number, number],
-      },
-      {
-        text: "This report is confidential and prepared exclusively for the named individual.",
-        font: "Roboto",
-        fontSize: 8,
-        color: CREAM,
-        alignment: "center",
-        margin: [0, -30, 0, 0] as [number, number, number, number],
       },
     ],
   };
