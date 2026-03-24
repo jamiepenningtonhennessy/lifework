@@ -250,7 +250,15 @@ async function generateWowSections(clientId: number): Promise<WowReportSections>
   const subj = pronounParts[0] ?? "they";
   const poss = pronounParts[2] ?? pronounParts[1] ?? "their";
 
-  const sys = `You are a senior career analyst at Pennington Hennessy, trained in the Dependable Strengths methodology of Bernard Haldane. You write premium career analysis reports that combine rigorous psychometric interpretation with deep life history analysis. Your writing is warm, precise, and personal. Write in second person ("You are...") throughout. Use the client's first name (${clientName}) naturally. Use pronouns: ${pronouns}. Write in flowing paragraphs — never bullet points.`;
+  const sys = `You are a senior career analyst at Pennington Hennessy, trained in the Dependable Strengths methodology of Bernard Haldane. You write premium career analysis reports that combine rigorous psychometric interpretation with deep life history analysis. Your writing is warm, precise, and personal. Write in second person ("You are...") throughout. Use the client's first name (${clientName}) naturally. Use pronouns: ${pronouns}.
+
+FORMATTING RULES (strictly follow):
+- Every paragraph must be 3-5 sentences maximum. Never write a paragraph longer than 5 sentences.
+- Separate every paragraph with a blank line.
+- Use ## for subheadings within a section where helpful (e.g. "## Strength 1: Creativity").
+- Use **bold** to highlight key terms or strength names on first mention.
+- You may use a short bullet list (3-6 items) where it genuinely aids clarity, but default to paragraphs.
+- Never write walls of text. White space is as important as the words.`;
 
   const ctx = `CLIENT DATA FOR ${clientName.toUpperCase()}:\n${contextText}`;
 
@@ -437,6 +445,7 @@ async function renderWowPdf(sections: WowReportSections): Promise<Buffer> {
     return result;
   };
   const sectionBlock = (title: string, content: string) => [
+    { text: "", pageBreak: "before" },
     heading(title),
     divider(),
     ...markdownToPdfContent(content),
@@ -562,6 +571,7 @@ async function renderWowPdf(sections: WowReportSections): Promise<Buffer> {
       ...sectionBlock("2. Your Life History Pattern", sections.lifeHistoryPattern),
 
       // ── Section 3: VIA Character Strengths ──
+      { text: "", pageBreak: "before" },
       heading("3. Your Character Strengths"),
       divider(),
       ...(sections.viaRanked.length > 0
@@ -580,6 +590,7 @@ async function renderWowPdf(sections: WowReportSections): Promise<Buffer> {
       ...markdownToPdfContent(sections.viaSection),
 
       // ── Section 4: Personality Profile ──
+      { text: "", pageBreak: "before" },
       heading("4. Your Personality Profile"),
       divider(),
       ...(big5Rows.length > 0
@@ -604,6 +615,7 @@ async function renderWowPdf(sections: WowReportSections): Promise<Buffer> {
       ...sectionBlock("6. Your Development Edge", sections.developmentEdge),
 
       // ── Section 7: Coaching Questions ──
+      { text: "", pageBreak: "before" },
       heading("7. Questions for Your Coaching Conversation"),
       divider(),
       ...markdownToPdfContent(sections.coachingQuestions),

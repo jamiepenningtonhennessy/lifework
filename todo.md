@@ -414,3 +414,7 @@
 ## WOW Report — Markdown Rendering Fix
 - [x] Render WowReportTab section text as styled Markdown (headings, bold, paragraphs) not raw text
 - [x] Add Markdown-to-pdfmake converter in renderWowPdf so ## becomes styled headings, **bold** becomes bold text, etc.
+
+## WOW Report — PDF Layout Improvements
+- [x] Each section starts on a new page (pageBreak: "before" on section headings)
+- [x] AI prompts updated to write short paragraphs (max ~5 sentences / 6 lines)
