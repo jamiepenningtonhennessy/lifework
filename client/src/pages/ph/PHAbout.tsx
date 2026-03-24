@@ -50,7 +50,7 @@ export default function PHAbout() {
                 }}
               >
                 <img
-                  src="https://d2xsxph8kpxj0f.cloudfront.net/107696804/kFbbE6kqNApXGDFpQJUGV7/jamie_portrait_clean_d350989c.png"
+                  src="https://d2xsxph8kpxj0f.cloudfront.net/107696804/kFbbE6kqNApXGDFpQJUGV7/jamie_portrait_bw_73dec0d9.jpg"
                   alt="Jamie Pennington"
                   className="w-full h-full object-cover object-top"
                 />
