@@ -16,6 +16,7 @@
  */
 
 import { createRequire } from "module";
+import { PH_LOGO_WHITE_BASE64 } from "./phLogoBase64.js";
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { router, protectedProcedure } from "../_core/trpc";
@@ -496,8 +497,16 @@ async function renderWowPdf(sections: WowReportSections): Promise<Buffer> {
     background: (currentPage: number) =>
       currentPage === 1
         ? {
+            // Full-bleed navy cover background
             canvas: [
-              { type: "rect", x: 0, y: 0, w: 595, h: 200, color: NAVY },
+              // Full page navy fill
+              { type: "rect", x: 0, y: 0, w: 595, h: 842, color: NAVY },
+              // Decorative gold horizontal rule — upper third
+              { type: "line", x1: 60, y1: 200, x2: 535, y2: 200, lineWidth: 0.5, lineColor: GOLD },
+              // Decorative gold horizontal rule — lower area
+              { type: "line", x1: 60, y1: 680, x2: 535, y2: 680, lineWidth: 0.5, lineColor: GOLD },
+              // Thin gold accent bar — top edge
+              { type: "rect", x: 0, y: 0, w: 595, h: 4, color: GOLD },
             ],
           }
         : null,
@@ -520,44 +529,82 @@ async function renderWowPdf(sections: WowReportSections): Promise<Buffer> {
     }),
 
     content: [
-      // ── Cover ──
+      // ── Cover page (full-bleed navy, set via background callback) ──
+      // Logo — top left
       {
-        text: "LIFEWORK",
+        image: PH_LOGO_WHITE_BASE64,
+        width: 140,
+        margin: [0, 20, 0, 0] as [number, number, number, number],
+      },
+      // Eyebrow: gold rule + small-caps label (mimics website lw-eyebrow)
+      {
+        columns: [
+          {
+            canvas: [{ type: "line", x1: 0, y1: 5, x2: 24, y2: 5, lineWidth: 1.5, lineColor: GOLD }],
+            width: 32,
+          },
+          {
+            text: "LIFEWORK CAREER ANALYSIS",
+            font: "Roboto",
+            fontSize: 7.5,
+            color: GOLD,
+            characterSpacing: 2,
+            margin: [0, 0, 0, 0] as [number, number, number, number],
+          },
+        ],
+        margin: [0, 60, 0, 12] as [number, number, number, number],
+      },
+      // Main title — large serif-weight white
+      {
+        text: "Lifework",
+        font: "Roboto",
+        fontSize: 52,
+        bold: true,
+        color: CREAM,
+        margin: [0, 0, 0, 0] as [number, number, number, number],
+      },
+      {
+        text: "Career Analysis",
+        font: "Roboto",
+        fontSize: 26,
+        bold: false,
+        italics: true,
+        color: GOLD,
+        margin: [0, 0, 0, 40] as [number, number, number, number],
+      },
+      // Client name — prominent, cream
+      {
+        text: sections.clientName,
         font: "Roboto",
         fontSize: 28,
         bold: true,
         color: CREAM,
-        margin: [0, 60, 0, 0] as [number, number, number, number],
+        margin: [0, 0, 0, 8] as [number, number, number, number],
       },
-      {
-        text: "CAREER ANALYSIS",
-        font: "Roboto",
-        fontSize: 14,
-        color: GOLD,
-        letterSpacing: 3,
-        margin: [0, 4, 0, 0] as [number, number, number, number],
-      },
-      {
-        text: sections.clientName,
-        font: "Roboto",
-        fontSize: 22,
-        bold: true,
-        color: CREAM,
-        margin: [0, 30, 0, 0] as [number, number, number, number],
-      },
+      // Date — muted gold
       {
         text: sections.generatedAt,
         font: "Roboto",
         fontSize: 10,
         color: LIGHT_GOLD,
-        margin: [0, 6, 0, 0] as [number, number, number, number],
+        margin: [0, 0, 0, 0] as [number, number, number, number],
       },
-      { text: "", margin: [0, 0, 0, 120] as [number, number, number, number] },
+      // Spacer to push footer to bottom
+      { text: "", margin: [0, 0, 0, 180] as [number, number, number, number] },
+      // Bottom attribution — sits just above the lower gold rule (at y≈680)
       {
-        text: "Pennington Hennessy  ·  Lifework Career Analysis",
+        text: "Prepared by Pennington Hennessy",
         font: "Roboto",
         fontSize: 8,
         color: LIGHT_GOLD,
+        characterSpacing: 1,
+        margin: [0, 0, 0, 4] as [number, number, number, number],
+      },
+      {
+        text: "penningtonhennessy.com",
+        font: "Roboto",
+        fontSize: 8,
+        color: GOLD,
         margin: [0, 0, 0, 0] as [number, number, number, number],
       },
 
