@@ -418,3 +418,6 @@
 ## WOW Report — PDF Layout Improvements
 - [x] Each section starts on a new page (pageBreak: "before" on section headings)
 - [x] AI prompts updated to write short paragraphs (max ~5 sentences / 6 lines)
+
+## Conclusions Section Refinement
+- [x] Update Conclusions AI prompt: one 4-5 sentence paragraph per dependable strength, framed by opening and closing paragraphs
