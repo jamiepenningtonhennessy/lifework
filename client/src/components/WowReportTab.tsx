@@ -46,24 +46,24 @@ interface WowSections {
   careerDirections: string;
   developmentEdge: string;
   coachingQuestions: string;
-  viaRanked?: Array<{ strength: string; score: number; rank: number }>;
+  viaRanked?: Array<{ name: string; strengthId: string; score: number; rank: number }>;
   domainScores?: Record<string, number>;
 }
 
 const SECTION_META = [
   {
-    key: "summary" as keyof WowSections,
-    label: "Lifework Summary",
-    Icon: User,
-    eyebrow: "Section One",
-    description: "A 250-word portrait synthesising everything we know about this client.",
-  },
-  {
     key: "lifeHistoryPattern" as keyof WowSections,
     label: "Life History Pattern",
     Icon: BookOpen,
-    eyebrow: "Section Two",
+    eyebrow: "Section One",
     description: "Recurring themes across the decades — what the life story reveals.",
+  },
+  {
+    key: "summary" as keyof WowSections,
+    label: "Lifework Summary",
+    Icon: User,
+    eyebrow: "Section Two",
+    description: "A 250-word portrait synthesising everything we know about this client.",
   },
   {
     key: "viaSection" as keyof WowSections,
@@ -221,6 +221,16 @@ export default function WowReportTab({ clientId, clientName }: WowReportTabProps
 
   return (
     <div className="space-y-6">
+      {/* Missing name warning */}
+      {!clientName && (
+        <div className="flex items-start gap-3 rounded-lg border border-amber-300 bg-amber-50 dark:bg-amber-950/30 dark:border-amber-700 p-4 text-sm">
+          <span className="text-amber-600 dark:text-amber-400 mt-0.5">⚠</span>
+          <div>
+            <p className="font-medium text-amber-800 dark:text-amber-300">Client name not set</p>
+            <p className="text-amber-700 dark:text-amber-400 mt-0.5">The report will use &ldquo;the client&rdquo; throughout. Click the pencil icon next to the client heading (Overview tab) to add their first name before generating.</p>
+          </div>
+        </div>
+      )}
       {/* Header card */}
       <Card className="border-[var(--lw-gold)]/30 bg-[var(--lw-navy)] text-white overflow-hidden">
         <CardContent className="p-0">
@@ -393,9 +403,9 @@ export default function WowReportTab({ clientId, clientName }: WowReportTabProps
                         const maxScore = sections.viaRanked![0]?.score ?? 25;
                         const pct = Math.round((s.score / maxScore) * 100);
                         return (
-                          <div key={s.strength} className="flex items-center gap-2">
+                          <div key={s.strengthId ?? s.name} className="flex items-center gap-2">
                             <span className="text-xs text-muted-foreground w-4 text-right">{i + 1}</span>
-                            <span className="text-xs font-medium w-36 truncate">{s.strength}</span>
+                            <span className="text-xs font-medium w-36 truncate">{s.name}</span>
                             <div className="flex-1 h-2 bg-muted rounded-full overflow-hidden">
                               <div
                                 className="h-full rounded-full transition-all"

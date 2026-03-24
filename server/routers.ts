@@ -1293,6 +1293,14 @@ Be specific, warm, and insightful. Use examples from their actual story.`;
       }
       return { themes };
     }),
+  updateClientName: counselorProcedure
+    .input(z.object({ clientId: z.number(), firstName: z.string().min(1), lastName: z.string().optional() }))
+    .mutation(async ({ input }) => {
+      const profile = await getClientProfileById(input.clientId);
+      if (!profile) throw new TRPCError({ code: "NOT_FOUND" });
+      await updateClientProfile(input.clientId, { firstName: input.firstName, lastName: input.lastName ?? undefined });
+      return { success: true };
+    }),
 });
 // ─── Virtual Peter Router ────────────────────────────────────────────────────
 // The core matching logic: given a client's analysis report, find the most

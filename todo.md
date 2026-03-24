@@ -405,3 +405,8 @@
 - [x] Add "WOW Report" tab to counsellor ClientProfile page
 - [x] Build WOW Report tab UI: generate button, status indicator, PDF preview/download, regenerate option
 - [x] Add vitest tests for wowReport router procedures
+
+## WOW Report Snag List (2026-03-24)
+- [x] Add VIA strength name labels to the bar chart in WowReportTab
+- [x] Reorder SECTION_META: Life History Pattern first, then Lifework Summary, then psychometrics
+- [x] Pass client first name into all 7 AI prompts so "the client" is replaced with the person's name

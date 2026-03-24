@@ -1,0 +1,17 @@
+{
+  "query": "SELECT u.id, u.name, cp.id as profileId, cp.firstName, cp.lastName FROM users u JOIN client_profiles cp ON cp.userId = u.id WHERE cp.id = 180001 LIMIT 1;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 32u3a1hNYuu9Gj3.7d2282893346 --database kFbbE6kqNApXGDFpQJUGV7 --execute SELECT u.id, u.name, cp.id as profileId, cp.firstName, cp.lastName FROM users u JOIN client_profiles cp ON cp.userId = u.id WHERE cp.id = 180001 LIMIT 1;",
+  "rows": [
+    {
+      "id": "1980038",
+      "name": "martinjbragg72",
+      "profileId": "180001",
+      "firstName": "NULL",
+      "lastName": "NULL"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\tprofileId\tfirstName\tlastName\n1980038\tmartinjbragg72\t180001\tNULL\tNULL\n",
+  "stderr": "",
+  "execution_time_ms": 52
+}

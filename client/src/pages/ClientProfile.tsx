@@ -3,6 +3,7 @@ import { useAuth } from "@/_core/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
 import { useLocation, useParams } from "wouter";
 import { getLoginUrl } from "@/const";
 import { trpc } from "@/lib/trpc";
@@ -102,6 +103,19 @@ export default function ClientProfile() {
     onError: () => toast.error("Failed to lock Career Explorer."),
   });
 
+  // Client name editing
+  const [editingName, setEditingName] = useState(false);
+  const [nameFirst, setNameFirst] = useState("");
+  const [nameLast, setNameLast] = useState("");
+  const updateClientName = trpc.counselor.updateClientName.useMutation({
+    onSuccess: () => {
+      toast.success("Name updated.");
+      setEditingName(false);
+      utils.counselor.getClientProfile.invalidate({ clientId });
+    },
+    onError: () => toast.error("Failed to update name."),
+  });
+
   if (!loading && !isAuthenticated) {
     window.location.href = getLoginUrl();
     return null;
@@ -183,11 +197,53 @@ export default function ClientProfile() {
         <div className="container py-8">
           {/* Client header */}
           <div className="mb-6">
-            <h1 className="text-2xl font-serif font-bold text-foreground">
-              {data.profile.firstName && data.profile.lastName
-                ? `${data.profile.firstName} ${data.profile.lastName}`
-                : "Client Profile"}
-            </h1>
+            {editingName ? (
+              <div className="flex items-center gap-2 flex-wrap">
+                <Input
+                  className="w-36 h-8 text-sm"
+                  placeholder="First name"
+                  value={nameFirst}
+                  onChange={(e) => setNameFirst(e.target.value)}
+                  autoFocus
+                />
+                <Input
+                  className="w-36 h-8 text-sm"
+                  placeholder="Last name"
+                  value={nameLast}
+                  onChange={(e) => setNameLast(e.target.value)}
+                />
+                <Button
+                  size="sm"
+                  className="h-8 bg-[var(--lw-gold)] hover:bg-[oklch(0.60_0.13_72)] text-white"
+                  disabled={!nameFirst.trim() || updateClientName.isPending}
+                  onClick={() => updateClientName.mutate({ clientId, firstName: nameFirst.trim(), lastName: nameLast.trim() || undefined })}
+                >
+                  {updateClientName.isPending ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : "Save"}
+                </Button>
+                <Button size="sm" variant="ghost" className="h-8" onClick={() => setEditingName(false)}>Cancel</Button>
+              </div>
+            ) : (
+              <div className="flex items-center gap-2">
+                <h1 className="text-2xl font-serif font-bold text-foreground">
+                  {data.profile.firstName && data.profile.lastName
+                    ? `${data.profile.firstName} ${data.profile.lastName}`
+                    : data.profile.firstName
+                    ? data.profile.firstName
+                    : "Client Profile"}
+                </h1>
+                <button
+                  className="text-muted-foreground hover:text-foreground transition-colors"
+                  title="Edit client name"
+                  onClick={() => {
+                    setNameFirst(data.profile.firstName ?? "");
+                    setNameLast(data.profile.lastName ?? "");
+                    setEditingName(true);
+                  }}
+                >
+                  <Pencil className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            )}
             <p className="text-muted-foreground text-sm mt-1">
               {data.profile.currentRole && data.profile.currentOrg
                 ? `${data.profile.currentRole} at ${data.profile.currentOrg}`
