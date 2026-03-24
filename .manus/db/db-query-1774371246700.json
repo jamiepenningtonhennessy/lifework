@@ -1,0 +1,16 @@
+{
+  "query": "SELECT clientId, wowReportStatus, wowReportError, wowReportGeneratedAt FROM analysis_reports WHERE wowReportStatus IS NOT NULL OR wowReportError IS NOT NULL;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 32u3a1hNYuu9Gj3.7d2282893346 --database kFbbE6kqNApXGDFpQJUGV7 --execute SELECT clientId, wowReportStatus, wowReportError, wowReportGeneratedAt FROM analysis_reports WHERE wowReportStatus IS NOT NULL OR wowReportError IS NOT NULL;",
+  "rows": [
+    {
+      "clientId": "180001",
+      "wowReportStatus": "generating",
+      "wowReportError": "NULL",
+      "wowReportGeneratedAt": "NULL"
+    }
+  ],
+  "messages": [],
+  "stdout": "clientId\twowReportStatus\twowReportError\twowReportGeneratedAt\n180001\tgenerating\tNULL\tNULL\n",
+  "stderr": "",
+  "execution_time_ms": 74
+}

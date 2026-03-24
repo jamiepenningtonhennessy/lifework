@@ -308,286 +308,255 @@ async function generateWowSections(clientId: number): Promise<WowReportSections>
 
 // ─── Helper: Render PDF with pdfmake ─────────────────────────────────────────
 
+// ─── Helper: Render PDF with pdfmake 0.3.x ───────────────────────────────────
+
 async function renderWowPdf(sections: WowReportSections): Promise<Buffer> {
-  // pdfmake is CJS; load via createRequire (defined at module top)
+  // pdfmake 0.3.x server API — load via createRequire (ESM-compatible)
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const pdfMake = _require("pdfmake/build/pdfmake.js") as any;
+  const pdfmake = _require("pdfmake") as any;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const pdfFonts = _require("pdfmake/build/vfs_fonts.js") as any;
-  pdfMake.vfs = pdfFonts.pdfMake?.vfs ?? pdfFonts.vfs;
+  const RobotoFonts = _require("pdfmake/fonts/Roboto") as any;
+  pdfmake.addFonts(RobotoFonts);
 
   // ── Colour palette ──
   const NAVY = "#0a1628";
   const GOLD = "#c9973a";
   const CREAM = "#f5f0e8";
   const LIGHT_GOLD = "#f0e6cc";
-  const WHITE = "#ffffff";
   const DARK_GREY = "#2c2c2c";
   const MID_GREY = "#666666";
 
-  // ── Helper: wrap text into pdfmake paragraph objects ──
-  const body = (text: string, color = DARK_GREY): any => ({
+  // ── Helpers ──
+  const para = (text: string, opts: Record<string, unknown> = {}) => ({
     text,
+    font: "Roboto",
     fontSize: 10.5,
-    color,
-    lineHeight: 1.6,
-    margin: [0, 0, 0, 10],
+    color: DARK_GREY,
+    lineHeight: 1.5,
+    margin: [0, 0, 0, 8] as [number, number, number, number],
+    ...opts,
   });
 
-  const sectionTitle = (text: string): any[] => [
-    {
-      canvas: [{ type: "line", x1: 0, y1: 0, x2: 515, y2: 0, lineWidth: 0.5, lineColor: GOLD }],
-      margin: [0, 20, 0, 8],
-    },
-    {
-      text: text.toUpperCase(),
-      fontSize: 8,
-      bold: true,
-      color: GOLD,
-      letterSpacing: 2,
-      margin: [0, 0, 0, 4],
-    },
-  ];
-
-  const sectionHeading = (text: string): any => ({
+  const heading = (text: string) => ({
     text,
-    fontSize: 18,
+    font: "Roboto",
+    fontSize: 14,
     bold: true,
     color: NAVY,
-    font: "Roboto",
-    margin: [0, 0, 0, 14],
+    margin: [0, 20, 0, 6] as [number, number, number, number],
   });
 
-  // ── VIA bar chart ──
-  const viaChart = (): any[] => {
-    if (!sections.viaRanked.length) return [];
-    const top7 = sections.viaRanked.slice(0, 7);
-    const maxScore = Math.max(...top7.map((s) => s.score), 1);
-    const BAR_MAX = 300;
-    return [
-      ...sectionTitle("Character Strengths at a Glance"),
-      {
-        margin: [0, 4, 0, 16],
-        stack: top7.map((s, i) => ({
-          margin: [0, 0, 0, 6],
-          stack: [
-            {
-              columns: [
-                { text: `${i + 1}. ${s.strength}`, fontSize: 9, bold: i === 0, color: DARK_GREY, width: 160 },
-                {
-                  canvas: [
-                    { type: "rect", x: 0, y: 2, w: Math.round((s.score / maxScore) * BAR_MAX), h: 10, r: 2, color: i === 0 ? GOLD : "#d4b87a" },
-                  ],
-                  width: BAR_MAX + 10,
-                },
-                { text: `${s.score}`, fontSize: 8, color: MID_GREY, width: 30, alignment: "right" },
-              ],
-            },
-          ],
-        })),
-      },
-    ];
-  };
+  const subheading = (text: string) => ({
+    text,
+    font: "Roboto",
+    fontSize: 11,
+    bold: true,
+    color: GOLD,
+    margin: [0, 10, 0, 4] as [number, number, number, number],
+  });
 
-  // ── Big Five radar-style table ──
-  const big5Table = (): any[] => {
-    const domains = ["N", "E", "O", "A", "C"];
-    const rows = domains.map((key) => {
-      const score = sections.domainScores[key] ?? 50;
-      const label = BIG5_LABELS[key];
-      const BAR_MAX = 200;
-      return [
-        { text: label?.name ?? key, fontSize: 9, color: DARK_GREY, bold: false },
-        {
-          canvas: [
-            { type: "rect", x: 0, y: 3, w: BAR_MAX, h: 8, r: 2, color: "#e8e0d0" },
-            { type: "rect", x: 0, y: 3, w: Math.round((score / 100) * BAR_MAX), h: 8, r: 2, color: NAVY },
-          ],
-          width: BAR_MAX + 10,
-        },
-        { text: `${score}`, fontSize: 8, color: MID_GREY, alignment: "right" },
-      ];
-    });
+  const divider = () => ({
+    canvas: [{ type: "line", x1: 0, y1: 0, x2: 515, y2: 0, lineWidth: 0.5, lineColor: LIGHT_GOLD }],
+    margin: [0, 8, 0, 8] as [number, number, number, number],
+  });
 
-    return [
-      ...sectionTitle("Personality Profile at a Glance"),
-      {
-        margin: [0, 4, 0, 16],
-        table: {
-          widths: [130, "*", 30],
-          body: rows,
-        },
-        layout: {
-          hLineWidth: () => 0,
-          vLineWidth: () => 0,
-          paddingTop: () => 4,
-          paddingBottom: () => 4,
-        },
-      },
-    ];
+  const sectionBlock = (title: string, content: string) => [
+    heading(title),
+    divider(),
+    ...content.split(/\n\n+/).filter(Boolean).map(p => para(p.trim())),
+  ];
+
+  // ── VIA bar chart (simple text-based) ──
+  const viaRows = sections.viaRanked.slice(0, 10).map((s, i) => [
+    { text: `${i + 1}. ${s.strength}`, font: "Roboto", fontSize: 9, color: DARK_GREY, bold: i < 3 },
+    {
+      canvas: [{
+        type: "rect",
+        x: 0, y: 2,
+        w: Math.round((s.score / 5) * 120),
+        h: 8,
+        color: i < 3 ? GOLD : LIGHT_GOLD,
+      }],
+      margin: [0, 0, 0, 2] as [number, number, number, number],
+    },
+    { text: s.score.toFixed(2), font: "Roboto", fontSize: 9, color: MID_GREY },
+  ]);
+
+  // ── Big Five bars ──
+  const BIG5_NAMES: Record<string, string> = {
+    N: "Neuroticism", E: "Extraversion", O: "Openness",
+    A: "Agreeableness", C: "Conscientiousness",
   };
+  const big5Rows = Object.entries(sections.domainScores).map(([key, val]) => [
+    { text: BIG5_NAMES[key] ?? key, font: "Roboto", fontSize: 9, color: DARK_GREY },
+    {
+      canvas: [{
+        type: "rect",
+        x: 0, y: 2,
+        w: Math.round((val / 100) * 120),
+        h: 8,
+        color: NAVY,
+      }],
+      margin: [0, 0, 0, 2] as [number, number, number, number],
+    },
+    { text: `${val}th`, font: "Roboto", fontSize: 9, color: MID_GREY },
+  ]);
 
   // ── Document definition ──
-  const docDefinition: any = {
+  const docDefinition = {
     pageSize: "A4",
-    pageMargins: [50, 50, 50, 60],
-    defaultStyle: {
-      font: "Roboto",
-      fontSize: 10.5,
-      color: DARK_GREY,
-    },
+    pageMargins: [60, 80, 60, 80] as [number, number, number, number],
+    defaultStyle: { font: "Roboto", fontSize: 10.5, color: DARK_GREY },
+
+    background: (currentPage: number) =>
+      currentPage === 1
+        ? {
+            canvas: [
+              { type: "rect", x: 0, y: 0, w: 595, h: 200, color: NAVY },
+            ],
+          }
+        : null,
+
+    header: (currentPage: number) =>
+      currentPage > 1
+        ? {
+            columns: [
+              { text: "LIFEWORK CAREER ANALYSIS", font: "Roboto", fontSize: 7, color: MID_GREY, margin: [60, 20, 0, 0] },
+              { text: sections.clientName.toUpperCase(), font: "Roboto", fontSize: 7, color: GOLD, alignment: "right", margin: [0, 20, 60, 0] },
+            ],
+          }
+        : null,
+
     footer: (currentPage: number, pageCount: number) => ({
       columns: [
-        { text: `${sections.clientName} — Lifework Career Analysis`, fontSize: 8, color: MID_GREY, margin: [50, 0, 0, 0] },
-        { text: `Prepared by Pennington Hennessy — Confidential`, fontSize: 8, color: MID_GREY, alignment: "center" },
-        { text: `${currentPage} / ${pageCount}`, fontSize: 8, color: MID_GREY, alignment: "right", margin: [0, 0, 50, 0] },
+        { text: "Pennington Hennessy", font: "Roboto", fontSize: 7, color: MID_GREY, margin: [60, 0, 0, 0] },
+        { text: `${currentPage} / ${pageCount}`, font: "Roboto", fontSize: 7, color: MID_GREY, alignment: "right", margin: [0, 0, 60, 0] },
       ],
-      margin: [0, 10, 0, 0],
     }),
+
     content: [
-      // ── Cover page ──
-      {
-        canvas: [
-          { type: "rect", x: 0, y: 0, w: 515, h: 720, color: NAVY },
-        ],
-        absolutePosition: { x: 50, y: 50 },
-      },
+      // ── Cover ──
       {
         text: "LIFEWORK",
-        fontSize: 9,
+        font: "Roboto",
+        fontSize: 28,
         bold: true,
+        color: CREAM,
+        margin: [0, 60, 0, 0] as [number, number, number, number],
+      },
+      {
+        text: "CAREER ANALYSIS",
+        font: "Roboto",
+        fontSize: 14,
         color: GOLD,
-        letterSpacing: 4,
-        margin: [0, 60, 0, 0],
-      },
-      {
-        canvas: [{ type: "line", x1: 0, y1: 0, x2: 60, y2: 0, lineWidth: 1, lineColor: GOLD }],
-        margin: [0, 8, 0, 0],
-      },
-      {
-        text: "Career Analysis",
-        fontSize: 32,
-        bold: true,
-        color: WHITE,
-        margin: [0, 16, 0, 0],
-      },
-      {
-        text: "Report",
-        fontSize: 32,
-        bold: true,
-        color: GOLD,
-        margin: [0, 0, 0, 40],
+        letterSpacing: 3,
+        margin: [0, 4, 0, 0] as [number, number, number, number],
       },
       {
         text: sections.clientName,
-        fontSize: 20,
-        color: WHITE,
-        margin: [0, 0, 0, 8],
+        font: "Roboto",
+        fontSize: 22,
+        bold: true,
+        color: CREAM,
+        margin: [0, 30, 0, 0] as [number, number, number, number],
       },
       {
         text: sections.generatedAt,
-        fontSize: 11,
-        color: "#aaaaaa",
-        margin: [0, 0, 0, 0],
-      },
-      {
-        text: "Prepared by Pennington Hennessy",
+        font: "Roboto",
         fontSize: 10,
-        color: "#888888",
-        margin: [0, 8, 0, 0],
+        color: LIGHT_GOLD,
+        margin: [0, 6, 0, 0] as [number, number, number, number],
       },
+      { text: "", margin: [0, 0, 0, 120] as [number, number, number, number] },
       {
-        text: "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n",
-        fontSize: 10,
-        color: WHITE,
-      },
-      // ── Confidentiality notice ──
-      {
-        canvas: [{ type: "rect", x: 0, y: 0, w: 515, h: 60, r: 4, color: LIGHT_GOLD }],
-        absolutePosition: { x: 50, y: 700 },
-      },
-      {
-        text: "CONFIDENTIAL — This report is prepared exclusively for the named individual. It is not intended for distribution and should not be shared without the express permission of Pennington Hennessy.",
+        text: "Pennington Hennessy  ·  Lifework Career Analysis",
+        font: "Roboto",
         fontSize: 8,
-        color: "#7a6030",
-        margin: [0, 0, 0, 0],
-        absolutePosition: { x: 62, y: 710 },
+        color: LIGHT_GOLD,
+        margin: [0, 0, 0, 0] as [number, number, number, number],
       },
 
-      // ── Page break ──
-      { text: "", pageBreak: "after" },
+      // ── Page break before content ──
+      { text: "", pageBreak: "before" },
 
       // ── Section 1: Summary ──
-      ...sectionTitle("Section One"),
-      sectionHeading("Your Lifework Summary"),
-      body(sections.summary),
+      ...sectionBlock("1. Your Lifework Summary", sections.summary),
 
       // ── Section 2: Life History Pattern ──
-      { text: "", pageBreak: "before" },
-      ...sectionTitle("Section Two"),
-      sectionHeading("Your Life History Pattern"),
-      body(sections.lifeHistoryPattern),
+      ...sectionBlock("2. Your Life History Pattern", sections.lifeHistoryPattern),
 
-      // ── Section 3: VIA ──
-      { text: "", pageBreak: "before" },
-      ...sectionTitle("Section Three"),
-      sectionHeading("Your Character Strengths"),
-      ...viaChart(),
-      body(sections.viaSection),
+      // ── Section 3: VIA Character Strengths ──
+      heading("3. Your Character Strengths"),
+      divider(),
+      ...(sections.viaRanked.length > 0
+        ? [
+            subheading("Strength Rankings"),
+            {
+              table: {
+                widths: [160, 130, 40],
+                body: viaRows,
+              },
+              layout: "noBorders",
+              margin: [0, 0, 0, 12] as [number, number, number, number],
+            },
+          ]
+        : []),
+      ...sections.viaSection.split(/\n\n+/).filter(Boolean).map(p => para(p.trim())),
 
-      // ── Section 4: Big Five ──
-      { text: "", pageBreak: "before" },
-      ...sectionTitle("Section Four"),
-      sectionHeading("Your Personality Profile"),
-      ...big5Table(),
-      body(sections.personalitySection),
+      // ── Section 4: Personality Profile ──
+      heading("4. Your Personality Profile"),
+      divider(),
+      ...(big5Rows.length > 0
+        ? [
+            subheading("Big Five Personality Dimensions"),
+            {
+              table: {
+                widths: [120, 130, 40],
+                body: big5Rows,
+              },
+              layout: "noBorders",
+              margin: [0, 0, 0, 12] as [number, number, number, number],
+            },
+          ]
+        : []),
+      ...sections.personalitySection.split(/\n\n+/).filter(Boolean).map(p => para(p.trim())),
 
       // ── Section 5: Career Directions ──
-      { text: "", pageBreak: "before" },
-      ...sectionTitle("Section Five"),
-      sectionHeading("Career Directions"),
-      body(sections.careerDirections),
+      ...sectionBlock("5. Career Directions", sections.careerDirections),
 
       // ── Section 6: Development Edge ──
-      { text: "", pageBreak: "before" },
-      ...sectionTitle("Section Six"),
-      sectionHeading("Your Development Edge"),
-      body(sections.developmentEdge),
+      ...sectionBlock("6. Your Development Edge", sections.developmentEdge),
 
       // ── Section 7: Coaching Questions ──
-      { text: "", pageBreak: "before" },
-      ...sectionTitle("Section Seven"),
-      sectionHeading("Questions for Your Coaching Conversation"),
-      body(sections.coachingQuestions),
+      heading("7. Questions for Your Coaching Conversation"),
+      divider(),
+      ...sections.coachingQuestions.split(/\n\n+/).filter(Boolean).map(p => para(p.trim())),
 
       // ── Closing ──
+      { text: "", margin: [0, 20, 0, 0] as [number, number, number, number] },
       {
-        canvas: [{ type: "line", x1: 0, y1: 0, x2: 515, y2: 0, lineWidth: 0.5, lineColor: GOLD }],
-        margin: [0, 30, 0, 16],
+        canvas: [{ type: "rect", x: 0, y: 0, w: 515, h: 40, color: NAVY }],
+        margin: [0, 0, 0, 0] as [number, number, number, number],
       },
       {
-        text: "© Pennington Hennessy — penningtonhennessy.com",
-        fontSize: 9,
-        color: MID_GREY,
+        text: "This report is confidential and prepared exclusively for the named individual.",
+        font: "Roboto",
+        fontSize: 8,
+        color: CREAM,
         alignment: "center",
+        margin: [0, -30, 0, 0] as [number, number, number, number],
       },
     ],
   };
 
-  return new Promise<Buffer>((resolve, reject) => {
-    try {
-      const pdfDoc = pdfMake.createPdf(docDefinition);
-      pdfDoc.getBuffer((buffer: Buffer) => {
-        resolve(buffer);
-      });
-    } catch (err) {
-      reject(err);
-    }
-  });
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const pdfDoc = pdfmake.createPdf(docDefinition as any);
+  // In pdfmake 0.3.x, getBuffer() returns a Promise<Buffer>
+  return pdfDoc.getBuffer() as Promise<Buffer>;
 }
-// ─── Background job runner ───────────────────────────────────────────────────
-// Runs the full generation pipeline asynchronously (fire-and-forget).
-// Status is tracked in the DB so the client can poll wowReport.get.
+
+// ─── Background Job ──────────────────────────────────────────────────────────
+
 async function runGenerationJob(clientId: number): Promise<void> {
   try {
     // Mark as generating
@@ -598,39 +567,47 @@ async function runGenerationJob(clientId: number): Promise<void> {
       wowReportStatus: "generating",
       wowReportError: null,
     } as Parameters<typeof upsertAnalysisReport>[0]);
-
-    // Generate sections via LLM (the slow part)
+    // Generate sections via LLM (parallel, 7 calls)
+    console.log(`[WOW Report] runGenerationJob starting for client ${clientId}`);
     const sections = await generateWowSections(clientId);
     // Render PDF
+    console.log(`[WOW Report] Rendering PDF for client ${clientId}`);
     const pdfBuffer = await renderWowPdf(sections);
+    console.log(`[WOW Report] PDF rendered, size: ${pdfBuffer.length} bytes`);
     // Upload to S3
     const fileKey = `wow-reports/client-${clientId}-${Date.now()}.pdf`;
     const { url: pdfUrl } = await storagePut(fileKey, pdfBuffer, "application/pdf");
+    console.log(`[WOW Report] Uploaded to S3: ${pdfUrl}`);
     // Persist result
+    const existing2 = await getAnalysisReport(clientId);
+    const base2 = existing2 ?? { clientId, generatedAt: new Date() };
     await upsertAnalysisReport({
-      ...base,
+      ...base2,
       wowReportJson: JSON.stringify(sections),
       wowReportPdfUrl: pdfUrl,
       wowReportGeneratedAt: new Date(),
       wowReportStatus: "done",
       wowReportError: null,
     } as Parameters<typeof upsertAnalysisReport>[0]);
+    console.log(`[WOW Report] Done for client ${clientId}`);
   } catch (err) {
-    const msg = err instanceof Error ? err.message : String(err);
+    const msg = err instanceof Error ? `${err.message}\n${err.stack ?? ""}` : String(err);
     console.error(`[WOW Report] Generation failed for client ${clientId}:`, msg);
     try {
-      const existing2 = await getAnalysisReport(clientId);
-      const base2 = existing2 ?? { clientId, generatedAt: new Date() };
+      const existing3 = await getAnalysisReport(clientId);
+      const base3 = existing3 ?? { clientId, generatedAt: new Date() };
       await upsertAnalysisReport({
-        ...base2,
+        ...base3,
         wowReportStatus: "error",
-        wowReportError: msg,
+        wowReportError: msg.substring(0, 500),
       } as Parameters<typeof upsertAnalysisReport>[0]);
-    } catch { /* ignore secondary failure */ }
+    } catch (e2) {
+      console.error(`[WOW Report] Failed to write error status for client ${clientId}:`, e2);
+    }
   }
 }
 
-// ─── Router ──────────────────────────────────────────────────────────────────
+// ─── Router ───────────────────────────────────────────────────────────────────
 const counselorProcedure = protectedProcedure.use(({ ctx, next }) => {
   if (ctx.user.role !== "admin") {
     throw new TRPCError({ code: "FORBIDDEN", message: "Counselor access required" });
