@@ -8,6 +8,9 @@ import { appRouter } from "../routers";
 import { createContext } from "./context";
 import { serveStatic, setupVite } from "./vite";
 import { pdfRouter } from "../pdf-export";
+import { getDb } from "../db";
+import { analysisReports } from "../../drizzle/schema";
+import { eq } from "drizzle-orm";
 
 function isPortAvailable(port: number): Promise<boolean> {
   return new Promise(resolve => {
@@ -26,6 +29,24 @@ async function findAvailablePort(startPort: number = 3000): Promise<number> {
     }
   }
   throw new Error(`No available port found starting from ${startPort}`);
+}
+
+/** On startup, reset any reports stuck in 'generating' (caused by server restart mid-job). */
+async function recoverStuckReports() {
+  try {
+    const db = await getDb();
+    if (!db) return;
+    const result = await db
+      .update(analysisReports)
+      .set({ wowReportStatus: "error", wowReportError: "Generation interrupted by server restart" })
+      .where(eq(analysisReports.wowReportStatus, "generating"));
+    const affected = (result as unknown as { affectedRows?: number }[])?.[0]?.affectedRows ?? 0;
+    if (affected > 0) {
+      console.log(`[WOW Report] Recovered ${affected} stuck 'generating' report(s) on startup`);
+    }
+  } catch (e) {
+    console.warn("[WOW Report] Startup recovery failed:", e);
+  }
 }
 
 async function startServer() {
@@ -60,6 +81,7 @@ async function startServer() {
     console.log(`Port ${preferredPort} is busy, using port ${port} instead`);
   }
 
+  await recoverStuckReports();
   server.listen(port, () => {
     console.log(`Server running on http://localhost:${port}/`);
   });

@@ -421,3 +421,8 @@
 
 ## Conclusions Section Refinement
 - [x] Update Conclusions AI prompt: one 4-5 sentence paragraph per dependable strength, framed by opening and closing paragraphs
+
+## Bug Fix — WOW Report Stuck in 'generating' Loop
+
+- [x] Fix: server restart mid-job leaves wowReportStatus = 'generating' forever, causing UI polling loop
+- [x] Add startup recovery in server/_core/index.ts: reset any 'generating' records to 'error' on boot
