@@ -285,7 +285,7 @@ FORMATTING RULES (strictly follow):
       `${ctx}\n\nWrite an interpretive narrative for ${clientName}'s top 7 VIA Character Strengths. For each strength, write 2-3 sentences: what it means in ${clientName}'s specific context, and how it has shown up in ${subj} life history. Then write a 2-paragraph synthesis: how these strengths work together as a system, and what they mean for ${clientName}'s career.`
     ),
     callLLMWithTimeout(sys,
-      `${ctx}\n\nWrite an interpretive narrative of ${clientName}'s Big Five personality profile. For each of the five domains, write 2-3 sentences interpreting the score in the context of ${clientName}'s career and life history. Then write a 2-paragraph "Working Style" synthesis: how ${clientName} operates at ${subj} best, and what environments bring out the best in ${subj}.`
+      `${ctx}\n\nWrite an interpretive narrative of ${clientName}'s Big Five personality profile. Begin IMMEDIATELY with the heading "## Your Personality Profile: A Deep Dive" — do NOT write any introductory paragraph, preamble, or scene-setting text before this heading. Then for each of the five domains, write 2-3 sentences interpreting the score in the context of ${clientName}'s career and life history. Then write a 2-paragraph "Working Style" synthesis: how ${clientName} operates at ${subj} best, and what environments bring out the best in ${subj}.`
     ),
     callLLMWithTimeout(sys,
       `${ctx}\n\nWrite 3-5 career directions for ${clientName}, each as a paragraph. For each: name the direction clearly, explain why it fits ${clientName}'s specific combination of life history, character strengths, and personality, and give one concrete example of what it could look like in practice. These should feel tailored and specific — not generic job titles.`
@@ -623,10 +623,7 @@ async function renderWowPdf(sections: WowReportSections): Promise<Buffer> {
         margin: [0, 0, 0, 0] as [number, number, number, number],
       },
 
-      // ── Page break before content ──
-      { text: "", pageBreak: "before" },
-
-      // ── Section 1: Summary ──
+      // ── Section 1: Summary (sectionBlock already includes pageBreak: 'before') ──
       ...sectionBlock("1. Your Lifework Summary", sections.summary),
 
       // ── Section 2: Life History Pattern ──
