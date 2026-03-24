@@ -15,11 +15,13 @@
  *   7. Questions for Your Coaching Conversation
  */
 
+import { createRequire } from "module";
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { router, protectedProcedure } from "../_core/trpc";
 import { invokeLLM } from "../_core/llm";
 import { storagePut } from "../storage";
+
 import {
   getClientProfileById,
   getAchievements,
@@ -31,6 +33,9 @@ import {
   getAnalysisReport,
   upsertAnalysisReport,
 } from "../db";
+
+// pdfmake is CJS-only; use createRequire so it works in the ESM server context
+const _require = createRequire(import.meta.url);
 
 // ─── VIA Strength Descriptions ───────────────────────────────────────────────
 
@@ -276,12 +281,11 @@ Write 6 reflective questions for ${clientName} to explore in ${subj} coaching co
 // ─── Helper: Render PDF with pdfmake ─────────────────────────────────────────
 
 async function renderWowPdf(sections: WowReportSections): Promise<Buffer> {
-  // Use dynamic import for pdfmake (CommonJS module)
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const pdfMakeModule = require("pdfmake/build/pdfmake.js");
-  const pdfFontsModule = require("pdfmake/build/vfs_fonts.js");
-  const pdfMake = pdfMakeModule.default ?? pdfMakeModule;
-  const pdfFonts = pdfFontsModule.default ?? pdfFontsModule;
+  // pdfmake is CJS; load via createRequire (defined at module top)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const pdfMake = _require("pdfmake/build/pdfmake.js") as any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const pdfFonts = _require("pdfmake/build/vfs_fonts.js") as any;
   pdfMake.vfs = pdfFonts.pdfMake?.vfs ?? pdfFonts.vfs;
 
   // ── Colour palette ──
