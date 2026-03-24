@@ -111,6 +111,21 @@ export default function VIASurvey() {
       </div>
 
       <div className="container max-w-2xl py-8">
+        {/* Video intro on first page */}
+        {page === 0 && (
+          <div className="mb-6">
+            <p className="text-xs uppercase tracking-widest font-medium mb-3" style={{ color: "var(--lw-gold)", letterSpacing: "0.1em" }}>Watch before you begin</p>
+            <div style={{ position: "relative", paddingBottom: "56.25%", height: 0, overflow: "hidden", border: "2px solid rgba(201,151,58,0.4)" }}>
+              <iframe
+                src="https://drive.google.com/file/d/1bJfqf5QNyio-xtNa14AFHYE8L90-1MWr/preview"
+                style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", border: "none" }}
+                allow="autoplay"
+                allowFullScreen
+                title="VIA Character Strengths — Introduction"
+              />
+            </div>
+          </div>
+        )}
         {/* Intro on first page */}
         {page === 0 && (
           <div className="mb-8 p-5 rounded-xl bg-[var(--lw-gold-light)] border border-[var(--lw-gold)]/20">
