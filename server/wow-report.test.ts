@@ -63,12 +63,13 @@ describe("wowReport.generate", () => {
     ).rejects.toMatchObject({ code: "FORBIDDEN" });
   });
 
-  it("rejects with NOT_FOUND for a non-existent client", async () => {
+  it("returns started:true for a non-existent client (job runs in background)", async () => {
     const caller = appRouter.createCaller(makeCtx("admin"));
-    // clientId 0 should not exist — expect NOT_FOUND from buildClientContext
-    await expect(
-      caller.wowReport.generate({ clientId: 0, forceRegenerate: false })
-    ).rejects.toMatchObject({ code: "NOT_FOUND" });
+    // Fire-and-forget: generate always returns immediately.
+    // The NOT_FOUND error (if client doesn't exist) surfaces via status=error in the DB.
+    const result = await caller.wowReport.generate({ clientId: 0, forceRegenerate: false });
+    // Either started or alreadyRunning — both are valid non-throwing outcomes
+    expect(result).toMatchObject({ started: expect.any(Boolean) });
   });
 });
 

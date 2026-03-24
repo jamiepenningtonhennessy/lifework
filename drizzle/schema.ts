@@ -231,6 +231,8 @@ export const analysisReports = mysqlTable("analysis_reports", {
   wowReportJson: text("wowReportJson"),       // JSON blob of all 7 sections
   wowReportPdfUrl: text("wowReportPdfUrl"),   // S3 URL of the generated PDF
   wowReportGeneratedAt: timestamp("wowReportGeneratedAt"),
+  wowReportStatus: varchar("wowReportStatus", { length: 20 }),  // pending|generating|done|error
+  wowReportError: text("wowReportError"),     // error message if status=error
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });

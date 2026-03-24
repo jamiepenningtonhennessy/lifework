@@ -1,15 +1,11 @@
 /**
  * WowReportTab — Premium AI-generated PDF report for the counsellor view.
  *
- * Features:
- * - Generate button (with progress indicator — typically 30-60s)
- * - Preview of the 7-section report content once generated
- * - Download PDF button (opens S3 URL)
- * - Regenerate button
- * - Section-by-section preview accordion
+ * Generation is fire-and-forget: the generate mutation returns immediately,
+ * and we poll wowReport.get every 5 seconds until status = "done" | "error".
  */
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -31,6 +27,7 @@ import {
   TrendingUp,
   HelpCircle,
   User,
+  AlertCircle,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -113,28 +110,97 @@ const BIG5_LABELS: Record<string, string> = {
   C: "Conscientiousness",
 };
 
+// Animated progress messages shown during generation
+const PROGRESS_MESSAGES = [
+  "Reading life history and achievements…",
+  "Identifying recurring themes across the decades…",
+  "Interpreting VIA character strengths…",
+  "Analysing Big Five personality profile…",
+  "Crafting career directions…",
+  "Writing development edge narrative…",
+  "Composing coaching questions…",
+  "Rendering branded PDF…",
+];
+
 export default function WowReportTab({ clientId, clientName }: WowReportTabProps) {
   const [expandedSection, setExpandedSection] = useState<string | null>("summary");
-  const [isGenerating, setIsGenerating] = useState(false);
+  const [isPolling, setIsPolling] = useState(false);
+  const [progressMsg, setProgressMsg] = useState(0);
+  const pollIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const msgIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  // Fetch existing report
-  const { data: reportData, refetch } = trpc.wowReport.get.useQuery({ clientId });
+  const utils = trpc.useUtils();
 
-  // Generate mutation
+  // Fetch existing report — refetch manually when polling
+  const { data: reportData } = trpc.wowReport.get.useQuery(
+    { clientId },
+    { refetchInterval: false }
+  );
+
+  // Generate mutation — fires and forgets, then we start polling
   const generateMutation = trpc.wowReport.generate.useMutation({
-    onSuccess: () => {
-      refetch();
-      toast.success("WOW Report generated successfully");
-      setIsGenerating(false);
+    onSuccess: (result) => {
+      if (result.cached) {
+        toast.info("Using existing report — click Regenerate to create a fresh one.");
+        setIsPolling(false);
+        return;
+      }
+      if ((result as any).alreadyRunning) {
+        toast.info("Report is already being generated — please wait.");
+        return;
+      }
+      // started = true: kick off polling
+      startPolling();
     },
     onError: (err) => {
-      toast.error(`Report generation failed: ${err.message}`);
-      setIsGenerating(false);
+      toast.error(`Could not start report generation: ${err.message}`);
+      setIsPolling(false);
     },
   });
 
+  const startPolling = () => {
+    setIsPolling(true);
+    setProgressMsg(0);
+
+    // Rotate progress messages every 8 seconds
+    msgIntervalRef.current = setInterval(() => {
+      setProgressMsg((prev) => (prev + 1) % PROGRESS_MESSAGES.length);
+    }, 8000);
+
+    // Poll every 5 seconds
+    pollIntervalRef.current = setInterval(async () => {
+      const fresh = await utils.wowReport.get.fetch({ clientId });
+      if (fresh.status === "done") {
+        stopPolling();
+        utils.wowReport.get.invalidate({ clientId });
+        toast.success("WOW Report generated successfully!");
+      } else if (fresh.status === "error") {
+        stopPolling();
+        utils.wowReport.get.invalidate({ clientId });
+        toast.error(`Report generation failed: ${fresh.error ?? "Unknown error"}`);
+      }
+    }, 5000);
+  };
+
+  const stopPolling = () => {
+    setIsPolling(false);
+    if (pollIntervalRef.current) clearInterval(pollIntervalRef.current);
+    if (msgIntervalRef.current) clearInterval(msgIntervalRef.current);
+  };
+
+  // Clean up on unmount
+  useEffect(() => {
+    return () => stopPolling();
+  }, []);
+
+  // If we mount and status is already "generating" (e.g. page refresh), resume polling
+  useEffect(() => {
+    if (reportData?.status === "generating" && !isPolling) {
+      startPolling();
+    }
+  }, [reportData?.status]);
+
   const handleGenerate = (forceRegenerate = false) => {
-    setIsGenerating(true);
     generateMutation.mutate({ clientId, forceRegenerate });
   };
 
@@ -149,6 +215,9 @@ export default function WowReportTab({ clientId, clientName }: WowReportTabProps
         minute: "2-digit",
       })
     : null;
+
+  const isGenerating = isPolling || reportData?.status === "generating";
+  const hasError = reportData?.status === "error";
 
   return (
     <div className="space-y-6">
@@ -180,7 +249,27 @@ export default function WowReportTab({ clientId, clientName }: WowReportTabProps
 
             {/* Right: status + actions */}
             <div className="flex flex-col items-end gap-3 min-w-[200px]">
-              {pdfUrl ? (
+              {isGenerating ? (
+                <div className="flex items-center gap-2 text-sm text-white/60">
+                  <Loader2 className="w-4 h-4 animate-spin" style={{ color: "var(--lw-gold)" }} />
+                  <span>Generating…</span>
+                </div>
+              ) : hasError ? (
+                <>
+                  <div className="flex items-center gap-2 text-sm text-red-400">
+                    <AlertCircle className="w-4 h-4" />
+                    <span>Generation failed</span>
+                  </div>
+                  <Button
+                    size="sm"
+                    className="bg-[var(--lw-gold)] hover:bg-[var(--lw-gold)]/90 text-[var(--lw-navy)] font-semibold"
+                    onClick={() => handleGenerate(true)}
+                  >
+                    <RefreshCw className="w-4 h-4 mr-1" />
+                    Try Again
+                  </Button>
+                </>
+              ) : pdfUrl ? (
                 <>
                   <div className="flex items-center gap-2 text-sm" style={{ color: "var(--lw-gold)" }}>
                     <CheckCircle2 className="w-4 h-4" />
@@ -207,12 +296,9 @@ export default function WowReportTab({ clientId, clientName }: WowReportTabProps
                       className="border-white/20 text-white hover:bg-white/10"
                       onClick={() => handleGenerate(true)}
                       disabled={isGenerating}
+                      title="Regenerate report"
                     >
-                      {isGenerating ? (
-                        <Loader2 className="w-4 h-4 animate-spin" />
-                      ) : (
-                        <RefreshCw className="w-4 h-4" />
-                      )}
+                      <RefreshCw className="w-4 h-4" />
                     </Button>
                   </div>
                 </>
@@ -227,12 +313,12 @@ export default function WowReportTab({ clientId, clientName }: WowReportTabProps
                     size="sm"
                     className="bg-[var(--lw-gold)] hover:bg-[var(--lw-gold)]/90 text-[var(--lw-navy)] font-semibold"
                     onClick={() => handleGenerate(false)}
-                    disabled={isGenerating}
+                    disabled={generateMutation.isPending}
                   >
-                    {isGenerating ? (
+                    {generateMutation.isPending ? (
                       <>
                         <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                        Generating…
+                        Starting…
                       </>
                     ) : (
                       <>
@@ -250,18 +336,37 @@ export default function WowReportTab({ clientId, clientName }: WowReportTabProps
           {isGenerating && (
             <div className="px-6 pb-4">
               <div className="flex items-center gap-3 text-sm text-white/60 mb-2">
-                <Loader2 className="w-4 h-4 animate-spin" style={{ color: "var(--lw-gold)" }} />
-                <span>
-                  Analysing life history, character strengths, and personality profile…
-                  <span className="text-white/40 ml-1">(typically 30–60 seconds)</span>
+                <Loader2 className="w-4 h-4 animate-spin flex-shrink-0" style={{ color: "var(--lw-gold)" }} />
+                <span className="transition-all duration-500">
+                  {PROGRESS_MESSAGES[progressMsg]}
+                  <span className="text-white/30 ml-2">(typically 2–4 minutes)</span>
                 </span>
               </div>
               <div className="h-1 bg-white/10 rounded-full overflow-hidden">
                 <div
-                  className="h-full rounded-full animate-pulse"
-                  style={{ backgroundColor: "var(--lw-gold)", width: "60%" }}
+                  className="h-full rounded-full"
+                  style={{
+                    backgroundColor: "var(--lw-gold)",
+                    width: "100%",
+                    animation: "indeterminate 2s linear infinite",
+                  }}
                 />
               </div>
+              <style>{`
+                @keyframes indeterminate {
+                  0% { transform: translateX(-100%); }
+                  100% { transform: translateX(100%); }
+                }
+              `}</style>
+            </div>
+          )}
+
+          {/* Error detail */}
+          {hasError && reportData?.error && (
+            <div className="px-6 pb-4">
+              <p className="text-xs text-red-400/80 font-mono bg-red-950/30 rounded p-2">
+                {reportData.error}
+              </p>
             </div>
           )}
         </CardContent>
@@ -285,7 +390,7 @@ export default function WowReportTab({ clientId, clientName }: WowReportTabProps
                   <CardContent>
                     <div className="space-y-2">
                       {sections.viaRanked.slice(0, 7).map((s, i) => {
-                        const maxScore = Math.max(...sections.viaRanked!.slice(0, 7).map((x) => x.score));
+                        const maxScore = sections.viaRanked![0]?.score ?? 25;
                         const pct = Math.round((s.score / maxScore) * 100);
                         return (
                           <div key={s.strength} className="flex items-center gap-2">
@@ -445,7 +550,7 @@ export default function WowReportTab({ clientId, clientName }: WowReportTabProps
       )}
 
       {/* Empty state — no report yet, not generating */}
-      {!sections && !isGenerating && (
+      {!sections && !isGenerating && !hasError && (
         <Card className="border-dashed border-2 border-[var(--lw-gold)]/20">
           <CardContent className="p-10 flex flex-col items-center text-center gap-4">
             <div
@@ -482,9 +587,19 @@ export default function WowReportTab({ clientId, clientName }: WowReportTabProps
             <Button
               className="mt-2 bg-[var(--lw-navy)] hover:bg-[var(--lw-navy)]/90 text-white"
               onClick={() => handleGenerate(false)}
+              disabled={generateMutation.isPending}
             >
-              <Sparkles className="w-4 h-4 mr-2" />
-              Generate WOW Report
+              {generateMutation.isPending ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Starting…
+                </>
+              ) : (
+                <>
+                  <Sparkles className="w-4 h-4 mr-2" />
+                  Generate WOW Report
+                </>
+              )}
             </Button>
           </CardContent>
         </Card>

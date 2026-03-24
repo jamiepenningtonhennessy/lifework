@@ -557,90 +557,99 @@ async function renderWowPdf(sections: WowReportSections): Promise<Buffer> {
     }
   });
 }
+// ─── Background job runner ───────────────────────────────────────────────────
+// Runs the full generation pipeline asynchronously (fire-and-forget).
+// Status is tracked in the DB so the client can poll wowReport.get.
+async function runGenerationJob(clientId: number): Promise<void> {
+  try {
+    // Mark as generating
+    const existing = await getAnalysisReport(clientId);
+    const base = existing ?? { clientId, generatedAt: new Date() };
+    await upsertAnalysisReport({
+      ...base,
+      wowReportStatus: "generating",
+      wowReportError: null,
+    } as Parameters<typeof upsertAnalysisReport>[0]);
+
+    // Generate sections via LLM (the slow part)
+    const sections = await generateWowSections(clientId);
+    // Render PDF
+    const pdfBuffer = await renderWowPdf(sections);
+    // Upload to S3
+    const fileKey = `wow-reports/client-${clientId}-${Date.now()}.pdf`;
+    const { url: pdfUrl } = await storagePut(fileKey, pdfBuffer, "application/pdf");
+    // Persist result
+    await upsertAnalysisReport({
+      ...base,
+      wowReportJson: JSON.stringify(sections),
+      wowReportPdfUrl: pdfUrl,
+      wowReportGeneratedAt: new Date(),
+      wowReportStatus: "done",
+      wowReportError: null,
+    } as Parameters<typeof upsertAnalysisReport>[0]);
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    console.error(`[WOW Report] Generation failed for client ${clientId}:`, msg);
+    try {
+      const existing2 = await getAnalysisReport(clientId);
+      const base2 = existing2 ?? { clientId, generatedAt: new Date() };
+      await upsertAnalysisReport({
+        ...base2,
+        wowReportStatus: "error",
+        wowReportError: msg,
+      } as Parameters<typeof upsertAnalysisReport>[0]);
+    } catch { /* ignore secondary failure */ }
+  }
+}
 
 // ─── Router ──────────────────────────────────────────────────────────────────
-
 const counselorProcedure = protectedProcedure.use(({ ctx, next }) => {
   if (ctx.user.role !== "admin") {
     throw new TRPCError({ code: "FORBIDDEN", message: "Counselor access required" });
   }
   return next({ ctx });
 });
-
 export const wowReportRouter = router({
   /**
-   * Generate (or regenerate) the WOW Report for a client.
-   * Counsellor-only procedure.
+   * Kick off WOW Report generation as a background job.
+   * Returns immediately — client should poll wowReport.get for status.
    */
   generate: counselorProcedure
     .input(z.object({ clientId: z.number(), forceRegenerate: z.boolean().optional().default(false) }))
     .mutation(async ({ input }) => {
       const existing = await getAnalysisReport(input.clientId);
-
       // Return cached if available and not forcing regeneration
       if (existing?.wowReportPdfUrl && !input.forceRegenerate) {
-        return {
-          pdfUrl: existing.wowReportPdfUrl,
-          generatedAt: existing.wowReportGeneratedAt,
-          cached: true,
-        };
+        return { started: false, cached: true };
       }
-
-      // Generate sections via LLM
-      const sections = await generateWowSections(input.clientId);
-
-      // Render PDF
-      const pdfBuffer = await renderWowPdf(sections);
-
-      // Upload to S3
-      const fileKey = `wow-reports/client-${input.clientId}-${Date.now()}.pdf`;
-      const { url: pdfUrl } = await storagePut(fileKey, pdfBuffer, "application/pdf");
-
-      // Persist to DB
-      if (existing) {
-        await upsertAnalysisReport({
-          ...existing,
-          wowReportJson: JSON.stringify(sections),
-          wowReportPdfUrl: pdfUrl,
-          wowReportGeneratedAt: new Date(),
-        });
-      } else {
-        await upsertAnalysisReport({
-          clientId: input.clientId,
-          wowReportJson: JSON.stringify(sections),
-          wowReportPdfUrl: pdfUrl,
-          wowReportGeneratedAt: new Date(),
-          generatedAt: new Date(),
-        });
+      // If already generating, don't start a second job
+      if ((existing as any)?.wowReportStatus === "generating") {
+        return { started: false, alreadyRunning: true };
       }
-
-      return {
-        pdfUrl,
-        generatedAt: new Date(),
-        cached: false,
-        sections,
-      };
+      // Fire and forget — do NOT await
+      void runGenerationJob(input.clientId);
+      return { started: true, cached: false };
     }),
-
   /**
    * Get the current WOW Report status for a client.
+   * Used for polling during generation.
    */
   get: counselorProcedure
     .input(z.object({ clientId: z.number() }))
     .query(async ({ input }) => {
       const report = await getAnalysisReport(input.clientId);
-      if (!report?.wowReportPdfUrl) return { exists: false, pdfUrl: null, generatedAt: null, sections: null };
-
+      if (!report) return { exists: false, status: null, pdfUrl: null, generatedAt: null, sections: null, error: null };
       const sections = (() => {
         try { return report.wowReportJson ? JSON.parse(report.wowReportJson) : null; }
         catch { return null; }
       })();
-
       return {
-        exists: true,
-        pdfUrl: report.wowReportPdfUrl,
-        generatedAt: report.wowReportGeneratedAt,
+        exists: !!report.wowReportPdfUrl,
+        status: (report as any).wowReportStatus ?? null,
+        pdfUrl: report.wowReportPdfUrl ?? null,
+        generatedAt: report.wowReportGeneratedAt ?? null,
         sections,
+        error: (report as any).wowReportError ?? null,
       };
     }),
 });
