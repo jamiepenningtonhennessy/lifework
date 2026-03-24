@@ -54,49 +54,49 @@ const SECTION_META = [
   {
     key: "summary" as keyof WowSections,
     label: "Lifework Summary",
-    icon: <User className="w-4 h-4" />,
+    Icon: User,
     eyebrow: "Section One",
     description: "A 250-word portrait synthesising everything we know about this client.",
   },
   {
     key: "lifeHistoryPattern" as keyof WowSections,
     label: "Life History Pattern",
-    icon: <BookOpen className="w-4 h-4" />,
+    Icon: BookOpen,
     eyebrow: "Section Two",
     description: "Recurring themes across the decades — what the life story reveals.",
   },
   {
     key: "viaSection" as keyof WowSections,
     label: "Character Strengths",
-    icon: <Star className="w-4 h-4" />,
+    Icon: Star,
     eyebrow: "Section Three",
     description: "Top 7 VIA strengths with narrative interpretation and synthesis.",
   },
   {
     key: "personalitySection" as keyof WowSections,
     label: "Personality Profile",
-    icon: <Brain className="w-4 h-4" />,
+    Icon: Brain,
     eyebrow: "Section Four",
     description: "Big Five interpretation with working style synthesis.",
   },
   {
     key: "careerDirections" as keyof WowSections,
     label: "Career Directions",
-    icon: <Compass className="w-4 h-4" />,
+    Icon: Compass,
     eyebrow: "Section Five",
     description: "3-5 tailored career directions with specific rationale.",
   },
   {
     key: "developmentEdge" as keyof WowSections,
     label: "Development Edge",
-    icon: <TrendingUp className="w-4 h-4" />,
+    Icon: TrendingUp,
     eyebrow: "Section Six",
     description: "Constructive growth areas framed as edges to develop.",
   },
   {
     key: "coachingQuestions" as keyof WowSections,
     label: "Coaching Questions",
-    icon: <HelpCircle className="w-4 h-4" />,
+    Icon: HelpCircle,
     eyebrow: "Section Seven",
     description: "6 reflective questions tailored to this client's data.",
   },
@@ -474,7 +474,7 @@ export default function WowReportTab({ clientId, clientName }: WowReportTabProps
                           className="w-8 h-8 rounded flex items-center justify-center text-white flex-shrink-0"
                           style={{ backgroundColor: "var(--lw-navy)" }}
                         >
-                          {meta.icon}
+                          <meta.Icon className="w-4 h-4" />
                         </div>
                         <div>
                           <div className="flex items-center gap-2">
