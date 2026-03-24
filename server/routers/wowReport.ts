@@ -205,74 +205,102 @@ interface WowReportSections {
   domainScores: Record<string, number>;
 }
 
+// ─── Helper: call LLM with a per-request timeout ────────────────────────────
+async function callLLMWithTimeout(
+  systemPrompt: string,
+  userPrompt: string,
+  timeoutMs = 90_000
+): Promise<string> {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    const apiUrl = (process.env.BUILT_IN_FORGE_API_URL ?? "https://forge.manus.im").replace(/\/$/, "");
+    const apiKey = process.env.BUILT_IN_FORGE_API_KEY ?? "";
+    const resp = await fetch(`${apiUrl}/v1/chat/completions`, {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        authorization: `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify({
+        model: "gemini-2.5-flash",
+        messages: [
+          { role: "system", content: systemPrompt },
+          { role: "user", content: userPrompt },
+        ],
+        max_tokens: 4096,
+      }),
+      signal: controller.signal,
+    });
+    if (!resp.ok) {
+      const txt = await resp.text();
+      throw new Error(`LLM error ${resp.status}: ${txt.substring(0, 200)}`);
+    }
+    const data = await resp.json() as { choices: Array<{ message: { content: string } }> };
+    return data.choices[0]?.message?.content ?? "";
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
 async function generateWowSections(clientId: number): Promise<WowReportSections> {
   const { clientName, pronouns, contextText, viaRanked, domainScores } = await buildClientContext(clientId);
+  // pronouns is a string like "they/them/their" or "he/him/his" or "she/her/her"
+  const pronounParts = pronouns.split("/");
+  const subj = pronounParts[0] ?? "they";
+  const poss = pronounParts[2] ?? pronounParts[1] ?? "their";
 
-  // Derive pronoun forms
-  const [subj, obj, poss] = (() => {
-    const p = pronouns.toLowerCase();
-    if (p.includes("she")) return ["she", "her", "her"];
-    if (p.includes("he")) return ["he", "him", "his"];
-    return ["they", "them", "their"];
-  })();
+  const sys = `You are a senior career analyst at Pennington Hennessy, trained in the Dependable Strengths methodology of Bernard Haldane. You write premium career analysis reports that combine rigorous psychometric interpretation with deep life history analysis. Your writing is warm, precise, and personal. Write in second person ("You are...") throughout. Use the client's first name (${clientName}) naturally. Use pronouns: ${pronouns}. Write in flowing paragraphs — never bullet points.`;
 
-  const systemPrompt = `You are a senior career analyst at Pennington Hennessy, trained in the Dependable Strengths methodology of Bernard Haldane. You write premium career analysis reports that combine rigorous psychometric interpretation with deep life history analysis. Your writing is warm, precise, and personal — the client should feel genuinely seen. Write in second person ("You are...") throughout. Use the client's first name (${clientName}) naturally. Use pronouns: ${subj}/${obj}/${poss}.`;
+  const ctx = `CLIENT DATA FOR ${clientName.toUpperCase()}:\n${contextText}`;
 
-  const userPrompt = `Here is the complete client data for ${clientName}:
+  console.log(`[WOW Report] Starting 7-section parallel generation for client ${clientId}`);
 
-${contextText}
+  // Run all 7 sections in parallel — each with its own 90s timeout
+  const [
+    summary,
+    lifeHistoryPattern,
+    viaSection,
+    personalitySection,
+    careerDirections,
+    developmentEdge,
+    coachingQuestions,
+  ] = await Promise.all([
+    callLLMWithTimeout(sys,
+      `${ctx}\n\nWrite a single 250-word portrait of ${clientName} as a professional. This is the opening "wow" statement — synthesise life history patterns, character strengths, and personality into the most insightful thing anyone has ever said about ${clientName}'s career. Begin with "${clientName} is..."`
+    ),
+    callLLMWithTimeout(sys,
+      `${ctx}\n\nWrite 3-4 paragraphs identifying recurring themes across ${clientName}'s life history achievements. What patterns emerge across the decades? What do the Enjoyable/Satisfying/Fulfilling classifications reveal? What did others consistently notice? Connect these patterns to ${subj} current professional identity. Reference actual achievements from the data.`
+    ),
+    callLLMWithTimeout(sys,
+      `${ctx}\n\nWrite an interpretive narrative for ${clientName}'s top 7 VIA Character Strengths. For each strength, write 2-3 sentences: what it means in ${clientName}'s specific context, and how it has shown up in ${subj} life history. Then write a 2-paragraph synthesis: how these strengths work together as a system, and what they mean for ${clientName}'s career.`
+    ),
+    callLLMWithTimeout(sys,
+      `${ctx}\n\nWrite an interpretive narrative of ${clientName}'s Big Five personality profile. For each of the five domains, write 2-3 sentences interpreting the score in the context of ${clientName}'s career and life history. Then write a 2-paragraph "Working Style" synthesis: how ${clientName} operates at ${subj} best, and what environments bring out the best in ${subj}.`
+    ),
+    callLLMWithTimeout(sys,
+      `${ctx}\n\nWrite 3-5 career directions for ${clientName}, each as a paragraph. For each: name the direction clearly, explain why it fits ${clientName}'s specific combination of life history, character strengths, and personality, and give one concrete example of what it could look like in practice. These should feel tailored and specific — not generic job titles.`
+    ),
+    callLLMWithTimeout(sys,
+      `${ctx}\n\nWrite 2-3 paragraphs on ${clientName}'s development edge — the areas where growth would most expand ${subj} career options. Frame these constructively as "edges to develop" rather than weaknesses. Connect each to specific data from the profile. End with an encouraging observation about ${clientName}'s capacity for growth.`
+    ),
+    callLLMWithTimeout(sys,
+      `${ctx}\n\nWrite 6 reflective questions for ${clientName} to explore in ${poss} coaching conversation. These should be open, specific to ${clientName}'s data, and designed to deepen self-understanding. Introduce them with one sentence: "These questions are designed to take you deeper into what you have already discovered about yourself."`
+    ),
+  ]);
 
-Write a premium Lifework Career Analysis Report with exactly these 7 sections. Each section should be separated by the exact heading shown. Write in flowing paragraphs — not bullet points.
-
----SECTION: LIFEWORK SUMMARY---
-Write a single 250-word portrait of ${clientName} as a professional. This is the "wow" opening — it should synthesise everything: life history patterns, character strengths, and personality. It should feel like the most insightful thing anyone has ever said about ${clientName}'s career. Begin with "${clientName} is..."
-
----SECTION: LIFE HISTORY PATTERN---
-Write 3-4 paragraphs identifying the recurring themes across ${clientName}'s life history achievements. What patterns emerge across the decades? What do the Enjoyable/Satisfying/Fulfilling classifications reveal? What did others consistently notice? Connect these patterns to ${subj} current professional identity. Be specific — reference actual achievements from the data.
-
----SECTION: CHARACTER STRENGTHS---
-Write an interpretive narrative for ${clientName}'s top 7 VIA Character Strengths. For each strength, write 2-3 sentences: what this strength means in ${clientName}'s specific context, and how it has shown up in ${subj} life history. Then write a 2-paragraph synthesis: how these strengths work together as a system, and what they mean for ${clientName}'s career.
-
----SECTION: PERSONALITY PROFILE---
-Write an interpretive narrative of ${clientName}'s Big Five personality profile. For each of the five domains, write 2-3 sentences interpreting the score in the context of ${clientName}'s career and life history. Then write a 2-paragraph "Working Style" synthesis: how ${clientName} operates at ${subj} best, and what environments bring out the best in ${subj}.
-
----SECTION: CAREER DIRECTIONS---
-Write 3-5 career directions for ${clientName}, each as a paragraph. Each direction should: name the direction clearly, explain why it fits ${clientName}'s specific combination of life history, character strengths, and personality, and give one concrete example of what this could look like in practice. These should feel tailored and specific — not generic job titles.
-
----SECTION: DEVELOPMENT EDGE---
-Write 2-3 paragraphs on ${clientName}'s development edge — the areas where growth would most expand ${subj} career options. Frame these constructively as "edges to develop" rather than weaknesses. Connect each to specific data from the profile. End with an encouraging observation about ${clientName}'s capacity for growth.
-
----SECTION: COACHING QUESTIONS---
-Write 6 reflective questions for ${clientName} to explore in ${subj} coaching conversation. These should be open, specific to ${clientName}'s data, and designed to deepen self-understanding. Introduce them with one sentence: "These questions are designed to take you deeper into what you have already discovered about yourself."`;
-
-  const response = await invokeLLM({
-    messages: [
-      { role: "system", content: systemPrompt },
-      { role: "user", content: userPrompt },
-    ],
-  });
-
-  const raw = (response.choices[0]?.message?.content as string) ?? "";
-
-  // Parse sections
-  const extract = (heading: string, nextHeading?: string): string => {
-    const start = raw.indexOf(`---SECTION: ${heading}---`);
-    if (start === -1) return "";
-    const contentStart = start + `---SECTION: ${heading}---`.length;
-    const end = nextHeading ? raw.indexOf(`---SECTION: ${nextHeading}---`) : raw.length;
-    return raw.slice(contentStart, end === -1 ? raw.length : end).trim();
-  };
+  console.log(`[WOW Report] All 7 sections generated successfully for client ${clientId}`);
 
   return {
     clientName,
     generatedAt: new Date().toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" }),
-    summary: extract("LIFEWORK SUMMARY", "LIFE HISTORY PATTERN"),
-    lifeHistoryPattern: extract("LIFE HISTORY PATTERN", "CHARACTER STRENGTHS"),
-    viaSection: extract("CHARACTER STRENGTHS", "PERSONALITY PROFILE"),
-    personalitySection: extract("PERSONALITY PROFILE", "CAREER DIRECTIONS"),
-    careerDirections: extract("CAREER DIRECTIONS", "DEVELOPMENT EDGE"),
-    developmentEdge: extract("DEVELOPMENT EDGE", "COACHING QUESTIONS"),
-    coachingQuestions: extract("COACHING QUESTIONS"),
+    summary,
+    lifeHistoryPattern,
+    viaSection,
+    personalitySection,
+    careerDirections,
+    developmentEdge,
+    coachingQuestions,
     viaRanked,
     domainScores,
   };

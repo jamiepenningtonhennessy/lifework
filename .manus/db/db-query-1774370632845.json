@@ -1,0 +1,18 @@
+{
+  "query": "SELECT id, clientId, wowReportStatus, wowReportError, wowReportGeneratedAt, LEFT(wowReportJson, 100) as jsonPreview FROM analysis_reports WHERE clientId = 180001;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 32u3a1hNYuu9Gj3.7d2282893346 --database kFbbE6kqNApXGDFpQJUGV7 --execute SELECT id, clientId, wowReportStatus, wowReportError, wowReportGeneratedAt, LEFT(wowReportJson, 100) as jsonPreview FROM analysis_reports WHERE clientId = 180001;",
+  "rows": [
+    {
+      "id": "150001",
+      "clientId": "180001",
+      "wowReportStatus": "generating",
+      "wowReportError": "NULL",
+      "wowReportGeneratedAt": "NULL",
+      "jsonPreview": "NULL"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tclientId\twowReportStatus\twowReportError\twowReportGeneratedAt\tjsonPreview\n150001\t180001\tgenerating\tNULL\tNULL\tNULL\n",
+  "stderr": "",
+  "execution_time_ms": 87
+}
