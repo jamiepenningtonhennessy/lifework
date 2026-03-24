@@ -454,29 +454,47 @@ async function renderWowPdf(sections: WowReportSections): Promise<Buffer> {
     ...markdownToPdfContent(content),
   ];
 
-  // ── VIA bar chart — text-based using Unicode block chars (no canvas) ──
-  const makeBar = (ratio: number, highlight: boolean) => {
-    const filled = Math.max(1, Math.round(ratio * 30));
-    const empty = 30 - filled;
-    return [
-      { text: "█".repeat(filled), color: highlight ? GOLD : LIGHT_GOLD, fontSize: 8 },
-      { text: "█".repeat(empty), color: "#e8e0d0", fontSize: 8 },
-    ];
+  // ── Bar chart helper — nested 2-cell table with fillColor (no canvas, no Unicode glyphs) ──
+  // Uses a nested table so the filled/empty portions are solid colour blocks at a fixed height.
+  const makeBarCell = (ratio: number, fillColor: string, emptyColor = "#e8e0d0") => {
+    const totalWidth = 120;
+    const filledW = Math.max(2, Math.round(ratio * totalWidth));
+    const emptyW = totalWidth - filledW;
+    return {
+      table: {
+        widths: [filledW, emptyW],
+        heights: [8],
+        body: [[
+          { text: "", fillColor, border: [false, false, false, false] as [boolean, boolean, boolean, boolean] },
+          { text: "", fillColor: emptyColor, border: [false, false, false, false] as [boolean, boolean, boolean, boolean] },
+        ]],
+      },
+      layout: {
+        defaultBorder: false,
+        paddingLeft: () => 0,
+        paddingRight: () => 0,
+        paddingTop: () => 0,
+        paddingBottom: () => 0,
+      },
+      margin: [0, 3, 0, 3] as [number, number, number, number],
+    };
   };
+
+  // ── VIA bar chart ──
   const viaRows = sections.viaRanked.slice(0, 10).map((s, i) => [
     { text: `${i + 1}. ${s.name}`, font: "Roboto", fontSize: 9, color: DARK_GREY, bold: i < 3 },
-    { text: makeBar(s.score / 25, i < 3), margin: [0, 2, 0, 2] as [number, number, number, number] },
+    makeBarCell(s.score / 25, i < 3 ? GOLD : LIGHT_GOLD),
     { text: `${s.score}`, font: "Roboto", fontSize: 9, color: MID_GREY },
   ]);
 
-  // ── Big Five bars — text-based (no canvas) ──
+  // ── Big Five bars ──
   const BIG5_NAMES: Record<string, string> = {
     N: "Neuroticism", E: "Extraversion", O: "Openness",
     A: "Agreeableness", C: "Conscientiousness",
   };
   const big5Rows = Object.entries(sections.domainScores).map(([key, val]) => [
     { text: BIG5_NAMES[key] ?? key, font: "Roboto", fontSize: 9, color: DARK_GREY },
-    { text: makeBar(val / 100, true).map(b => ({ ...b, color: b.color === GOLD ? NAVY : "#d0d8e8" })), margin: [0, 2, 0, 2] as [number, number, number, number] },
+    makeBarCell(val / 100, NAVY, "#d0d8e8"),
     { text: `${val}th`, font: "Roboto", fontSize: 9, color: MID_GREY },
   ]);
 
