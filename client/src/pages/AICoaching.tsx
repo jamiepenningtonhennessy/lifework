@@ -225,7 +225,7 @@ export default function AICoaching() {
                   Book a Demo <ArrowRight className="w-4 h-4" />
                 </a>
                 <a
-                  href="#guide"
+                  href="https://d2xsxph8kpxj0f.cloudfront.net/107696804/kFbbE6kqNApXGDFpQJUGV7/knowhow-guide_87cf4494.pdf" target="_blank" rel="noopener noreferrer"
                   className="inline-flex items-center gap-2 px-7 py-3 font-medium tracking-wide uppercase transition-colors"
                   style={{
                     border: "1px solid rgba(255,255,255,0.4)",
@@ -639,7 +639,7 @@ export default function AICoaching() {
               Book a Demo <ArrowRight className="w-4 h-4" />
             </a>
             <a
-              href="#guide"
+              href="https://d2xsxph8kpxj0f.cloudfront.net/107696804/kFbbE6kqNApXGDFpQJUGV7/knowhow-guide_87cf4494.pdf" target="_blank" rel="noopener noreferrer"
               className="inline-flex items-center gap-2 px-8 py-3 font-medium tracking-wide uppercase"
               style={{
                 border: "1px solid rgba(255,255,255,0.4)",
