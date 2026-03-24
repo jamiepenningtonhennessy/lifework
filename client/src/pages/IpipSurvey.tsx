@@ -153,6 +153,23 @@ export default function IpipSurvey() {
       </div>
 
       <div className="max-w-3xl mx-auto px-4 py-8">
+        {/* NEO explainer video (first page only) */}
+        {domainIndex === 0 && totalAnswered === 0 && (
+          <div className="mb-8">
+            <p className="text-xs font-semibold uppercase tracking-widest mb-3" style={{ color: "var(--lw-gold)" }}>
+              Watch before you begin
+            </p>
+            <div className="relative w-full" style={{ paddingBottom: "56.25%", border: "2px solid var(--lw-gold)", borderRadius: "2px" }}>
+              <iframe
+                src="https://drive.google.com/file/d/1t1UYw3YRal-UZ0efJrtr3H_IqH08ANsy/preview"
+                allow="autoplay"
+                allowFullScreen
+                className="absolute inset-0 w-full h-full"
+                style={{ border: "none" }}
+              />
+            </div>
+          </div>
+        )}
         {/* Intro (first page only) */}
         {domainIndex === 0 && totalAnswered === 0 && (
           <Card className="mb-8 border-primary/20 bg-primary/5">
