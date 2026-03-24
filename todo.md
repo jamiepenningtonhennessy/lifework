@@ -441,3 +441,9 @@
 - [x] Renumber sections 5→6 (Career Directions), 6→7 (Development Edge), 7→8 (Conclusions) in PDF
 - [x] Add Behavioural Style tab to WOW Report counsellor UI (before Career Directions tab)
 - [x] Reset existing reports to regenerate with new section
+
+## Insights Colour Wheel — Behavioural Style Section
+
+- [x] Build SVG InsightsWheel component with 4 colour quadrants and client position dot
+- [x] Add wheel to WowReportTab Behavioural Style accordion
+- [x] Add wheel to PDF renderer (Section 5) as embedded SVG/image

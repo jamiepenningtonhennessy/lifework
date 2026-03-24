@@ -23,6 +23,7 @@ import { TRPCError } from "@trpc/server";
 import { router, protectedProcedure } from "../_core/trpc";
 import { invokeLLM } from "../_core/llm";
 import { storagePut } from "../storage";
+import { generateWheelPng } from "./insightsWheelPng.js";
 
 import {
   getClientProfileById,
@@ -389,6 +390,17 @@ async function renderWowPdf(sections: WowReportSections): Promise<Buffer> {
   const RobotoFonts = _require("pdfmake/fonts/Roboto") as any;
   pdfmake.addFonts(RobotoFonts);
 
+  // Generate Insights wheel PNG (320px) for embedding in Section 5
+  const eScore = sections.domainScores["E"] ?? 50;
+  const aScore = sections.domainScores["A"] ?? 50;
+  let wheelDataUrl: string | null = null;
+  try {
+    const wheelPng = await generateWheelPng(eScore, aScore, 320);
+    wheelDataUrl = `data:image/png;base64,${wheelPng.toString("base64")}`;
+  } catch (e) {
+    console.warn("[WOW Report] Failed to generate Insights wheel PNG:", e);
+  }
+
   // ── Colour palette ──
   const NAVY = "#0a1628";
   const GOLD = "#c9973a";
@@ -733,33 +745,80 @@ async function renderWowPdf(sections: WowReportSections): Promise<Buffer> {
       { text: "", pageBreak: "before" },
       heading("5. Your Behavioural Style"),
       divider(),
+      // Wheel + colour energy cards side by side
       ...(sections.primaryColour ? [
         {
-          table: {
-            widths: ["*", "*"],
-            body: [[
-              {
-                stack: [
-                  { text: "Primary Energy", fontSize: 8, color: NAVY, characterSpacing: 1, margin: [0, 0, 0, 4] as [number, number, number, number] },
-                  { text: sections.primaryColour, fontSize: 14, bold: true, color: GOLD },
-                ],
-                border: [false, false, false, false],
-                fillColor: "#f5f1e8",
-                margin: [12, 10, 12, 10] as [number, number, number, number],
-              },
-              {
-                stack: [
-                  { text: "Secondary Energy", fontSize: 8, color: NAVY, characterSpacing: 1, margin: [0, 0, 0, 4] as [number, number, number, number] },
-                  { text: sections.secondaryColour, fontSize: 14, bold: false, color: NAVY },
-                ],
-                border: [false, false, false, false],
-                fillColor: "#eae6de",
-                margin: [12, 10, 12, 10] as [number, number, number, number],
-              },
-            ]],
-          },
-          layout: "noBorders",
-          margin: [0, 0, 0, 12] as [number, number, number, number],
+          columns: [
+            // Wheel image
+            wheelDataUrl ? {
+              image: wheelDataUrl,
+              width: 190,
+              height: 190,
+              margin: [0, 0, 16, 12] as [number, number, number, number],
+            } : { text: "", width: 0 },
+            // Colour energy cards stacked
+            {
+              stack: [
+                {
+                  table: {
+                    widths: ["*"],
+                    body: [[
+                      {
+                        stack: [
+                          { text: "PRIMARY ENERGY", fontSize: 7, color: NAVY, characterSpacing: 1, margin: [0, 0, 0, 3] as [number, number, number, number] },
+                          { text: sections.primaryColour, fontSize: 14, bold: true, color: GOLD },
+                        ],
+                        border: [false, false, false, false],
+                        fillColor: "#f5f1e8",
+                        margin: [10, 8, 10, 8] as [number, number, number, number],
+                      },
+                    ]],
+                  },
+                  layout: "noBorders",
+                  margin: [0, 0, 0, 6] as [number, number, number, number],
+                },
+                {
+                  table: {
+                    widths: ["*"],
+                    body: [[
+                      {
+                        stack: [
+                          { text: "SECONDARY ENERGY", fontSize: 7, color: NAVY, characterSpacing: 1, margin: [0, 0, 0, 3] as [number, number, number, number] },
+                          { text: sections.secondaryColour, fontSize: 14, bold: false, color: NAVY },
+                        ],
+                        border: [false, false, false, false],
+                        fillColor: "#eae6de",
+                        margin: [10, 8, 10, 8] as [number, number, number, number],
+                      },
+                    ]],
+                  },
+                  layout: "noBorders",
+                  margin: [0, 0, 0, 6] as [number, number, number, number],
+                },
+                sections.jungianType ? {
+                  table: {
+                    widths: ["*"],
+                    body: [[
+                      {
+                        stack: [
+                          { text: "JUNGIAN TYPE", fontSize: 7, color: NAVY, characterSpacing: 1, margin: [0, 0, 0, 3] as [number, number, number, number] },
+                          { text: sections.jungianType, fontSize: 18, bold: true, color: NAVY, font: "Roboto" },
+                        ],
+                        border: [false, false, false, false],
+                        fillColor: "#ede8df",
+                        margin: [10, 8, 10, 8] as [number, number, number, number],
+                      },
+                    ]],
+                  },
+                  layout: "noBorders",
+                  margin: [0, 0, 0, 0] as [number, number, number, number],
+                } as object : { text: "" } as object,
+              ],
+              width: "*",
+            },
+          ],
+          columnGap: 0,
+          margin: [0, 0, 0, 16] as [number, number, number, number],
         },
       ] : []),
       ...markdownToPdfContent(sections.behaviouralStyle),
