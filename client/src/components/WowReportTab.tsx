@@ -28,6 +28,7 @@ import {
   HelpCircle,
   User,
   AlertCircle,
+  Palette,
 } from "lucide-react";
 import { toast } from "sonner";
 import { Streamdown } from "streamdown";
@@ -44,6 +45,10 @@ interface WowSections {
   lifeHistoryPattern: string;
   viaSection: string;
   personalitySection: string;
+  behaviouralStyle: string;
+  primaryColour?: string;
+  secondaryColour?: string;
+  jungianType?: string;
   careerDirections: string;
   developmentEdge: string;
   coachingQuestions: string;
@@ -81,24 +86,31 @@ const SECTION_META = [
     description: "Big Five interpretation with working style synthesis.",
   },
   {
+    key: "behaviouralStyle" as keyof WowSections,
+    label: "Behavioural Style",
+    Icon: Palette,
+    eyebrow: "Section Five",
+    description: "Insights colour energy profile — how this client shows up in professional settings.",
+  },
+  {
     key: "careerDirections" as keyof WowSections,
     label: "Career Directions",
     Icon: Compass,
-    eyebrow: "Section Five",
+    eyebrow: "Section Six",
     description: "3-5 tailored career directions with specific rationale.",
   },
   {
     key: "developmentEdge" as keyof WowSections,
     label: "Development Edge",
     Icon: TrendingUp,
-    eyebrow: "Section Six",
+    eyebrow: "Section Seven",
     description: "Constructive growth areas framed as edges to develop.",
   },
   {
     key: "coachingQuestions" as keyof WowSections,
     label: "Conclusions",
     Icon: HelpCircle,
-    eyebrow: "Section Seven",
+    eyebrow: "Section Eight",
     description: "Final synthesis — dependable strengths, career meaning, and forward-looking close.",
   },
 ];
@@ -521,6 +533,31 @@ export default function WowReportTab({ clientId, clientName }: WowReportTabProps
                         className="h-px mb-4"
                         style={{ backgroundColor: "var(--lw-gold)", opacity: 0.3 }}
                       />
+                      {/* Colour energy summary card — shown only for Behavioural Style section */}
+                      {meta.key === "behaviouralStyle" && sections.primaryColour && (
+                        <div className="grid grid-cols-2 gap-3 mb-4">
+                          <div
+                            className="rounded p-3"
+                            style={{ backgroundColor: "var(--lw-cream)", border: "1px solid var(--lw-gold)" }}
+                          >
+                            <p className="text-[10px] font-bold tracking-widest uppercase mb-1" style={{ color: "var(--lw-navy)" }}>Primary Energy</p>
+                            <p className="text-base font-bold" style={{ color: "var(--lw-gold)" }}>{sections.primaryColour}</p>
+                          </div>
+                          <div
+                            className="rounded p-3"
+                            style={{ backgroundColor: "#eae6de", border: "1px solid #c8c0b0" }}
+                          >
+                            <p className="text-[10px] font-bold tracking-widest uppercase mb-1" style={{ color: "var(--lw-navy)" }}>Secondary Energy</p>
+                            <p className="text-base font-semibold" style={{ color: "var(--lw-navy)" }}>{sections.secondaryColour}</p>
+                          </div>
+                          {sections.jungianType && (
+                            <div className="col-span-2 rounded p-2 text-center" style={{ backgroundColor: "#f0ece4" }}>
+                              <p className="text-[10px] font-bold tracking-widest uppercase" style={{ color: "var(--lw-navy)" }}>Jungian Type Approximation</p>
+                              <p className="text-lg font-bold font-mono" style={{ color: "var(--lw-navy)" }}>{sections.jungianType}</p>
+                            </div>
+                          )}
+                        </div>
+                      )}
                       <div className="prose prose-sm max-w-none text-foreground leading-relaxed [&_h1]:font-serif [&_h1]:text-[var(--lw-navy)] [&_h2]:font-serif [&_h2]:text-[var(--lw-navy)] [&_h3]:font-serif [&_h3]:text-[var(--lw-navy)] [&_strong]:text-foreground [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5">
                         <Streamdown>{content}</Streamdown>
                       </div>

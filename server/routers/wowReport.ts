@@ -10,9 +10,10 @@
  *   2. Your Life History Pattern      — recurring themes from achievements
  *   3. Your Character Strengths (VIA) — top 7 with narrative
  *   4. Your Personality Profile       — Big Five with career implications
- *   5. Career Directions              — 3-5 tailored directions
- *   6. Your Development Edge          — constructive growth areas
- *   7. Conclusions
+ *   5. Your Behavioural Style         — Insights colour energy profile
+ *   6. Career Directions              — 3-5 tailored directions
+ *   7. Your Development Edge          — constructive growth areas
+ *   8. Conclusions
  */
 
 import { createRequire } from "module";
@@ -199,6 +200,10 @@ interface WowReportSections {
   lifeHistoryPattern: string;
   viaSection: string;
   personalitySection: string;
+  behaviouralStyle: string;
+  primaryColour: string;
+  secondaryColour: string;
+  jungianType: string;
   careerDirections: string;
   developmentEdge: string;
   coachingQuestions: string;
@@ -251,6 +256,32 @@ async function generateWowSections(clientId: number): Promise<WowReportSections>
   const subj = pronounParts[0] ?? "they";
   const poss = pronounParts[2] ?? pronounParts[1] ?? "their";
 
+  // ── Insights colour energy derivation from Big Five ──────────────────────
+  const eScore = domainScores["E"] ?? 50;
+  const aScore = domainScores["A"] ?? 50;
+  const oScore = domainScores["O"] ?? 50;
+  const cScore = domainScores["C"] ?? 50;
+  const isExtravert = eScore >= 50;
+  const isFeeler = aScore >= 50;
+  const primaryColour = !isExtravert && !isFeeler ? "Cool Blue"
+    : isExtravert && !isFeeler ? "Fiery Red"
+    : !isExtravert && isFeeler ? "Earth Green"
+    : "Sunshine Yellow";
+  const eDistance = Math.abs(eScore - 50);
+  const aDistance = Math.abs(aScore - 50);
+  const secondaryColour = (() => {
+    if (eDistance < aDistance) {
+      const flippedE = isExtravert ? 30 : 70;
+      const c2 = !(flippedE >= 50) && !isFeeler ? "Cool Blue" : (flippedE >= 50) && !isFeeler ? "Fiery Red" : !(flippedE >= 50) && isFeeler ? "Earth Green" : "Sunshine Yellow";
+      return c2 !== primaryColour ? c2 : (!isExtravert ? "Earth Green" : "Sunshine Yellow");
+    } else {
+      const flippedA = isFeeler ? 30 : 70;
+      const c2 = !isExtravert && !(flippedA >= 50) ? "Cool Blue" : isExtravert && !(flippedA >= 50) ? "Fiery Red" : !isExtravert && (flippedA >= 50) ? "Earth Green" : "Sunshine Yellow";
+      return c2 !== primaryColour ? c2 : primaryColour;
+    }
+  })();
+  const jungianType = `${isExtravert ? "E" : "I"}${oScore >= 50 ? "N" : "S"}${isFeeler ? "F" : "T"}${cScore >= 50 ? "J" : "P"}`;
+
   const sys = `You are a senior career analyst at Pennington Hennessy, trained in the Dependable Strengths methodology of Bernard Haldane. You write premium career analysis reports that combine rigorous psychometric interpretation with deep life history analysis. Your writing is warm, precise, and personal. Write in second person ("You are...") throughout. Use the client's first name (${clientName}) naturally. Use pronouns: ${pronouns}.
 
 FORMATTING RULES (strictly follow):
@@ -263,14 +294,40 @@ FORMATTING RULES (strictly follow):
 
   const ctx = `CLIENT DATA FOR ${clientName.toUpperCase()}:\n${contextText}`;
 
-  console.log(`[WOW Report] Starting 7-section parallel generation for client ${clientId}`);
+  const insightsSys = `You are an experienced Insights Discovery practitioner writing the Behavioural Style section of a premium career report for ${clientName}.
+${pronouns ? `Use pronouns: ${pronouns}.` : ""}
 
-  // Run all 7 sections in parallel — each with its own 90s timeout
+This section uses the Insights Discovery vocabulary (colour energies) to give the client a clear, practical picture of how they tend to show up in professional settings. It stands alongside — not instead of — the Big Five personality profile already covered in the previous section.
+
+Write the following four sub-sections using ## headings:
+
+## Colour Energy Profile
+Describe ${clientName}'s primary (${primaryColour}) and secondary (${secondaryColour}) colour energies in plain language. Explain what each energy means in practice — how it shows up in communication style, decision-making, and relationships at work. Be specific about the combination.
+
+## At Their Best
+Describe what ${clientName} looks like when operating from their strongest energies — what colleagues notice, how they contribute, what they bring to a team.
+
+## Under Pressure
+Describe how ${clientName} is likely to behave when stressed or outside their comfort zone. What might colleagues observe?
+
+## Working With Others
+Give one or two practical observations about how ${clientName} tends to work with people whose colour energies are very different from their own.
+
+Keep the tone warm, direct, and non-judgmental. Begin with a brief framing sentence acknowledging this is a tool for self-awareness, not a fixed label. Write in second person ("You are...") throughout. Do NOT include any introductory paragraph before the first ## heading.`;
+
+  const insightsData = Object.keys(domainScores).length > 0
+    ? `Primary colour energy: ${primaryColour}\nSecondary colour energy: ${secondaryColour}\nJungian type approximation: ${jungianType}\nExtraversion: ${eScore}/100\nAgreeableness: ${aScore}/100\nOpenness: ${oScore}/100\nConscientiousness: ${cScore}/100`
+    : "IPIP-NEO data not available — Insights profile cannot be generated.";
+
+  console.log(`[WOW Report] Starting 8-section parallel generation for client ${clientId}`);
+
+  // Run all 8 sections in parallel — each with its own 90s timeout
   const [
     summary,
     lifeHistoryPattern,
     viaSection,
     personalitySection,
+    behaviouralStyle,
     careerDirections,
     developmentEdge,
     coachingQuestions,
@@ -287,6 +344,7 @@ FORMATTING RULES (strictly follow):
     callLLMWithTimeout(sys,
       `${ctx}\n\nWrite an interpretive narrative of ${clientName}'s Big Five personality profile. Begin IMMEDIATELY with the heading "## Your Personality Profile: A Deep Dive" — do NOT write any introductory paragraph, preamble, or scene-setting text before this heading. Then for each of the five domains, write 2-3 sentences interpreting the score in the context of ${clientName}'s career and life history. Then write a 2-paragraph "Working Style" synthesis: how ${clientName} operates at ${subj} best, and what environments bring out the best in ${subj}.`
     ),
+    callLLMWithTimeout(insightsSys, insightsData),
     callLLMWithTimeout(sys,
       `${ctx}\n\nWrite 3-5 career directions for ${clientName}, each as a paragraph. For each: name the direction clearly, explain why it fits ${clientName}'s specific combination of life history, character strengths, and personality, and give one concrete example of what it could look like in practice. These should feel tailored and specific — not generic job titles.`
     ),
@@ -298,7 +356,7 @@ FORMATTING RULES (strictly follow):
     ),
   ]);
 
-  console.log(`[WOW Report] All 7 sections generated successfully for client ${clientId}`);
+  console.log(`[WOW Report] All 8 sections generated successfully for client ${clientId}`);
 
   return {
     clientName,
@@ -307,6 +365,10 @@ FORMATTING RULES (strictly follow):
     lifeHistoryPattern,
     viaSection,
     personalitySection,
+    behaviouralStyle,
+    primaryColour,
+    secondaryColour,
+    jungianType,
     careerDirections,
     developmentEdge,
     coachingQuestions,
@@ -667,15 +729,50 @@ async function renderWowPdf(sections: WowReportSections): Promise<Buffer> {
         : []),
       ...markdownToPdfContent(sections.personalitySection),
 
-      // ── Section 5: Career Directions ──
-      ...sectionBlock("5. Career Directions", sections.careerDirections),
-
-      // ── Section 6: Development Edge ──
-      ...sectionBlock("6. Your Development Edge", sections.developmentEdge),
-
-      // ── Section 7: Conclusions ──
+      // ── Section 5: Behavioural Style ──
       { text: "", pageBreak: "before" },
-      heading("7. Conclusions"),
+      heading("5. Your Behavioural Style"),
+      divider(),
+      ...(sections.primaryColour ? [
+        {
+          table: {
+            widths: ["*", "*"],
+            body: [[
+              {
+                stack: [
+                  { text: "Primary Energy", fontSize: 8, color: NAVY, characterSpacing: 1, margin: [0, 0, 0, 4] as [number, number, number, number] },
+                  { text: sections.primaryColour, fontSize: 14, bold: true, color: GOLD },
+                ],
+                border: [false, false, false, false],
+                fillColor: "#f5f1e8",
+                margin: [12, 10, 12, 10] as [number, number, number, number],
+              },
+              {
+                stack: [
+                  { text: "Secondary Energy", fontSize: 8, color: NAVY, characterSpacing: 1, margin: [0, 0, 0, 4] as [number, number, number, number] },
+                  { text: sections.secondaryColour, fontSize: 14, bold: false, color: NAVY },
+                ],
+                border: [false, false, false, false],
+                fillColor: "#eae6de",
+                margin: [12, 10, 12, 10] as [number, number, number, number],
+              },
+            ]],
+          },
+          layout: "noBorders",
+          margin: [0, 0, 0, 12] as [number, number, number, number],
+        },
+      ] : []),
+      ...markdownToPdfContent(sections.behaviouralStyle),
+
+      // ── Section 6: Career Directions ──
+      ...sectionBlock("6. Career Directions", sections.careerDirections),
+
+      // ── Section 7: Development Edge ──
+      ...sectionBlock("7. Your Development Edge", sections.developmentEdge),
+
+      // ── Section 8: Conclusions ──
+      { text: "", pageBreak: "before" },
+      heading("8. Conclusions"),
       divider(),
       ...markdownToPdfContent(sections.coachingQuestions),
 

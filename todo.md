@@ -431,3 +431,13 @@
 
 - [x] Remove intro text before "Your Personality Profile: A Deep Dive" heading in personality section
 - [x] Fix blank page 2 in WOW Report PDF
+
+## Behavioural Style Section — WOW Report
+
+- [x] Add behaviouralStyle field to WowReportSections type
+- [x] Add Insights colour energy derivation (from Big Five) to generateWowSections
+- [x] Add behaviouralStyle LLM prompt (reuse coaching session stage4 prompt) to parallel generation
+- [x] Add Section 5 "Behavioural Style" to PDF renderer (before Career Directions)
+- [x] Renumber sections 5→6 (Career Directions), 6→7 (Development Edge), 7→8 (Conclusions) in PDF
+- [x] Add Behavioural Style tab to WOW Report counsellor UI (before Career Directions tab)
+- [x] Reset existing reports to regenerate with new section
