@@ -509,7 +509,7 @@ async function renderWowPdf(sections: WowReportSections): Promise<Buffer> {
               { type: "rect", x: 0, y: 0, w: 595, h: 4, color: GOLD },
             ],
           }
-        : null,
+        : { canvas: [] },
 
     header: (currentPage: number) =>
       currentPage > 1
@@ -519,7 +519,7 @@ async function renderWowPdf(sections: WowReportSections): Promise<Buffer> {
               { text: sections.clientName.toUpperCase(), font: "Roboto", fontSize: 7, color: GOLD, alignment: "right", margin: [0, 20, 60, 0] },
             ],
           }
-        : null,
+        : { text: "", margin: [0, 0, 0, 0] },
 
     footer: (currentPage: number, pageCount: number) => ({
       columns: [
