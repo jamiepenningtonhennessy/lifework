@@ -96,10 +96,10 @@ const SECTION_META = [
   },
   {
     key: "coachingQuestions" as keyof WowSections,
-    label: "Coaching Questions",
+    label: "Conclusions",
     Icon: HelpCircle,
     eyebrow: "Section Seven",
-    description: "6 reflective questions tailored to this client's data.",
+    description: "Final synthesis — dependable strengths, career meaning, and forward-looking close.",
   },
 ];
 
@@ -119,7 +119,7 @@ const PROGRESS_MESSAGES = [
   "Analysing Big Five personality profile…",
   "Crafting career directions…",
   "Writing development edge narrative…",
-  "Composing coaching questions…",
+  "Writing conclusions and synthesis…",
   "Rendering branded PDF…",
 ];
 
@@ -254,7 +254,7 @@ export default function WowReportTab({ clientId, clientName }: WowReportTabProps
                 A premium 7-section AI-generated career analysis for{" "}
                 <span className="text-white/80 font-medium">{clientName ?? "this client"}</span>.
                 Synthesises life history, VIA character strengths, and Big Five personality into
-                tailored career directions and coaching questions.
+                tailored career directions and a personal conclusions narrative.
               </p>
             </div>
 

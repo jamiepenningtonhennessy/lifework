@@ -12,7 +12,7 @@
  *   4. Your Personality Profile       — Big Five with career implications
  *   5. Career Directions              — 3-5 tailored directions
  *   6. Your Development Edge          — constructive growth areas
- *   7. Questions for Your Coaching Conversation
+ *   7. Conclusions
  */
 
 import { createRequire } from "module";
@@ -275,7 +275,7 @@ FORMATTING RULES (strictly follow):
     coachingQuestions,
   ] = await Promise.all([
     callLLMWithTimeout(sys,
-      `${ctx}\n\nWrite a single 250-word portrait of ${clientName} as a professional. This is the opening "wow" statement — synthesise life history patterns, character strengths, and personality into the most insightful thing anyone has ever said about ${clientName}'s career. Begin with "${clientName} is..."`
+      `${ctx}\n\nWrite a single 250-word portrait of ${clientName} as a professional. This is the opening "wow" statement — synthesise life history patterns, character strengths, and personality into the most insightful thing anyone has ever said about ${clientName}'s career. Begin with "${clientName} is..." Do NOT include any introductory paragraph explaining what the report is about or what it will cover. Go straight into the personal portrait.`
     ),
     callLLMWithTimeout(sys,
       `${ctx}\n\nWrite 3-4 paragraphs identifying recurring themes across ${clientName}'s life history achievements. What patterns emerge across the decades? What do the Enjoyable/Satisfying/Fulfilling classifications reveal? What did others consistently notice? Connect these patterns to ${subj} current professional identity. Reference actual achievements from the data.`
@@ -293,7 +293,7 @@ FORMATTING RULES (strictly follow):
       `${ctx}\n\nWrite 2-3 paragraphs on ${clientName}'s development edge — the areas where growth would most expand ${subj} career options. Frame these constructively as "edges to develop" rather than weaknesses. Connect each to specific data from the profile. End with an encouraging observation about ${clientName}'s capacity for growth.`
     ),
     callLLMWithTimeout(sys,
-      `${ctx}\n\nWrite 6 reflective questions for ${clientName} to explore in ${poss} coaching conversation. These should be open, specific to ${clientName}'s data, and designed to deepen self-understanding. Introduce them with one sentence: "These questions are designed to take you deeper into what you have already discovered about yourself."`
+      `${ctx}\n\nWrite the Conclusions section for ${clientName}'s Lifework report. This is the final synthesis. In 3-4 short paragraphs: (1) name ${clientName}'s most dependable strengths as revealed across the whole report — the patterns that appear in life history, character strengths, and personality combined; (2) articulate what these strengths mean for ${clientName}'s career direction in concrete terms; (3) close with an encouraging, forward-looking statement about ${clientName}'s readiness and potential. This section should feel like a wise mentor speaking directly to ${clientName} — warm, specific, and genuinely personal. Do NOT include coaching questions or bullet points.`
     ),
   ]);
 
@@ -614,9 +614,9 @@ async function renderWowPdf(sections: WowReportSections): Promise<Buffer> {
       // ── Section 6: Development Edge ──
       ...sectionBlock("6. Your Development Edge", sections.developmentEdge),
 
-      // ── Section 7: Coaching Questions ──
+      // ── Section 7: Conclusions ──
       { text: "", pageBreak: "before" },
-      heading("7. Questions for Your Coaching Conversation"),
+      heading("7. Conclusions"),
       divider(),
       ...markdownToPdfContent(sections.coachingQuestions),
 
