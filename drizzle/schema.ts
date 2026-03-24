@@ -225,12 +225,15 @@ export const analysisReports = mysqlTable("analysis_reports", {
   fullReportMarkdown: text("fullReportMarkdown"),
   coachingSummaryJson: text("coachingSummaryJson"),
   coachNotesJson: text("coachNotesJson"),
-  sectionAnalysisJson: text("sectionAnalysisJson"),
+   sectionAnalysisJson: text("sectionAnalysisJson"),
   generatedAt: timestamp("generatedAt").defaultNow().notNull(),
+  // WOW Report — AI-generated premium PDF report
+  wowReportJson: text("wowReportJson"),       // JSON blob of all 7 sections
+  wowReportPdfUrl: text("wowReportPdfUrl"),   // S3 URL of the generated PDF
+  wowReportGeneratedAt: timestamp("wowReportGeneratedAt"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });
-
 export type AnalysisReport = typeof analysisReports.$inferSelect;
 
 // ─── Virtual Peter: Historical Client Database ───────────────────────────────

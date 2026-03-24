@@ -1,4 +1,5 @@
 import { COOKIE_NAME } from "@shared/const";
+import { wowReportRouter } from "./routers/wowReport";
 import { ENV } from "./_core/env";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
@@ -2101,6 +2102,7 @@ export const appRouter = router({
   chatPeter: chatPeterRouter,
   careerExplorer: careerExplorerRouter,
   coachingAnnex: coachingAnnexRouter,
+  wowReport: wowReportRouter,
 });
 
 export type AppRouter = typeof appRouter;

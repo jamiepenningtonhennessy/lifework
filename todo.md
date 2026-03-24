@@ -395,3 +395,13 @@
 - [x] Rewrite /lifework as StoryBrand 2.0 marketing page with video, CTA, and access code gate
 - [x] Add access code gate: server-side tRPC procedure to validate code, frontend modal before sign-in
 - [x] Set default access code via LIFEWORK_ACCESS_CODE env secret
+
+## WOW Report — AI-Generated Premium PDF Report
+- [x] Add wowReportJson and wowReportPdfUrl columns to analysis_reports schema and migrate
+- [x] Build server-side wowReport router with generateWowReport and getWowReport procedures
+- [x] Write AI prompt for 7-section WOW report (Summary, Life History Pattern, VIA, Big Five, Career Directions, Development Edge, Coaching Questions)
+- [x] Build PDF renderer using pdfmake with navy/gold/cream Lifework brand styling
+- [x] Upload generated PDF to S3 and store URL in database
+- [x] Add "WOW Report" tab to counsellor ClientProfile page
+- [x] Build WOW Report tab UI: generate button, status indicator, PDF preview/download, regenerate option
+- [x] Add vitest tests for wowReport router procedures
