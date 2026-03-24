@@ -447,3 +447,8 @@
 - [x] Build SVG InsightsWheel component with 4 colour quadrants and client position dot
 - [x] Add wheel to WowReportTab Behavioural Style accordion
 - [x] Add wheel to PDF renderer (Section 5) as embedded SVG/image
+
+## Bug Fix — Insights Wheel Labels
+
+- [x] Fix quadrant label positions in insightsWheelPng.ts (server/PDF) — labels overlapping axis text
+- [x] Fix quadrant label positions in InsightsWheel.tsx (React UI) — same issue
