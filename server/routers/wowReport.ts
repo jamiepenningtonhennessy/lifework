@@ -360,10 +360,86 @@ async function renderWowPdf(sections: WowReportSections): Promise<Buffer> {
     margin: [0, 8, 0, 8] as [number, number, number, number],
   });
 
+  // ── Markdown → pdfmake converter ──
+  // Handles: ## headings, ### subheadings, **bold** inline, bullet lists, numbered lists, plain paragraphs
+  const parseBoldInline = (text: string): unknown => {
+    if (!text.includes("**")) return text;
+    const parts: unknown[] = [];
+    const segments = text.split(/(\*\*[^*]+\*\*)/);
+    for (const seg of segments) {
+      if (seg.startsWith("**") && seg.endsWith("**")) {
+        parts.push({ text: seg.slice(2, -2), bold: true });
+      } else if (seg) {
+        parts.push(seg);
+      }
+    }
+    return { text: parts };
+  };
+  const markdownToPdfContent = (markdown: string): unknown[] => {
+    const lines = markdown.split("\n");
+    const result: unknown[] = [];
+    let listBuffer: unknown[] = [];
+    let listType: "bullet" | "ordered" | null = null;
+    let paraBuffer: string[] = [];
+    const flushList = () => {
+      if (listBuffer.length === 0) return;
+      result.push(listType === "bullet"
+        ? { ul: listBuffer, font: "Roboto", fontSize: 10.5, color: DARK_GREY, lineHeight: 1.4, margin: [0, 4, 0, 8] }
+        : { ol: listBuffer, font: "Roboto", fontSize: 10.5, color: DARK_GREY, lineHeight: 1.4, margin: [0, 4, 0, 8] });
+      listBuffer = []; listType = null;
+    };
+    const flushPara = () => {
+      if (paraBuffer.length === 0) return;
+      const text = paraBuffer.join(" ").trim();
+      if (!text) { paraBuffer = []; return; }
+      if (text.includes("**")) {
+        result.push({ ...para(""), text: parseBoldInline(text) });
+      } else {
+        result.push(para(text));
+      }
+      paraBuffer = [];
+    };
+    for (const rawLine of lines) {
+      const line = rawLine.trimEnd();
+      if (/^##\s/.test(line)) {
+        flushPara(); flushList();
+        result.push(subheading(line.replace(/^##\s+/, "")));
+        continue;
+      }
+      if (/^###\s/.test(line)) {
+        flushPara(); flushList();
+        result.push(subheading(line.replace(/^###\s+/, "")));
+        continue;
+      }
+      if (/^#\s/.test(line)) {
+        flushPara(); flushList();
+        result.push(subheading(line.replace(/^#\s+/, "")));
+        continue;
+      }
+      const bulletMatch = line.match(/^[\-\*]\s+(.+)/);
+      if (bulletMatch) {
+        flushPara();
+        if (listType !== "bullet") { flushList(); listType = "bullet"; }
+        listBuffer.push(parseBoldInline(bulletMatch[1]));
+        continue;
+      }
+      const numberedMatch = line.match(/^\d+\.\s+(.+)/);
+      if (numberedMatch) {
+        flushPara();
+        if (listType !== "ordered") { flushList(); listType = "ordered"; }
+        listBuffer.push(parseBoldInline(numberedMatch[1]));
+        continue;
+      }
+      if (line.trim() === "") { flushPara(); flushList(); continue; }
+      paraBuffer.push(line);
+    }
+    flushPara(); flushList();
+    return result;
+  };
   const sectionBlock = (title: string, content: string) => [
     heading(title),
     divider(),
-    ...content.split(/\n\n+/).filter(Boolean).map(p => para(p.trim())),
+    ...markdownToPdfContent(content),
   ];
 
   // ── VIA bar chart (simple text-based) ──
@@ -501,7 +577,7 @@ async function renderWowPdf(sections: WowReportSections): Promise<Buffer> {
             },
           ]
         : []),
-      ...sections.viaSection.split(/\n\n+/).filter(Boolean).map(p => para(p.trim())),
+      ...markdownToPdfContent(sections.viaSection),
 
       // ── Section 4: Personality Profile ──
       heading("4. Your Personality Profile"),
@@ -519,7 +595,7 @@ async function renderWowPdf(sections: WowReportSections): Promise<Buffer> {
             },
           ]
         : []),
-      ...sections.personalitySection.split(/\n\n+/).filter(Boolean).map(p => para(p.trim())),
+      ...markdownToPdfContent(sections.personalitySection),
 
       // ── Section 5: Career Directions ──
       ...sectionBlock("5. Career Directions", sections.careerDirections),
@@ -530,7 +606,7 @@ async function renderWowPdf(sections: WowReportSections): Promise<Buffer> {
       // ── Section 7: Coaching Questions ──
       heading("7. Questions for Your Coaching Conversation"),
       divider(),
-      ...sections.coachingQuestions.split(/\n\n+/).filter(Boolean).map(p => para(p.trim())),
+      ...markdownToPdfContent(sections.coachingQuestions),
 
       // ── Closing ──
       { text: "", margin: [0, 20, 0, 0] as [number, number, number, number] },

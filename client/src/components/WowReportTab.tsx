@@ -30,6 +30,7 @@ import {
   AlertCircle,
 } from "lucide-react";
 import { toast } from "sonner";
+import { Streamdown } from "streamdown";
 
 interface WowReportTabProps {
   clientId: number;
@@ -520,12 +521,8 @@ export default function WowReportTab({ clientId, clientName }: WowReportTabProps
                         className="h-px mb-4"
                         style={{ backgroundColor: "var(--lw-gold)", opacity: 0.3 }}
                       />
-                      <div className="prose prose-sm max-w-none text-foreground leading-relaxed">
-                        {content.split("\n\n").map((para, i) => (
-                          <p key={i} className="mb-3 text-sm leading-relaxed">
-                            {para}
-                          </p>
-                        ))}
+                      <div className="prose prose-sm max-w-none text-foreground leading-relaxed [&_h1]:font-serif [&_h1]:text-[var(--lw-navy)] [&_h2]:font-serif [&_h2]:text-[var(--lw-navy)] [&_h3]:font-serif [&_h3]:text-[var(--lw-navy)] [&_strong]:text-foreground [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5">
+                        <Streamdown>{content}</Streamdown>
                       </div>
                     </div>
                   )}

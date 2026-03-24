@@ -410,3 +410,7 @@
 - [x] Add VIA strength name labels to the bar chart in WowReportTab
 - [x] Reorder SECTION_META: Life History Pattern first, then Lifework Summary, then psychometrics
 - [x] Pass client first name into all 7 AI prompts so "the client" is replaced with the person's name
+
+## WOW Report — Markdown Rendering Fix
+- [x] Render WowReportTab section text as styled Markdown (headings, bold, paragraphs) not raw text
+- [x] Add Markdown-to-pdfmake converter in renderWowPdf so ## becomes styled headings, **bold** becomes bold text, etc.
