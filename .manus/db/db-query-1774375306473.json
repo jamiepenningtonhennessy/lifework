@@ -1,0 +1,50 @@
+{
+  "query": "SHOW COLUMNS FROM analysis_reports LIKE 'wow%';",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 32u3a1hNYuu9Gj3.7d2282893346 --database kFbbE6kqNApXGDFpQJUGV7 --execute SHOW COLUMNS FROM analysis_reports LIKE 'wow%';",
+  "rows": [
+    {
+      "Field": "wowReportJson",
+      "Type": "longtext",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "wowReportPdfUrl",
+      "Type": "text",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "wowReportGeneratedAt",
+      "Type": "timestamp",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "wowReportStatus",
+      "Type": "varchar(20)",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "wowReportError",
+      "Type": "text",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    }
+  ],
+  "messages": [],
+  "stdout": "Field\tType\tNull\tKey\tDefault\tExtra\nwowReportJson\tlongtext\tYES\t\tNULL\t\nwowReportPdfUrl\ttext\tYES\t\tNULL\t\nwowReportGeneratedAt\ttimestamp\tYES\t\tNULL\t\nwowReportStatus\tvarchar(20)\tYES\t\tNULL\t\nwowReportError\ttext\tYES\t\tNULL\t\n",
+  "stderr": "",
+  "execution_time_ms": 47
+}

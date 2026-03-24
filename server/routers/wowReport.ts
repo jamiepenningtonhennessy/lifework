@@ -82,7 +82,7 @@ async function buildClientContext(clientId: number): Promise<{
   clientName: string;
   pronouns: string;
   contextText: string;
-  viaRanked: Array<{ strength: string; score: number; rank: number }>;
+  viaRanked: Array<{ name: string; score: number; rank: number; strengthId?: string }>;
   domainScores: Record<string, number>;
   facetScores: Record<string, number>;
 }> {
@@ -102,7 +102,7 @@ async function buildClientContext(clientId: number): Promise<{
   const pronouns = profile.pronouns ?? "they/them";
 
   // Parse VIA
-  const viaRanked: Array<{ strength: string; score: number; rank: number }> = (() => {
+  const viaRanked: Array<{ name: string; score: number; rank: number; strengthId?: string }> = (() => {
     try {
       const r = via?.rankedStrengths;
       if (!r) return [];
@@ -174,7 +174,7 @@ async function buildClientContext(clientId: number): Promise<{
   if (viaRanked.length > 0) {
     lines.push("\n--- VIA CHARACTER STRENGTHS (ranked) ---");
     viaRanked.slice(0, 10).forEach((s, i) => {
-      lines.push(`${i + 1}. ${s.strength} (score: ${s.score})`);
+      lines.push(`${i + 1}. ${s.name} (score: ${s.score}/25)`);
     });
   }
 
@@ -201,7 +201,7 @@ interface WowReportSections {
   careerDirections: string;
   developmentEdge: string;
   coachingQuestions: string;
-  viaRanked: Array<{ strength: string; score: number; rank: number }>;
+  viaRanked: Array<{ name: string; score: number; rank: number; strengthId?: string }>;
   domainScores: Record<string, number>;
 }
 
@@ -453,12 +453,12 @@ async function renderWowPdf(sections: WowReportSections): Promise<Buffer> {
 
   // ── VIA bar chart (simple text-based) ──
   const viaRows = sections.viaRanked.slice(0, 10).map((s, i) => [
-    { text: `${i + 1}. ${s.strength}`, font: "Roboto", fontSize: 9, color: DARK_GREY, bold: i < 3 },
+    { text: `${i + 1}. ${s.name}`, font: "Roboto", fontSize: 9, color: DARK_GREY, bold: i < 3 },
     {
       canvas: [{
         type: "rect",
         x: 0, y: 2,
-        w: Math.round((s.score / 5) * 120),
+        w: Math.round((s.score / 25) * 120),
         h: 8,
         color: i < 3 ? GOLD : LIGHT_GOLD,
       }],
