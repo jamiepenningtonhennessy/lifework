@@ -18,6 +18,7 @@
 
 import { createRequire } from "module";
 import { PH_LOGO_WHITE_BASE64 } from "./phLogoBase64.js";
+import { LIFEWORK_LOGO_BASE64 } from "./lifeworkLogoBase64.js";
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { router, protectedProcedure } from "../_core/trpc";
@@ -83,6 +84,7 @@ const BIG5_LABELS: Record<string, { name: string; low: string; high: string }> =
 
 async function buildClientContext(clientId: number): Promise<{
   clientName: string;
+  clientFullName: string;
   pronouns: string;
   contextText: string;
   viaRanked: Array<{ name: string; score: number; rank: number; strengthId?: string }>;
@@ -102,6 +104,7 @@ async function buildClientContext(clientId: number): Promise<{
   if (!profile) throw new TRPCError({ code: "NOT_FOUND", message: "Client not found" });
 
   const clientName = profile.firstName ?? "the client";
+  const clientFullName = [profile.firstName, profile.lastName].filter(Boolean).join(" ") || "the client";
   const pronouns = profile.pronouns ?? "they/them";
 
   // Parse VIA
@@ -189,13 +192,14 @@ async function buildClientContext(clientId: number): Promise<{
     }
   }
 
-  return { clientName, pronouns, contextText: lines.join("\n"), viaRanked, domainScores, facetScores };
+  return { clientName, clientFullName, pronouns, contextText: lines.join("\n"), viaRanked, domainScores, facetScores };
 }
 
 // ─── Helper: Generate all 7 sections via LLM ─────────────────────────────────
 
 interface WowReportSections {
   clientName: string;
+  clientFullName: string;
   generatedAt: string;
   summary: string;
   lifeHistoryPattern: string;
@@ -251,7 +255,7 @@ async function callLLMWithTimeout(
 }
 
 async function generateWowSections(clientId: number): Promise<WowReportSections> {
-  const { clientName, pronouns, contextText, viaRanked, domainScores } = await buildClientContext(clientId);
+  const { clientName, clientFullName, pronouns, contextText, viaRanked, domainScores } = await buildClientContext(clientId);
   // pronouns is a string like "they/them/their" or "he/him/his" or "she/her/her"
   const pronounParts = pronouns.split("/");
   const subj = pronounParts[0] ?? "they";
@@ -361,6 +365,7 @@ Keep the tone warm, direct, and non-judgmental. Begin with a brief framing sente
 
   return {
     clientName,
+    clientFullName,
     generatedAt: new Date().toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" }),
     summary,
     lifeHistoryPattern,
@@ -578,123 +583,57 @@ async function renderWowPdf(sections: WowReportSections): Promise<Buffer> {
     pageMargins: [60, 80, 60, 80] as [number, number, number, number],
     defaultStyle: { font: "Roboto", fontSize: 10.5, color: DARK_GREY },
 
-    background: (currentPage: number) =>
-      currentPage === 1
-        ? {
-            // absolutePosition bypasses pdfmake's height check (which returns false
-            // instead of an array, causing addAll/forEach to crash).
-            absolutePosition: { x: 0, y: 0 },
-            canvas: [
-              // Full page navy fill
-              { type: "rect", x: 0, y: 0, w: 595, h: 842, color: NAVY },
-              // Decorative gold horizontal rule — upper third
-              { type: "line", x1: 60, y1: 200, x2: 535, y2: 200, lineWidth: 0.5, lineColor: GOLD },
-              // Decorative gold horizontal rule — lower area
-              { type: "line", x1: 60, y1: 680, x2: 535, y2: 680, lineWidth: 0.5, lineColor: GOLD },
-              // Thin gold accent bar — top edge
-              { type: "rect", x: 0, y: 0, w: 595, h: 4, color: GOLD },
-            ],
-          }
-        : null,
+    background: null,
 
     header: (currentPage: number) =>
       currentPage > 1
         ? {
             columns: [
               { text: "LIFEWORK CAREER ANALYSIS", font: "Roboto", fontSize: 7, color: MID_GREY, margin: [60, 20, 0, 0] },
-              { text: sections.clientName.toUpperCase(), font: "Roboto", fontSize: 7, color: GOLD, alignment: "right", margin: [0, 20, 60, 0] },
+              { text: sections.clientFullName, font: "Roboto", fontSize: 7, color: GOLD, alignment: "right", margin: [0, 20, 60, 0] },
             ],
           }
         : { text: "", margin: [0, 0, 0, 0] },
 
-    footer: (currentPage: number, pageCount: number) => ({
-      columns: [
-        { text: "Pennington Hennessy", font: "Roboto", fontSize: 7, color: MID_GREY, margin: [60, 0, 0, 0] },
-        { text: `${currentPage} / ${pageCount}`, font: "Roboto", fontSize: 7, color: MID_GREY, alignment: "right", margin: [0, 0, 60, 0] },
-      ],
-    }),
+    footer: (currentPage: number, pageCount: number) =>
+      currentPage > 1
+        ? {
+            columns: [
+              { text: "Pennington Hennessy", font: "Roboto", fontSize: 7, color: MID_GREY, margin: [60, 20, 0, 0] },
+              { text: `${currentPage - 1} / ${pageCount - 1}`, font: "Roboto", fontSize: 7, color: MID_GREY, alignment: "right", margin: [0, 20, 60, 0] },
+            ],
+          }
+        : { text: "", margin: [0, 0, 0, 0] },
 
     content: [
-      // ── Cover page (full-bleed navy, set via background callback) ──
-      // Logo — top left
+      // ── Cover page — white, matching lifeworkcover.pdf template ──
+      // Large top spacer to push client name to ~55% down the page
+      // pageMargins top=80, so we need ~380pt of space before the name
+      { text: "", margin: [0, 0, 0, 300] as [number, number, number, number] },
+      // Client full name — large, light-weight, centred
       {
-        image: PH_LOGO_WHITE_BASE64,
-        width: 140,
-        margin: [0, 20, 0, 0] as [number, number, number, number],
-      },
-      // Eyebrow: gold rule + small-caps label (mimics website lw-eyebrow)
-      {
-        columns: [
-          {
-            // Gold rule — using a table border (no canvas)
-            table: { widths: [24], body: [[{ text: "", border: [false, false, false, true], borderColor: [GOLD, GOLD, GOLD, GOLD] }]] },
-            layout: "noBorders",
-            width: 32,
-            margin: [0, 4, 0, 0] as [number, number, number, number],
-          },
-          {
-            text: "LIFEWORK CAREER ANALYSIS",
-            font: "Roboto",
-            fontSize: 7.5,
-            color: GOLD,
-            characterSpacing: 2,
-            margin: [0, 0, 0, 0] as [number, number, number, number],
-          },
-        ],
-        margin: [0, 60, 0, 12] as [number, number, number, number],
-      },
-      // Main title — large serif-weight white
-      {
-        text: "Lifework",
+        text: sections.clientFullName,
         font: "Roboto",
-        fontSize: 52,
-        bold: true,
-        color: CREAM,
-        margin: [0, 0, 0, 0] as [number, number, number, number],
-      },
-      {
-        text: "Career Analysis",
-        font: "Roboto",
-        fontSize: 26,
+        fontSize: 40,
         bold: false,
-        italics: true,
-        color: GOLD,
-        margin: [0, 0, 0, 40] as [number, number, number, number],
+        color: DARK_GREY,
+        alignment: "center",
+        margin: [0, 0, 0, 10] as [number, number, number, number],
       },
-      // Client name — prominent, cream
-      {
-        text: sections.clientName,
-        font: "Roboto",
-        fontSize: 28,
-        bold: true,
-        color: CREAM,
-        margin: [0, 0, 0, 8] as [number, number, number, number],
-      },
-      // Date — muted gold
+      // Date — medium weight, right-aligned to match template
       {
         text: sections.generatedAt,
         font: "Roboto",
-        fontSize: 10,
-        color: LIGHT_GOLD,
+        fontSize: 11,
+        color: MID_GREY,
+        alignment: "center",
         margin: [0, 0, 0, 0] as [number, number, number, number],
       },
-      // Spacer to push footer to bottom
-      { text: "", margin: [0, 0, 0, 180] as [number, number, number, number] },
-      // Bottom attribution — sits just above the lower gold rule (at y≈680)
+      // Lifework logo — bottom-right corner using absolutePosition
       {
-        text: "Prepared by Pennington Hennessy",
-        font: "Roboto",
-        fontSize: 8,
-        color: LIGHT_GOLD,
-        characterSpacing: 1,
-        margin: [0, 0, 0, 4] as [number, number, number, number],
-      },
-      {
-        text: "penningtonhennessy.com",
-        font: "Roboto",
-        fontSize: 8,
-        color: GOLD,
-        margin: [0, 0, 0, 0] as [number, number, number, number],
+        image: LIFEWORK_LOGO_BASE64,
+        width: 130,
+        absolutePosition: { x: 595 - 60 - 130, y: 842 - 60 - 45 },
       },
 
       // ── Section 1: Summary (sectionBlock already includes pageBreak: 'before') ──

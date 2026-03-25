@@ -457,3 +457,13 @@
 
 - [x] Remove Introvert/Extravert and Thinker/Feeler axis labels from InsightsWheel.tsx (React UI)
 - [x] Remove axis labels from insightsWheelPng.ts (server-side PDF PNG)
+
+## Cover Page Template
+
+- [x] Inspect lifeworkcover.pdf to understand layout, colours, fonts, and dimensions
+- [x] Recreate cover page in pdfmake matching the template design
+- [x] Insert client name and report date in appropriate spaces
+- [x] Add client full name to top-right header on all pages
+- [x] Move footer down so it is the same distance from the bottom as the header text is from the top
+- [x] Suppress header and footer on cover page (page 1)
+- [x] Page numbers offset by 1 (cover = page 0, inner pages start at 1)
