@@ -592,7 +592,7 @@ async function renderWowPdf(sections: WowReportSections): Promise<Buffer> {
     background: null,
 
     header: (currentPage: number) =>
-      currentPage > 1
+      currentPage > 2
         ? {
             columns: [
               { text: "LIFEWORK CAREER ANALYSIS", font: "Roboto", fontSize: 7, color: MID_GREY, margin: [60, 20, 0, 0] },
@@ -602,11 +602,11 @@ async function renderWowPdf(sections: WowReportSections): Promise<Buffer> {
         : { text: "", margin: [0, 0, 0, 0] },
 
     footer: (currentPage: number, pageCount: number) =>
-      currentPage > 1
+      currentPage > 2
         ? {
             columns: [
               { text: "Pennington Hennessy", font: "Roboto", fontSize: 7, color: MID_GREY, margin: [60, 20, 0, 0] },
-              { text: `${currentPage - 1} / ${pageCount - 1}`, font: "Roboto", fontSize: 7, color: MID_GREY, alignment: "right", margin: [0, 20, 60, 0] },
+              { text: `${currentPage - 2} / ${pageCount - 2}`, font: "Roboto", fontSize: 7, color: MID_GREY, alignment: "right", margin: [0, 20, 60, 0] },
             ],
           }
         : { text: "", margin: [0, 0, 0, 0] },
@@ -640,6 +640,96 @@ async function renderWowPdf(sections: WowReportSections): Promise<Buffer> {
         image: LIFEWORK_LOGO_BASE64,
         width: 130,
         absolutePosition: { x: 595 - 60 - 130, y: 842 - 60 - 45 },
+      },
+
+      // ── Covering letter — page 2, no header/footer ──
+      { text: "", pageBreak: "before" },
+      // Top spacer
+      { text: "", margin: [0, 40, 0, 0] as [number, number, number, number] },
+      // Salutation
+      {
+        text: `Hi ${sections.clientName}`,
+        font: "Roboto",
+        fontSize: 13,
+        bold: true,
+        color: NAVY,
+        margin: [0, 0, 0, 18] as [number, number, number, number],
+      },
+      // Body paragraphs
+      {
+        text: "So here\u2019s your Lifework report.",
+        font: "Roboto",
+        fontSize: 11,
+        color: DARK_GREY,
+        lineHeight: 1.6,
+        margin: [0, 0, 0, 14] as [number, number, number, number],
+      },
+      {
+        text: "It\u2019s me \u2013 Jamie \u2013 the creator of the Lifework process \u2013 writing this cover note, not the very clever AI Sage. (She would probably write it better than me. Not that I\u2019m jealous)",
+        font: "Roboto",
+        fontSize: 11,
+        color: DARK_GREY,
+        lineHeight: 1.6,
+        margin: [0, 0, 0, 14] as [number, number, number, number],
+      },
+      {
+        text: "You\u2019ve put a lot of work into giving me the information necessary to do what we set out to achieve \u2013 to understand yourself, and what makes you, \u201cyou\u201d",
+        font: "Roboto",
+        fontSize: 11,
+        color: DARK_GREY,
+        lineHeight: 1.6,
+        margin: [0, 0, 0, 14] as [number, number, number, number],
+      },
+      {
+        text: "So your report is a big read.",
+        font: "Roboto",
+        fontSize: 11,
+        color: DARK_GREY,
+        lineHeight: 1.6,
+        margin: [0, 0, 0, 10] as [number, number, number, number],
+      },
+      {
+        ul: [
+          "If you\u2019re naturally impatient it\u2019s OK to start with Chapter 8 \u2013 Conclusions. It\u2019s here we summarise what we believe to be true, and give you a suggested reply to that dreaded interview question \u201cSo, tell me about yourself\u201d.",
+          "If you\u2019re more patient, the report builds your analysis from your early years life history, step-by-step, so you can see how the analysis unfolds.",
+        ],
+        font: "Roboto",
+        fontSize: 11,
+        color: DARK_GREY,
+        lineHeight: 1.6,
+        margin: [0, 0, 0, 14] as [number, number, number, number],
+      },
+      {
+        text: "One really important thing. Your report is the basis for reflecting, thinking and discussing. It\u2019s built on the information you told us and the psychometric instruments that you engaged with. It\u2019s therefore OK to disagree with anything we\u2019ve written. Sage may be able to help you unpack why we believe it to be true, but you remain the expert on you. If you \u2013 plus your friends and colleagues (always worth checking in with) \u2013 see something we\u2019ve missed, Great. The overall aim is to help you know you, in the context of \u201cwhat\u2019s next?\u201d",
+        font: "Roboto",
+        fontSize: 11,
+        color: DARK_GREY,
+        lineHeight: 1.6,
+        margin: [0, 0, 0, 14] as [number, number, number, number],
+      },
+      {
+        text: "If you have any concerns about what has been raised in this report, feel free to email me.",
+        font: "Roboto",
+        fontSize: 11,
+        color: DARK_GREY,
+        lineHeight: 1.6,
+        margin: [0, 0, 0, 36] as [number, number, number, number],
+      },
+      // Signature
+      {
+        text: "Jamie Pennington",
+        font: "Roboto",
+        fontSize: 11,
+        bold: true,
+        color: NAVY,
+        margin: [0, 0, 0, 4] as [number, number, number, number],
+      },
+      {
+        text: "Jamie@penningtonhennessy.com",
+        font: "Roboto",
+        fontSize: 10,
+        color: GOLD,
+        margin: [0, 0, 0, 0] as [number, number, number, number],
       },
 
       // ── Section 1: Summary (sectionBlock already includes pageBreak: 'before') ──

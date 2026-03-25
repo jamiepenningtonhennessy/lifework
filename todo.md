@@ -517,3 +517,10 @@
 - [x] Identify video file in Google Drive folder (file ID: 1d5tJEmwsCXmvdsXJGSe1yzN1csLqoK6h)
 - [x] Embed video at the top of the Background & History page (above the Family/Education/Career tabs)
 - [x] Video is responsive (16:9 aspect ratio, gold border, consistent with other embedded videos)
+
+## WOW Report — Covering Letter
+
+- [x] Add covering letter from Jamie Pennington as standalone page 2 of every WOW Report PDF (after cover, before Section 1)
+- [x] Insert client first name in the salutation ("Hi [firstname]")
+- [x] Header/footer suppressed on pages 1 and 2; main report numbering starts at 1 from Section 1
+- [x] Reset existing reports to regenerate with covering letter
