@@ -474,3 +474,8 @@
 - [x] Update WOW Report Summary prompt: reference early-imprinted patterns as the foundation of the career narrative
 - [x] Update coaching session Past tab Sage analysis prompts: same early-experience-first methodology
 - [x] Update coaching session Emerging Themes (Future tab) prompt: root emerging themes in early-established patterns
+
+## Life History Pattern Chapter — Expansion to 2-3 Pages
+
+- [x] Rewrite Life History Pattern prompt: structured multi-section chapter tracing each seed theme from earliest appearance through the decades
+- [x] Reset existing reports to regenerate with expanded chapter
