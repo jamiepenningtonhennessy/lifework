@@ -491,3 +491,17 @@
 - [x] Rewrite Conclusions prompt: Past (life history patterns), Present (VIA + OCEAN + Behavioural Style), Future (Career Directions + Development Edge)
 - [x] Add closing "Tell Me About Yourself" paragraph — a 90-second interview answer synthesising the whole report
 - [x] Reset existing reports to regenerate with new Conclusions structure
+
+## Sage Prompt Improvements
+
+- [x] Sage 1: Add early-life primacy instruction — earliest achievements are most important, always probe for first instance of each theme
+- [x] Sage 1: Add closing ritual — when client signals done, Sage names 2-3 patterns she noticed and asks "Does that feel true?"
+- [x] Sage 1: Give Sage a distinct professional identity (not just "warm and empathetic")
+- [x] Sage 1: Add stage direction format (physical presence before each spoken response)
+- [x] Sage 1: Natural ESF classification — weave into conversation, not as a form question
+- [x] Sage 2: Add opening move — on first message, Sage introduces herself, names the most striking thing in the profile, asks one question
+- [x] Sage 2: Inject full WOW Report sections into context (not just careerThemes/careerSuggestions)
+- [x] Sage 2: Add challenge instruction — when client repeatedly returns to a direction without committing, name the hesitation
+- [x] Sage 2: Add session arc instruction — opening → exploration → challenge → commitment
+- [x] Sage 2: Give Sage a distinct professional identity
+- [x] Sage 2: Add stage direction format (physical presence before each spoken response)
