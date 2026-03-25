@@ -479,3 +479,9 @@
 
 - [x] Rewrite Life History Pattern prompt: structured multi-section chapter tracing each seed theme from earliest appearance through the decades
 - [x] Reset existing reports to regenerate with expanded chapter
+
+## Prompt Tone — Remove Obsequious Openings
+
+- [x] Audit all WOW Report chapter prompts and add explicit "do not open with salutations or flattery" instruction
+- [x] Add a shared system prompt rule: open each chapter directly with the analysis, no "Dear X" or introductory flattery
+- [x] Reset existing reports to regenerate with corrected tone
