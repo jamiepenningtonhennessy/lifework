@@ -511,3 +511,9 @@
 - [x] Convert all 8 WOW Report section prompts from second-person ("you"/"your") to third-person (client first name + pronouns)
 - [x] Update section heading text in PDF renderer if any contain "Your" (e.g. "Your Personality Profile")
 - [x] Reset all existing WOW Reports to regenerate with corrected voice
+
+## Background & History Tab — Intro Video
+
+- [x] Identify video file in Google Drive folder (file ID: 1d5tJEmwsCXmvdsXJGSe1yzN1csLqoK6h)
+- [x] Embed video at the top of the Background & History page (above the Family/Education/Career tabs)
+- [x] Video is responsive (16:9 aspect ratio, gold border, consistent with other embedded videos)

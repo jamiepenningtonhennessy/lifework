@@ -42,6 +42,29 @@ export default function Background() {
       </div>
 
       <div className="container max-w-3xl py-8">
+        {/* Intro video */}
+        <div
+          className="mb-8 overflow-hidden"
+          style={{ border: "1px solid rgba(201,151,58,0.3)", background: "#000" }}
+        >
+          <div style={{ position: "relative", paddingBottom: "56.25%", height: 0 }}>
+            <iframe
+              src="https://drive.google.com/file/d/1d5tJEmwsCXmvdsXJGSe1yzN1csLqoK6h/preview"
+              allow="autoplay"
+              allowFullScreen
+              style={{
+                position: "absolute",
+                top: 0,
+                left: 0,
+                width: "100%",
+                height: "100%",
+                border: 0,
+              }}
+              title="Career, education and family"
+            />
+          </div>
+        </div>
+
         {/* Tabs */}
         <div className="flex gap-1 mb-8 border-b border-border">
           {(["family", "education", "career"] as Tab[]).map((tab) => (
