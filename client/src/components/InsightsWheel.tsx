@@ -150,12 +150,6 @@ export default function InsightsWheel({
         <tspan x={CB.x} dy={lineH} fontSize={fs}>Blue</tspan>
       </text>
 
-      {/* Axis labels */}
-      <text x={cx} y={fsSmall + 4} textAnchor="middle" fontSize={fsSmall} fill="#666" fontFamily="sans-serif">Thinker</text>
-      <text x={cx} y={size - 4} textAnchor="middle" fontSize={fsSmall} fill="#666" fontFamily="sans-serif">Feeler</text>
-      <text x={6} y={cy + fsSmall * 0.4} textAnchor="start" fontSize={fsSmall} fill="#666" fontFamily="sans-serif">Introvert</text>
-      <text x={size - 6} y={cy + fsSmall * 0.4} textAnchor="end" fontSize={fsSmall} fill="#666" fontFamily="sans-serif">Extravert</text>
-
       {/* Client position dot — white halo then navy fill */}
       <circle cx={dotX} cy={dotY} r={dotR + 3} fill="white" opacity={0.9} />
       <circle cx={dotX} cy={dotY} r={dotR} fill="#1a2744" stroke="white" strokeWidth={2} />

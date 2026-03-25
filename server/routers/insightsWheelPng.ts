@@ -80,9 +80,8 @@ function buildWheelSvg(extraversion: number, agreeableness: number, size = 320):
   // Label radius: 72% of outer radius — labels sit near the outer ring,
   // leaving the inner area free for the client dot to move without overlap.
   const labelR = outerR * 0.72;
-  // Font sizes — slightly smaller so labels fit within the arc
+  // Font sizes
   const fs = Math.round(size * 0.044);        // quadrant label
-  const fsSmall = Math.round(size * 0.036);   // axis label
   const lineH = fs * 1.25;
 
   // Quadrant label centres (midpoint of each 90° slice, 0°=top clockwise)
@@ -136,12 +135,6 @@ function buildWheelSvg(extraversion: number, agreeableness: number, size = 320):
   <!-- Cool Blue (top-left) -->
   <text x="${CB.x.toFixed(1)}" y="${(CB.y - lineH * 0.5).toFixed(1)}" text-anchor="middle" dominant-baseline="middle" font-size="${fs}" font-weight="bold" fill="${COLOURS.coolBlue}">Cool</text>
   <text x="${CB.x.toFixed(1)}" y="${(CB.y + lineH * 0.5).toFixed(1)}" text-anchor="middle" dominant-baseline="middle" font-size="${fs}" font-weight="bold" fill="${COLOURS.coolBlue}">Blue</text>
-
-  <!-- Axis labels — small, at the very edge of the wheel -->
-  <text x="${cx}" y="${fsSmall + 4}" text-anchor="middle" font-size="${fsSmall}" fill="#666">Thinker</text>
-  <text x="${cx}" y="${size - 4}" text-anchor="middle" font-size="${fsSmall}" fill="#666">Feeler</text>
-  <text x="6" y="${cy + fsSmall * 0.4}" text-anchor="start" font-size="${fsSmall}" fill="#666">Introvert</text>
-  <text x="${size - 6}" y="${cy + fsSmall * 0.4}" text-anchor="end" font-size="${fsSmall}" fill="#666">Extravert</text>
 
   <!-- Client dot — white halo then navy fill -->
   <circle cx="${dotX.toFixed(2)}" cy="${dotY.toFixed(2)}" r="${(dotR + 4).toFixed(1)}" fill="white" opacity="0.9"/>

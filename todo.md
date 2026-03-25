@@ -452,3 +452,8 @@
 
 - [x] Fix quadrant label positions in insightsWheelPng.ts (server/PDF) — labels overlapping axis text
 - [x] Fix quadrant label positions in InsightsWheel.tsx (React UI) — same issue
+
+## Bug Fix — Insights Wheel Axis Labels
+
+- [x] Remove Introvert/Extravert and Thinker/Feeler axis labels from InsightsWheel.tsx (React UI)
+- [x] Remove axis labels from insightsWheelPng.ts (server-side PDF PNG)
