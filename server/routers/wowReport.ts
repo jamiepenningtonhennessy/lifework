@@ -612,48 +612,17 @@ async function renderWowPdf(sections: WowReportSections): Promise<Buffer> {
         : { text: "", margin: [0, 0, 0, 0] },
 
     content: [
-      // ── Cover page — white, matching lifeworkcover.pdf template ──
-      // Large top spacer to push client name to ~55% down the page
-      // pageMargins top=80, so we need ~380pt of space before the name
-      { text: "", margin: [0, 0, 0, 300] as [number, number, number, number] },
-      // Client full name — large, light-weight, centred
-      {
-        text: sections.clientFullName,
-        font: "Roboto",
-        fontSize: 40,
-        bold: false,
-        color: DARK_GREY,
-        alignment: "center",
-        margin: [0, 0, 0, 10] as [number, number, number, number],
-      },
-      // Date — medium weight, right-aligned to match template
-      {
-        text: sections.generatedAt,
-        font: "Roboto",
-        fontSize: 11,
-        color: MID_GREY,
-        alignment: "center",
-        margin: [0, 0, 0, 0] as [number, number, number, number],
-      },
-      // Lifework logo — bottom-right corner using absolutePosition
-      {
-        image: LIFEWORK_LOGO_BASE64,
-        width: 130,
-        absolutePosition: { x: 595 - 60 - 130, y: 842 - 60 - 45 },
-      },
-
-      // ── Covering letter — page 2, no header/footer ──
-      { text: "", pageBreak: "before" },
+      // ── Covering letter — page 1, no header/footer ──
       // Top spacer
       { text: "", margin: [0, 40, 0, 0] as [number, number, number, number] },
-      // Salutation
+      // Salutation — same font/size as body (11pt, DARK_GREY)
       {
         text: `Hi ${sections.clientName}`,
         font: "Roboto",
-        fontSize: 13,
-        bold: true,
-        color: NAVY,
-        margin: [0, 0, 0, 18] as [number, number, number, number],
+        fontSize: 11,
+        bold: false,
+        color: DARK_GREY,
+        margin: [0, 0, 0, 14] as [number, number, number, number],
       },
       // Body paragraphs
       {
@@ -730,6 +699,36 @@ async function renderWowPdf(sections: WowReportSections): Promise<Buffer> {
         fontSize: 10,
         color: GOLD,
         margin: [0, 0, 0, 0] as [number, number, number, number],
+      },
+
+      // ── Cover page — page 2, no header/footer ──
+      { text: "", pageBreak: "before" },
+      // Large top spacer to push client name to ~55% down the page
+      { text: "", margin: [0, 0, 0, 300] as [number, number, number, number] },
+      // Client full name — large, light-weight, centred
+      {
+        text: sections.clientFullName,
+        font: "Roboto",
+        fontSize: 40,
+        bold: false,
+        color: DARK_GREY,
+        alignment: "center",
+        margin: [0, 0, 0, 10] as [number, number, number, number],
+      },
+      // Date — centred
+      {
+        text: sections.generatedAt,
+        font: "Roboto",
+        fontSize: 11,
+        color: MID_GREY,
+        alignment: "center",
+        margin: [0, 0, 0, 0] as [number, number, number, number],
+      },
+      // Lifework logo — bottom-right corner
+      {
+        image: LIFEWORK_LOGO_BASE64,
+        width: 130,
+        absolutePosition: { x: 595 - 60 - 130, y: 842 - 60 - 45 },
       },
 
       // ── Section 1: Summary (sectionBlock already includes pageBreak: 'before') ──
