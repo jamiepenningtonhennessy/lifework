@@ -485,3 +485,9 @@
 - [x] Audit all WOW Report chapter prompts and add explicit "do not open with salutations or flattery" instruction
 - [x] Add a shared system prompt rule: open each chapter directly with the analysis, no "Dear X" or introductory flattery
 - [x] Reset existing reports to regenerate with corrected tone
+
+## Conclusions Chapter — Past/Present/Future Structure
+
+- [x] Rewrite Conclusions prompt: Past (life history patterns), Present (VIA + OCEAN + Behavioural Style), Future (Career Directions + Development Edge)
+- [x] Add closing "Tell Me About Yourself" paragraph — a 90-second interview answer synthesising the whole report
+- [x] Reset existing reports to regenerate with new Conclusions structure
