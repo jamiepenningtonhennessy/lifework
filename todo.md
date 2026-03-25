@@ -505,3 +505,9 @@
 - [x] Sage 2: Add session arc instruction — opening → exploration → challenge → commitment
 - [x] Sage 2: Give Sage a distinct professional identity
 - [x] Sage 2: Add stage direction format (physical presence before each spoken response)
+
+## WOW Report — Third-Person Voice
+
+- [x] Convert all 8 WOW Report section prompts from second-person ("you"/"your") to third-person (client first name + pronouns)
+- [x] Update section heading text in PDF renderer if any contain "Your" (e.g. "Your Personality Profile")
+- [x] Reset all existing WOW Reports to regenerate with corrected voice

@@ -6,13 +6,13 @@
  * to S3, and stores the URL in analysis_reports.wowReportPdfUrl.
  *
  * Sections:
- *   1. Your Lifework Summary          — 200-word portrait
- *   2. Your Life History Pattern      — recurring themes from achievements
- *   3. Your Character Strengths (VIA) — top 7 with narrative
- *   4. Your Personality Profile       — Big Five with career implications
- *   5. Your Behavioural Style         — Insights colour energy profile
- *   6. Career Directions              — 3-5 tailored directions
- *   7. Your Development Edge          — constructive growth areas
+ *   1. Lifework Summary          — 200-word portrait
+ *   2. Life History Pattern      — recurring themes from achievements
+ *   3. Character Strengths (VIA) — top 7 with narrative
+ *   4. Personality Profile       — Big Five with career implications
+ *   5. Behavioural Style         — Insights colour energy profile
+ *   6. Career Directions         — 3-5 tailored directions
+ *   7. Development Edge          — constructive growth areas
  *   8. Conclusions
  */
 
@@ -293,7 +293,7 @@ CRITICAL TONE RULES (non-negotiable):
 - NEVER open any section with a salutation, greeting, or letter-style introduction. No "Dear ${clientName}", no "It is a privilege to present...", no "We are delighted to...", no "This report aims to...".
 - NEVER include flattery, fawning, or obsequious preamble of any kind. Go straight into the analysis.
 - This is a professional report, not a letter. Every section must open immediately with substantive analytical content.
-- Write in second person ("You are...") throughout. Use the client's first name (${clientName}) naturally. Use pronouns: ${pronouns}.
+- Write in third person throughout. Use the client's first name (${clientName}) naturally — never "you" or "your". Use pronouns: ${pronouns}.
 
 FORMATTING RULES (strictly follow):
 - Every paragraph must be 3-5 sentences maximum. Never write a paragraph longer than 5 sentences.
@@ -324,7 +324,7 @@ Describe how ${clientName} is likely to behave when stressed or outside their co
 ## Working With Others
 Give one or two practical observations about how ${clientName} tends to work with people whose colour energies are very different from their own.
 
-Keep the tone warm, direct, and non-judgmental. Begin with a brief framing sentence acknowledging this is a tool for self-awareness, not a fixed label. Write in second person ("You are...") throughout. Do NOT include any introductory paragraph before the first ## heading.`;
+Keep the tone warm, direct, and non-judgmental. Begin with a brief framing sentence acknowledging this is a tool for self-awareness, not a fixed label. Write in third person throughout — use ${clientName}'s first name, never "you" or "your". Do NOT include any introductory paragraph before the first ## heading.`;
 
   const insightsData = Object.keys(domainScores).length > 0
     ? `Primary colour energy: ${primaryColour}\nSecondary colour energy: ${secondaryColour}\nJungian type approximation: ${jungianType}\nExtraversion: ${eScore}/100\nAgreeableness: ${aScore}/100\nOpenness: ${oScore}/100\nConscientiousness: ${cScore}/100`
@@ -347,13 +347,13 @@ Keep the tone warm, direct, and non-judgmental. Begin with a brief framing sente
       `${ctx}\n\nWrite a single 250-word portrait of ${clientName} as a professional. This is the opening "wow" statement — the most insightful thing anyone has ever said about ${clientName}'s career.\n\nAnalytical principle: the earliest experiences carry the deepest imprint. The themes that appear first in the life history are the truest signal of who this person is. Your portrait should be rooted in those early-established patterns, then show how they have expressed themselves across the decades.\n\nBegin with "${clientName} is..." and write a single flowing portrait that:\n- Identifies the core theme or motif that runs from ${clientName}'s earliest experiences to today\n- Shows how that theme has reproduced itself in different forms across ${subj} life\n- Connects it to ${subj} character strengths and personality\n- Ends with a sentence that feels like a revelation — something ${clientName} may never have heard said so clearly\n\nDo NOT include any introductory paragraph explaining what the report is about. Go straight into the personal portrait.`
     ),
     callLLMWithTimeout(sys,
-      `${ctx}\n\nWrite a substantial, multi-section chapter analysing the recurring themes in ${clientName}'s life history. This chapter should be long enough to fill 2-3 pages of a premium career report — approximately 700-900 words. It is one of the most important sections of the report, because the client has invested significant effort in recording these experiences, and they deserve a thorough, personal, and insightful analysis in return.\n\nANALYTICAL PRINCIPLE: The earliest experiences carry the deepest imprint. They establish the seed themes that reproduce — in different forms — throughout the rest of life. Think of it like a piece of music: the opening bars introduce the motifs that will recur, develop, and vary across all subsequent movements. Your job is to identify those motifs and trace them through the decades with specificity and warmth.\n\nSTRUCTURE THE CHAPTER AS FOLLOWS:\n\n## The Opening Bars: What the Early Years Reveal\nBegin here. Examine ${clientName}'s earliest recorded achievements — childhood and adolescence. Write 3-4 paragraphs that:\n- Name the 2-3 seed themes already visible in these early experiences\n- Quote or reference specific early achievements by name and decade\n- Explain why these early patterns matter: they were chosen freely, before career pressures, social expectations, or financial necessity shaped the choices. They are the clearest signal of who ${clientName} truly is.\n- Note what the Enjoyable/Satisfying/Fulfilling classifications of these early achievements reveal about ${clientName}'s motivational core\n\n## The Recurring Motifs: How the Themes Develop\nThis is the heart of the chapter. Write one substantial paragraph (4-5 sentences) for EACH of the 2-3 seed themes you identified above. For each theme:\n- Give it a clear, evocative name as a ### subheading (e.g. ### The Builder, ### The Connector, ### The Solver)\n- Show specifically how this theme first appeared in early life\n- Trace at least 3-4 concrete examples of how it has reproduced across different decades and contexts — different roles, different settings, but recognisably the same underlying pattern\n- Note any moments where the theme intensified, was suppressed, or found a new form of expression\n- Connect the theme to what others have consistently observed about ${clientName}\n\n## What the Pattern Reveals\nClose the chapter with 2-3 paragraphs that:\n- Synthesise the overall pattern: what is the single most consistent thread running from ${clientName}'s earliest experiences to ${subj} current professional identity?\n- Reflect on what the ESF distribution across the whole life history tells us — which activities have consistently been Enjoyable, Satisfying, or Fulfilling, and what this reveals about ${clientName}'s deepest motivational drivers\n- End with a statement that feels like a genuine insight — something ${clientName} may recognise but has never heard articulated so clearly: the connection between who ${subj} was at the very beginning and who ${subj} is today\n\nThroughout: write in second person (\"You...\"), use ${clientName}'s first name naturally, reference actual achievements from the data by name and decade, and maintain the warm, precise, personal tone of a senior career analyst who has read every word of the life history with care.`
+      `${ctx}\n\nWrite a substantial, multi-section chapter analysing the recurring themes in ${clientName}'s life history. This chapter should be long enough to fill 2-3 pages of a premium career report — approximately 700-900 words. It is one of the most important sections of the report, because the client has invested significant effort in recording these experiences, and they deserve a thorough, personal, and insightful analysis in return.\n\nANALYTICAL PRINCIPLE: The earliest experiences carry the deepest imprint. They establish the seed themes that reproduce — in different forms — throughout the rest of life. Think of it like a piece of music: the opening bars introduce the motifs that will recur, develop, and vary across all subsequent movements. Your job is to identify those motifs and trace them through the decades with specificity and warmth.\n\nSTRUCTURE THE CHAPTER AS FOLLOWS:\n\n## The Opening Bars: What the Early Years Reveal\nBegin here. Examine ${clientName}'s earliest recorded achievements — childhood and adolescence. Write 3-4 paragraphs that:\n- Name the 2-3 seed themes already visible in these early experiences\n- Quote or reference specific early achievements by name and decade\n- Explain why these early patterns matter: they were chosen freely, before career pressures, social expectations, or financial necessity shaped the choices. They are the clearest signal of who ${clientName} truly is.\n- Note what the Enjoyable/Satisfying/Fulfilling classifications of these early achievements reveal about ${clientName}'s motivational core\n\n## The Recurring Motifs: How the Themes Develop\nThis is the heart of the chapter. Write one substantial paragraph (4-5 sentences) for EACH of the 2-3 seed themes you identified above. For each theme:\n- Give it a clear, evocative name as a ### subheading (e.g. ### The Builder, ### The Connector, ### The Solver)\n- Show specifically how this theme first appeared in early life\n- Trace at least 3-4 concrete examples of how it has reproduced across different decades and contexts — different roles, different settings, but recognisably the same underlying pattern\n- Note any moments where the theme intensified, was suppressed, or found a new form of expression\n- Connect the theme to what others have consistently observed about ${clientName}\n\n## What the Pattern Reveals\nClose the chapter with 2-3 paragraphs that:\n- Synthesise the overall pattern: what is the single most consistent thread running from ${clientName}'s earliest experiences to ${subj} current professional identity?\n- Reflect on what the ESF distribution across the whole life history tells us — which activities have consistently been Enjoyable, Satisfying, or Fulfilling, and what this reveals about ${clientName}'s deepest motivational drivers\n- End with a statement that feels like a genuine insight — something ${clientName} may recognise but has never heard articulated so clearly: the connection between who ${subj} was at the very beginning and who ${subj} is today\n\nThroughout: write in third person, use ${clientName}'s first name naturally — never "you" or "your", reference actual achievements from the data by name and decade, and maintain the warm, precise, personal tone of a senior career analyst who has read every word of the life history with care.`
     ),
     callLLMWithTimeout(sys,
       `${ctx}\n\nWrite an interpretive narrative for ${clientName}'s top 7 VIA Character Strengths. Begin IMMEDIATELY with the first strength — do NOT write any introductory paragraph, preamble, greeting, or scene-setting text before the first ## heading. For each strength, write 2-3 sentences: what it means in ${clientName}'s specific context, and how it has shown up in ${subj} life history. Then write a 2-paragraph synthesis: how these strengths work together as a system, and what they mean for ${clientName}'s career.`
     ),
     callLLMWithTimeout(sys,
-      `${ctx}\n\nWrite an interpretive narrative of ${clientName}'s Big Five personality profile. Begin IMMEDIATELY with the heading "## Your Personality Profile: A Deep Dive" — do NOT write any introductory paragraph, preamble, or scene-setting text before this heading. Then for each of the five domains, write 2-3 sentences interpreting the score in the context of ${clientName}'s career and life history. Then write a 2-paragraph "Working Style" synthesis: how ${clientName} operates at ${subj} best, and what environments bring out the best in ${subj}.`
+      `${ctx}\n\nWrite an interpretive narrative of ${clientName}'s Big Five personality profile. Begin IMMEDIATELY with the heading "## Personality Profile: A Deep Dive" — do NOT write any introductory paragraph, preamble, or scene-setting text before this heading. Then for each of the five domains, write 2-3 sentences interpreting the score in the context of ${clientName}'s career and life history. Then write a 2-paragraph "Working Style" synthesis: how ${clientName} operates at ${subj} best, and what environments bring out the best in ${subj}.`
     ),
     callLLMWithTimeout(insightsSys, insightsData),
     callLLMWithTimeout(sys,
@@ -363,7 +363,7 @@ Keep the tone warm, direct, and non-judgmental. Begin with a brief framing sente
       `${ctx}\n\nWrite 2-3 paragraphs on ${clientName}'s development edge — the areas where growth would most expand ${subj} career options. Begin IMMEDIATELY with the first development area — no introductory paragraph, no preamble, no scene-setting. Frame these constructively as "edges to develop" rather than weaknesses. Connect each to specific data from the profile. End with an encouraging observation about ${clientName}'s capacity for growth.`
     ),
     callLLMWithTimeout(sys,
-      `${ctx}\n\nWrite the Conclusions chapter for ${clientName}'s Lifework report. This is the synthesis chapter — it draws together everything the report has uncovered and presents it as a coherent whole. Structure it under the following four headings. Do NOT write any introductory paragraph before the first heading. Begin immediately with ## Past.\n\n## Past: What Your Life History Reveals\nDraw on the Life History Pattern analysis. In 3-4 paragraphs:\n- Name the 2-3 seed themes that were already present in ${clientName}'s earliest recorded experiences (childhood and adolescence)\n- Show how these themes have reproduced themselves — in different forms — across the decades\n- Identify the single most consistent thread: the foundational motif that connects who ${clientName} was at the very beginning to who ${subj} is today\n- Be specific: reference actual achievements by name and decade\n\n## Present: Who You Are\nDraw on the VIA Character Strengths, Big Five personality profile, and Behavioural Style (Insights colour energies). In 3-4 paragraphs:\n- Name ${clientName}'s 3-4 most distinctive character strengths and explain what makes them powerful in combination\n- Interpret the personality profile in plain language: what kind of professional is ${clientName} at ${subj} best?\n- Connect the Insights colour energy profile to the VIA and personality data — do they reinforce each other?\n- Paint a clear, specific picture of ${clientName} operating at full capacity\n\n## Future: Where You Are Headed\nDraw on the Career Directions and Development Edge sections. In 2-3 paragraphs:\n- Summarise the 2-3 most compelling career directions and explain why they are the right fit for this specific person\n- Name the 1-2 development edges that, if addressed, would most expand ${clientName}'s options\n- End with a forward-looking statement that connects the seed themes from the Past section to the future directions — showing that the path forward is not a departure but a continuation of who ${clientName} has always been\n\n## Tell Me About Yourself\nIntroduce this section with exactly this sentence: "Here is a suggested answer to the interview question 'Tell me about yourself' — drawn from everything your Lifework analysis has revealed:"\n\nThen write a single paragraph of 5-7 sentences that ${clientName} could use as a confident, authentic answer to that interview question. It should:\n- Open with the foundational motif (the core thread from the Past section)\n- Weave in 2-3 of the most distinctive character strengths and personality traits\n- Reference 1-2 of the most compelling career directions\n- Sound natural, confident, and genuinely personal — not like a CV summary\n- Be something ${clientName} could actually say aloud in an interview without it feeling scripted\n\nThis chapter should feel like the culmination of the whole report — the moment when everything comes together into a clear, confident picture of who ${clientName} is and where ${subj} is going.`
+      `${ctx}\n\nWrite the Conclusions chapter for ${clientName}'s Lifework report. This is the synthesis chapter — it draws together everything the report has uncovered and presents it as a coherent whole. Write entirely in third person — use ${clientName}'s first name throughout, never "you" or "your". Structure it under the following four headings. Do NOT write any introductory paragraph before the first heading. Begin immediately with ## Past.\n\n## Past: What the Life History Reveals\nDraw on the Life History Pattern analysis. In 3-4 paragraphs:\n- Name the 2-3 seed themes that were already present in ${clientName}'s earliest recorded experiences (childhood and adolescence)\n- Show how these themes have reproduced themselves — in different forms — across the decades\n- Identify the single most consistent thread: the foundational motif that connects who ${clientName} was at the very beginning to who ${subj} is today\n- Be specific: reference actual achievements by name and decade\n\n## Present: Who ${clientName} Is\nDraw on the VIA Character Strengths, Big Five personality profile, and Behavioural Style (Insights colour energies). In 3-4 paragraphs:\n- Name ${clientName}'s 3-4 most distinctive character strengths and explain what makes them powerful in combination\n- Interpret the personality profile in plain language: what kind of professional is ${clientName} at ${subj} best?\n- Connect the Insights colour energy profile to the VIA and personality data — do they reinforce each other?\n- Paint a clear, specific picture of ${clientName} operating at full capacity\n\n## Future: Where ${clientName} Is Headed\nDraw on the Career Directions and Development Edge sections. In 2-3 paragraphs:\n- Summarise the 2-3 most compelling career directions and explain why they are the right fit for this specific person\n- Name the 1-2 development edges that, if addressed, would most expand ${clientName}'s options\n- End with a forward-looking statement that connects the seed themes from the Past section to the future directions — showing that the path forward is not a departure but a continuation of who ${clientName} has always been\n\n## Tell Me About Yourself\nIntroduce this section with exactly this sentence: "The following is a suggested answer to the interview question 'Tell me about yourself' — drawn from everything ${clientName}'s Lifework analysis has revealed:"\n\nThen write a single paragraph of 5-7 sentences that ${clientName} could use as a confident, authentic answer to that interview question. Write it in the first person ("I am...", "Throughout my career...") since it is meant to be spoken by ${clientName} directly. It should:\n- Open with the foundational motif (the core thread from the Past section)\n- Weave in 2-3 of the most distinctive character strengths and personality traits\n- Reference 1-2 of the most compelling career directions\n- Sound natural, confident, and genuinely personal — not like a CV summary\n- Be something ${clientName} could actually say aloud in an interview without it feeling scripted\n\nThis chapter should feel like the culmination of the whole report — the moment when everything comes together into a clear, confident picture of who ${clientName} is and where ${subj} is going.`
     ),
   ]);
 
@@ -643,14 +643,14 @@ async function renderWowPdf(sections: WowReportSections): Promise<Buffer> {
       },
 
       // ── Section 1: Summary (sectionBlock already includes pageBreak: 'before') ──
-      ...sectionBlock("1. Your Lifework Summary", sections.summary),
+      ...sectionBlock("1. Lifework Summary", sections.summary),
 
       // ── Section 2: Life History Pattern ──
-      ...sectionBlock("2. Your Life History Pattern", sections.lifeHistoryPattern),
+      ...sectionBlock("2. Life History Pattern", sections.lifeHistoryPattern),
 
       // ── Section 3: VIA Character Strengths ──
       { text: "", pageBreak: "before" },
-      heading("3. Your Character Strengths"),
+      heading("3. Character Strengths"),
       divider(),
       ...(sections.viaRanked.length > 0
         ? [
@@ -669,7 +669,7 @@ async function renderWowPdf(sections: WowReportSections): Promise<Buffer> {
 
       // ── Section 4: Personality Profile ──
       { text: "", pageBreak: "before" },
-      heading("4. Your Personality Profile"),
+      heading("4. Personality Profile"),
       divider(),
       ...(big5Rows.length > 0
         ? [
@@ -688,7 +688,7 @@ async function renderWowPdf(sections: WowReportSections): Promise<Buffer> {
 
       // ── Section 5: Behavioural Style ──
       { text: "", pageBreak: "before" },
-      heading("5. Your Behavioural Style"),
+      heading("5. Behavioural Style"),
       divider(),
       // Wheel + colour energy cards side by side
       ...(sections.primaryColour ? [
@@ -772,7 +772,7 @@ async function renderWowPdf(sections: WowReportSections): Promise<Buffer> {
       ...sectionBlock("6. Career Directions", sections.careerDirections),
 
       // ── Section 7: Development Edge ──
-      ...sectionBlock("7. Your Development Edge", sections.developmentEdge),
+      ...sectionBlock("7. Development Edge", sections.developmentEdge),
 
       // ── Section 8: Conclusions ──
       { text: "", pageBreak: "before" },
