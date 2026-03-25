@@ -1153,11 +1153,13 @@ Be specific, warm, and insightful. Use examples from their actual story.`;
         const achievementsText = achievementsList.map((a) =>
           `[${a.decade}] Age ${a.age ?? "?"}: ${a.title} (${a.esf ?? "unclassified"}) — ${a.description ?? ""} ${a.othersObservations ? `| Others said: ${a.othersObservations}` : ""}`
         ).join("\n");
-        systemPrompt = `You are an expert career coach trained in Bernard Haldane methodology. Analyse the client's life history achievements and their Sage conversation transcript. Return a concise JSON analysis. ${pronounNoteSec}`;
-        userPrompt = `Client: ${clientName}\n\nACHIEVEMENTS (ESF-tagged):\n${achievementsText}\n\nSAGE CONVERSATION TRANSCRIPT:\n${transcript}\n\nProvide a JSON analysis with:\n- themes: array of 3-5 recurring themes across the life history (each: { theme: string, evidence: string })
-- esfPattern: a 1-2 sentence observation about the ESF distribution
-- peakMoments: array of 2-3 standout achievements that reveal the most about the person
-- coachingPrompts: array of 3 specific questions the coach could explore in the session`;
+        systemPrompt = `You are an expert career coach trained in Bernard Haldane methodology. Analyse the client's life history achievements and their Sage conversation transcript. Return a concise JSON analysis. ${pronounNoteSec}
+
+Critical analytical principle: the earliest experiences carry the deepest imprint and establish the seed themes that reproduce — in different forms — throughout the rest of life. Think of it like a piece of music: the opening bars introduce the motifs that will recur and vary across all subsequent movements. Begin your analysis with the earliest recorded experiences, identify the foundational themes present there, then trace how they reappear across the decades.`;
+        userPrompt = `Client: ${clientName}\n\nACHIEVEMENTS (ESF-tagged, chronological — earliest first):\n${achievementsText}\n\nSAGE CONVERSATION TRANSCRIPT:\n${transcript}\n\nProvide a JSON analysis with:\n- themes: array of 3-5 recurring themes, each ANCHORED in the earliest evidence first, then traced forward (each: { theme: string, evidence: string, firstAppearedDecade: string })
+- esfPattern: a 1-2 sentence observation about the ESF distribution, noting whether the earliest achievements already show the same E/S/F pattern as adult life
+- peakMoments: array of 2-3 standout achievements that reveal the most about the person — prioritise early-life examples where they exist, as these carry the clearest signal
+- coachingPrompts: array of 3 specific questions the coach could explore — at least one should invite the client to connect an early experience to their current situation`;
       } else if (input.section === "family") {
         const lifeSession = chatSessionsList.find((s) => s.section === "life_history");
         const transcript = lifeSession?.messages
@@ -1264,9 +1266,11 @@ Be specific, warm, and insightful. Use examples from their actual story.`;
       const lifeAnalysis = sectionAnalyses.lifeHistory ? JSON.stringify(sectionAnalyses.lifeHistory).slice(0, 500) : "Not yet generated";
       const careerAnalysis = sectionAnalyses.career ? JSON.stringify(sectionAnalyses.career).slice(0, 500) : "Not yet generated";
       const focusStatement = cachedNotes.focusStatement ?? "Not yet set";
-      const systemPrompt = `You are a senior career coach synthesising a holistic picture of a client before a coaching session. Draw together patterns from life history, career, psychometrics, and the coach's focus statement to identify 3-5 emerging themes that should guide the coaching conversation.`;
-      const userPrompt = `Client: ${clientName}\n\nFOCUS STATEMENT: ${focusStatement}\n\nLIFE HISTORY HIGHLIGHTS: ${achievementsText}\n\nCAREER HISTORY: ${careerText}\n\nVIA TOP 5 STRENGTHS: ${viaTop5}\n\nIPIP PERSONALITY: ${ipipSummary}\n\nLIFE HISTORY ANALYSIS: ${lifeAnalysis}\n\nCAREER ANALYSIS: ${careerAnalysis}\n\nGenerate a JSON object with:\n- themes: array of 3-5 emerging themes (each: { title: string, synthesis: string (2-3 sentences drawing together evidence from multiple sources), implications: string (1 sentence on what this means for the client's future direction) })
-- coachingApproach: 2-3 sentences on the overall approach the coach should take in this session based on the full picture`;
+      const systemPrompt = `You are a senior career coach synthesising a holistic picture of a client before a coaching session. Draw together patterns from life history, career, psychometrics, and the coach's focus statement to identify 3-5 emerging themes that should guide the coaching conversation.
+
+Critical analytical principle: the earliest experiences carry the deepest imprint. The themes that appear first in the life history are the truest signal of who this person is. When identifying emerging themes, always ask: was this already present in childhood or early life? If so, it is a foundational pattern — not just a career preference, but a core expression of who this person is. The coaching conversation should help the client see these deep continuities in themselves.`;
+      const userPrompt = `Client: ${clientName}\n\nFOCUS STATEMENT: ${focusStatement}\n\nLIFE HISTORY HIGHLIGHTS (chronological — earliest first): ${achievementsText}\n\nCAREER HISTORY: ${careerText}\n\nVIA TOP 5 STRENGTHS: ${viaTop5}\n\nIPIP PERSONALITY: ${ipipSummary}\n\nLIFE HISTORY ANALYSIS: ${lifeAnalysis}\n\nCAREER ANALYSIS: ${careerAnalysis}\n\nGenerate a JSON object with:\n- themes: array of 3-5 emerging themes, each rooted in the earliest available evidence and traced forward (each: { title: string, synthesis: string (2-3 sentences: when did this first appear? how has it reproduced across the decades? what does the psychometric data confirm?), implications: string (1 sentence: what does this mean for the client's future direction?) })
+- coachingApproach: 2-3 sentences on the overall approach the coach should take — including a note on which early experience(s) might be most powerful to surface in the session`;
       const response = await invokeLLM({
         messages: [
           { role: "system", content: systemPrompt },

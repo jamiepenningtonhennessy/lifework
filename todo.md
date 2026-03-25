@@ -467,3 +467,10 @@
 - [x] Move footer down so it is the same distance from the bottom as the header text is from the top
 - [x] Suppress header and footer on cover page (page 1)
 - [x] Page numbers offset by 1 (cover = page 0, inner pages start at 1)
+
+## Life History Analysis — Early Experience Primacy
+
+- [x] Update WOW Report Life History Pattern prompt: anchor analysis in earliest experiences as seed themes, trace how they reproduce across decades
+- [x] Update WOW Report Summary prompt: reference early-imprinted patterns as the foundation of the career narrative
+- [x] Update coaching session Past tab Sage analysis prompts: same early-experience-first methodology
+- [x] Update coaching session Emerging Themes (Future tab) prompt: root emerging themes in early-established patterns
