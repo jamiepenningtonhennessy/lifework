@@ -288,11 +288,15 @@ export function PreviewClientDashboard() {
               Your Lifework journey has five stages. Begin by completing your{" "}
               <strong className="text-foreground">Life History Interview</strong> and{" "}
               <strong className="text-foreground">Background &amp; History</strong> — these form the foundation of everything that follows.
+            </p>
+            <p>
               You will then have a conversation with <strong className="text-foreground">Sage</strong>, our AI career coach,
               who will have read everything you have written. Sage’s role is to explore and draw out the depth and detail
-              that lies beneath the surface of your story. This conversation can take up to two hours — and it is worth every
-              minute. It is the bedrock of the Lifework process, and the reason that Lifework has such a profound impact on
-              the people who go through it.
+              that lies beneath the surface of your story.
+            </p>
+            <p>
+              This conversation can take up to two hours — and it is worth every minute. It is the bedrock of the Lifework
+              process, and the reason that Lifework has such a profound impact on the people who go through it.
             </p>
             <p>
               Next, you will complete two short psychometric assessments: the{" "}
