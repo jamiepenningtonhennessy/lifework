@@ -28,6 +28,7 @@ import {
   PreviewBackground,
   PreviewVIASurvey,
   PreviewVIAResults,
+  PreviewHome,
   PreviewIpipSurvey,
   PreviewIpipResults,
   PreviewMyReport,
@@ -78,6 +79,7 @@ function Router() {
 
       {/* ── Preview Mode (counsellor-only, no auth required) ── */}
       <Route path="/preview" component={PreviewMode} />
+      <Route path="/preview/home" component={PreviewHome} />
       <Route path="/preview/dashboard" component={PreviewClientDashboard} />
       <Route path="/preview/interview" component={PreviewInterview} />
       <Route path="/preview/background" component={PreviewBackground} />

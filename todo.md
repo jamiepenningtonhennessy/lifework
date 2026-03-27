@@ -532,3 +532,18 @@
 - [x] Build /preview route with 9 preview pages rendering real UI with static dummy data
 - [x] Add Preview button to counsellor dashboard header
 - [x] All 64 tests pass
+
+## Preview Mode — First-Visit State Rework
+
+- [x] Rework preview pages to show first-visit / empty state (as new client sees them)
+- [x] Add persistent preview nav bar so you can click between all pages without returning to hub
+- [x] Dashboard: show all steps as "Not Started", no report available
+- [x] Home page: show Lifework landing page with overview video
+- [x] Interview: show intro page with life history video, opening framing text, and How it Works
+- [x] Background: show empty forms with intro video playable
+- [x] VIA Survey: show page 1 with video, About box, and sample questions
+- [x] VIA Results: show completed results (useful to see)
+- [x] IPIP Survey: show domain 1 with video, About card, and sample questions
+- [x] IPIP Results: show completed results (useful to see)
+- [x] My Report: show "report not ready yet" state
+- [x] Career Explorer: show first-visit state with Sage's opening message only
