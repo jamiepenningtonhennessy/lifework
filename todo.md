@@ -547,3 +547,7 @@
 - [x] IPIP Results: show completed results (useful to see)
 - [x] My Report: show "report not ready yet" state
 - [x] Career Explorer: show first-visit state with Sage's opening message only
+
+## Dashboard Welcome Text
+
+- [x] Replace dashboard subtitle with new five-stage journey description

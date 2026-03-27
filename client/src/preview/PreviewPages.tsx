@@ -283,9 +283,29 @@ export function PreviewClientDashboard() {
         {/* Welcome */}
         <div className="mb-10">
           <h1 className="text-3xl font-serif font-bold text-foreground mb-2">Welcome, Alex</h1>
-          <p className="text-muted-foreground leading-relaxed">
-            Your career analysis journey. Complete each step at your own pace. You can leave and come back at any time during the first two stages — some clients find they like the opportunity to pause and reflect.
-          </p>
+          <div className="text-muted-foreground leading-relaxed space-y-3 text-sm">
+            <p>
+              Your Lifework journey has five stages. Begin by completing your{" "}
+              <strong className="text-foreground">Life History Interview</strong> and{" "}
+              <strong className="text-foreground">Background &amp; History</strong> — these form the foundation of everything that follows.
+              You will then have a conversation with <strong className="text-foreground">Sage</strong>, our AI career coach,
+              who will have read everything you have written. Sage’s role is to explore and draw out the depth and detail
+              that lies beneath the surface of your story. This conversation can take up to two hours — and it is worth every
+              minute. It is the bedrock of the Lifework process, and the reason that Lifework has such a profound impact on
+              the people who go through it.
+            </p>
+            <p>
+              Next, you will complete two short psychometric assessments: the{" "}
+              <strong className="text-foreground">VIA Character Strengths</strong> survey and the{" "}
+              <strong className="text-foreground">IPIP-NEO Personality Profile</strong>. These are not tests — they are lenses
+              that add a further layer of insight to what your life history has already begun to reveal.
+            </p>
+            <p>
+              All of this — your story, your conversation with Sage, and your psychometrics — will be drawn together by your
+              counsellor to create a comprehensive, personalised{" "}
+              <strong className="text-foreground">Lifework Report</strong>, which becomes the foundation for a deeper coaching conversation.
+            </p>
+          </div>
         </div>
 
         {/* Progress */}
