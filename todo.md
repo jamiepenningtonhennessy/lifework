@@ -551,3 +551,15 @@
 ## Dashboard Welcome Text
 
 - [x] Replace dashboard subtitle with new five-stage journey description
+
+## Completion Email
+
+- [ ] Send congratulatory email to client when all five Lifework steps are complete
+- [ ] Notify counsellor when a client completes all steps
+- [ ] Ensure email sends only once (idempotent — not re-sent if client revisits)
+
+## Preview Mode — Sage Page
+
+- [x] Add PreviewSage page showing the life history chat panel in first-visit state
+- [x] Register /preview/sage route in App.tsx
+- [x] Add Sage to preview hub nav bar and hub page

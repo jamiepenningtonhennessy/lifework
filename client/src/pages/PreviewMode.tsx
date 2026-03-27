@@ -14,6 +14,7 @@ import {
   Home,
   ArrowLeft,
   CheckCircle2,
+  Sparkles,
 } from "lucide-react";
 
 const PAGES = [
@@ -78,6 +79,13 @@ const PAGES = [
     path: "/preview/career-explorer",
     icon: Compass,
     description: "Sage 2 chat interface with sample conversation",
+    status: "complete",
+  },
+  {
+    label: "Sage — Life History Coach",
+    path: "/preview/sage",
+    icon: Sparkles,
+    description: "Sage 1 chat panel — first-visit state, opening message, input ready",
     status: "complete",
   },
 ];

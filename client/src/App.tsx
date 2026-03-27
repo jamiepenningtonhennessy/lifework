@@ -33,6 +33,7 @@ import {
   PreviewIpipResults,
   PreviewMyReport,
   PreviewCareerExplorer,
+  PreviewSage,
 } from "./preview/PreviewPages";
 
 function Router() {
@@ -89,6 +90,7 @@ function Router() {
       <Route path="/preview/ipip-results" component={PreviewIpipResults} />
       <Route path="/preview/my-report" component={PreviewMyReport} />
       <Route path="/preview/career-explorer" component={PreviewCareerExplorer} />
+      <Route path="/preview/sage" component={PreviewSage} />
 
       <Route path="/404" component={NotFound} />
       <Route component={NotFound} />
