@@ -524,3 +524,11 @@
 - [x] Insert client first name in the salutation ("Hi [firstname]")
 - [x] Header/footer suppressed on pages 1 and 2; main report numbering starts at 1 from Section 1
 - [x] Reset existing reports to regenerate with covering letter
+
+## Counsellor Preview Mode
+
+- [x] Audit all client-facing pages and their data requirements
+- [x] Create rich dummy data fixture (fake client Alex Morgan — solicitor/Legal Director, all surveys, WOW report JSON, career explorer messages)
+- [x] Build /preview route with 9 preview pages rendering real UI with static dummy data
+- [x] Add Preview button to counsellor dashboard header
+- [x] All 64 tests pass

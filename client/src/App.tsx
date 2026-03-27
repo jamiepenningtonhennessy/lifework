@@ -21,6 +21,18 @@ import PHHome from "./pages/ph/PHHome";
 import PHCoaching from "./pages/ph/PHCoaching";
 import PHTraining from "./pages/ph/PHTraining";
 import PHAbout from "./pages/ph/PHAbout";
+import PreviewMode from "./pages/PreviewMode";
+import {
+  PreviewClientDashboard,
+  PreviewInterview,
+  PreviewBackground,
+  PreviewVIASurvey,
+  PreviewVIAResults,
+  PreviewIpipSurvey,
+  PreviewIpipResults,
+  PreviewMyReport,
+  PreviewCareerExplorer,
+} from "./preview/PreviewPages";
 
 function Router() {
   return (
@@ -63,6 +75,18 @@ function Router() {
       <Route path="/ipip/results" component={IpipResults} />
       <Route path="/my-report" component={MyReport} />
       <Route path="/career-explorer" component={CareerExplorer} />
+
+      {/* ── Preview Mode (counsellor-only, no auth required) ── */}
+      <Route path="/preview" component={PreviewMode} />
+      <Route path="/preview/dashboard" component={PreviewClientDashboard} />
+      <Route path="/preview/interview" component={PreviewInterview} />
+      <Route path="/preview/background" component={PreviewBackground} />
+      <Route path="/preview/via" component={PreviewVIASurvey} />
+      <Route path="/preview/via/results" component={PreviewVIAResults} />
+      <Route path="/preview/ipip-survey" component={PreviewIpipSurvey} />
+      <Route path="/preview/ipip-results" component={PreviewIpipResults} />
+      <Route path="/preview/my-report" component={PreviewMyReport} />
+      <Route path="/preview/career-explorer" component={PreviewCareerExplorer} />
 
       <Route path="/404" component={NotFound} />
       <Route component={NotFound} />

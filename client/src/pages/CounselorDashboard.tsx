@@ -4,7 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { useLocation } from "wouter";
 import { getLoginUrl } from "@/const";
 import { trpc } from "@/lib/trpc";
-import { ArrowLeft, ArrowRight, Loader2, Users, CheckCircle2, Clock, Circle } from "lucide-react";
+import { ArrowRight, Loader2, Users, CheckCircle2, Clock, Circle, Eye } from "lucide-react";
 
 function StatusBadge({ status }: { status: string }) {
   if (status === "completed") {
@@ -65,13 +65,23 @@ export default function CounselorDashboard() {
             <div className="h-4 w-px" style={{ background: "rgba(255,255,255,0.2)" }} />
             <span className="text-sm" style={{ color: "rgba(255,255,255,0.55)" }}>Counsellor Dashboard</span>
           </div>
-          <button
-            onClick={() => navigate("/dashboard")}
-            className="px-3 py-1.5 text-xs font-medium tracking-wide uppercase cursor-pointer"
-            style={{ border: "1px solid rgba(201,151,58,0.5)", color: "var(--lw-gold)", background: "transparent", letterSpacing: "0.08em" }}
-          >
-            My Profile
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => navigate("/preview")}
+              className="px-3 py-1.5 text-xs font-medium tracking-wide uppercase cursor-pointer flex items-center gap-1.5"
+              style={{ border: "1px solid rgba(201,151,58,0.3)", color: "rgba(255,255,255,0.65)", background: "transparent", letterSpacing: "0.08em" }}
+            >
+              <Eye className="w-3.5 h-3.5" />
+              Preview
+            </button>
+            <button
+              onClick={() => navigate("/dashboard")}
+              className="px-3 py-1.5 text-xs font-medium tracking-wide uppercase cursor-pointer"
+              style={{ border: "1px solid rgba(201,151,58,0.5)", color: "var(--lw-gold)", background: "transparent", letterSpacing: "0.08em" }}
+            >
+              My Profile
+            </button>
+          </div>
         </div>
       </div>
 
