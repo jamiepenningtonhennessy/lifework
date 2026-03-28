@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { getLoginUrl } from "@/const";
 import { useLocation } from "wouter";
-import { ArrowRight, CheckCircle, X, Lock } from "lucide-react";
+import { ArrowRight, CheckCircle, X, Lock, Download } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 
 const GOOGLE_DRIVE_VIDEO_ID = "1UA06Kdal_ANUxcxPK5jytkO5xYPexg7V";
@@ -191,19 +191,55 @@ export default function Home() {
                 about preferences, but a careful reading of the life you have already lived.
               </p>
             </div>
-            <div className="space-y-5">
+            <div className="space-y-4">
               {[
-                { stage: "Graduates & school leavers", desc: "Choose a direction with confidence, not guesswork." },
-                { stage: "Mid-career professionals", desc: "Understand why some work feels effortless and other work drains you." },
-                { stage: "Returning to work", desc: "Discover that the years away built strengths, not gaps." },
-                { stage: "Approaching retirement", desc: "Find fresh, meaningful expressions of who you are — on your own terms." },
+                {
+                  stage: "Graduates & school leavers",
+                  desc: "Choose a direction with confidence, not guesswork.",
+                  pdf: "https://d2xsxph8kpxj0f.cloudfront.net/107696804/kFbbE6kqNApXGDFpQJUGV7/lifework-brochure_72321d38.pdf",
+                  filename: "Lifework-Graduates.pdf",
+                },
+                {
+                  stage: "Mid-career professionals",
+                  desc: "Understand why some work feels effortless and other work drains you.",
+                  pdf: "https://d2xsxph8kpxj0f.cloudfront.net/107696804/kFbbE6kqNApXGDFpQJUGV7/lifework-midcareer-brochure_fb9f6283.pdf",
+                  filename: "Lifework-MidCareer.pdf",
+                },
+                {
+                  stage: "Returning to work",
+                  desc: "Discover that the years away built strengths, not gaps.",
+                  pdf: "https://d2xsxph8kpxj0f.cloudfront.net/107696804/kFbbE6kqNApXGDFpQJUGV7/lifework-returntowork-brochure_219ab55a.pdf",
+                  filename: "Lifework-ReturnToWork.pdf",
+                },
+                {
+                  stage: "Approaching retirement",
+                  desc: "Find fresh, meaningful expressions of who you are — on your own terms.",
+                  pdf: "https://d2xsxph8kpxj0f.cloudfront.net/107696804/kFbbE6kqNApXGDFpQJUGV7/lifework-retirement-brochure_e19ec92a.pdf",
+                  filename: "Lifework-Retirement.pdf",
+                },
               ].map(item => (
-                <div key={item.stage} className="flex gap-4 items-start">
-                  <CheckCircle className="w-5 h-5 mt-0.5 flex-shrink-0" style={{ color: "var(--lw-gold)" }} />
-                  <div>
-                    <p className="font-semibold text-sm" style={{ color: "var(--lw-navy)" }}>{item.stage}</p>
-                    <p className="text-sm" style={{ color: "var(--lw-navy-light)" }}>{item.desc}</p>
+                <div key={item.stage}
+                  className="flex items-center justify-between gap-4 px-4 py-3 rounded-lg"
+                  style={{ border: "1px solid rgba(201,151,58,0.25)", background: "rgba(201,151,58,0.04)" }}
+                >
+                  <div className="flex gap-3 items-start min-w-0">
+                    <CheckCircle className="w-4 h-4 mt-0.5 flex-shrink-0" style={{ color: "var(--lw-gold)" }} />
+                    <div className="min-w-0">
+                      <p className="font-semibold text-sm" style={{ color: "var(--lw-navy)" }}>{item.stage}</p>
+                      <p className="text-xs mt-0.5" style={{ color: "var(--lw-navy-light)" }}>{item.desc}</p>
+                    </div>
                   </div>
+                  <a
+                    href={item.pdf}
+                    download={item.filename}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-1.5 flex-shrink-0 px-3 py-1.5 text-xs font-semibold uppercase tracking-wider rounded transition-opacity hover:opacity-80"
+                    style={{ background: "var(--lw-gold)", color: "var(--lw-navy)", letterSpacing: "0.08em", textDecoration: "none" }}
+                  >
+                    <Download className="w-3 h-3" />
+                    Download
+                  </a>
                 </div>
               ))}
             </div>

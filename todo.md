@@ -563,3 +563,8 @@
 - [x] Add PreviewSage page showing the life history chat panel in first-visit state
 - [x] Register /preview/sage route in App.tsx
 - [x] Add Sage to preview hub nav bar and hub page
+
+## Lifework Marketing Page — Brochure Downloads
+
+- [x] Upload 4 Lifework PDFs to CDN (general, retirement, mid-career, return to work)
+- [x] Link each PDF to its matching client type card in the Guide section with a download button
