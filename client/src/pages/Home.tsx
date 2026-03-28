@@ -173,7 +173,7 @@ export default function Home() {
       {/* ── BEAT 3: The Guide — Empathy + Authority ── */}
       <section className="py-20" style={{ background: "var(--lw-cream)" }}>
         <div className="container max-w-4xl">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-16 items-start">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
             <div>
               <div className="lw-eyebrow mb-4" style={{ color: "var(--lw-gold)" }}>The Guide</div>
               <h2 className="font-serif font-bold mb-6" style={{ fontSize: "2rem", lineHeight: 1.2, color: "var(--lw-navy)" }}>

@@ -568,3 +568,8 @@
 
 - [x] Upload 4 Lifework PDFs to CDN (general, retirement, mid-career, return to work)
 - [x] Link each PDF to its matching client type card in the Guide section with a download button
+
+## Public Access — /lifework Marketing Page
+
+- [ ] Confirm /lifework is publicly accessible without login
+- [ ] Ensure CTAs only prompt login when navigating to the dashboard
