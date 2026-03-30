@@ -596,15 +596,12 @@
 
 ## WOW Report — Second-Person Voice & Pronoun Selector
 
-- [x] Add pronoun selector (he/him, she/her, they/them) to ClientProfile.tsx name editing UI
-- [x] Ensure pronouns field is stored in client_profiles table (already exists — verified)
-- [x] Extend updateClientName mutation to accept pronouns parameter (already done in previous session)
-- [x] Switch all WOW Report prompts from third-person (client name) to second-person (you/your)
-- [x] Update the CRITICAL TONE RULES in Edgar's system prompt to mandate second-person
-- [x] Reset existing reports to regenerate with second-person voice
+- [ ] Add pronoun selector (he/him, she/her, they/them) to Add Client form
+- [ ] Ensure pronouns field is stored in client_profiles table (already exists — verify)
+- [ ] Switch all WOW Report prompts from third-person (client name) to second-person (you/your)
+- [ ] Update the CRITICAL TONE RULES in Edgar's system prompt to mandate second-person
+- [ ] Reset existing reports to regenerate with second-person voice
 
-## OCEAN — Independent Assessment + Life History Comparison
+## Dashboard — Step 3 Title
 
-- [x] Rewrite Big Five prompt: Part 1 — independent OCEAN portrait (interpret scores on their own terms, no life history reference)
-- [x] Rewrite Big Five prompt: Part 2 — convergence/divergence analysis (where do OCEAN and life history agree? where do they diverge, and what does that tension mean?)
-- [x] Reset existing reports to regenerate with new OCEAN section
+- [x] Rename Step 3 from "Sage the online career coach" to "Sage - Exploring your Life History"

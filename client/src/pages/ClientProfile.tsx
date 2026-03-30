@@ -107,7 +107,6 @@ export default function ClientProfile() {
   const [editingName, setEditingName] = useState(false);
   const [nameFirst, setNameFirst] = useState("");
   const [nameLast, setNameLast] = useState("");
-  const [namePronouns, setNamePronouns] = useState("they/them");
   const updateClientName = trpc.counselor.updateClientName.useMutation({
     onSuccess: () => {
       toast.success("Name updated.");
@@ -213,20 +212,11 @@ export default function ClientProfile() {
                   value={nameLast}
                   onChange={(e) => setNameLast(e.target.value)}
                 />
-                <select
-                  className="h-8 text-sm border border-input rounded-md px-2 bg-background text-foreground"
-                  value={namePronouns}
-                  onChange={(e) => setNamePronouns(e.target.value)}
-                >
-                  <option value="he/him">he/him</option>
-                  <option value="she/her">she/her</option>
-                  <option value="they/them">they/them</option>
-                </select>
                 <Button
                   size="sm"
                   className="h-8 bg-[var(--lw-gold)] hover:bg-[oklch(0.60_0.13_72)] text-white"
                   disabled={!nameFirst.trim() || updateClientName.isPending}
-                  onClick={() => updateClientName.mutate({ clientId, firstName: nameFirst.trim(), lastName: nameLast.trim() || undefined, pronouns: namePronouns })}
+                  onClick={() => updateClientName.mutate({ clientId, firstName: nameFirst.trim(), lastName: nameLast.trim() || undefined })}
                 >
                   {updateClientName.isPending ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : "Save"}
                 </Button>
@@ -247,7 +237,6 @@ export default function ClientProfile() {
                   onClick={() => {
                     setNameFirst(data.profile.firstName ?? "");
                     setNameLast(data.profile.lastName ?? "");
-                    setNamePronouns((data.profile as any).pronouns ?? "they/them");
                     setEditingName(true);
                   }}
                 >

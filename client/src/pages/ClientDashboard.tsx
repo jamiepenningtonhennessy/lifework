@@ -53,7 +53,7 @@ const STEPS = [
   {
     id: "sage",
     icon: <Sparkles className="w-5 h-5" />,
-    title: "Sage the Online Career Coach",
+    title: "Sage - Exploring your Life History",
     description:
       "Sage will read what you have written and add depth by asking you some reflective questions.",
     path: null,

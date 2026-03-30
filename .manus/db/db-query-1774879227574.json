@@ -1,9 +1,0 @@
-{
-  "query": "UPDATE analysis_reports SET wowReportPdfUrl = NULL, wowReportJson = NULL, wowReportGeneratedAt = NULL, wowReportStatus = NULL WHERE wowReportPdfUrl IS NOT NULL OR wowReportJson IS NOT NULL OR wowReportStatus IS NOT NULL;",
-  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 32u3a1hNYuu9Gj3.7d2282893346 --database kFbbE6kqNApXGDFpQJUGV7 --execute UPDATE analysis_reports SET wowReportPdfUrl = NULL, wowReportJson = NULL, wowReportGeneratedAt = NULL, wowReportStatus = NULL WHERE wowReportPdfUrl IS NOT NULL OR wowReportJson IS NOT NULL OR wowReportStatus IS NOT NULL;",
-  "rows": [],
-  "messages": [],
-  "stdout": "",
-  "stderr": "",
-  "execution_time_ms": 607
-}
