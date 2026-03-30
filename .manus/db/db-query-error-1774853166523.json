@@ -1,0 +1,8 @@
+{
+  "query": "UPDATE analysis_reports SET wow_report_json = NULL, wow_report_pdf_url = NULL, wow_report_generated_at = NULL;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 32u3a1hNYuu9Gj3.7d2282893346 --database kFbbE6kqNApXGDFpQJUGV7 --execute UPDATE analysis_reports SET wow_report_json = NULL, wow_report_pdf_url = NULL, wow_report_generated_at = NULL;",
+  "returncode": 1,
+  "logs": [
+    "ERROR 1054 (42S22) at line 1: Unknown column 'wow_report_json' in 'field list'"
+  ]
+}

@@ -573,3 +573,11 @@
 
 - [ ] Confirm /lifework is publicly accessible without login
 - [ ] Ensure CTAs only prompt login when navigating to the dashboard
+
+## Edgar Persona — WOW Report Voice
+
+- [x] Create Edgar persona — focused, analytical, forensic voice for the WOW Report
+- [x] Apply Edgar as the system prompt for all 8 WOW Report section prompts (main + Insights)
+- [x] Update Tell Me About Yourself section to three-driver structure (Three Drivers / Roles / Intent)
+- [x] Update Development Edge prompt to remove encouraging closing line
+- [x] Reset existing reports to regenerate with Edgar's voice
