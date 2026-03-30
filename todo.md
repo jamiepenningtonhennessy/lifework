@@ -587,3 +587,9 @@
 - [x] Update Edgar's system prompt to reflect Jamie Pennington's writing style (directness, rhetorical questions, rhythm of three, wry aside, evidence-led, endings that land)
 - [x] Update insightsSys (Behavioural Style) prompt with same style characteristics
 - [x] Reset existing reports to regenerate with updated voice
+
+## Edgar — First-Person Voice
+
+- [x] Change Edgar's voice instruction from "write in the style of Jamie Pennington" to "write as Jamie Pennington in first person (I)"
+- [x] Update insightsSys to match
+- [x] Reset existing reports
