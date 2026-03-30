@@ -593,3 +593,12 @@
 - [x] Change Edgar's voice instruction from "write in the style of Jamie Pennington" to "write as Jamie Pennington in first person (I)"
 - [x] Update insightsSys to match
 - [x] Reset existing reports
+
+## WOW Report — Second-Person Voice & Pronoun Selector
+
+- [x] Add pronoun selector (he/him, she/her, they/them) to ClientProfile.tsx name editing UI
+- [x] Ensure pronouns field is stored in client_profiles table (already exists — verified)
+- [x] Extend updateClientName mutation to accept pronouns parameter (already done in previous session)
+- [x] Switch all WOW Report prompts from third-person (client name) to second-person (you/your)
+- [x] Update the CRITICAL TONE RULES in Edgar's system prompt to mandate second-person
+- [x] Reset existing reports to regenerate with second-person voice

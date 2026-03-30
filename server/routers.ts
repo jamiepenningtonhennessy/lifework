@@ -1320,11 +1320,11 @@ Critical analytical principle: the earliest experiences carry the deepest imprin
       return { themes };
     }),
   updateClientName: counselorProcedure
-    .input(z.object({ clientId: z.number(), firstName: z.string().min(1), lastName: z.string().optional() }))
+    .input(z.object({ clientId: z.number(), firstName: z.string().min(1), lastName: z.string().optional(), pronouns: z.string().optional() }))
     .mutation(async ({ input }) => {
       const profile = await getClientProfileById(input.clientId);
       if (!profile) throw new TRPCError({ code: "NOT_FOUND" });
-      await updateClientProfile(input.clientId, { firstName: input.firstName, lastName: input.lastName ?? undefined });
+      await updateClientProfile(input.clientId, { firstName: input.firstName, lastName: input.lastName ?? undefined, pronouns: input.pronouns ?? undefined });
       return { success: true };
     }),
 });
