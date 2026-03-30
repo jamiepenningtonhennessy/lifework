@@ -605,3 +605,10 @@
 ## Dashboard — Step 3 Title
 
 - [x] Rename Step 3 from "Sage the online career coach" to "Sage - Exploring your Life History"
+
+## Dashboard — Step Restructure
+
+- [x] Remove VIA results box from client dashboard (/dashboard)
+- [x] Add new Step 5 "Lifework Coaching" before Career Explorer
+- [x] Number all stages 1–6 in step titles
+- [x] Update progress bar from "x of 5" to "x of 6 steps completed"

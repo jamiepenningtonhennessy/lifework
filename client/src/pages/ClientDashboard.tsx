@@ -31,7 +31,7 @@ const STEPS = [
   {
     id: "interview",
     icon: <MessageSquare className="w-5 h-5" />,
-    title: "Life History Interview",
+    title: "1. Life History Interview",
     description:
       "A structured conversation exploring your achievements across the decades of your life.",
     path: "/interview",
@@ -42,7 +42,7 @@ const STEPS = [
   {
     id: "background",
     icon: <Users className="w-5 h-5" />,
-    title: "Background & History",
+    title: "2. Background & History",
     description:
       "Capture your family background, education, and career timeline.",
     path: "/background",
@@ -53,7 +53,7 @@ const STEPS = [
   {
     id: "sage",
     icon: <Sparkles className="w-5 h-5" />,
-    title: "Sage - Exploring your Life History",
+    title: "3. Sage - Exploring your Life History",
     description:
       "Sage will read what you have written and add depth by asking you some reflective questions.",
     path: null,
@@ -64,7 +64,7 @@ const STEPS = [
   {
     id: "psychometrics",
     icon: <Star className="w-5 h-5" />,
-    title: "Psychometrics",
+    title: "4. Psychometrics",
     description:
       "Two assessments — VIA Character Strengths (120 questions) and a Personality Profile (IPIP-NEO-120) — that provide additional lenses on who you are.",
     path: "/via",
@@ -73,9 +73,19 @@ const STEPS = [
     ctaInProgress: "Continue Psychometrics",
   },
   {
+    id: "lifework_coaching",
+    icon: <Brain className="w-5 h-5" />,
+    title: "5. Lifework Coaching",
+    description: "An exploration of your Lifework report with a career coach.",
+    path: null,
+    statusKey: null,
+    cta: null,
+    ctaInProgress: null,
+  },
+  {
     id: "career_explorer",
     icon: <Compass className="w-5 h-5" />,
-    title: "Career Explorer",
+    title: "6. Career Explorer",
     description:
       "Come back to this site once you have had your Lifework Coaching Conversation, and you can ask Sage for her opinion on future careers, or perhaps discuss the challenges that a possible chosen career might bring.",
     path: "/career-explorer",
@@ -173,7 +183,7 @@ export default function ClientDashboard() {
   const completedSteps = trackableSteps.filter(
     (s) => getStatus(s.statusKey) === "completed"
   ).length;
-  const totalSteps = STEPS.length; // always 5
+  const totalSteps = 6; // always 6
   const progressPct = Math.round((completedSteps / totalSteps) * 100);
 
   return (
@@ -426,28 +436,7 @@ export default function ClientDashboard() {
               })}
             </div>
 
-            {/* VIA Results shortcut if completed */}
-            {getStatus("viaStatus") === "completed" && (
-              <div className="mt-6 p-4 rounded-xl bg-[var(--lw-gold-light)] border border-[var(--gold)]/30">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-foreground">
-                      Your VIA results are ready
-                    </p>
-                    <p className="text-xs text-muted-foreground mt-0.5">
-                      View your ranked character strengths
-                    </p>
-                  </div>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => navigate("/via/results")}
-                  >
-                    View Strengths
-                  </Button>
-                </div>
-              </div>
-            )}
+
           </>
         )}
       </div>
