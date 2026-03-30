@@ -256,7 +256,7 @@ export default function ClientDashboard() {
               </h1>
               <div className="text-muted-foreground leading-relaxed space-y-3 text-sm">
                 <p>
-                  Your Lifework journey has five stages. Begin by completing your{" "}
+                  Your Lifework journey has six stages. Begin by completing your{" "}
                   <strong className="text-foreground">Life History Interview</strong> and{" "}
                   <strong className="text-foreground">Background &amp; History</strong> — these form the foundation of everything that follows.
                 </p>
