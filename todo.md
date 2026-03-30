@@ -581,3 +581,9 @@
 - [x] Update Tell Me About Yourself section to three-driver structure (Three Drivers / Roles / Intent)
 - [x] Update Development Edge prompt to remove encouraging closing line
 - [x] Reset existing reports to regenerate with Edgar's voice
+
+## Edgar — Jamie Style Integration
+
+- [x] Update Edgar's system prompt to reflect Jamie Pennington's writing style (directness, rhetorical questions, rhythm of three, wry aside, evidence-led, endings that land)
+- [x] Update insightsSys (Behavioural Style) prompt with same style characteristics
+- [x] Reset existing reports to regenerate with updated voice
