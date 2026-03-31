@@ -1000,7 +1000,84 @@ async function renderWowPdf(sections: WowReportSections): Promise<Buffer> {
           margin: [0, 0, 0, 16] as [number, number, number, number],
         },
       ] : []),
-      ...markdownToPdfContent(sections.behaviouralStyle),
+      // ── Insights Discovery structured panel (replaces AI prose) ──
+      ...(() => {
+        const colourData: Record<string, { hex: string; strengths: string[]; challenges: string[]; careerFit: string }> = {
+          "Cool Blue":       { hex: "#3E7CB1", strengths: ["Analytical","Precise","Systematic","Thorough","Objective"],        challenges: ["Can appear cold or detached","May over-analyse","Dislikes ambiguity"],                       careerFit: "Roles requiring analysis, precision, and systematic thinking — finance, engineering, research, IT, quality assurance, law." },
+          "Fiery Red":       { hex: "#A93226", strengths: ["Decisive","Determined","Strong-willed","Purposeful","Results-focused"], challenges: ["May appear insensitive","Can be impatient","Dislikes indecision in others"],              careerFit: "Roles requiring leadership, accountability, and the ability to drive change — management, entrepreneurship, law, surgery, strategy." },
+          "Earth Green":     { hex: "#6E9B1E", strengths: ["Empathetic","Patient","Reliable","Supportive","Values-driven"],       challenges: ["Can avoid necessary conflict","May be indecisive","Dislikes rapid change"],               careerFit: "Roles requiring empathy, support, and long-term relationship management — counselling, HR, nursing, social work, community roles." },
+          "Sunshine Yellow": { hex: "#E8B84B", strengths: ["Enthusiastic","Persuasive","Creative","Optimistic","Collaborative"],  challenges: ["Can be disorganised","May over-promise","Dislikes routine and detail"],                 careerFit: "Roles requiring communication, creativity, and relationship-building — sales, marketing, PR, teaching, facilitation, consulting." },
+        };
+        const pColour = sections.primaryColour || "Cool Blue";
+        const pd = colourData[pColour] ?? colourData["Cool Blue"];
+        const eScore2 = sections.domainScores["E"] ?? 50;
+        const aScore2 = sections.domainScores["A"] ?? 50;
+        const oScore2 = sections.domainScores["O"] ?? 50;
+        const cScore2 = sections.domainScores["C"] ?? 50;
+        const eLabel2 = eScore2 >= 65 ? "Highly Extraverted" : eScore2 >= 50 ? "Moderately Extraverted" : eScore2 >= 35 ? "Moderately Introverted" : "Highly Introverted";
+        const aLabel2 = aScore2 >= 65 ? "Highly Feeling" : aScore2 >= 50 ? "Moderately Feeling" : aScore2 >= 35 ? "Moderately Thinking" : "Highly Thinking";
+        const oLabel2 = oScore2 >= 50 ? "Intuiting (N)" : "Sensing (S)";
+        const cLabel2 = cScore2 >= 50 ? "Judging (J)" : "Perceiving (P)";
+        const axisCell = (label: string, value: string, sub: string) => ({
+          stack: [
+            { text: label, fontSize: 7, color: NAVY, characterSpacing: 1, margin: [0, 0, 0, 2] as [number, number, number, number] },
+            { text: value, fontSize: 10, bold: true, color: NAVY },
+            { text: sub, fontSize: 7, color: "#666666" },
+          ],
+          fillColor: "#f5f1e8",
+          margin: [8, 8, 8, 8] as [number, number, number, number],
+        });
+        return [
+          // Axis cards row
+          {
+            table: {
+              widths: ["*", "*", "*", "*"],
+              body: [[
+                axisCell("JUNGIAN TYPE", sections.jungianType || "", "Approx. MBTI equivalent"),
+                axisCell("E / I AXIS", eLabel2, `Extraversion: ${eScore2}`),
+                axisCell("T / F AXIS", aLabel2, `Agreeableness: ${aScore2}`),
+                axisCell("S / N + J / P", `${oLabel2} · ${cLabel2}`, "Openness & Conscientiousness"),
+              ]],
+            },
+            layout: "noBorders",
+            margin: [0, 0, 0, 12] as [number, number, number, number],
+          } as object,
+          // Strengths / Watch-outs / Career Fit row
+          {
+            table: {
+              widths: ["*", "*", "*"],
+              body: [[
+                {
+                  stack: [
+                    { text: "STRENGTHS", fontSize: 7, color: GOLD, characterSpacing: 1, bold: true, margin: [0, 0, 0, 4] as [number, number, number, number] },
+                    { ul: pd.strengths.map((s: string) => ({ text: s, fontSize: 9, color: NAVY })), markerColor: pd.hex, margin: [0, 4, 0, 0] as [number, number, number, number] },
+                  ],
+                  fillColor: "#f5f1e8",
+                  margin: [10, 10, 10, 10] as [number, number, number, number],
+                },
+                {
+                  stack: [
+                    { text: "WATCH-OUTS", fontSize: 7, color: GOLD, characterSpacing: 1, bold: true, margin: [0, 0, 0, 4] as [number, number, number, number] },
+                    { ul: pd.challenges.map((c: string) => ({ text: c, fontSize: 9, color: NAVY })), markerColor: pd.hex, margin: [0, 4, 0, 0] as [number, number, number, number] },
+                  ],
+                  fillColor: "#f5f1e8",
+                  margin: [10, 10, 10, 10] as [number, number, number, number],
+                },
+                {
+                  stack: [
+                    { text: "CAREER ENVIRONMENT FIT", fontSize: 7, color: GOLD, characterSpacing: 1, bold: true, margin: [0, 0, 0, 4] as [number, number, number, number] },
+                    { text: pd.careerFit, fontSize: 9, color: NAVY, lineHeight: 1.4 },
+                  ],
+                  fillColor: "#f5f1e8",
+                  margin: [10, 10, 10, 10] as [number, number, number, number],
+                },
+              ]],
+            },
+            layout: "noBorders",
+            margin: [0, 0, 0, 16] as [number, number, number, number],
+          } as object,
+        ];
+      })(),
 
       // ── Section 6: Career Directions ──
       ...sectionBlock("6. Career Directions", sections.careerDirections),

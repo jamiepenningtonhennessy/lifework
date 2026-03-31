@@ -679,3 +679,8 @@
 ## Bug: VIA Evidence Table — PDF Rendering
 
 - [ ] Fix VIA Evidence Table not rendering in PDF (markdown pipe characters shown as raw text)
+
+## PDF Export — Behavioural Style Section
+
+- [x] Replace markdownToPdfContent(sections.behaviouralStyle) in renderWowPdf with structured pdfmake Insights Discovery panel (axis cards + strengths/watch-outs/career fit)
+- [x] Clear cached wowReportPdfUrl values so all PDFs regenerate with the new structured panel
