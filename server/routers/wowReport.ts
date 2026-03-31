@@ -564,6 +564,64 @@ async function renderWowPdf(sections: WowReportSections): Promise<Buffer> {
       }
       paraBuffer = [];
     };
+
+    // ── Table state ──
+    let tableHeaderRow: string[] | null = null;
+    let tableBodyRows: string[][] = [];
+    const flushTable = () => {
+      if (!tableHeaderRow) return;
+      const colCount = tableHeaderRow.length;
+      const colWidths: (string | number)[] = Array(colCount).fill("*");
+      // Make first two columns narrower, last column wider for achievements
+      if (colCount === 6) {
+        colWidths[0] = 80;  // Strength name
+        colWidths[1] = "*"; // VIA Definition
+        colWidths[2] = 45;  // Survey Rank
+        colWidths[3] = 45;  // Freq
+        colWidths[4] = 55;  // Identity Salience
+        colWidths[5] = 90;  // Achievements
+      }
+      const headerCells = tableHeaderRow.map(h => ({
+        text: h,
+        font: "Roboto",
+        fontSize: 8.5,
+        bold: true,
+        color: "#ffffff",
+        fillColor: NAVY,
+        margin: [4, 5, 4, 5] as [number, number, number, number],
+      }));
+      const bodyRowsCells = tableBodyRows.map((row, ri) =>
+        row.map(cell => ({
+          text: cell,
+          font: "Roboto",
+          fontSize: 8.5,
+          color: DARK_GREY,
+          fillColor: ri % 2 === 0 ? "#fdf9f3" : "#f5ede0",
+          margin: [4, 4, 4, 4] as [number, number, number, number],
+        }))
+      );
+      result.push({
+        table: {
+          headerRows: 1,
+          widths: colWidths,
+          body: [headerCells, ...bodyRowsCells],
+        },
+        layout: {
+          hLineWidth: (i: number) => 0.5,
+          vLineWidth: () => 0,
+          hLineColor: () => "#e8e0d8",
+          fillColor: (ri: number) => null,
+        },
+        margin: [0, 8, 0, 16] as [number, number, number, number],
+      });
+      tableHeaderRow = null;
+      tableBodyRows = [];
+    };
+    const isPipeRow = (line: string) => line.trim().startsWith("|") && line.trim().endsWith("|");
+    const isSeparatorRow = (line: string) => /^\|[-:\| ]+\|$/.test(line.trim());
+    const parsePipeRow = (line: string): string[] =>
+      line.trim().slice(1, -1).split("|").map(c => c.trim());
+
     for (const rawLine of lines) {
       const line = rawLine.trimEnd();
       if (/^##\s/.test(line)) {
@@ -595,10 +653,28 @@ async function renderWowPdf(sections: WowReportSections): Promise<Buffer> {
         listBuffer.push(parseBoldInline(numberedMatch[1]));
         continue;
       }
+      // ── Table rows ──
+      if (isPipeRow(line)) {
+        if (isSeparatorRow(line)) {
+          // separator row — skip, header already captured
+          continue;
+        }
+        flushPara(); flushList();
+        const cells = parsePipeRow(line);
+        if (tableHeaderRow === null) {
+          // First pipe row = header
+          tableHeaderRow = cells;
+        } else {
+          tableBodyRows.push(cells);
+        }
+        continue;
+      }
+      // Non-pipe line after table rows — flush the table
+      if (tableHeaderRow !== null) { flushTable(); }
       if (line.trim() === "") { flushPara(); flushList(); continue; }
       paraBuffer.push(line);
     }
-    flushPara(); flushList();
+    flushPara(); flushList(); flushTable();
     return result;
   };
   const sectionBlock = (title: string, content: string) => [
