@@ -18,7 +18,7 @@ import { eq } from "drizzle-orm";
 import { VIA_STRENGTHS } from "../shared/via-data";
 import { IPIP_DOMAINS, IPIP_FACETS } from "../shared/ipip-data";
 
-const strengthsMap = new Map(VIA_STRENGTHS.map((s) => [s.id, s]));
+const strengthsMap = new Map(VIA_STRENGTHS.map((s) => [s.id, s])); // v2 — uses wowReportJson sections
 
 export const pdfRouter = Router();
 
