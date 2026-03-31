@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
-import { Brain, ArrowRight, Loader2 } from "lucide-react";
+import { Brain, ArrowRight, CalendarDays, CheckCircle2, Loader2 } from "lucide-react";
 import {
   IPIP_DOMAINS,
   IPIP_FACETS,
@@ -48,6 +48,27 @@ export default function IpipResults() {
 
   return (
     <div className="min-h-screen bg-background">
+      {/* Sticky nav */}
+      <div className="border-b border-border bg-card/80 backdrop-blur-sm sticky top-0 z-10">
+        <div className="container flex items-center justify-between h-14">
+          <div className="flex items-center gap-3">
+            <Button variant="ghost" size="sm" onClick={() => setLocation("/ipip-survey")}>
+              <ArrowRight className="w-4 h-4 mr-1 rotate-180" /> Survey
+            </Button>
+            <div className="h-4 w-px bg-border" />
+            <span className="font-serif font-semibold text-foreground">Your Personality Profile</span>
+          </div>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => setLocation("/dashboard")}
+            className="gap-1"
+          >
+            Dashboard
+          </Button>
+        </div>
+      </div>
+
       <div className="max-w-4xl mx-auto px-4 py-10">
         {/* Header */}
         <div className="mb-8">
@@ -162,12 +183,58 @@ export default function IpipResults() {
           />
         </div>
 
-        {/* CTA */}
-        <div className="mt-8 flex justify-center">
-          <Button size="lg" onClick={() => setLocation("/dashboard")} className="gap-2">
-            Return to Dashboard
-            <ArrowRight className="h-4 w-4" />
-          </Button>
+        {/* Completion banner */}
+        <div
+          className="rounded-2xl p-8 mt-10 mb-4"
+          style={{
+            background: "var(--lw-navy)",
+            border: "1px solid rgba(201,151,58,0.35)",
+          }}
+        >
+          <div className="flex flex-col items-center text-center gap-4">
+            <div
+              className="w-14 h-14 rounded-full flex items-center justify-center"
+              style={{ background: "rgba(201,151,58,0.15)" }}
+            >
+              <CheckCircle2 className="w-7 h-7" style={{ color: "var(--lw-gold)" }} />
+            </div>
+            <div>
+              <h3 className="text-2xl font-serif font-bold text-white mb-2">
+                Psychometrics Complete — Well Done
+              </h3>
+              <p className="text-sm mb-1" style={{ color: "rgba(255,255,255,0.75)", maxWidth: "32rem", margin: "0 auto 0.5rem" }}>
+                You've completed both the VIA Character Strengths survey and the IPIP-NEO Personality Profile.
+              </p>
+              <p className="text-sm" style={{ color: "rgba(255,255,255,0.75)", maxWidth: "32rem", margin: "0 auto" }}>
+                Your counsellor now has everything needed to prepare your Lifework analysis. The next step is to
+                book your first coaching session.
+              </p>
+            </div>
+            <div className="flex flex-col sm:flex-row gap-3 mt-2">
+              <a
+                href="https://www.penningtonhennessy.com/contact"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <Button
+                  size="lg"
+                  className="gap-2 font-semibold"
+                  style={{ background: "var(--lw-gold)", color: "var(--lw-navy)", minWidth: "220px" }}
+                >
+                  <CalendarDays className="w-4 h-4" />
+                  Book Your Coaching Session
+                </Button>
+              </a>
+              <Button
+                size="lg"
+                variant="outline"
+                onClick={() => setLocation("/dashboard")}
+                className="gap-2 text-white border-white/30 hover:bg-white/10"
+              >
+                Back to Dashboard <ArrowRight className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
         </div>
       </div>
     </div>
