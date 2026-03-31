@@ -1,7 +1,7 @@
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "@/pages/NotFound";
-import { Route, Switch } from "wouter";
+import { Route, Switch, Redirect } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import Home from "./pages/Home";
@@ -46,17 +46,28 @@ function Router() {
       <Route path="/about" component={PHAbout} />
       <Route path="/ai-coaching" component={AICoaching} />
 
-      {/* ── Lifework app (under /lifework) ── */}
-      <Route path="/lifework" component={Home} />
-      <Route path="/lifework/interview" component={Interview} />
-      <Route path="/lifework/background" component={Background} />
-      <Route path="/lifework/via" component={VIASurvey} />
-      <Route path="/lifework/via/results" component={VIAResults} />
-      <Route path="/lifework/ipip-survey" component={IpipSurvey} />
-      <Route path="/lifework/ipip-results" component={IpipResults} />
-      <Route path="/lifework/ipip/results" component={IpipResults} />
-      <Route path="/lifework/my-report" component={MyReport} />
-      <Route path="/lifework/career-explorer" component={CareerExplorer} />
+      {/* ── Lifework app (under /coaching/lifework) ── */}
+      <Route path="/coaching/lifework" component={Home} />
+      <Route path="/coaching/lifework/interview" component={Interview} />
+      <Route path="/coaching/lifework/background" component={Background} />
+      <Route path="/coaching/lifework/via" component={VIASurvey} />
+      <Route path="/coaching/lifework/via/results" component={VIAResults} />
+      <Route path="/coaching/lifework/ipip-survey" component={IpipSurvey} />
+      <Route path="/coaching/lifework/ipip-results" component={IpipResults} />
+      <Route path="/coaching/lifework/ipip/results" component={IpipResults} />
+      <Route path="/coaching/lifework/my-report" component={MyReport} />
+      <Route path="/coaching/lifework/career-explorer" component={CareerExplorer} />
+
+      {/* Backward-compatible redirects from old /lifework/* paths */}
+      <Route path="/lifework"><Redirect to="/coaching/lifework" /></Route>
+      <Route path="/lifework/interview"><Redirect to="/coaching/lifework/interview" /></Route>
+      <Route path="/lifework/background"><Redirect to="/coaching/lifework/background" /></Route>
+      <Route path="/lifework/via"><Redirect to="/coaching/lifework/via" /></Route>
+      <Route path="/lifework/via/results"><Redirect to="/coaching/lifework/via/results" /></Route>
+      <Route path="/lifework/ipip-survey"><Redirect to="/coaching/lifework/ipip-survey" /></Route>
+      <Route path="/lifework/ipip-results"><Redirect to="/coaching/lifework/ipip-results" /></Route>
+      <Route path="/lifework/my-report"><Redirect to="/coaching/lifework/my-report" /></Route>
+      <Route path="/lifework/career-explorer"><Redirect to="/coaching/lifework/career-explorer" /></Route>
       <Route path="/dashboard" component={ClientDashboard} />
       <Route path="/counselor" component={CounselorDashboard} />
       <Route path="/counselor/client/:id" component={ClientProfile} />

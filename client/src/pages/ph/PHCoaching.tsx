@@ -166,7 +166,7 @@ export default function PHCoaching() {
                 Lifework is the digital platform that supports the coaching process. Clients complete a structured life history interview, VIA Character Strengths survey, and personality profile at their own pace -- giving their counsellor a rich, detailed picture before the first coaching session.
               </p>
               <a
-                href="/dashboard"
+                href="/coaching/lifework"
                 className="inline-flex items-center gap-2 text-sm font-medium tracking-widest uppercase no-underline transition-opacity hover:opacity-80"
                 style={{ color: "var(--lw-gold)", letterSpacing: "0.1em" }}
               >

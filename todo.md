@@ -640,3 +640,11 @@
 ## Counsellor Dashboard — Client Card Status Rows
 
 - [x] Replace "Analysis" status row with "OCEAN" (wired to ipipStatus) on counsellor client cards
+
+## Routing — Consolidate Lifework Entry Point
+
+- [x] Move Lifework front page from /lifework to /coaching/lifework
+- [x] Move all /lifework/* sub-routes to /coaching/lifework/* (interview, background, via, ipip, etc.)
+- [x] Add redirects from old /lifework/* paths for backward compatibility
+- [x] Update PHCoaching page "Open Lifework" link to /coaching/lifework
+- [x] TypeScript clean, 64 tests pass
