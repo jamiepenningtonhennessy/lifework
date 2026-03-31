@@ -2,96 +2,70 @@
  * insightsWheelPng — generates a PNG Buffer of the Insights Discovery colour
  * wheel with a client position dot, for embedding in the pdfmake PDF.
  *
- * Uses sharp to rasterise an inline SVG string.
+ * Uses sharp (librsvg) to rasterise an inline SVG string.
  *
- * Label strategy: each quadrant label is centred at the 45° midpoint of its
- * slice, at ~55% of the outer radius. This keeps labels well away from the
- * axis lines and from each other.
+ * Renders: four light-tint quadrant fills + thick outer colour ring + client dot.
+ * No text labels (avoids font rendering issues in the headless server environment).
  *
- * Quadrant layout (0° = right, angles increase clockwise):
- *   Fiery Red      — top-right  — midpoint at  315° (= -45°)
- *   Sunshine Yellow— bottom-right — midpoint at 45°
- *   Earth Green    — bottom-left — midpoint at 135°
- *   Cool Blue      — top-left   — midpoint at 225°
+ * Quadrant layout (0° = top, clockwise):
+ *   Fiery Red       — top-right    (quadrant 0)
+ *   Sunshine Yellow — bottom-right (quadrant 1)
+ *   Earth Green     — bottom-left  (quadrant 2)
+ *   Cool Blue       — top-left     (quadrant 3)
  */
 
 import { createRequire } from "module";
 const _require = createRequire(import.meta.url);
 
 const COLOURS = {
-  fieryRed: "#C0392B",
-  sunshineYellow: "#D4AC0D",
-  earthGreen: "#27AE60",
-  coolBlue: "#2980B9",
-  fieryRedLight: "#F1948A",
+  fieryRed:            "#C0392B",
+  sunshineYellow:      "#D4AC0D",
+  earthGreen:          "#27AE60",
+  coolBlue:            "#2980B9",
+  fieryRedLight:       "#F1948A",
   sunshineYellowLight: "#F9E79F",
-  earthGreenLight: "#A9DFBF",
-  coolBlueLight: "#AED6F1",
+  earthGreenLight:     "#A9DFBF",
+  coolBlueLight:       "#AED6F1",
 };
 
-function toRad(deg: number) {
-  return (deg * Math.PI) / 180;
-}
+function toRad(deg: number) { return (deg * Math.PI) / 180; }
 
-function describeQuadrant(cx: number, cy: number, r: number, quadrant: number): string {
-  // quadrant: 0=TR (Fiery Red), 1=BR (Sunshine Yellow), 2=BL (Earth Green), 3=TL (Cool Blue)
-  const startAngles = [-90, 0, 90, 180]; // 0° = right, -90° = top
-  const start = toRad(startAngles[quadrant]);
-  const end = toRad(startAngles[quadrant] + 90);
-  const x1 = cx + r * Math.cos(start);
-  const y1 = cy + r * Math.sin(start);
-  const x2 = cx + r * Math.cos(end);
-  const y2 = cy + r * Math.sin(end);
-  return `M ${cx} ${cy} L ${x1.toFixed(2)} ${y1.toFixed(2)} A ${r} ${r} 0 0 1 ${x2.toFixed(2)} ${y2.toFixed(2)} Z`;
-}
-
+/** SVG arc path from startDeg to endDeg (0° = top, clockwise). */
 function describeArc(cx: number, cy: number, r: number, startDeg: number, endDeg: number): string {
-  // startDeg/endDeg: 0 = top, clockwise
-  const start = toRad(startDeg - 90);
-  const end = toRad(endDeg - 90);
-  const x1 = cx + r * Math.cos(start);
-  const y1 = cy + r * Math.sin(start);
-  const x2 = cx + r * Math.cos(end);
-  const y2 = cy + r * Math.sin(end);
+  const s = toRad(startDeg - 90);
+  const e = toRad(endDeg   - 90);
+  const x1 = cx + r * Math.cos(s);
+  const y1 = cy + r * Math.sin(s);
+  const x2 = cx + r * Math.cos(e);
+  const y2 = cy + r * Math.sin(e);
   return `M ${x1.toFixed(2)} ${y1.toFixed(2)} A ${r} ${r} 0 0 1 ${x2.toFixed(2)} ${y2.toFixed(2)}`;
 }
 
-/**
- * Returns the SVG x,y centre of a quadrant at a given radius fraction.
- * midDeg: the 45° bisector of the quadrant (0° = top, clockwise).
- */
-function quadrantCentre(cx: number, cy: number, r: number, midDeg: number) {
-  const rad = toRad(midDeg - 90); // convert to standard math angle (0° = right)
-  return {
-    x: cx + r * Math.cos(rad),
-    y: cy + r * Math.sin(rad),
-  };
+/** SVG pie-slice path for one quadrant. quadrant: 0=TR, 1=BR, 2=BL, 3=TL */
+function describeQuadrant(cx: number, cy: number, r: number, quadrant: number): string {
+  const startAngles = [-90, 0, 90, 180];
+  const s = toRad(startAngles[quadrant]);
+  const e = toRad(startAngles[quadrant] + 90);
+  const x1 = cx + r * Math.cos(s);
+  const y1 = cy + r * Math.sin(s);
+  const x2 = cx + r * Math.cos(e);
+  const y2 = cy + r * Math.sin(e);
+  return `M ${cx} ${cy} L ${x1.toFixed(2)} ${y1.toFixed(2)} A ${r} ${r} 0 0 1 ${x2.toFixed(2)} ${y2.toFixed(2)} Z`;
 }
 
 function buildWheelSvg(extraversion: number, agreeableness: number, size = 320): string {
   const cx = size / 2;
   const cy = size / 2;
-  const outerR = size / 2 - 6;
-  const innerR = outerR * 0.16;
-  // Cap dot movement to 60% of outer radius so it never reaches the label zone (72%).
-  const usableR = outerR * 0.60;
-  const dotR = size * 0.038;
-
-  // Label radius: 72% of outer radius — labels sit near the outer ring,
-  // leaving the inner area free for the client dot to move without overlap.
-  const labelR = outerR * 0.72;
-  // Font sizes
-  const fs = Math.round(size * 0.044);        // quadrant label
-  const lineH = fs * 1.25;
-
-  // Quadrant label centres (midpoint of each 90° slice, 0°=top clockwise)
-  const FR = quadrantCentre(cx, cy, labelR, 45);   // Fiery Red: top-right, bisector at 45°
-  const SY = quadrantCentre(cx, cy, labelR, 135);  // Sunshine Yellow: bottom-right, 135°
-  const EG = quadrantCentre(cx, cy, labelR, 225);  // Earth Green: bottom-left, 225°
-  const CB = quadrantCentre(cx, cy, labelR, 315);  // Cool Blue: top-left, 315°
+  const outerR = size / 2 - 4;   // quadrant fill radius — almost fills canvas
+  const ringW  = outerR * 0.10;  // thickness of outer colour ring
+  const ringR  = outerR + ringW / 2;
+  const innerR = outerR * 0.14;  // centre white circle
+  const usableR = outerR * 0.58; // max dot travel radius
+  const dotR   = size * 0.038;
 
   // Client dot position
-  const rawX = cx + ((extraversion - 50) / 50) * usableR;
+  // Extraversion: high → right (+x); Agreeableness: high → bottom (+y in SVG = Feeler)
+  const rawX = cx + ((extraversion  - 50) / 50) * usableR;
   const rawY = cy + ((agreeableness - 50) / 50) * usableR;
   const dx = rawX - cx;
   const dy = rawY - cy;
@@ -99,46 +73,36 @@ function buildWheelSvg(extraversion: number, agreeableness: number, size = 320):
   const dotX = dist > usableR ? cx + (dx / dist) * usableR : rawX;
   const dotY = dist > usableR ? cy + (dy / dist) * usableR : rawY;
 
-  return `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" xmlns="http://www.w3.org/2000/svg" font-family="Arial, sans-serif">
-  <!-- Quadrant fills -->
-  <path d="${describeQuadrant(cx, cy, outerR, 0)}" fill="${COLOURS.fieryRedLight}" stroke="white" stroke-width="2"/>
-  <path d="${describeQuadrant(cx, cy, outerR, 1)}" fill="${COLOURS.sunshineYellowLight}" stroke="white" stroke-width="2"/>
-  <path d="${describeQuadrant(cx, cy, outerR, 2)}" fill="${COLOURS.earthGreenLight}" stroke="white" stroke-width="2"/>
-  <path d="${describeQuadrant(cx, cy, outerR, 3)}" fill="${COLOURS.coolBlueLight}" stroke="white" stroke-width="2"/>
+  // Total canvas must contain the ring
+  const totalR = outerR + ringW;
+  const svgSize = Math.ceil(totalR * 2) + 8;
+  const scx = svgSize / 2;
+  const scy = svgSize / 2;
 
-  <!-- Outer colour arcs -->
-  <path d="${describeArc(cx, cy, outerR - 3, 315, 45)}" fill="none" stroke="${COLOURS.fieryRed}" stroke-width="10" stroke-linecap="butt"/>
-  <path d="${describeArc(cx, cy, outerR - 3, 45, 135)}" fill="none" stroke="${COLOURS.sunshineYellow}" stroke-width="10" stroke-linecap="butt"/>
-  <path d="${describeArc(cx, cy, outerR - 3, 135, 225)}" fill="none" stroke="${COLOURS.earthGreen}" stroke-width="10" stroke-linecap="butt"/>
-  <path d="${describeArc(cx, cy, outerR - 3, 225, 315)}" fill="none" stroke="${COLOURS.coolBlue}" stroke-width="10" stroke-linecap="butt"/>
+  return `<svg width="${svgSize}" height="${svgSize}" viewBox="0 0 ${svgSize} ${svgSize}" xmlns="http://www.w3.org/2000/svg">
 
-  <!-- Axis lines -->
-  <line x1="${cx}" y1="6" x2="${cx}" y2="${size - 6}" stroke="white" stroke-width="2" opacity="0.6"/>
-  <line x1="6" y1="${cy}" x2="${size - 6}" y2="${cy}" stroke="white" stroke-width="2" opacity="0.6"/>
+  <!-- Quadrant fills (light tints) -->
+  <path d="${describeQuadrant(scx, scy, outerR, 0)}" fill="${COLOURS.fieryRedLight}"       stroke="white" stroke-width="1.5"/>
+  <path d="${describeQuadrant(scx, scy, outerR, 1)}" fill="${COLOURS.sunshineYellowLight}" stroke="white" stroke-width="1.5"/>
+  <path d="${describeQuadrant(scx, scy, outerR, 2)}" fill="${COLOURS.earthGreenLight}"     stroke="white" stroke-width="1.5"/>
+  <path d="${describeQuadrant(scx, scy, outerR, 3)}" fill="${COLOURS.coolBlueLight}"       stroke="white" stroke-width="1.5"/>
 
-  <!-- Centre circle -->
-  <circle cx="${cx}" cy="${cy}" r="${innerR}" fill="white"/>
+  <!-- Outer colour ring -->
+  <path d="${describeArc(scx, scy, ringR, 315, 45)}"  fill="none" stroke="${COLOURS.fieryRed}"       stroke-width="${ringW}" stroke-linecap="butt"/>
+  <path d="${describeArc(scx, scy, ringR, 45, 135)}"  fill="none" stroke="${COLOURS.sunshineYellow}" stroke-width="${ringW}" stroke-linecap="butt"/>
+  <path d="${describeArc(scx, scy, ringR, 135, 225)}" fill="none" stroke="${COLOURS.earthGreen}"     stroke-width="${ringW}" stroke-linecap="butt"/>
+  <path d="${describeArc(scx, scy, ringR, 225, 315)}" fill="none" stroke="${COLOURS.coolBlue}"       stroke-width="${ringW}" stroke-linecap="butt"/>
 
-  <!-- Quadrant labels — centred at 45° bisector of each slice at 58% radius -->
-  <!-- Fiery Red (top-right) -->
-  <text x="${FR.x.toFixed(1)}" y="${(FR.y - lineH * 0.5).toFixed(1)}" text-anchor="middle" dominant-baseline="middle" font-size="${fs}" font-weight="bold" fill="${COLOURS.fieryRed}">Fiery</text>
-  <text x="${FR.x.toFixed(1)}" y="${(FR.y + lineH * 0.5).toFixed(1)}" text-anchor="middle" dominant-baseline="middle" font-size="${fs}" font-weight="bold" fill="${COLOURS.fieryRed}">Red</text>
+  <!-- Axis dividers -->
+  <line x1="${scx}" y1="${scy - outerR}" x2="${scx}" y2="${scy + outerR}" stroke="white" stroke-width="2" opacity="0.6"/>
+  <line x1="${scx - outerR}" y1="${scy}" x2="${scx + outerR}" y2="${scy}" stroke="white" stroke-width="2" opacity="0.6"/>
 
-  <!-- Sunshine Yellow (bottom-right) -->
-  <text x="${SY.x.toFixed(1)}" y="${(SY.y - lineH * 0.5).toFixed(1)}" text-anchor="middle" dominant-baseline="middle" font-size="${Math.round(fs * 0.85)}" font-weight="bold" fill="${COLOURS.sunshineYellow}">Sunshine</text>
-  <text x="${SY.x.toFixed(1)}" y="${(SY.y + lineH * 0.5).toFixed(1)}" text-anchor="middle" dominant-baseline="middle" font-size="${Math.round(fs * 0.85)}" font-weight="bold" fill="${COLOURS.sunshineYellow}">Yellow</text>
-
-  <!-- Earth Green (bottom-left) -->
-  <text x="${EG.x.toFixed(1)}" y="${(EG.y - lineH * 0.5).toFixed(1)}" text-anchor="middle" dominant-baseline="middle" font-size="${fs}" font-weight="bold" fill="${COLOURS.earthGreen}">Earth</text>
-  <text x="${EG.x.toFixed(1)}" y="${(EG.y + lineH * 0.5).toFixed(1)}" text-anchor="middle" dominant-baseline="middle" font-size="${fs}" font-weight="bold" fill="${COLOURS.earthGreen}">Green</text>
-
-  <!-- Cool Blue (top-left) -->
-  <text x="${CB.x.toFixed(1)}" y="${(CB.y - lineH * 0.5).toFixed(1)}" text-anchor="middle" dominant-baseline="middle" font-size="${fs}" font-weight="bold" fill="${COLOURS.coolBlue}">Cool</text>
-  <text x="${CB.x.toFixed(1)}" y="${(CB.y + lineH * 0.5).toFixed(1)}" text-anchor="middle" dominant-baseline="middle" font-size="${fs}" font-weight="bold" fill="${COLOURS.coolBlue}">Blue</text>
+  <!-- Centre white circle -->
+  <circle cx="${scx}" cy="${scy}" r="${innerR}" fill="white"/>
 
   <!-- Client dot — white halo then navy fill -->
-  <circle cx="${dotX.toFixed(2)}" cy="${dotY.toFixed(2)}" r="${(dotR + 4).toFixed(1)}" fill="white" opacity="0.9"/>
-  <circle cx="${dotX.toFixed(2)}" cy="${dotY.toFixed(2)}" r="${dotR.toFixed(1)}" fill="#1a2744" stroke="white" stroke-width="2.5"/>
+  <circle cx="${(scx + (dotX - cx)).toFixed(2)}" cy="${(scy + (dotY - cy)).toFixed(2)}" r="${(dotR + 3.5).toFixed(1)}" fill="white" opacity="0.9"/>
+  <circle cx="${(scx + (dotX - cx)).toFixed(2)}" cy="${(scy + (dotY - cy)).toFixed(2)}" r="${dotR.toFixed(1)}" fill="#1a2744" stroke="white" stroke-width="2.5"/>
 </svg>`;
 }
 

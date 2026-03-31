@@ -684,3 +684,9 @@
 
 - [x] Replace markdownToPdfContent(sections.behaviouralStyle) in renderWowPdf with structured pdfmake Insights Discovery panel (axis cards + strengths/watch-outs/career fit)
 - [x] Clear cached wowReportPdfUrl values so all PDFs regenerate with the new structured panel
+
+## Bug Fix — Insights Wheel PNG (PDF version)
+
+- [x] Fix quadrant labels rendering as garbled boxes in PDF PNG — removed labels entirely (no font issues)
+- [x] Ensure outer ring colour arcs are visible in PDF PNG
+- [x] Simplify PDF wheel to quadrants + ring + dot only (no labels) per user request
