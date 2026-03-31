@@ -660,3 +660,8 @@
 
 - [x] Remove Lifework methodology section from /coaching page
 - [x] Add "Open Lifework" button at the bottom of box 3 (Career Development)
+
+## VIA — Table + Key Findings Structure
+
+- [x] Update VIA prompt to produce markdown table (Strength / Survey Rank / Freq / Identity Salience / Achievements) followed by "The Key Findings" with bold lead sentences and quoted evidence
+- [x] Reset existing reports
