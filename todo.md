@@ -612,3 +612,16 @@
 - [x] Add new Step 5 "Lifework Coaching" before Career Explorer
 - [x] Number all stages 1–6 in step titles
 - [x] Update progress bar from "x of 5" to "x of 6 steps completed"
+
+## WOW Report — Fix Remaining Third-Person Prompts
+
+- [x] Convert system prompt (Edgar) from third-person to second-person
+- [x] Convert Summary Portrait prompt to second-person
+- [x] Convert Life History Pattern prompt to second-person
+- [x] Convert VIA prompt to second-person
+- [x] Convert Big Five prompt — confirmed two-movement OCEAN format in place
+- [x] Convert Insights (Jamie) system prompt and sub-section headings to second-person
+- [x] Convert Career Directions prompt to second-person
+- [x] Convert Development Edge prompt to second-person
+- [x] Convert Conclusions prompt to second-person
+- [x] Reset all existing reports to force regeneration
