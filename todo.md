@@ -675,3 +675,7 @@
 - [x] Remove "Your Top 5 Signature Strengths" section from VIA AI prompt (cards already show definitions)
 - [x] Ensure Evidence Table includes a VIA definition for every strength cited (not just top 5)
 - [x] Reset reports and save checkpoint
+
+## Bug: VIA Evidence Table — PDF Rendering
+
+- [ ] Fix VIA Evidence Table not rendering in PDF (markdown pipe characters shown as raw text)
