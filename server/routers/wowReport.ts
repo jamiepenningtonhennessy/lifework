@@ -946,6 +946,36 @@ async function renderWowPdf(sections: WowReportSections): Promise<Buffer> {
 
 async function runGenerationJob(clientId: number): Promise<void> {
   try {
+    // ── Pre-flight completeness check ────────────────────────────────────────
+    // Fetch all required data upfront and block generation if anything is missing.
+    // This prevents the LLM from fabricating psychometric data or producing a
+    // report with large structural gaps.
+    const [preProfile, preAchievements, preVia, preIpip] = await Promise.all([
+      getClientProfileById(clientId),
+      getAchievements(clientId),
+      getViaResults(clientId),
+      getIpipResults(clientId),
+    ]);
+    const missing: string[] = [];
+    if (!preProfile?.firstName) missing.push("Client name not set");
+    if (!preAchievements || preAchievements.length < 3)
+      missing.push(`Life History: at least 3 achievements required (${preAchievements?.length ?? 0} recorded)`);
+    if (!preVia?.rankedStrengths)
+      missing.push("VIA Character Strengths survey not completed");
+    if (!preIpip?.domainScores)
+      missing.push("IPIP-NEO Personality assessment not completed");
+    if (missing.length > 0) {
+      const errorMsg = `Cannot generate WOW Report — the following required items are not yet complete:\n\n${missing.map(m => `• ${m}`).join("\n")}`;
+      console.warn(`[WOW Report] Pre-flight check failed for client ${clientId}:`, missing);
+      const existingForError = await getAnalysisReport(clientId);
+      const baseForError = existingForError ?? { clientId, generatedAt: new Date() };
+      await upsertAnalysisReport({
+        ...baseForError,
+        wowReportStatus: "error",
+        wowReportError: errorMsg,
+      } as Parameters<typeof upsertAnalysisReport>[0]);
+      return;
+    }
     // Mark as generating
     const existing = await getAnalysisReport(clientId);
     const base = existing ?? { clientId, generatedAt: new Date() };

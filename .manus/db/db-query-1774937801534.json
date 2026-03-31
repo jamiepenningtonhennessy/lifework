@@ -1,0 +1,19 @@
+{
+  "query": "SELECT cp.id as profileId, cp.firstName, cp.lastName, cp.ipipStatus, ir.clientId as ipipClientId, ir.domainScores IS NOT NULL as hasScores, ir.completedAt FROM client_profiles cp LEFT JOIN ipip_results ir ON cp.id = ir.clientId WHERE cp.firstName LIKE '%Gavin%' OR cp.lastName LIKE '%Waller%';",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 32u3a1hNYuu9Gj3.7d2282893346 --database kFbbE6kqNApXGDFpQJUGV7 --execute SELECT cp.id as profileId, cp.firstName, cp.lastName, cp.ipipStatus, ir.clientId as ipipClientId, ir.domainScores IS NOT NULL as hasScores, ir.completedAt FROM client_profiles cp LEFT JOIN ipip_results ir ON cp.id = ir.clientId WHERE cp.firstName LIKE '%Gavin%' OR cp.lastName LIKE '%Waller%';",
+  "rows": [
+    {
+      "profileId": "300001",
+      "firstName": "Gavin",
+      "lastName": "Wallen",
+      "ipipStatus": "not_started",
+      "ipipClientId": "NULL",
+      "hasScores": "0",
+      "completedAt": "NULL"
+    }
+  ],
+  "messages": [],
+  "stdout": "profileId\tfirstName\tlastName\tipipStatus\tipipClientId\thasScores\tcompletedAt\n300001\tGavin\tWallen\tnot_started\tNULL\t0\tNULL\n",
+  "stderr": "",
+  "execution_time_ms": 57
+}

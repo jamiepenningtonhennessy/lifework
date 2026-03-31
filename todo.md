@@ -625,3 +625,14 @@
 - [x] Convert Development Edge prompt to second-person
 - [x] Convert Conclusions prompt to second-person
 - [x] Reset all existing reports to force regeneration
+
+## Bug: OCEAN Scores Not Showing on Counsellor Client Page
+
+- [ ] Fix OCEAN scores not displaying under Personality tab on /counsellor/client page
+
+## WOW Report — Completeness Guard
+
+- [x] Add pre-flight check in runGenerationJob: block if life history achievements < 3, VIA not completed, IPIP not completed
+- [x] Return a structured error listing exactly which items are missing
+- [x] Surface the missing-data error clearly in the counsellor UI (amber checklist panel instead of generic red error)
+- [x] TypeScript clean, 64 tests pass

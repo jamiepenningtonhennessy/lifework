@@ -1,0 +1,80 @@
+{
+  "query": "SELECT cp.id as profileId, cp.firstName, cp.lastName, ir.clientId as ipipClientId, ir.domainScores IS NOT NULL as hasScores FROM client_profiles cp LEFT JOIN ipip_results ir ON cp.id = ir.clientId LIMIT 10;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 32u3a1hNYuu9Gj3.7d2282893346 --database kFbbE6kqNApXGDFpQJUGV7 --execute SELECT cp.id as profileId, cp.firstName, cp.lastName, ir.clientId as ipipClientId, ir.domainScores IS NOT NULL as hasScores FROM client_profiles cp LEFT JOIN ipip_results ir ON cp.id = ir.clientId LIMIT 10;",
+  "rows": [
+    {
+      "profileId": "1",
+      "firstName": "Jamie",
+      "lastName": "Pennington",
+      "ipipClientId": "1",
+      "hasScores": "1"
+    },
+    {
+      "profileId": "30001",
+      "firstName": "NULL",
+      "lastName": "NULL",
+      "ipipClientId": "NULL",
+      "hasScores": "0"
+    },
+    {
+      "profileId": "60001",
+      "firstName": "Mark",
+      "lastName": "Brandon",
+      "ipipClientId": "60001",
+      "hasScores": "1"
+    },
+    {
+      "profileId": "90001",
+      "firstName": "NULL",
+      "lastName": "NULL",
+      "ipipClientId": "NULL",
+      "hasScores": "0"
+    },
+    {
+      "profileId": "120001",
+      "firstName": "Claire",
+      "lastName": "Eldridge",
+      "ipipClientId": "120001",
+      "hasScores": "1"
+    },
+    {
+      "profileId": "150001",
+      "firstName": "Patrick",
+      "lastName": "Raggett",
+      "ipipClientId": "150001",
+      "hasScores": "1"
+    },
+    {
+      "profileId": "180001",
+      "firstName": "Martin",
+      "lastName": "Bragg",
+      "ipipClientId": "180001",
+      "hasScores": "1"
+    },
+    {
+      "profileId": "210001",
+      "firstName": "NULL",
+      "lastName": "NULL",
+      "ipipClientId": "210001",
+      "hasScores": "1"
+    },
+    {
+      "profileId": "240001",
+      "firstName": "NULL",
+      "lastName": "NULL",
+      "ipipClientId": "NULL",
+      "hasScores": "0"
+    },
+    {
+      "profileId": "270001",
+      "firstName": "NULL",
+      "lastName": "NULL",
+      "ipipClientId": "NULL",
+      "hasScores": "0"
+    }
+  ],
+  "messages": [],
+  "stdout": "profileId\tfirstName\tlastName\tipipClientId\thasScores\n1\tJamie\tPennington\t1\t1\n30001\tNULL\tNULL\tNULL\t0\n60001\tMark\tBrandon\t60001\t1\n90001\tNULL\tNULL\tNULL\t0\n120001\tClaire\tEldridge\t120001\t1\n150001\tPatrick\tRaggett\t150001\t1\n180001\tMartin\tBragg\t180001\t1\n210001\tNULL\tNULL\t210001\t1\n240001\tNULL\tNULL\tNULL\t0\n270001\tNULL\tNULL\tNULL\t0\n",
+  "stderr": "",
+  "execution_time_ms": 61
+}

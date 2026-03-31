@@ -388,9 +388,30 @@ export default function WowReportTab({ clientId, clientName }: WowReportTabProps
           {/* Error detail */}
           {hasError && reportData?.error && (
             <div className="px-6 pb-4">
-              <p className="text-xs text-red-400/80 font-mono bg-red-950/30 rounded p-2">
-                {reportData.error}
-              </p>
+              {reportData.error.startsWith("Cannot generate WOW Report") ? (
+                <div className="bg-amber-950/40 border border-amber-500/30 rounded-lg p-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <AlertCircle className="w-4 h-4 text-amber-400 flex-shrink-0" />
+                    <p className="text-sm font-semibold text-amber-300">Report cannot be generated yet</p>
+                  </div>
+                  <p className="text-xs text-amber-200/60 mb-3">The following items must be completed before the WOW Report can be generated:</p>
+                  <ul className="space-y-1.5">
+                    {reportData.error
+                      .split("\n")
+                      .filter((line: string) => line.startsWith("\u2022"))
+                      .map((line: string, i: number) => (
+                        <li key={i} className="flex items-start gap-2 text-xs text-amber-100/80">
+                          <span className="text-amber-400 flex-shrink-0 mt-0.5">•</span>
+                          <span>{line.replace(/^\u2022\s*/, "")}</span>
+                        </li>
+                      ))}
+                  </ul>
+                </div>
+              ) : (
+                <p className="text-xs text-red-400/80 font-mono bg-red-950/30 rounded p-2">
+                  {reportData.error}
+                </p>
+              )}
             </div>
           )}
         </CardContent>
