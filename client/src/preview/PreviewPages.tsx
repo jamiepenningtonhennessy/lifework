@@ -893,7 +893,7 @@ export function PreviewIpipResults() {
             </div>
             <div className="flex flex-col sm:flex-row gap-3 mt-2">
               <a
-                href="https://www.penningtonhennessy.com/contact"
+                href="https://www.penningtonhennessy.com"
                 target="_blank"
                 rel="noopener noreferrer"
               >
