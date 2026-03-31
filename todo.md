@@ -665,3 +665,7 @@
 
 - [x] Update VIA prompt to produce markdown table (Strength / Survey Rank / Freq / Identity Salience / Achievements) followed by "The Key Findings" with bold lead sentences and quoted evidence
 - [x] Reset existing reports
+
+## VIA — Strength Cards in WOW Report
+
+- [x] Display Top 5 VIA strengths as styled cards (rank, name, virtue category, score bar, description) in the WOW Report VIA section

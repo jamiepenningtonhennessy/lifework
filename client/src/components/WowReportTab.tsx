@@ -33,6 +33,7 @@ import {
 import { toast } from "sonner";
 import { Streamdown } from "streamdown";
 import InsightsWheel from "@/components/InsightsWheel";
+import { VIA_STRENGTHS } from "@shared/via-data";
 
 interface WowReportTabProps {
   clientId: number;
@@ -555,6 +556,56 @@ export default function WowReportTab({ clientId, clientName }: WowReportTabProps
                         className="h-px mb-4"
                         style={{ backgroundColor: "var(--lw-gold)", opacity: 0.3 }}
                       />
+                      {/* Top-5 VIA strength cards — shown only for the Character Strengths section */}
+                      {meta.key === "viaSection" && sections.viaRanked && sections.viaRanked.length > 0 && (() => {
+                        const top5 = sections.viaRanked!.slice(0, 5);
+                        const maxScore = top5[0]?.score ?? 25;
+                        return (
+                          <div className="flex flex-col gap-3 mb-6">
+                            {top5.map((s, i) => {
+                              const meta2 = VIA_STRENGTHS.find(v => v.id === s.strengthId);
+                              const pct = Math.round((s.score / maxScore) * 100);
+                              return (
+                                <div
+                                  key={s.strengthId}
+                                  className="rounded-lg p-4"
+                                  style={{ backgroundColor: "var(--lw-cream)", border: "1px solid var(--lw-gold)" }}
+                                >
+                                  <div className="flex items-center justify-between mb-2">
+                                    <div className="flex items-center gap-3">
+                                      <span
+                                        className="text-lg font-bold w-6 text-center"
+                                        style={{ color: "var(--lw-gold)" }}
+                                      >
+                                        {i + 1}
+                                      </span>
+                                      <span className="font-bold text-sm" style={{ color: "var(--lw-navy)" }}>
+                                        {meta2?.name ?? s.name}
+                                      </span>
+                                      {meta2?.virtue && (
+                                        <span className="text-xs text-muted-foreground">({meta2.virtue})</span>
+                                      )}
+                                    </div>
+                                    <span className="text-sm font-semibold" style={{ color: "var(--lw-gold)" }}>
+                                      {s.score}/{maxScore}
+                                    </span>
+                                  </div>
+                                  <div className="w-full rounded-full h-1.5 mb-2" style={{ backgroundColor: "#e5ddd0" }}>
+                                    <div
+                                      className="h-1.5 rounded-full"
+                                      style={{ width: `${pct}%`, backgroundColor: "var(--lw-gold)" }}
+                                    />
+                                  </div>
+                                  {meta2?.description && (
+                                    <p className="text-xs text-muted-foreground leading-relaxed">{meta2.description}</p>
+                                  )}
+                                </div>
+                              );
+                            })}
+                          </div>
+                        );
+                      })()}
+
                       {/* Colour energy summary card + wheel — shown only for Behavioural Style section */}
                       {meta.key === "behaviouralStyle" && sections.primaryColour && sections.domainScores && (
                         <div className="flex flex-col sm:flex-row gap-6 mb-6 items-center sm:items-start">
