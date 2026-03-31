@@ -636,3 +636,7 @@
 - [x] Return a structured error listing exactly which items are missing
 - [x] Surface the missing-data error clearly in the counsellor UI (amber checklist panel instead of generic red error)
 - [x] TypeScript clean, 64 tests pass
+
+## Counsellor Dashboard — Client Card Status Rows
+
+- [x] Replace "Analysis" status row with "OCEAN" (wired to ipipStatus) on counsellor client cards

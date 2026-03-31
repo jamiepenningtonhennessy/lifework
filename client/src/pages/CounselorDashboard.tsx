@@ -136,8 +136,8 @@ export default function CounselorDashboard() {
                       <StatusBadge status={profile.viaStatus ?? "not_started"} />
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="text-xs text-muted-foreground">Analysis</span>
-                      <StatusBadge status={profile.analysisStatus ?? "not_started"} />
+                      <span className="text-xs text-muted-foreground">OCEAN</span>
+                      <StatusBadge status={profile.ipipStatus ?? "not_started"} />
                     </div>
                   </div>
                   <div className="mt-4 pt-3 border-t border-border">
