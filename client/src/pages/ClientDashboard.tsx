@@ -402,25 +402,39 @@ export default function ClientDashboard() {
                               />
                             )}
 
-                            {step.path && !isLocked && (
-                              <Button
-                                size="sm"
-                                variant={isCompleted ? "outline" : "default"}
-                                onClick={() => navigate(step.path!)}
-                                className={
-                                  !isCompleted
-                                    ? "bg-[var(--lw-gold)] hover:bg-[oklch(0.60 0.13 72)] text-white gap-1"
-                                    : "gap-1"
-                                }
-                              >
-                                {isCompleted
-                                  ? "Review"
-                                  : isInProgress
-                                  ? step.ctaInProgress
-                                  : step.cta}
-                                {!isCompleted && <ArrowRight className="w-3.5 h-3.5" />}
-                              </Button>
-                            )}
+                            {step.path && !isLocked && (() => {
+                              // For psychometrics: if VIA is done but IPIP not yet started,
+                              // send client directly to the IPIP survey instead of back to VIA.
+                              const ipipStatus = (profile as any)?.ipipStatus ?? "not_started";
+                              const viaStatusVal = (profile as any)?.viaStatus ?? "not_started";
+                              let resolvedPath = step.path!;
+                              if (
+                                step.id === "psychometrics" &&
+                                viaStatusVal === "completed" &&
+                                ipipStatus !== "completed"
+                              ) {
+                                resolvedPath = "/ipip-survey";
+                              }
+                              return (
+                                <Button
+                                  size="sm"
+                                  variant={isCompleted ? "outline" : "default"}
+                                  onClick={() => navigate(resolvedPath)}
+                                  className={
+                                    !isCompleted
+                                      ? "bg-[var(--lw-gold)] hover:bg-[oklch(0.60 0.13 72)] text-white gap-1"
+                                      : "gap-1"
+                                  }
+                                >
+                                  {isCompleted
+                                    ? "Review"
+                                    : isInProgress
+                                    ? step.ctaInProgress
+                                    : step.cta}
+                                  {!isCompleted && <ArrowRight className="w-3.5 h-3.5" />}
+                                </Button>
+                              );
+                            })()}
 
                             {isLocked && (
                               <span className="text-xs text-muted-foreground/50">

@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { useLocation } from "wouter";
 import { getLoginUrl } from "@/const";
 import { trpc } from "@/lib/trpc";
-import { ArrowLeft, ArrowRight, Loader2, CheckCircle2 } from "lucide-react";
+import { ArrowLeft, ArrowRight, Brain, Loader2, CheckCircle2 } from "lucide-react";
 import { toast } from "sonner";
 
 const SCALE = [
@@ -68,17 +68,23 @@ export default function VIASurvey() {
           <h1 className="text-3xl font-serif font-bold text-foreground mb-3">
             VIA Survey Complete
           </h1>
-          <p className="text-muted-foreground mb-8">
-            Your character strengths have been recorded. Your counsellor will incorporate these into your career analysis.
+          <p className="text-muted-foreground mb-2">
+            Your character strengths have been recorded.
           </p>
-          <div className="flex flex-col sm:flex-row gap-3 justify-center">
-            <Button onClick={() => navigate("/via/results")} className="bg-[var(--lw-gold)] hover:bg-[oklch(0.60 0.13 72)] text-white gap-2">
+          <p className="text-muted-foreground mb-8">
+            Now complete the second assessment — the <strong>Personality Profile</strong> — to give your counsellor the full picture.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-3 justify-center mb-4">
+            <Button onClick={() => navigate("/ipip-survey")} className="bg-[var(--lw-gold)] hover:bg-[oklch(0.60_0.13_72)] text-white gap-2">
+              <Brain className="w-4 h-4" /> Begin Personality Profile
+            </Button>
+            <Button variant="outline" onClick={() => navigate("/via/results")} className="gap-2">
               View My Results <ArrowRight className="w-4 h-4" />
             </Button>
-            <Button variant="outline" onClick={() => navigate("/dashboard")}>
-              Back to Dashboard
-            </Button>
           </div>
+          <Button variant="ghost" size="sm" onClick={() => navigate("/dashboard")} className="text-muted-foreground">
+            Back to Dashboard
+          </Button>
         </div>
       </div>
     );

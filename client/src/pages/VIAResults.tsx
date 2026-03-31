@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { useLocation } from "wouter";
 import { getLoginUrl } from "@/const";
 import { trpc } from "@/lib/trpc";
-import { ArrowLeft, ArrowRight, Loader2, Star } from "lucide-react";
+import { ArrowLeft, ArrowRight, Brain, Loader2, Star } from "lucide-react";
 
 const VIRTUE_COLORS: Record<string, string> = {
   wisdom: "bg-blue-100 text-blue-800 border-blue-200",
@@ -22,6 +22,10 @@ export default function VIAResults() {
     enabled: isAuthenticated,
   });
   const { data: viaData } = trpc.via.getQuestions.useQuery();
+  // Check if IPIP is already done so we can adjust the CTA label
+  const { data: ipipResults } = trpc.ipip.getMyResults.useQuery(undefined, {
+    enabled: isAuthenticated,
+  });
 
   if (!loading && !isAuthenticated) {
     window.location.href = getLoginUrl();
@@ -30,6 +34,7 @@ export default function VIAResults() {
 
   const strengthsMap = new Map(viaData?.strengths.map((s) => [s.id, s]) ?? []);
   const ranked = (results?.rankedStrengths as any[]) ?? [];
+  const ipipDone = !!(ipipResults && (ipipResults as any).domainScores);
 
   return (
     <div className="min-h-screen bg-background">
@@ -42,9 +47,26 @@ export default function VIAResults() {
             <div className="h-4 w-px bg-border" />
             <span className="font-serif font-semibold text-foreground">Your Character Strengths</span>
           </div>
-          <Button size="sm" onClick={() => navigate("/dashboard")} className="gap-1 bg-[var(--lw-gold)] hover:bg-[oklch(0.60 0.13 72)] text-white">
-            Dashboard <ArrowRight className="w-3.5 h-3.5" />
-          </Button>
+          <div className="flex items-center gap-2">
+            {!ipipDone && (
+              <Button
+                size="sm"
+                onClick={() => navigate("/ipip-survey")}
+                className="gap-1 bg-[var(--lw-gold)] hover:bg-[oklch(0.60_0.13_72)] text-white"
+              >
+                <Brain className="w-3.5 h-3.5" />
+                Next: Personality Profile
+              </Button>
+            )}
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => navigate("/dashboard")}
+              className="gap-1"
+            >
+              Dashboard
+            </Button>
+          </div>
         </div>
       </div>
 
@@ -56,7 +78,7 @@ export default function VIAResults() {
         ) : !results ? (
           <div className="text-center py-12">
             <p className="text-muted-foreground mb-4">You haven't completed the VIA survey yet.</p>
-            <Button onClick={() => navigate("/via")} className="bg-[var(--lw-gold)] hover:bg-[oklch(0.60 0.13 72)] text-white">
+            <Button onClick={() => navigate("/via")} className="bg-[var(--lw-gold)] hover:bg-[oklch(0.60_0.13_72)] text-white">
               Take the Survey
             </Button>
           </div>
@@ -107,7 +129,7 @@ export default function VIAResults() {
             </div>
 
             {/* All 24 strengths */}
-            <div>
+            <div className="mb-12">
               <h2 className="text-xl font-serif font-semibold text-foreground mb-4">All 24 Strengths Ranked</h2>
               <div className="space-y-2">
                 {ranked.map((s: any, i: number) => {
@@ -132,6 +154,51 @@ export default function VIAResults() {
                 })}
               </div>
             </div>
+
+            {/* Next step CTA — only shown if IPIP not yet completed */}
+            {!ipipDone && (
+              <div
+                className="rounded-2xl p-8 text-center"
+                style={{
+                  background: "var(--lw-navy)",
+                  border: "1px solid rgba(201,151,58,0.35)",
+                }}
+              >
+                <div
+                  className="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4"
+                  style={{ background: "rgba(201,151,58,0.15)" }}
+                >
+                  <Brain className="w-6 h-6" style={{ color: "var(--lw-gold)" }} />
+                </div>
+                <h3 className="text-xl font-serif font-bold text-white mb-2">
+                  Next: Personality Profile
+                </h3>
+                <p className="text-sm mb-6" style={{ color: "rgba(255,255,255,0.7)", maxWidth: "28rem", margin: "0 auto 1.5rem" }}>
+                  The second part of your psychometrics is the IPIP-NEO Personality Profile — 120 questions
+                  across five dimensions. It takes around 15 minutes and gives your counsellor a deeper
+                  picture of how you think and work.
+                </p>
+                <Button
+                  onClick={() => navigate("/ipip-survey")}
+                  className="gap-2 text-base px-6 py-3"
+                  style={{ background: "var(--lw-gold)", color: "var(--lw-navy)", fontWeight: 600 }}
+                >
+                  Begin Personality Profile <ArrowRight className="w-4 h-4" />
+                </Button>
+              </div>
+            )}
+
+            {/* Already done IPIP — quiet nudge back to dashboard */}
+            {ipipDone && (
+              <div className="text-center pt-4 pb-8">
+                <Button
+                  onClick={() => navigate("/dashboard")}
+                  className="gap-2 bg-[var(--lw-gold)] hover:bg-[oklch(0.60_0.13_72)] text-white"
+                >
+                  Back to Dashboard <ArrowRight className="w-4 h-4" />
+                </Button>
+              </div>
+            )}
           </>
         )}
       </div>
