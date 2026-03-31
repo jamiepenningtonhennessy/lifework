@@ -502,15 +502,33 @@ function buildReportHTML(data: {
   </div>
 
 
-  ${report?.fullReportMarkdown ? `
-  <!-- Analysis Report -->
+  ${(() => {
+    const wow = report?.wowReportJson ? (typeof report.wowReportJson === 'string' ? JSON.parse(report.wowReportJson) : report.wowReportJson) : null;
+    if (wow) {
+      const sectionMeta = [
+        { key: 'summary',            title: 'Lifework Summary' },
+        { key: 'lifeHistoryPattern', title: 'Life History Pattern' },
+        { key: 'viaSection',         title: 'Character Strengths' },
+        { key: 'personalitySection', title: 'Personality Profile' },
+        { key: 'behaviouralStyle',   title: 'Behavioural Style' },
+        { key: 'careerDirections',   title: 'Career Directions' },
+        { key: 'developmentEdge',    title: 'Development Edge' },
+        { key: 'coachingQuestions',  title: 'Coaching Questions' },
+      ];
+      return sectionMeta.filter(s => wow[s.key]).map((s, i) => `
+  <div class="section" style="page-break-before:always;">
+    <div class="section-title">${s.title}</div>
+    <div class="analysis-content">${markdownToHTML(wow[s.key])}</div>
+  </div>`).join('');
+    } else if (report?.fullReportMarkdown) {
+      return `
   <div class="section" style="page-break-before:always;">
     <div class="section-title">Career Analysis</div>
-    <div class="analysis-content">
-      ${markdownToHTML(report.fullReportMarkdown)}
-    </div>
-  </div>
-  ` : ""}
+    <div class="analysis-content">${markdownToHTML(report.fullReportMarkdown)}</div>
+  </div>`;
+    }
+    return '';
+  })()}
 
   ${achievements.length > 0 ? `
   <!-- Life History -->

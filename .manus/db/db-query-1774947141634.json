@@ -1,0 +1,38 @@
+{
+  "query": "SELECT id, clientId, wowReportStatus, wowReportGeneratedAt, LEFT(wowReportJson, 50) as jsonPreview FROM analysis_reports WHERE wowReportJson IS NOT NULL OR wowReportStatus IS NOT NULL;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 32u3a1hNYuu9Gj3.7d2282893346 --database kFbbE6kqNApXGDFpQJUGV7 --execute SELECT id, clientId, wowReportStatus, wowReportGeneratedAt, LEFT(wowReportJson, 50) as jsonPreview FROM analysis_reports WHERE wowReportJson IS NOT NULL OR wowReportStatus IS NOT NULL;",
+  "rows": [
+    {
+      "id": "60001",
+      "clientId": "120001",
+      "wowReportStatus": "done",
+      "wowReportGeneratedAt": "2026-03-31 08:48:49",
+      "jsonPreview": "{\"clientName\":\"Claire\",\"clientFullName\":\"Claire El"
+    },
+    {
+      "id": "120001",
+      "clientId": "150001",
+      "wowReportStatus": "done",
+      "wowReportGeneratedAt": "2026-03-31 08:49:53",
+      "jsonPreview": "{\"clientName\":\"Patrick\",\"clientFullName\":\"Patrick "
+    },
+    {
+      "id": "180001",
+      "clientId": "60001",
+      "wowReportStatus": "pending",
+      "wowReportGeneratedAt": "NULL",
+      "jsonPreview": "NULL"
+    },
+    {
+      "id": "720001",
+      "clientId": "300001",
+      "wowReportStatus": "error",
+      "wowReportGeneratedAt": "2026-03-31 06:15:57",
+      "jsonPreview": "NULL"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tclientId\twowReportStatus\twowReportGeneratedAt\tjsonPreview\n60001\t120001\tdone\t2026-03-31 08:48:49\t{\"clientName\":\"Claire\",\"clientFullName\":\"Claire El\n120001\t150001\tdone\t2026-03-31 08:49:53\t{\"clientName\":\"Patrick\",\"clientFullName\":\"Patrick \n180001\t60001\tpending\tNULL\tNULL\n720001\t300001\terror\t2026-03-31 06:15:57\tNULL\n",
+  "stderr": "",
+  "execution_time_ms": 54
+}
