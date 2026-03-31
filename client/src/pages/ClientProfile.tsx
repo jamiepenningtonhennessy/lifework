@@ -280,7 +280,8 @@ export default function ClientProfile() {
                   {[
                     { label: "Interview", status: data.profile.interviewStatus },
                     { label: "VIA Survey", status: data.profile.viaStatus },
-                    { label: "Analysis", status: data.profile.analysisStatus },
+                    { label: "OCEAN", status: data.profile.ipipStatus ?? "not_started" },
+                    { label: "WOW Report", status: data.report?.wowReportStatus === "done" ? "completed" : data.report?.wowReportStatus === "generating" || data.report?.wowReportStatus === "pending" ? "in_progress" : "not_started" },
                   ].map((item) => (
                     <div key={item.label} className="flex items-center justify-between">
                       <span className="text-sm text-muted-foreground">{item.label}</span>
