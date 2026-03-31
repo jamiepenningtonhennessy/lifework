@@ -31,6 +31,7 @@ import {
   Lock,
   ChevronDown,
   ChevronUp,
+  CalendarDays,
 } from "lucide-react";
 import { Streamdown } from "streamdown";
 import { IPIP_DOMAINS, IPIP_FACETS, type IpipDomainKey, type IpipFacetKey } from "../../../shared/ipip-data";
@@ -863,6 +864,59 @@ export function PreviewIpipResults() {
             </Card>
           );
         })}
+
+        {/* Completion banner */}
+        <div
+          className="rounded-2xl p-8 mt-4 mb-8"
+          style={{
+            background: "var(--lw-navy)",
+            border: "1px solid rgba(201,151,58,0.35)",
+          }}
+        >
+          <div className="flex flex-col items-center text-center gap-4">
+            <div
+              className="w-14 h-14 rounded-full flex items-center justify-center"
+              style={{ background: "rgba(201,151,58,0.15)" }}
+            >
+              <CheckCircle2 className="w-7 h-7" style={{ color: "var(--lw-gold)" }} />
+            </div>
+            <div>
+              <h3 className="text-2xl font-serif font-bold text-white mb-2">
+                Psychometrics Complete — Well Done
+              </h3>
+              <p className="text-sm" style={{ color: "rgba(255,255,255,0.75)", maxWidth: "32rem", margin: "0 auto 0.5rem" }}>
+                You've completed both the VIA Character Strengths survey and the IPIP-NEO Personality Profile.
+              </p>
+              <p className="text-sm" style={{ color: "rgba(255,255,255,0.75)", maxWidth: "32rem", margin: "0 auto" }}>
+                Your counsellor now has everything needed to prepare your Lifework analysis. The next step is to book your first coaching session.
+              </p>
+            </div>
+            <div className="flex flex-col sm:flex-row gap-3 mt-2">
+              <a
+                href="https://www.penningtonhennessy.com/contact"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <Button
+                  size="lg"
+                  className="gap-2 font-semibold"
+                  style={{ background: "var(--lw-gold)", color: "var(--lw-navy)", minWidth: "220px" }}
+                >
+                  <CalendarDays className="w-4 h-4" />
+                  Book Your Coaching Session
+                </Button>
+              </a>
+              <Button
+                size="lg"
+                variant="outline"
+                onClick={() => navigate("/preview/dashboard")}
+                className="gap-2 text-white border-white/30 hover:bg-white/10"
+              >
+                Back to Dashboard <ArrowRight className="w-4 h-4" />
+              </Button>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
