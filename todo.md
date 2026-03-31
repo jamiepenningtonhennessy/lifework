@@ -669,3 +669,9 @@
 ## VIA — Strength Cards in WOW Report
 
 - [x] Display Top 5 VIA strengths as styled cards (rank, name, virtue category, score bar, description) in the WOW Report VIA section
+
+## VIA — Remove Redundant Definitions Movement
+
+- [x] Remove "Your Top 5 Signature Strengths" section from VIA AI prompt (cards already show definitions)
+- [x] Ensure Evidence Table includes a VIA definition for every strength cited (not just top 5)
+- [x] Reset reports and save checkpoint
