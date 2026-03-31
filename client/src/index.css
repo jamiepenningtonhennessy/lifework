@@ -1,5 +1,6 @@
 @import "tailwindcss";
 @import "tw-animate-css";
+@source "../../node_modules/streamdown/dist/index.js";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -222,4 +223,48 @@
     border-top: 1px solid var(--lw-gold);
     opacity: 0.4;
   }
+}
+
+/* ─── WOW Report content: styled markdown tables ─────────────────────────── */
+.wow-report-content table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1rem 0;
+  font-size: 0.8125rem;
+  border: 1px solid rgba(201, 151, 58, 0.3);
+}
+
+.wow-report-content thead th {
+  background-color: var(--lw-navy, #0f1f35);
+  color: #ffffff;
+  font-weight: 600;
+  font-size: 0.75rem;
+  text-align: left;
+  padding: 0.5rem 0.75rem;
+  white-space: nowrap;
+  letter-spacing: 0.02em;
+}
+
+.wow-report-content tbody tr:nth-child(odd) {
+  background-color: var(--lw-cream, #fdf9f3);
+}
+
+.wow-report-content tbody tr:nth-child(even) {
+  background-color: #ffffff;
+}
+
+.wow-report-content tbody td {
+  padding: 0.5rem 0.75rem;
+  border-bottom: 1px solid rgba(201, 151, 58, 0.2);
+  vertical-align: top;
+  line-height: 1.5;
+}
+
+.wow-report-content tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* Ensure the streamdown table-wrapper doesn't add conflicting styles */
+.wow-report-content [data-streamdown="table-wrapper"] {
+  margin: 0;
 }

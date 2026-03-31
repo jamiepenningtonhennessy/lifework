@@ -642,7 +642,7 @@ export default function WowReportTab({ clientId, clientName }: WowReportTabProps
                           </div>
                         </div>
                       )}
-                      <div className="prose prose-sm max-w-none text-foreground leading-relaxed [&_h1]:font-serif [&_h1]:text-[var(--lw-navy)] [&_h2]:font-serif [&_h2]:text-[var(--lw-navy)] [&_h3]:font-serif [&_h3]:text-[var(--lw-navy)] [&_strong]:text-foreground [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5">
+                      <div className="prose prose-sm max-w-none text-foreground leading-relaxed [&_h1]:font-serif [&_h1]:text-[var(--lw-navy)] [&_h2]:font-serif [&_h2]:text-[var(--lw-navy)] [&_h3]:font-serif [&_h3]:text-[var(--lw-navy)] [&_strong]:text-foreground [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5 wow-report-content">
                         <Streamdown>{content}</Streamdown>
                       </div>
                     </div>
