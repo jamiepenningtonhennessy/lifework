@@ -239,6 +239,98 @@ pdfRouter.get("/api/export/esf-report/:clientId", async (req: Request, res: Resp
   }
 });
 
+// ─── Insights Discovery HTML for PDF ─────────────────────────────────────────
+function buildInsightsDiscoveryHTML(domainScores: Record<string, number>): string {
+  const E = domainScores['E'] ?? 50;
+  const A = domainScores['A'] ?? 50;
+  const O = domainScores['O'] ?? 50;
+  const C = domainScores['C'] ?? 50;
+
+  const isExtravert = E >= 50;
+  const isFeeler = A >= 50;
+
+  type ColourKey = 'blue' | 'red' | 'green' | 'yellow';
+  function getColour(e: number, a: number): ColourKey {
+    const ext = e >= 50; const feel = a >= 50;
+    if (!ext && !feel) return 'blue';
+    if (ext && !feel) return 'red';
+    if (!ext && feel) return 'green';
+    return 'yellow';
+  }
+  function getSecondary(e: number, a: number): ColourKey {
+    const primary = getColour(e, a);
+    const candidates: ColourKey[] = [getColour(e, a >= 50 ? 30 : 70), getColour(e >= 50 ? 30 : 70, a)];
+    return candidates.find(c => c !== primary) ?? primary;
+  }
+
+  const ENERGIES: Record<ColourKey, { name: string; hex: string; textHex: string; jungian: string; description: string; strengths: string[]; challenges: string[]; careerFit: string }> = {
+    blue: { name: 'Cool Blue', hex: '#2471A3', textHex: '#ffffff', jungian: 'Introverted Thinker (IT)', description: 'Analytical, cautious, and precise. Values accuracy, quality, and rigour. Prefers to work with data and evidence before reaching conclusions. Can appear detached or over-cautious.', strengths: ['Analytical', 'Precise', 'Systematic', 'Thorough', 'Objective'], challenges: ['Can be over-cautious', 'May over-analyse', 'Dislikes ambiguity'], careerFit: 'Roles requiring analysis, precision, and systematic thinking — finance, engineering, research, IT, quality assurance, law.' },
+    red: { name: 'Fiery Red', hex: '#A93226', textHex: '#ffffff', jungian: 'Extraverted Thinker (ET)', description: 'Driven, purposeful, and results-oriented. Prefers to lead from the front, takes decisive action, and is comfortable with challenge and competition. Can be direct to the point of bluntness.', strengths: ['Decisive', 'Determined', 'Strong-willed', 'Purposeful', 'Results-focused'], challenges: ['May appear insensitive', 'Can be impatient', 'Dislikes indecision in others'], careerFit: 'Roles requiring leadership, accountability, and the ability to drive change — management, entrepreneurship, law, surgery, strategy.' },
+    green: { name: 'Earth Green', hex: '#6E9B1E', textHex: '#ffffff', jungian: 'Introverted Feeler (IF)', description: 'Caring, patient, and values-driven. Builds deep, authentic relationships and creates harmony. Prefers consensus and dislikes conflict. Can struggle with assertiveness and change.', strengths: ['Caring', 'Patient', 'Supportive', 'Empathetic', 'Principled'], challenges: ['May avoid conflict', 'Can be indecisive', 'Dislikes rapid change'], careerFit: 'Roles requiring empathy, support, and relationship depth — counselling, social work, HR, teaching, nursing, community leadership.' },
+    yellow: { name: 'Sunshine Yellow', hex: '#D4A017', textHex: '#ffffff', jungian: 'Extraverted Feeler (EF)', description: 'Enthusiastic, persuasive, and sociable. Energised by people and ideas, brings optimism and creativity to groups. Can lose focus on detail and follow-through.', strengths: ['Enthusiastic', 'Persuasive', 'Creative', 'Optimistic', 'Collaborative'], challenges: ['Can be disorganised', 'May over-promise', 'Dislikes routine and detail'], careerFit: 'Roles requiring communication, creativity, and relationship-building — sales, marketing, PR, teaching, facilitation, consulting.' },
+  };
+
+  const primaryKey = getColour(E, A);
+  const secondaryKey = getSecondary(E, A);
+  const primary = ENERGIES[primaryKey];
+  const secondary = ENERGIES[secondaryKey];
+
+  const E_or_I = isExtravert ? 'E' : 'I';
+  const S_or_N = O >= 50 ? 'N' : 'S';
+  const T_or_F = isFeeler ? 'F' : 'T';
+  const J_or_P = C >= 50 ? 'J' : 'P';
+  const jungian = `${E_or_I}${S_or_N}${T_or_F}${J_or_P}`;
+
+  const eLabel = E >= 65 ? 'Strongly Extraverted' : E >= 50 ? 'Moderately Extraverted' : E >= 35 ? 'Moderately Introverted' : 'Strongly Introverted';
+  const aLabel = A >= 65 ? 'Strongly Feeling' : A >= 50 ? 'Moderately Feeling' : A >= 35 ? 'Moderately Thinking' : 'Strongly Thinking';
+  const oLabel = O >= 50 ? 'Intuiting (N)' : 'Sensing (S)';
+  const cLabel = C >= 50 ? 'Judging (J)' : 'Perceiving (P)';
+
+  return `
+    <div style="background:#0f1f35;border:1px solid rgba(201,151,58,0.3);border-radius:8px;padding:16px;margin-bottom:20px;">
+      <p style="color:#c9973a;font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin:0 0 6px;">Insights Discovery Mapping</p>
+      <p style="color:rgba(255,255,255,0.75);font-size:12px;line-height:1.6;margin:0;">The following is an <em>approximation</em> derived by mapping your Big Five scores onto the Insights Discovery colour-energy framework, using the academic consensus correlations between OCEAN and the Jungian dimensions. It is a coaching tool, not a clinical assessment.</p>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;">
+      <div style="border:1px solid #ddd;border-radius:8px;overflow:hidden;">
+        <div style="background:${primary.hex};padding:12px 16px;display:flex;align-items:center;gap:12px;">
+          <div style="width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><span style="color:${primary.textHex};font-weight:700;font-size:14px;">1</span></div>
+          <div><p style="color:${primary.textHex};font-weight:700;font-size:14px;margin:0;">${primary.name}</p><p style="color:${primary.textHex};opacity:0.8;font-size:10px;margin:0;">Primary energy &middot; ${primary.jungian}</p></div>
+        </div>
+        <div style="padding:12px 16px;background:#fff;"><p style="font-size:12px;line-height:1.6;color:#333;margin:0;">${primary.description}</p></div>
+      </div>
+      <div style="border:1px solid #ddd;border-radius:8px;overflow:hidden;">
+        <div style="background:${secondary.hex};padding:12px 16px;display:flex;align-items:center;gap:12px;">
+          <div style="width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><span style="color:${secondary.textHex};font-weight:700;font-size:14px;">2</span></div>
+          <div><p style="color:${secondary.textHex};font-weight:700;font-size:14px;margin:0;">${secondary.name}</p><p style="color:${secondary.textHex};opacity:0.8;font-size:10px;margin:0;">Secondary energy &middot; ${secondary.jungian}</p></div>
+        </div>
+        <div style="padding:12px 16px;background:#fff;"><p style="font-size:12px;line-height:1.6;color:#333;margin:0;">${secondary.description}</p></div>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px;">
+      ${[{label:'Jungian Type',value:jungian,sub:'Approx. MBTI equivalent'},{label:'E / I Axis',value:eLabel,sub:`Extraversion: ${E}`},{label:'T / F Axis',value:aLabel,sub:`Agreeableness: ${A}`},{label:'S/N + J/P',value:`${oLabel} &middot; ${cLabel}`,sub:'Openness &amp; Conscientiousness'}].map(item=>`
+      <div style="border:1px solid #ddd;border-radius:8px;padding:10px 12px;background:#faf8f4;">
+        <p style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#9a8a78;margin:0 0 4px;">${item.label}</p>
+        <p style="font-size:12px;font-weight:700;color:#0f1f35;margin:0 0 2px;">${item.value}</p>
+        <p style="font-size:9px;color:#9a8a78;margin:0;">${item.sub}</p>
+      </div>`).join('')}
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;">
+      <div style="border:1px solid #ddd;border-radius:8px;padding:12px 14px;background:#faf8f4;">
+        <p style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#c9973a;margin:0 0 8px;">Strengths</p>
+        ${primary.strengths.map(s=>`<p style="font-size:11px;color:#333;margin:0 0 4px;">&#9658; ${s}</p>`).join('')}
+      </div>
+      <div style="border:1px solid #ddd;border-radius:8px;padding:12px 14px;background:#faf8f4;">
+        <p style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#c9973a;margin:0 0 8px;">Watch-outs</p>
+        ${primary.challenges.map(c=>`<p style="font-size:11px;color:#333;margin:0 0 4px;">&#9658; ${c}</p>`).join('')}
+      </div>
+      <div style="border:1px solid #ddd;border-radius:8px;padding:12px 14px;background:#faf8f4;">
+        <p style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#c9973a;margin:0 0 8px;">Career Environment Fit</p>
+        <p style="font-size:11px;color:#333;line-height:1.5;margin:0;">${primary.careerFit}</p>
+      </div>
+    </div>`;
+}
+
 function buildReportHTML(data: {
   clientName: string;
   date: string;
@@ -515,11 +607,22 @@ function buildReportHTML(data: {
         { key: 'developmentEdge',    title: 'Development Edge' },
         { key: 'coachingQuestions',  title: 'Coaching Questions' },
       ];
-      return sectionMeta.filter(s => wow[s.key]).map((s, i) => `
+      return sectionMeta.filter(s => wow[s.key]).map((s, i) => {
+        // Behavioural Style — render Insights Discovery panel instead of AI prose
+        if (s.key === 'behaviouralStyle' && wow.domainScores) {
+          const ds = typeof wow.domainScores === 'string' ? JSON.parse(wow.domainScores) : wow.domainScores;
+          return `
+  <div class="section" style="page-break-before:always;">
+    <div class="section-title">${s.title}</div>
+    <div class="analysis-content">${buildInsightsDiscoveryHTML(ds)}</div>
+  </div>`;
+        }
+        return `
   <div class="section" style="page-break-before:always;">
     <div class="section-title">${s.title}</div>
     <div class="analysis-content">${markdownToHTML(wow[s.key])}</div>
-  </div>`).join('');
+  </div>`;
+      }).join('');
     } else if (report?.fullReportMarkdown) {
       return `
   <div class="section" style="page-break-before:always;">

@@ -32,7 +32,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { Streamdown } from "streamdown";
-import InsightsWheel from "@/components/InsightsWheel";
+import { InsightsMapping } from "@/components/InsightsMapping";
 import { VIA_STRENGTHS } from "@shared/via-data";
 
 interface WowReportTabProps {
@@ -606,45 +606,19 @@ export default function WowReportTab({ clientId, clientName }: WowReportTabProps
                         );
                       })()}
 
-                      {/* Colour energy summary card + wheel — shown only for Behavioural Style section */}
-                      {meta.key === "behaviouralStyle" && sections.primaryColour && sections.domainScores && (
-                        <div className="flex flex-col sm:flex-row gap-6 mb-6 items-center sm:items-start">
-                          {/* Wheel */}
-                          <div className="flex-shrink-0">
-                            <InsightsWheel
-                              extraversion={sections.domainScores["E"] ?? 50}
-                              agreeableness={sections.domainScores["A"] ?? 50}
-                              size={240}
-                            />
-                          </div>
-                          {/* Colour energy cards */}
-                          <div className="flex flex-col gap-3 flex-1 w-full">
-                            <div
-                              className="rounded p-3"
-                              style={{ backgroundColor: "var(--lw-cream)", border: "1px solid var(--lw-gold)" }}
-                            >
-                              <p className="text-[10px] font-bold tracking-widest uppercase mb-1" style={{ color: "var(--lw-navy)" }}>Primary Energy</p>
-                              <p className="text-base font-bold" style={{ color: "var(--lw-gold)" }}>{sections.primaryColour}</p>
-                            </div>
-                            <div
-                              className="rounded p-3"
-                              style={{ backgroundColor: "#eae6de", border: "1px solid #c8c0b0" }}
-                            >
-                              <p className="text-[10px] font-bold tracking-widest uppercase mb-1" style={{ color: "var(--lw-navy)" }}>Secondary Energy</p>
-                              <p className="text-base font-semibold" style={{ color: "var(--lw-navy)" }}>{sections.secondaryColour}</p>
-                            </div>
-                            {sections.jungianType && (
-                              <div className="rounded p-3 text-center" style={{ backgroundColor: "#f0ece4" }}>
-                                <p className="text-[10px] font-bold tracking-widest uppercase" style={{ color: "var(--lw-navy)" }}>Jungian Type</p>
-                                <p className="text-xl font-bold font-mono" style={{ color: "var(--lw-navy)" }}>{sections.jungianType}</p>
-                              </div>
-                            )}
-                          </div>
+                      {/* Behavioural Style — render full InsightsMapping panel instead of AI prose */}
+                      {meta.key === "behaviouralStyle" && sections.domainScores ? (
+                        <InsightsMapping
+                          extraversion={sections.domainScores["E"] ?? 50}
+                          agreeableness={sections.domainScores["A"] ?? 50}
+                          openness={sections.domainScores["O"] ?? 50}
+                          conscientiousness={sections.domainScores["C"] ?? 50}
+                        />
+                      ) : (
+                        <div className="prose prose-sm max-w-none text-foreground leading-relaxed [&_h1]:font-serif [&_h1]:text-[var(--lw-navy)] [&_h2]:font-serif [&_h2]:text-[var(--lw-navy)] [&_h3]:font-serif [&_h3]:text-[var(--lw-navy)] [&_strong]:text-foreground [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5 wow-report-content">
+                          <Streamdown>{content}</Streamdown>
                         </div>
                       )}
-                      <div className="prose prose-sm max-w-none text-foreground leading-relaxed [&_h1]:font-serif [&_h1]:text-[var(--lw-navy)] [&_h2]:font-serif [&_h2]:text-[var(--lw-navy)] [&_h3]:font-serif [&_h3]:text-[var(--lw-navy)] [&_strong]:text-foreground [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5 wow-report-content">
-                        <Streamdown>{content}</Streamdown>
-                      </div>
                     </div>
                   )}
                 </Card>
