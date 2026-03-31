@@ -655,3 +655,8 @@
 - [x] Rewrite VIA prompt: Movement 2 — frequency count against fulfilling achievements with specific evidence
 - [x] Rewrite VIA prompt: Movement 3 — narrative interpretation including salience divergences
 - [x] Reset existing reports and save checkpoint
+
+## Coaching Page — Lifework Section
+
+- [x] Remove Lifework methodology section from /coaching page
+- [x] Add "Open Lifework" button at the bottom of box 3 (Career Development)

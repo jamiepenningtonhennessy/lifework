@@ -17,6 +17,7 @@ const AREAS = [
     num: "03",
     title: "Career Transition & Development",
     body: "Supporting professionals in navigating career changes and achieving their long-term goals. This work often draws on the Lifework methodology to help clients understand what they are genuinely good at, what drives them, and where they are most likely to flourish.",
+    lifeworkLink: true,
   },
 ];
 
@@ -76,7 +77,7 @@ export default function PHCoaching() {
             {AREAS.map((a) => (
               <div
                 key={a.num}
-                className="p-7"
+                className="p-7 flex flex-col"
                 style={{ background: "white", border: "1px solid rgba(15,31,53,0.1)" }}
               >
                 <div
@@ -91,88 +92,20 @@ export default function PHCoaching() {
                 >
                   {a.title}
                 </h3>
-                <p style={{ fontSize: "0.88rem", color: "rgba(15,31,53,0.62)", lineHeight: 1.75 }}>
+                <p style={{ fontSize: "0.88rem", color: "rgba(15,31,53,0.62)", lineHeight: 1.75 }} className="flex-1">
                   {a.body}
                 </p>
+                {(a as any).lifeworkLink && (
+                  <a
+                    href="/coaching/lifework"
+                    className="inline-flex items-center gap-2 mt-6 text-sm font-medium tracking-widest uppercase no-underline transition-opacity hover:opacity-80"
+                    style={{ color: "var(--lw-gold)", letterSpacing: "0.1em" }}
+                  >
+                    Open Lifework <ExternalLink className="w-3.5 h-3.5" />
+                  </a>
+                )}
               </div>
             ))}
-          </div>
-        </div>
-      </section>
-
-      {/* -- Lifework methodology -- */}
-      <section className="py-20" style={{ background: "white" }}>
-        <div className="container max-w-6xl">
-          <div className="grid md:grid-cols-2 gap-14 items-start">
-            <div>
-              <div className="flex items-center gap-3 mb-3">
-                <div style={{ width: "2rem", height: "1px", background: "var(--lw-gold)" }} />
-                <span
-                  className="font-medium tracking-widest uppercase"
-                  style={{ fontSize: "0.65rem", color: "var(--lw-gold)", letterSpacing: "0.18em" }}
-                >
-                  Methodology
-                </span>
-              </div>
-              <h2
-                className="font-serif font-bold mb-5"
-                style={{ fontSize: "clamp(1.5rem, 2.5vw, 2rem)", color: "var(--lw-navy)" }}
-              >
-                The Lifework approach
-              </h2>
-              <p
-                className="mb-4"
-                style={{ color: "rgba(15,31,53,0.65)", lineHeight: 1.8, fontSize: "0.93rem" }}
-              >
-                Most coaching starts with goals. The Lifework approach starts earlier -- with life history. By exploring the full arc of a client's achievements, from childhood through to the present day, patterns of motivation and behaviour emerge that are invisible to conventional psychometrics alone.
-              </p>
-              <p
-                className="mb-4"
-                style={{ color: "rgba(15,31,53,0.65)", lineHeight: 1.8, fontSize: "0.93rem" }}
-              >
-                This is a distinctive methodology, rooted in the Dependable Strengths tradition of Bernard Haldane, and refined over thirty years and nearly a thousand clients. It provides a more holistic and insightful foundation for coaching -- one that produces lasting change rather than short-term adjustment.
-              </p>
-              <p
-                style={{ color: "rgba(15,31,53,0.65)", lineHeight: 1.8, fontSize: "0.93rem" }}
-              >
-                The process is supported by a suite of psychometric tools -- including VIA Character Strengths and the IPIP-NEO personality profile -- which act as lenses to confirm and deepen the insights drawn from the life history work.
-              </p>
-            </div>
-
-            {/* Lifework callout */}
-            <div
-              className="p-8"
-              style={{
-                background: "var(--lw-navy)",
-                border: "1px solid rgba(201,151,58,0.25)",
-              }}
-            >
-              <div
-                className="w-10 h-10 flex items-center justify-center mb-5 font-serif font-bold"
-                style={{ border: "1px solid var(--lw-gold)", color: "var(--lw-gold)" }}
-              >
-                L
-              </div>
-              <h3
-                className="font-serif font-bold mb-3"
-                style={{ fontSize: "1.25rem", color: "white" }}
-              >
-                Lifework -- Career Analysis
-              </h3>
-              <p
-                className="mb-5"
-                style={{ fontSize: "0.88rem", color: "rgba(255,255,255,0.65)", lineHeight: 1.75 }}
-              >
-                Lifework is the digital platform that supports the coaching process. Clients complete a structured life history interview, VIA Character Strengths survey, and personality profile at their own pace -- giving their counsellor a rich, detailed picture before the first coaching session.
-              </p>
-              <a
-                href="/coaching/lifework"
-                className="inline-flex items-center gap-2 text-sm font-medium tracking-widest uppercase no-underline transition-opacity hover:opacity-80"
-                style={{ color: "var(--lw-gold)", letterSpacing: "0.1em" }}
-              >
-                Open Lifework <ExternalLink className="w-3.5 h-3.5" />
-              </a>
-            </div>
           </div>
         </div>
       </section>
