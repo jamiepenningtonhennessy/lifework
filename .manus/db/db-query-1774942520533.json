@@ -1,0 +1,17 @@
+{
+  "query": "\nSELECT cp.id, cp.firstName, cp.email, cp.viaStatus, cp.ipipStatus\nFROM client_profiles cp\nWHERE cp.firstName LIKE '%Jamie%' OR cp.email LIKE '%pennington%' OR cp.email LIKE '%jamie%'\nLIMIT 5;\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 32u3a1hNYuu9Gj3.7d2282893346 --database kFbbE6kqNApXGDFpQJUGV7 --execute \nSELECT cp.id, cp.firstName, cp.email, cp.viaStatus, cp.ipipStatus\nFROM client_profiles cp\nWHERE cp.firstName LIKE '%Jamie%' OR cp.email LIKE '%pennington%' OR cp.email LIKE '%jamie%'\nLIMIT 5;\n",
+  "rows": [
+    {
+      "id": "1",
+      "firstName": "Jamie",
+      "email": "NULL",
+      "viaStatus": "completed",
+      "ipipStatus": "completed"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tfirstName\temail\tviaStatus\tipipStatus\n1\tJamie\tNULL\tcompleted\tcompleted\n",
+  "stderr": "",
+  "execution_time_ms": 198
+}

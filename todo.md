@@ -648,3 +648,10 @@
 - [x] Add redirects from old /lifework/* paths for backward compatibility
 - [x] Update PHCoaching page "Open Lifework" link to /coaching/lifework
 - [x] TypeScript clean, 64 tests pass
+
+## VIA — Three-Movement Prompt Rewrite
+
+- [x] Rewrite VIA prompt: Movement 1 — VIA definitions of the top 5 strengths
+- [x] Rewrite VIA prompt: Movement 2 — frequency count against fulfilling achievements with specific evidence
+- [x] Rewrite VIA prompt: Movement 3 — narrative interpretation including salience divergences
+- [x] Reset existing reports and save checkpoint
