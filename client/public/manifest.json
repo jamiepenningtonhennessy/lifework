@@ -2,7 +2,7 @@
   "name": "Lifework Career Analysis",
   "short_name": "Lifework",
   "description": "Discover your strengths, understand your personality, and find the career that fits you.",
-  "start_url": "/",
+  "start_url": "/coaching/lifework",
   "display": "standalone",
   "background_color": "#0d1b2e",
   "theme_color": "#0d1b2e",
