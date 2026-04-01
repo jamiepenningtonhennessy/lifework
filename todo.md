@@ -690,3 +690,11 @@
 - [x] Fix quadrant labels rendering as garbled boxes in PDF PNG — removed labels entirely (no font issues)
 - [x] Ensure outer ring colour arcs are visible in PDF PNG
 - [x] Simplify PDF wheel to quadrants + ring + dot only (no labels) per user request
+
+## PWA — Progressive Web App
+
+- [x] Add manifest.json to client/public with name, icons, theme colour, display mode
+- [x] Register service worker via inline script in index.html
+- [x] Add PWA meta tags to client/index.html (theme-color, apple-touch-icon, apple-mobile-web-app)
+- [x] Resize and upload icons (192px, 512px, maskable) to CDN
+- [ ] Verify installability on real devices (user testing step)
