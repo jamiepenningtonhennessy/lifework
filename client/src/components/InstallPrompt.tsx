@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useLocation } from "wouter";
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
@@ -8,9 +9,13 @@ interface BeforeInstallPromptEvent extends Event {
 const DISMISSED_KEY = "lifework-pwa-install-dismissed";
 
 export function InstallPrompt() {
+  const [location] = useLocation();
   const [deferredPrompt, setDeferredPrompt] =
     useState<BeforeInstallPromptEvent | null>(null);
   const [visible, setVisible] = useState(false);
+
+  // Only show on Lifework pages
+  const isLifeworkRoute = location.startsWith("/coaching/lifework") || location === "/lifework";
 
   useEffect(() => {
     // Don't show if already dismissed this session
@@ -45,7 +50,7 @@ export function InstallPrompt() {
     setVisible(false);
   };
 
-  if (!visible) return null;
+  if (!visible || !isLifeworkRoute) return null;
 
   return (
     <div
