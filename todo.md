@@ -698,3 +698,4 @@
 - [x] Add PWA meta tags to client/index.html (theme-color, apple-touch-icon, apple-mobile-web-app)
 - [x] Resize and upload icons (192px, 512px, maskable) to CDN
 - [ ] Verify installability on real devices (user testing step)
+- [x] Add PWA install prompt banner (beforeinstallprompt, mobile only, dismissible)

@@ -22,6 +22,7 @@ import PHCoaching from "./pages/ph/PHCoaching";
 import PHTraining from "./pages/ph/PHTraining";
 import PHAbout from "./pages/ph/PHAbout";
 import PreviewMode from "./pages/PreviewMode";
+import { InstallPrompt } from "./components/InstallPrompt";
 import {
   PreviewClientDashboard,
   PreviewInterview,
@@ -116,6 +117,7 @@ function App() {
         <TooltipProvider>
           <Toaster />
           <Router />
+          <InstallPrompt />
         </TooltipProvider>
       </ThemeProvider>
     </ErrorBoundary>
