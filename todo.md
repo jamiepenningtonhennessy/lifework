@@ -716,3 +716,10 @@
 - [x] Fix step completion indicators — backgroundStatus field added; psychometrics step now requires both VIA + IPIP complete
 - [x] Fix life history interview — age screen added before intro; ACTIVE_PHASES filters out future decades
 - [x] Fix "Invalid hook call" React error — removed stale wouter patch, reinstalled dependencies
+
+## Design Changes — Client Journey Sequencing
+
+- [x] Withhold VIA results from client — VIASurvey completion screen now shows held-results message; View My Results button removed
+- [x] Withhold OCEAN (IPIP) results from client — IpipSurvey now navigates to /results-held/ipip after submit
+- [x] Derailer not yet part of this project — no change needed
+- [x] Sage 1 step already in dashboard at position 3 (after Background, before Psychometrics) — no change needed

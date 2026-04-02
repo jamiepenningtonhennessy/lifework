@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { useLocation } from "wouter";
 import { getLoginUrl } from "@/const";
 import { trpc } from "@/lib/trpc";
-import { ArrowLeft, ArrowRight, Brain, Loader2, CheckCircle2 } from "lucide-react";
+import { ArrowLeft, ArrowRight, Brain, Loader2, CheckCircle2, Lock } from "lucide-react";
 import { toast } from "sonner";
 
 const SCALE = [
@@ -60,31 +60,63 @@ export default function VIASurvey() {
 
   if (submitted || existingResults) {
     return (
-      <div className="min-h-screen bg-background flex flex-col items-center justify-center p-8">
-        <div className="max-w-md text-center">
-          <div className="w-16 h-16 rounded-full bg-[var(--lw-gold-light)] flex items-center justify-center mx-auto mb-6">
-            <CheckCircle2 className="w-8 h-8 text-[var(--lw-gold)]" />
+      <div
+        className="min-h-screen flex items-center justify-center px-4"
+        style={{ background: "var(--lw-cream)" }}
+      >
+        <div className="max-w-lg w-full text-center space-y-8">
+          <div className="flex justify-center">
+            <div
+              className="w-20 h-20 rounded-full flex items-center justify-center"
+              style={{ background: "var(--lw-navy)" }}
+            >
+              <CheckCircle2 className="w-10 h-10" style={{ color: "var(--lw-gold)" }} />
+            </div>
           </div>
-          <h1 className="text-3xl font-serif font-bold text-foreground mb-3">
-            VIA Survey Complete
-          </h1>
-          <p className="text-muted-foreground mb-2">
-            Your character strengths have been recorded.
-          </p>
-          <p className="text-muted-foreground mb-8">
-            Now complete the second assessment — the <strong>Personality Profile</strong> — to give your counsellor the full picture.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-3 justify-center mb-4">
-            <Button onClick={() => navigate("/ipip-survey")} className="bg-[var(--lw-gold)] hover:bg-[oklch(0.60_0.13_72)] text-white gap-2">
-              <Brain className="w-4 h-4" /> Begin Personality Profile
+          <div className="space-y-3">
+            <h1 className="text-3xl font-bold tracking-tight" style={{ color: "var(--lw-navy)" }}>
+              VIA Character Strengths Complete
+            </h1>
+            <p className="text-lg" style={{ color: "var(--lw-navy-mid)" }}>
+              Thank you — your responses have been saved.
+            </p>
+          </div>
+          <div
+            className="rounded-xl p-6 text-left space-y-3"
+            style={{ background: "var(--lw-navy)", color: "var(--lw-cream)" }}
+          >
+            <div className="flex items-start gap-3">
+              <Lock className="w-5 h-5 mt-0.5 flex-shrink-0" style={{ color: "var(--lw-gold)" }} />
+              <div className="space-y-2">
+                <p className="font-semibold text-base">
+                  Your results will be shared in your Wow Report session
+                </p>
+                <p className="text-sm opacity-80 leading-relaxed">
+                  Your VIA results are held securely and will be presented to you by your
+                  practitioner as part of your Lifework Wow Report — alongside your Life History
+                  and other assessments. This ensures your results are always understood in
+                  context, not in isolation.
+                </p>
+              </div>
+            </div>
+          </div>
+          <div className="space-y-3">
+            <Button
+              onClick={() => navigate("/ipip-survey")}
+              className="w-full gap-2 text-base py-6"
+              style={{ background: "var(--lw-gold)", color: "white" }}
+            >
+              <Brain className="w-5 h-5" /> Continue to Personality Profile
             </Button>
-            <Button variant="outline" onClick={() => navigate("/via/results")} className="gap-2">
-              View My Results <ArrowRight className="w-4 h-4" />
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => navigate("/dashboard")}
+              style={{ color: "var(--lw-navy-mid)" }}
+            >
+              Back to Dashboard
             </Button>
           </div>
-          <Button variant="ghost" size="sm" onClick={() => navigate("/dashboard")} className="text-muted-foreground">
-            Back to Dashboard
-          </Button>
         </div>
       </div>
     );

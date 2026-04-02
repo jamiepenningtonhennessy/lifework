@@ -49,7 +49,7 @@ export default function IpipSurvey() {
   const submitMutation = trpc.ipip.submit.useMutation({
     onSuccess: () => {
       toast.success("Personality profile complete!");
-      setLocation("/ipip-results");
+      setLocation("/results-held/ipip");
     },
     onError: (err) => {
       toast.error("Could not save your responses. Please try again.");

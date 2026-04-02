@@ -23,6 +23,7 @@ import PHTraining from "./pages/ph/PHTraining";
 import PHAbout from "./pages/ph/PHAbout";
 import PreviewMode from "./pages/PreviewMode";
 import LifeworkLanding from "./pages/LifeworkLanding";
+import ResultsHeld from "./pages/ResultsHeld";
 import { InstallPrompt } from "./components/InstallPrompt";
 import {
   PreviewClientDashboard,
@@ -50,6 +51,12 @@ function Router() {
 
       {/* ── Lifework StoryBrand landing page ── */}
       <Route path="/lifework-landing" component={LifeworkLanding} />
+
+      {/* ── Results held — shown after completing VIA or IPIP (withheld until Wow Report session) ── */}
+      <Route path="/results-held/via">{() => <ResultsHeld assessmentName="VIA Character Strengths" />}</Route>
+      <Route path="/results-held/ipip">{() => <ResultsHeld assessmentName="Personality Profile" />}</Route>
+      <Route path="/coaching/lifework/results-held/via">{() => <ResultsHeld assessmentName="VIA Character Strengths" />}</Route>
+      <Route path="/coaching/lifework/results-held/ipip">{() => <ResultsHeld assessmentName="Personality Profile" />}</Route>
 
       {/* ── Lifework app (under /coaching/lifework) ── */}
       <Route path="/coaching/lifework" component={Home} />
