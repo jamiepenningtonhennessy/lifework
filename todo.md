@@ -715,3 +715,4 @@
 
 - [x] Fix step completion indicators — backgroundStatus field added; psychometrics step now requires both VIA + IPIP complete
 - [x] Fix life history interview — age screen added before intro; ACTIVE_PHASES filters out future decades
+- [x] Fix "Invalid hook call" React error — removed stale wouter patch, reinstalled dependencies
