@@ -278,6 +278,10 @@ const backgroundRouter = router({
     .mutation(async ({ ctx, input }) => {
       const profile = await getOrCreateClientProfile(ctx.user.id);
       await upsertFamilyBackground({ ...input, clientId: profile.id });
+      // Mark background as in_progress (completed when career is also saved)
+      if (profile.backgroundStatus === "not_started") {
+        await updateClientProfile(profile.id, { backgroundStatus: "in_progress" });
+      }
       return { success: true };
     }),
 
@@ -334,6 +338,10 @@ const backgroundRouter = router({
     .mutation(async ({ ctx, input }) => {
       const profile = await getOrCreateClientProfile(ctx.user.id);
       const id = await upsertCareer({ ...input, clientId: profile.id });
+      // Saving a career entry marks background section as completed
+      if (profile.backgroundStatus !== "completed") {
+        await updateClientProfile(profile.id, { backgroundStatus: "completed" });
+      }
       return { id };
     }),
 

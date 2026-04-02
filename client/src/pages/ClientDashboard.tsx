@@ -46,7 +46,7 @@ const STEPS = [
     description:
       "Capture your family background, education, and career timeline.",
     path: "/background",
-    statusKey: null,
+    statusKey: "backgroundStatus",
     cta: "Add Background",
     ctaInProgress: "Update Background",
   },
@@ -173,15 +173,23 @@ export default function ClientDashboard() {
     return null;
   }
 
-  const getStatus = (statusKey: string | null): string => {
+  const getStatus = (statusKey: string | null, stepId?: string): string => {
     if (!profile || !statusKey) return "not_started";
+    // Psychometrics step is only "completed" when BOTH VIA and IPIP are done
+    if (stepId === "psychometrics") {
+      const via = (profile as any).viaStatus ?? "not_started";
+      const ipip = (profile as any).ipipStatus ?? "not_started";
+      if (via === "completed" && ipip === "completed") return "completed";
+      if (via !== "not_started" || ipip !== "not_started") return "in_progress";
+      return "not_started";
+    }
     return (profile as any)[statusKey] ?? "not_started";
   };
 
   // Progress counts only steps that have a meaningful statusKey
   const trackableSteps = STEPS.filter((s) => s.statusKey);
   const completedSteps = trackableSteps.filter(
-    (s) => getStatus(s.statusKey) === "completed"
+    (s) => getStatus(s.statusKey, s.id) === "completed"
   ).length;
   const totalSteps = 6; // always 6
   const progressPct = Math.round((completedSteps / totalSteps) * 100);
@@ -302,13 +310,13 @@ export default function ClientDashboard() {
             {/* Steps */}
             <div className="space-y-4">
               {STEPS.map((step, idx) => {
-                const status = getStatus(step.statusKey);
+                const status = getStatus(step.statusKey, step.id);
                 const isCompleted = status === "completed";
                 const isInProgress = status === "in_progress";
 
                 // For the Sage step: show as active once background is done (no hard lock)
                 const prevStep = STEPS[idx - 1];
-                const prevStatus = prevStep ? getStatus(prevStep.statusKey) : "completed";
+                const prevStatus = prevStep ? getStatus(prevStep.statusKey, prevStep.id) : "completed";
                 const isLocked =
                   idx > 0 &&
                   prevStatus === "not_started" &&

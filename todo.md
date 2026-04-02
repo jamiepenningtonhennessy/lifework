@@ -710,3 +710,8 @@
 - [x] Build LifeworkLanding.tsx — full StoryBrand 7-element page (Hero, Problem, Guide, Plan, Success, CTA, Failure)
 - [x] Add /lifework-landing route to App.tsx
 - [x] Write a vitest test for the marketing.submitLead procedure (6 tests: validation, defaults, edge cases)
+
+## Client-Reported Bugs
+
+- [x] Fix step completion indicators — backgroundStatus field added; psychometrics step now requires both VIA + IPIP complete
+- [x] Fix life history interview — age screen added before intro; ACTIVE_PHASES filters out future decades

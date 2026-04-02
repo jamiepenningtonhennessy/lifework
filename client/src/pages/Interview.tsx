@@ -94,7 +94,7 @@ export default function Interview() {
   const [phaseIndex, setPhaseIndex] = useState(0);
   const [phaseActions, setPhaseActions] = useState<Record<string, Action[]>>(() =>
     Object.fromEntries(
-      PHASES.map((p) => [p.id, [emptyAction(), emptyAction(), emptyAction(), emptyAction()]])
+      PHASES.map((p) => [p.id, [emptyAction(), emptyAction(), emptyAction(), emptyAction()]]) // Always init all phases
     )
   );
   const [showIntro, setShowIntro] = useState(true);
@@ -109,9 +109,14 @@ export default function Interview() {
   const [pronounsInput, setPronounsInput] = useState("");
   const [nameSaving, setNameSaving] = useState(false);
 
+  // Age collection — used to filter phases to only relevant decades
+  const [showAgeScreen, setShowAgeScreen] = useState(false);
+  const [userAge, setUserAge] = useState<number | null>(null);
+  const [ageInput, setAgeInput] = useState("");
+
   const utils = trpc.useUtils();
 
-  // Load existing profile to pre-fill name/pronouns
+  // Load existing profile to pre-fill name/pronouns/age
   const { data: myProfile } = trpc.profile.getMyProfile.useQuery(undefined, {
     enabled: isAuthenticated,
   });
@@ -119,8 +124,27 @@ export default function Interview() {
     if (myProfile) {
       if (myProfile.firstName) setNameInput(myProfile.firstName);
       if (myProfile.pronouns) setPronounsInput(myProfile.pronouns);
+      // Pre-fill age from dateOfBirth if available
+      if (myProfile.dateOfBirth && !userAge) {
+        const dob = new Date(myProfile.dateOfBirth);
+        const age = Math.floor((Date.now() - dob.getTime()) / (365.25 * 24 * 3600 * 1000));
+        if (age > 0 && age < 120) setUserAge(age);
+      }
     }
-  }, [myProfile]);
+  }, [myProfile]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Filter phases to only those relevant to the user's current age
+  const ACTIVE_PHASES = userAge
+    ? PHASES.filter((p) => {
+        if (p.id === "early_childhood" || p.id === "mid_childhood" || p.id === "late_childhood") return true; // always include childhood
+        if (p.id === "twenties") return userAge >= 19;
+        if (p.id === "thirties") return userAge >= 30;
+        if (p.id === "forties") return userAge >= 40;
+        if (p.id === "fifties") return userAge >= 50;
+        if (p.id === "sixties_plus") return userAge >= 60;
+        return true;
+      })
+    : PHASES;
 
   const updateProfile = trpc.profile.updateProfile.useMutation();
 
@@ -163,10 +187,10 @@ export default function Interview() {
     setPhaseActions(loaded);
     // Auto-resume: on first load, advance to the first phase with no saved entries
     if (!hasResumed) {
-      const firstIncomplete = PHASES.findIndex((p) =>
+      const firstIncomplete = ACTIVE_PHASES.findIndex((p) =>
         loaded[p.id].every((a) => !a.title.trim() && !a.description.trim())
       );
-      const resumeIdx = firstIncomplete === -1 ? PHASES.length - 1 : firstIncomplete;
+      const resumeIdx = firstIncomplete === -1 ? ACTIVE_PHASES.length - 1 : firstIncomplete;
       if (resumeIdx > 0) setPhaseIndex(resumeIdx);
       setHasResumed(true);
     }
@@ -188,7 +212,7 @@ export default function Interview() {
     return null;
   }
 
-  const currentPhase = PHASES[phaseIndex];
+  const currentPhase = ACTIVE_PHASES[phaseIndex];
   const actions = phaseActions[currentPhase.id];
 
   const updateAction = (idx: number, field: keyof Action, value: string) => {
@@ -235,7 +259,7 @@ export default function Interview() {
       // Update local state with the new ids (prevents duplicate inserts if user navigates back)
       setPhaseActions((prev) => ({ ...prev, [currentPhase.id]: updatedActions }));
 
-      if (phaseIndex < PHASES.length - 1) {
+        if (phaseIndex < ACTIVE_PHASES.length - 1) {
         setPhaseIndex((i) => i + 1);
         window.scrollTo({ top: 0, behavior: "smooth" });
       } else {
@@ -248,15 +272,15 @@ export default function Interview() {
     }
   };
 
-  const completedPhases = PHASES.filter((p) =>
+  const completedPhases = ACTIVE_PHASES.filter((p) =>
     phaseActions[p.id].some((a) => a.title.trim() || a.description.trim())
   ).length;
   const hasAnyData = completedPhases > 0;
-  const firstIncompleteIdx = PHASES.findIndex((p) =>
+  const firstIncompleteIdx = ACTIVE_PHASES.findIndex((p) =>
     phaseActions[p.id].every((a) => !a.title.trim() && !a.description.trim())
   );
-  const resumePhase = firstIncompleteIdx === -1 ? PHASES[PHASES.length - 1] : PHASES[firstIncompleteIdx];
-  const resumeIdx = firstIncompleteIdx === -1 ? PHASES.length - 1 : firstIncompleteIdx;
+  const resumePhase = firstIncompleteIdx === -1 ? ACTIVE_PHASES[ACTIVE_PHASES.length - 1] : ACTIVE_PHASES[firstIncompleteIdx];
+  const resumeIdx = firstIncompleteIdx === -1 ? ACTIVE_PHASES.length - 1 : firstIncompleteIdx;
 
   // Save current phase without advancing
   const handleSaveProgress = async () => {
@@ -307,7 +331,12 @@ export default function Interview() {
           pronouns: pronounsInput || undefined,
         });
         setShowNameScreen(false);
-        setShowIntro(true);
+        // Show age screen next if we don't have age yet
+        if (!userAge) {
+          setShowAgeScreen(true);
+        } else {
+          setShowIntro(true);
+        }
       } catch {
         toast.error("Failed to save. Please try again.");
       } finally {
@@ -372,6 +401,60 @@ export default function Interview() {
             className="mt-10 w-full gap-2 text-base py-6 bg-[var(--lw-gold)] hover:bg-[oklch(0.60_0.13_72)] text-white"
           >
             {nameSaving ? <Loader2 className="w-5 h-5 animate-spin" /> : <>Continue <ArrowRight className="w-5 h-5" /></>}
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  // ── Age screen ─────────────────────────────────────────────────────────────
+  if (showAgeScreen) {
+    const handleAgeContinue = () => {
+      const parsed = parseInt(ageInput, 10);
+      if (!parsed || parsed < 10 || parsed > 110) return;
+      setUserAge(parsed);
+      setShowAgeScreen(false);
+      setShowIntro(true);
+    };
+    return (
+      <div className="min-h-screen" style={{ background: "var(--lw-cream)" }}>
+        <div className="sticky top-0 z-10" style={{ background: "var(--lw-navy)", borderBottom: "2px solid var(--lw-gold)" }}>
+          <div className="container flex items-center justify-between h-14">
+            <Button variant="ghost" size="sm" onClick={() => { setShowAgeScreen(false); setShowNameScreen(true); }}
+              style={{ color: "rgba(255,255,255,0.7)" }}
+              className="hover:text-white">
+              <ArrowLeft className="w-4 h-4 mr-1" /> Back
+            </Button>
+            <span className="font-serif font-semibold" style={{ color: "var(--lw-gold)", fontSize: "0.85rem", letterSpacing: "0.05em" }}>LIFEWORK</span>
+          </div>
+        </div>
+        <div className="container max-w-xl py-16">
+          <p className="text-xs uppercase tracking-widest text-[var(--lw-gold)] font-semibold mb-2">One more thing</p>
+          <h1 className="text-3xl font-serif font-bold text-foreground mb-3">How old are you?</h1>
+          <p className="text-[15px] text-muted-foreground leading-relaxed mb-10">
+            We use your age to tailor the interview — we'll only ask about the decades of life you've actually lived.
+          </p>
+          <div>
+            <label className="block text-sm font-semibold text-foreground mb-2">Your current age</label>
+            <Input
+              type="number"
+              min={10}
+              max={110}
+              value={ageInput}
+              onChange={(e) => setAgeInput(e.target.value)}
+              placeholder="e.g. 34"
+              className="max-w-xs text-base"
+              onKeyDown={(e) => { if (e.key === "Enter") handleAgeContinue(); }}
+              autoFocus
+            />
+          </div>
+          <Button
+            size="lg"
+            onClick={handleAgeContinue}
+            disabled={!ageInput || parseInt(ageInput, 10) < 10}
+            className="mt-10 w-full gap-2 text-base py-6 bg-[var(--lw-gold)] hover:bg-[oklch(0.60_0.13_72)] text-white"
+          >
+            Continue <ArrowRight className="w-5 h-5" />
           </Button>
         </div>
       </div>
@@ -582,7 +665,7 @@ export default function Interview() {
               <div>
                 <p className="text-sm font-semibold text-foreground">You have saved progress</p>
                 <p className="text-xs text-muted-foreground mt-0.5">
-                  {completedPhases} of {PHASES.length} phases started — resume from <strong>{resumePhase.label}</strong>
+                  {completedPhases} of {ACTIVE_PHASES.length} phases started — resume from <strong>{resumePhase.label}</strong>
                 </p>
               </div>
               <Button
@@ -600,6 +683,9 @@ export default function Interview() {
               if (!myProfile?.firstName) {
                 setShowIntro(false);
                 setShowNameScreen(true);
+              } else if (!userAge) {
+                setShowIntro(false);
+                setShowAgeScreen(true);
               } else {
                 setPhaseIndex(0);
                 setShowIntro(false);
@@ -634,14 +720,14 @@ export default function Interview() {
             }
           >
             <ArrowLeft className="w-4 h-4 mr-1" />
-            {phaseIndex === 0 ? "Introduction" : PHASES[phaseIndex - 1].label}
+            {phaseIndex === 0 ? "Introduction" : ACTIVE_PHASES[phaseIndex - 1].label}
           </Button>
           <div className="flex items-center gap-3">
             <span className="text-xs hidden sm:block" style={{ color: "rgba(255,255,255,0.6)" }}>
-              Phase {phaseIndex + 1} of {PHASES.length}
+              Phase {phaseIndex + 1} of {ACTIVE_PHASES.length}
             </span>
             <div className="flex gap-1 items-center">
-              {PHASES.map((p, i) => (
+              {ACTIVE_PHASES.map((p, i) => (
                 <div
                   key={p.id}
                   className={`h-1.5 rounded-full transition-all duration-300 ${
