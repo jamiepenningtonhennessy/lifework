@@ -62,6 +62,40 @@ const counselorProcedure = protectedProcedure.use(({ ctx, next }) => {
   return next({ ctx });
 });
 
+// ─── Marketing Router ───────────────────────────────────────────────────────
+const marketingRouter = router({
+  submitLead: publicProcedure
+    .input(
+      z.object({
+        name: z.string().min(1).max(200),
+        email: z.string().email().max(320),
+        source: z.string().max(100).default("lifework-landing"),
+      })
+    )
+    .mutation(async ({ input }) => {
+      const { getDb } = await import("./db");
+      const { leads } = await import("../drizzle/schema");
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB unavailable" });
+      await db.insert(leads).values({
+        name: input.name,
+        email: input.email,
+        source: input.source,
+      });
+      // Notify owner
+      try {
+        const { notifyOwner } = await import("./_core/notification");
+        await notifyOwner({
+          title: "New Lifework Lead",
+          content: `${input.name} (${input.email}) signed up via ${input.source}`,
+        });
+      } catch (_) {
+        // non-fatal
+      }
+      return { success: true };
+    }),
+});
+
 // ─── Client Profile Router ───────────────────────────────────────────────────
 const profileRouter = router({
   getMyProfile: protectedProcedure.query(async ({ ctx }) => {
@@ -2149,6 +2183,7 @@ Now write the five-section closing annex for ${clientName}.`;
 // ─── App Router ─────────────────────────────────────────────────────────────
 export const appRouter = router({
   system: systemRouter,
+  marketing: marketingRouter,
   auth: router({
     me: publicProcedure.query((opts) => opts.ctx.user),
     verifyAccessCode: publicProcedure

@@ -345,3 +345,17 @@ export const careerExplorerSessions = mysqlTable("career_explorer_sessions", {
 });
 
 export type CareerExplorerSession = typeof careerExplorerSessions.$inferSelect;
+
+// ─── Marketing Leads ───────────────────────────────────────────────────────
+// Captures email sign-ups from the StoryBrand landing pages
+
+export const leads = mysqlTable("leads", {
+  id: int("id").autoincrement().primaryKey(),
+  name: varchar("name", { length: 200 }).notNull(),
+  email: varchar("email", { length: 320 }).notNull(),
+  source: varchar("source", { length: 100 }).default("lifework-landing"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type Lead = typeof leads.$inferSelect;
+export type InsertLead = typeof leads.$inferInsert;

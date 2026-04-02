@@ -22,6 +22,7 @@ import PHCoaching from "./pages/ph/PHCoaching";
 import PHTraining from "./pages/ph/PHTraining";
 import PHAbout from "./pages/ph/PHAbout";
 import PreviewMode from "./pages/PreviewMode";
+import LifeworkLanding from "./pages/LifeworkLanding";
 import { InstallPrompt } from "./components/InstallPrompt";
 import {
   PreviewClientDashboard,
@@ -46,6 +47,9 @@ function Router() {
       <Route path="/training" component={PHTraining} />
       <Route path="/about" component={PHAbout} />
       <Route path="/ai-coaching" component={AICoaching} />
+
+      {/* ── Lifework StoryBrand landing page ── */}
+      <Route path="/lifework-landing" component={LifeworkLanding} />
 
       {/* ── Lifework app (under /coaching/lifework) ── */}
       <Route path="/coaching/lifework" component={Home} />

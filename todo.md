@@ -700,3 +700,13 @@
 - [ ] Verify installability on real devices (user testing step)
 - [x] Add PWA install prompt banner (beforeinstallprompt, mobile only, dismissible)
 - [x] Fix PWA start_url to open at /coaching/lifework instead of PH home page
+
+## StoryBrand Landing Page — Youth Market
+
+- [x] Add leads table to drizzle schema (name, email, source, createdAt)
+- [x] Apply leads table migration to database
+- [x] Add marketing.submitLead tRPC procedure (public, stores lead + notifies owner)
+- [x] Add marketing router to appRouter
+- [x] Build LifeworkLanding.tsx — full StoryBrand 7-element page (Hero, Problem, Guide, Plan, Success, CTA, Failure)
+- [x] Add /lifework-landing route to App.tsx
+- [x] Write a vitest test for the marketing.submitLead procedure (6 tests: validation, defaults, edge cases)
