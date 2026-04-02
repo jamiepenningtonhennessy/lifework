@@ -61,9 +61,9 @@ const NAV_PAGES = [
   { label: "Life History", path: "/preview/interview" },
   { label: "Background", path: "/preview/background" },
   { label: "VIA Survey", path: "/preview/via" },
-  { label: "VIA Results", path: "/preview/via/results" },
+  { label: "VIA Results", path: "/preview/results-held/via" },
   { label: "IPIP Survey", path: "/preview/ipip-survey" },
-  { label: "IPIP Results", path: "/preview/ipip-results" },
+  { label: "IPIP Results", path: "/preview/results-held/ipip" },
   { label: "My Report", path: "/preview/my-report" },
   { label: "Career Explorer", path: "/preview/career-explorer" },
   { label: "Sage (Life History)", path: "/preview/sage" },
@@ -624,7 +624,7 @@ export function PreviewVIASurvey() {
 
         <div className="flex justify-between mt-8">
           <Button variant="outline" disabled>← Previous</Button>
-          <Button style={{ background: "var(--lw-gold)", color: "var(--lw-navy)" }} onClick={() => navigate("/preview/via/results")}>
+          <Button style={{ background: "var(--lw-gold)", color: "var(--lw-navy)" }} onClick={() => navigate("/preview/results-held/via")}>
             Next → <span className="ml-1 text-xs opacity-70">(skip to results)</span>
           </Button>
         </div>
@@ -795,7 +795,7 @@ export function PreviewIpipSurvey() {
         </div>
 
         <div className="flex justify-end mt-8">
-          <Button style={{ background: "var(--lw-gold)", color: "var(--lw-navy)" }} onClick={() => navigate("/preview/ipip-results")}>
+          <Button style={{ background: "var(--lw-gold)", color: "var(--lw-navy)" }} onClick={() => navigate("/preview/results-held/ipip")}>
             Skip to Results →
           </Button>
         </div>

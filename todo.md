@@ -723,3 +723,4 @@
 - [x] Withhold OCEAN (IPIP) results from client — IpipSurvey now navigates to /results-held/ipip after submit
 - [x] Derailer not yet part of this project — no change needed
 - [x] Sage 1 step already in dashboard at position 3 (after Background, before Psychometrics) — no change needed
+- [x] Update preview mode — PreviewVIAResults and PreviewIpipResults nav links and survey buttons now point to held-results screen

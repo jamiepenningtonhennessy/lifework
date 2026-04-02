@@ -109,8 +109,10 @@ function Router() {
       <Route path="/preview/background" component={PreviewBackground} />
       <Route path="/preview/via" component={PreviewVIASurvey} />
       <Route path="/preview/via/results" component={PreviewVIAResults} />
+      <Route path="/preview/results-held/via">{() => <ResultsHeld assessmentName="VIA Character Strengths" />}</Route>
       <Route path="/preview/ipip-survey" component={PreviewIpipSurvey} />
       <Route path="/preview/ipip-results" component={PreviewIpipResults} />
+      <Route path="/preview/results-held/ipip">{() => <ResultsHeld assessmentName="Personality Profile" />}</Route>
       <Route path="/preview/my-report" component={PreviewMyReport} />
       <Route path="/preview/career-explorer" component={PreviewCareerExplorer} />
       <Route path="/preview/sage" component={PreviewSage} />
