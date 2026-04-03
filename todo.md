@@ -737,3 +737,12 @@
 - [x] Update Conclusions prompt: shorter Past/Present/Future + Tell Me About Yourself
 - [x] Add "Rewrite in New Style" button to WOW Report tab (bottom CTA card)
 - [x] Add "Regenerate" label to the header icon button for clarity
+
+## WOW Report — Four Variant System (Student / Career Changer / Job Returner / Retirement)
+
+- [x] Add reportType column to wow_reports table in drizzle schema (enum: standard | student | career_changer | job_returner | retirement)
+- [x] Add variant-specific prompts for Chapters 6 (Directions), 7 (Development Edge), 8 (Conclusions) in wowReport.ts
+- [x] Add report type selector UI to WowReportTab (shown before first generation and when regenerating)
+- [x] Update generate procedure to accept and store reportType
+- [x] Show report type badge on generated report header in counsellor UI
+- [x] Checkpoint and deliver

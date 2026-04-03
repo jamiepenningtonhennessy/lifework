@@ -1,0 +1,1 @@
+ALTER TABLE `analysis_reports` ADD `wowReportType` enum('standard','student','career_changer','job_returner','retirement') DEFAULT 'standard';

@@ -236,6 +236,7 @@ export const analysisReports = mysqlTable("analysis_reports", {
   wowReportGeneratedAt: timestamp("wowReportGeneratedAt"),
   wowReportStatus: varchar("wowReportStatus", { length: 20 }),  // pending|generating|done|error
   wowReportError: text("wowReportError"),     // error message if status=error
+  wowReportType: mysqlEnum("wowReportType", ["standard", "student", "career_changer", "job_returner", "retirement"]).default("standard"),  // report variant
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });

@@ -11,6 +11,13 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
   FileText,
   Sparkles,
   Download,
@@ -34,6 +41,16 @@ import { toast } from "sonner";
 import { Streamdown } from "streamdown";
 import { InsightsMapping } from "@/components/InsightsMapping";
 import { VIA_STRENGTHS } from "@shared/via-data";
+
+type WowReportType = "standard" | "student" | "career_changer" | "job_returner" | "retirement";
+
+const REPORT_TYPE_OPTIONS: { value: WowReportType; label: string; description: string }[] = [
+  { value: "standard",       label: "Standard Career Analysis",  description: "Full career analysis — suitable for most clients." },
+  { value: "student",        label: "First Career — Student",     description: "Chapters 6–8 reframed for someone starting their first career." },
+  { value: "career_changer", label: "Career Change",              description: "Chapters 6–8 address the transition from an unsatisfying career." },
+  { value: "job_returner",   label: "Returning to Work",          description: "Chapters 6–8 address re-entry after a career break." },
+  { value: "retirement",     label: "Retirement & Legacy",        description: "Chapters 6–8 reframed as 'What To Do With What You Know'." },
+];
 
 interface WowReportTabProps {
   clientId: number;
@@ -141,6 +158,7 @@ export default function WowReportTab({ clientId, clientName }: WowReportTabProps
   const [expandedSection, setExpandedSection] = useState<string | null>("summary");
   const [isPolling, setIsPolling] = useState(false);
   const [progressMsg, setProgressMsg] = useState(0);
+  const [selectedReportType, setSelectedReportType] = useState<WowReportType>("standard");
   const pollIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const msgIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
@@ -215,8 +233,15 @@ export default function WowReportTab({ clientId, clientName }: WowReportTabProps
     }
   }, [reportData?.status]);
 
-  const handleGenerate = (forceRegenerate = false) => {
-    generateMutation.mutate({ clientId, forceRegenerate });
+  // Sync selectedReportType with the stored type when the report loads
+  useEffect(() => {
+    if (reportData?.reportType && reportData.reportType !== selectedReportType) {
+      setSelectedReportType(reportData.reportType as WowReportType);
+    }
+  }, [reportData?.reportType]);
+
+  const handleGenerate = (forceRegenerate = false, overrideType?: WowReportType) => {
+    generateMutation.mutate({ clientId, forceRegenerate, reportType: overrideType ?? selectedReportType });
   };
 
   const sections: WowSections | null = reportData?.sections ?? null;
@@ -306,6 +331,12 @@ export default function WowReportTab({ clientId, clientName }: WowReportTabProps
                       {generatedAt}
                     </div>
                   )}
+                  {/* Report type badge */}
+                  {reportData?.reportType && reportData.reportType !== "standard" && (
+                    <Badge className="text-xs" style={{ backgroundColor: "var(--lw-gold)/20", color: "var(--lw-gold)", borderColor: "var(--lw-gold)/30" }}>
+                      {REPORT_TYPE_OPTIONS.find(o => o.value === reportData.reportType)?.label ?? reportData.reportType}
+                    </Badge>
+                  )}
                   <div className="flex gap-2 flex-wrap justify-end">
                     <Button
                       size="sm"
@@ -321,10 +352,10 @@ export default function WowReportTab({ clientId, clientName }: WowReportTabProps
                       className="border-white/20 text-white hover:bg-white/10 text-xs"
                       onClick={() => handleGenerate(true)}
                       disabled={isGenerating}
-                      title="Rewrite this report in the current house style"
+                      title="Regenerate this report using the current report type and house style"
                     >
                       <RefreshCw className="w-3 h-3 mr-1" />
-                      Rewrite in New Style
+                      Regenerate
                     </Button>
                   </div>
                 </>
@@ -357,6 +388,47 @@ export default function WowReportTab({ clientId, clientName }: WowReportTabProps
               )}
             </div>
           </div>
+
+          {/* Report type selector — shown when no report yet, or when report is ready (to change type before regenerating) */}
+          {!isGenerating && (
+            <div className="px-6 pb-5 border-t border-white/10 pt-4">
+              <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+                <div className="flex-1">
+                  <p className="text-xs font-semibold tracking-wide uppercase mb-1" style={{ color: "var(--lw-gold)" }}>Report Variant</p>
+                  <p className="text-xs text-white/40">
+                    {REPORT_TYPE_OPTIONS.find(o => o.value === selectedReportType)?.description}
+                  </p>
+                </div>
+                <Select
+                  value={selectedReportType}
+                  onValueChange={(v) => setSelectedReportType(v as WowReportType)}
+                  disabled={isGenerating}
+                >
+                  <SelectTrigger className="w-[220px] bg-white/5 border-white/20 text-white text-sm">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {REPORT_TYPE_OPTIONS.map(opt => (
+                      <SelectItem key={opt.value} value={opt.value}>
+                        {opt.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {pdfUrl && selectedReportType !== (reportData?.reportType ?? "standard") && (
+                  <Button
+                    size="sm"
+                    className="bg-[var(--lw-gold)] hover:bg-[var(--lw-gold)]/90 text-[var(--lw-navy)] font-semibold whitespace-nowrap"
+                    onClick={() => handleGenerate(true, selectedReportType)}
+                    disabled={isGenerating}
+                  >
+                    <RefreshCw className="w-3 h-3 mr-1" />
+                    Regenerate as {REPORT_TYPE_OPTIONS.find(o => o.value === selectedReportType)?.label}
+                  </Button>
+                )}
+              </div>
+            </div>
+          )}
 
           {/* Generation progress bar */}
           {isGenerating && (

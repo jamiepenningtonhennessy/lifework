@@ -281,7 +281,75 @@ async function callLLMWithTimeout(
   }
 }
 
-async function generateWowSections(clientId: number): Promise<WowReportSections> {
+// ─── Report type variants ────────────────────────────────────────────────────
+
+export type WowReportType = "standard" | "student" | "career_changer" | "job_returner" | "retirement";
+
+const REPORT_TYPE_LABELS: Record<WowReportType, string> = {
+  standard:       "Standard Career Analysis",
+  student:        "First Career — Student",
+  career_changer: "Career Change",
+  job_returner:   "Returning to Work",
+  retirement:     "Retirement & Legacy",
+};
+
+/**
+ * Returns variant-specific prompt overrides for Chapters 6 (Career Directions),
+ * 7 (Development Edge), and 8 (Conclusions). The standard variant returns null
+ * for all three, meaning the default prompts are used.
+ */
+function getVariantPrompts(type: WowReportType, ctx: string, sys: string): {
+  careerDirectionsPrompt: string | null;
+  developmentEdgePrompt: string | null;
+  conclusionsPrompt: string | null;
+} {
+  if (type === "standard") return { careerDirectionsPrompt: null, developmentEdgePrompt: null, conclusionsPrompt: null };
+
+  const variantInstructions: Record<WowReportType, { directions: string; edge: string; conclusions: string }> = {
+    standard: { directions: "", edge: "", conclusions: "" }, // unused
+
+    student: {
+      directions: `${ctx}\n\nWrite the Career Directions chapter for a client who is at the START of their career — this is their first serious career decision. Write directly to the client using "you" and "your" throughout. Begin IMMEDIATELY with the first direction — no introductory paragraph, no preamble.\n\nWrite 3 career directions. For each:\n- Name it as a ## heading (e.g. ## Strategy and Policy Work in the Public Sector)\n- Write 2 short paragraphs (4-5 lines each):\n  - Paragraph 1: Why this direction fits your specific combination of life history, character strengths, and personality — even though your formal career is just beginning. Reference what you have already shown in education, voluntary work, sports, or early experiences.\n  - Paragraph 2: What it could look like in practice. Name 2-3 concrete entry-level roles or graduate pathways. Be specific about how to get started.\n\nThese should feel tailored and specific — not generic job titles. Each direction should be grounded in what this person has already demonstrated, not in abstract potential.\n\nClose with: "From what you have told us, we can see:" followed by 3 tight bullets naming the key career fit factors.`,
+
+      edge: `${ctx}\n\nWrite the Development Edge chapter for a client at the START of their career. Write directly to the client using "you" and "your" throughout. Begin IMMEDIATELY with the first development area — no introductory paragraph.\n\nWrite 2-3 development edges. For each:\n- Name it precisely as a ## heading (e.g. ## Building Credibility Before You Have a Track Record)\n- Write 2 short paragraphs (4-5 lines each):\n  - Paragraph 1: What the evidence already shows about this pattern — from education, early experiences, or psychometric data.\n  - Paragraph 2: Why this matters specifically at the start of a career, and what to do about it in the first 2-3 years.\n\nFrame these as practical early-career guidance, not criticism. The goal is to help the client build the right habits before they become entrenched.\n\nClose with: "From what you have told us, we can see:" followed by 2-3 tight bullets naming the core development priorities for the first career stage.`,
+
+      conclusions: `${ctx}\n\nWrite the Conclusions chapter for a client who is at the START of their career. Write directly to the client using "you" and "your" throughout. Do NOT write any introductory paragraph. Begin immediately with ## Past.\n\n## Past\n2 short paragraphs (4-5 lines each):\n- Name the 2-3 seed themes already visible in education, childhood, and early experiences\n- Show how these themes already point toward a distinctive professional identity — even before a formal career has begun\n\n## Present\n2 short paragraphs (4-5 lines each):\n- Name the 3 most distinctive character strengths and what makes them powerful in combination\n- State plainly what kind of professional you are already becoming, drawing on personality profile and behavioural style\n\n## Future\n2 short paragraphs (4-5 lines each):\n- Name the 2-3 most compelling career directions and why they fit specifically\n- Name the 1-2 development priorities for the first 3 years that will most accelerate your trajectory\n- End with a forward-looking statement: what does success look like at the end of the first decade?\n\n## Tell Me About Yourself\nIntroduce with exactly this sentence: "The following is a suggested answer to the interview question 'Tell me about yourself' — drawn from everything your Lifework analysis has revealed:"\n\nThen write THREE short paragraphs in the first person (to be spoken by the client):\n\nParagraph 1: Open with "I am fundamentally driven by three things:" then name them precisely — one clause each, separated by semicolons. These must come directly from the evidence.\n\nParagraph 2: Begin with "Even at this early stage, I have already shown..." and name 2-3 specific demonstrated capabilities from the life history.\n\nParagraph 3: A single closing sentence of intent. What kind of career are you building, and why?\n\nThe three paragraphs together should be speakable in under 90 seconds.`,
+    },
+
+    career_changer: {
+      directions: `${ctx}\n\nWrite the Career Directions chapter for a client who is CHANGING CAREER — moving away from a field where they have lost satisfaction or confidence. Write directly to the client using "you" and "your" throughout. Begin IMMEDIATELY with the first direction — no introductory paragraph, no preamble.\n\nWrite 3 career directions. For each:\n- Name it as a ## heading (e.g. ## Leadership Roles in Mission-Driven Organisations)\n- Write 2 short paragraphs (4-5 lines each):\n  - Paragraph 1: Why this direction fits your specific combination of life history, character strengths, and personality — and why it represents a genuine step toward what you are actually built for, not just an escape from what you are leaving.\n  - Paragraph 2: What it could look like in practice. Name 2-3 concrete role types or sectors. Name the transferable skills from your existing career that give you a real advantage here.\n\nBe direct about the transition: acknowledge what the client is leaving behind and why the new direction is a better fit — not just a change of scenery.\n\nClose with: "From what you have told us, we can see:" followed by 3 tight bullets naming the key career fit factors and the strongest transferable assets.`,
+
+      edge: `${ctx}\n\nWrite the Development Edge chapter for a client who is CHANGING CAREER. Write directly to the client using "you" and "your" throughout. Begin IMMEDIATELY with the first development area — no introductory paragraph.\n\nWrite 2-3 development edges. For each:\n- Name it precisely as a ## heading (e.g. ## The Credibility Gap in a New Field)\n- Write 2 short paragraphs (4-5 lines each):\n  - Paragraph 1: What the evidence shows about this pattern — from the life history, psychometric data, or the pattern of dissatisfaction in the current career.\n  - Paragraph 2: What it costs during a career transition if left unaddressed, and what to do about it specifically.\n\nAt least one edge should address the psychological challenge of transition itself — the identity shift, the temporary loss of status, or the risk of choosing safety over fit.\n\nClose with: "From what you have told us, we can see:" followed by 2-3 tight bullets naming the core development priorities for the transition period.`,
+
+      conclusions: `${ctx}\n\nWrite the Conclusions chapter for a client who is CHANGING CAREER. Write directly to the client using "you" and "your" throughout. Do NOT write any introductory paragraph. Begin immediately with ## Past.\n\n## Past\n2 short paragraphs (4-5 lines each):\n- Name the 2-3 seed themes visible from the earliest experiences\n- Identify the moment or pattern where the current career began to diverge from those themes — when did the work stop fitting the person?\n\n## Present\n2 short paragraphs (4-5 lines each):\n- Name the 3 most distinctive character strengths and what makes them powerful in combination\n- State plainly what kind of professional you are at your best — and contrast this with what the current career has been asking of you\n\n## Future\n2 short paragraphs (4-5 lines each):\n- Name the 2-3 most compelling new directions and why they fit specifically\n- Name the 1-2 development edges that, if addressed, will most accelerate the transition\n- End with a forward-looking statement: what does the right career feel like, and why is this the right moment to move?\n\n## Tell Me About Yourself\nIntroduce with exactly this sentence: "The following is a suggested answer to the interview question 'Tell me about yourself' — drawn from everything your Lifework analysis has revealed:"\n\nThen write THREE short paragraphs in the first person (to be spoken by the client):\n\nParagraph 1: Open with "I am fundamentally driven by three things:" then name them precisely — one clause each, separated by semicolons. These must come directly from the evidence.\n\nParagraph 2: Begin with "My career to date has given me..." and name 2-3 specific transferable capabilities. Then: "But what I am moving toward is..." and name the new direction in one sentence.\n\nParagraph 3: A single closing sentence of intent. Why now, and what are you looking for?\n\nThe three paragraphs together should be speakable in under 90 seconds.`,
+    },
+
+    job_returner: {
+      directions: `${ctx}\n\nWrite the Career Directions chapter for a client who is RETURNING TO WORK after a career break. Write directly to the client using "you" and "your" throughout. Begin IMMEDIATELY with the first direction — no introductory paragraph, no preamble.\n\nWrite 3 career directions. For each:\n- Name it as a ## heading (e.g. ## Senior Advisory and Consultancy Roles)\n- Write 2 short paragraphs (4-5 lines each):\n  - Paragraph 1: Why this direction fits your specific combination of life history, character strengths, and personality — and why the career break, far from being a gap, may have added something. Be specific.\n  - Paragraph 2: What it could look like in practice. Name 2-3 concrete role types or re-entry pathways. Name the skills and experience that remain fully current and relevant.\n\nAcknowledge the reality of returning: some things will need updating, some things will be stronger than ever. Be honest about both.\n\nClose with: "From what you have told us, we can see:" followed by 3 tight bullets naming the key career fit factors and the strongest assets the client brings back.`,
+
+      edge: `${ctx}\n\nWrite the Development Edge chapter for a client who is RETURNING TO WORK after a career break. Write directly to the client using "you" and "your" throughout. Begin IMMEDIATELY with the first development area — no introductory paragraph.\n\nWrite 2-3 development edges. For each:\n- Name it precisely as a ## heading (e.g. ## Rebuilding Professional Confidence)\n- Write 2 short paragraphs (4-5 lines each):\n  - Paragraph 1: What the evidence shows about this pattern — from the life history, psychometric data, or the specific challenges of returning after time away.\n  - Paragraph 2: What it costs if left unaddressed during re-entry, and what to do about it specifically.\n\nAt least one edge should address the confidence and self-perception challenges that often accompany a return to work — without being patronising. Name the specific pattern this person is likely to face.\n\nClose with: "From what you have told us, we can see:" followed by 2-3 tight bullets naming the core development priorities for the return period.`,
+
+      conclusions: `${ctx}\n\nWrite the Conclusions chapter for a client who is RETURNING TO WORK after a career break. Write directly to the client using "you" and "your" throughout. Do NOT write any introductory paragraph. Begin immediately with ## Past.\n\n## Past\n2 short paragraphs (4-5 lines each):\n- Name the 2-3 seed themes visible from the earliest experiences and through the career before the break\n- Identify what the career break has added — what has been learned, developed, or clarified during the time away\n\n## Present\n2 short paragraphs (4-5 lines each):\n- Name the 3 most distinctive character strengths and what makes them powerful in combination\n- State plainly what kind of professional you are at your best — and what remains fully intact after the break\n\n## Future\n2 short paragraphs (4-5 lines each):\n- Name the 2-3 most compelling directions for re-entry and why they fit specifically\n- Name the 1-2 development priorities that will most accelerate the return\n- End with a forward-looking statement: what does a successful return look like, and what does it make possible?\n\n## Tell Me About Yourself\nIntroduce with exactly this sentence: "The following is a suggested answer to the interview question 'Tell me about yourself' — drawn from everything your Lifework analysis has revealed:"\n\nThen write THREE short paragraphs in the first person (to be spoken by the client):\n\nParagraph 1: Open with "I am fundamentally driven by three things:" then name them precisely — one clause each, separated by semicolons. These must come directly from the evidence.\n\nParagraph 2: Begin with "Before my career break, I built a track record in..." and name 2-3 specific capabilities. Then: "During that time, I also..." and name one thing the break added.\n\nParagraph 3: A single closing sentence of intent. What are you returning to do, and why now?\n\nThe three paragraphs together should be speakable in under 90 seconds.`,
+    },
+
+    retirement: {
+      directions: `${ctx}\n\nWrite the Career Directions chapter for a client who is PLANNING FOR RETIREMENT — this chapter is titled "What To Do With What You Know" and focuses on how to deploy a lifetime of accumulated capability in the next chapter of life. Write directly to the client using "you" and "your" throughout. Begin IMMEDIATELY with the first direction — no introductory paragraph, no preamble.\n\nWrite 3 directions for this next chapter. For each:\n- Name it as a ## heading (e.g. ## Board and Advisory Roles, ## Mentoring and Teaching, ## Portfolio Work and Consultancy)\n- Write 2 short paragraphs (4-5 lines each):\n  - Paragraph 1: Why this direction is a natural expression of the client's deepest strengths and values — grounded in specific life history evidence. Not what they have done, but what they are built for.\n  - Paragraph 2: What it could look like in practice. Name 2-3 concrete forms this could take. Be specific about how to begin.\n\nThese directions should feel like a genuine next chapter — not a wind-down, not a hobby list, but a purposeful deployment of everything this person has become.\n\nClose with: "From what you have told us, we can see:" followed by 3 tight bullets naming the key fit factors for this next chapter.`,
+
+      edge: `${ctx}\n\nWrite the Development Edge chapter for a client who is PLANNING FOR RETIREMENT. Reframe this chapter as "What To Watch" — the patterns and tendencies that, if unexamined, could limit the quality of the next chapter. Write directly to the client using "you" and "your" throughout. Begin IMMEDIATELY with the first area — no introductory paragraph.\n\nWrite 2-3 areas to watch. For each:\n- Name it precisely as a ## heading (e.g. ## The Risk of Losing Structure, ## Giving Without Receiving, ## Staying Relevant Without Needing to Be Central)\n- Write 2 short paragraphs (4-5 lines each):\n  - Paragraph 1: What the evidence shows about this pattern — from the life history, psychometric data, or the specific challenges of the transition from full-time work.\n  - Paragraph 2: What it costs in the retirement chapter if left unexamined, and what to do about it specifically.\n\nFrame these as wisdom, not criticism. The goal is to help the client enter this chapter with clear eyes.\n\nClose with: "From what you have told us, we can see:" followed by 2-3 tight bullets naming the key things to watch in this transition.`,
+
+      conclusions: `${ctx}\n\nWrite the Conclusions chapter for a client who is PLANNING FOR RETIREMENT. The frame for this chapter is: what has a life of work revealed about who this person is, and what does that mean for the next chapter? Write directly to the client using "you" and "your" throughout. Do NOT write any introductory paragraph. Begin immediately with ## Past.\n\n## Past\n2 short paragraphs (4-5 lines each):\n- Name the 2-3 seed themes present from the earliest recorded experiences\n- Show how these themes have reproduced and deepened across the decades. What has a lifetime of work confirmed about who you are?\n\n## Present\n2 short paragraphs (4-5 lines each):\n- Name the 3 most distinctive character strengths and what makes them powerful in combination\n- State plainly what kind of person you are at your best — not just as a professional, but as a human being. What do you bring to any room you enter?\n\n## Future\n2 short paragraphs (4-5 lines each):\n- Name the 2-3 most compelling directions for the next chapter and why they fit specifically\n- Name the 1-2 things to watch that, if addressed, will make the transition richer\n- End with a forward-looking statement: what does a life well-lived look like from here, and what does this next chapter make possible?\n\n## Tell Me About Yourself\nIntroduce with exactly this sentence: "The following is a suggested answer to the question 'What are you doing now?' — drawn from everything your Lifework analysis has revealed:"\n\nThen write THREE short paragraphs in the first person (to be spoken by the client):\n\nParagraph 1: Open with "I have spent my career driven by three things:" then name them precisely — one clause each, separated by semicolons. These must come directly from the evidence.\n\nParagraph 2: Begin with "That career has given me..." and name 2-3 specific capabilities or insights that are now available to deploy differently. Then: "What I am doing now is..." and name the next chapter in one sentence.\n\nParagraph 3: A single closing sentence of purpose. Not what you are leaving, but what you are moving toward.\n\nThe three paragraphs together should be speakable in under 90 seconds.`,
+    },
+  };
+
+  const v = variantInstructions[type];
+  return {
+    careerDirectionsPrompt: v.directions || null,
+    developmentEdgePrompt: v.edge || null,
+    conclusionsPrompt: v.conclusions || null,
+  };
+}
+
+async function generateWowSections(clientId: number, reportType: WowReportType = "standard"): Promise<WowReportSections> {
   const { clientName, clientFullName, pronouns, contextText, viaRanked, domainScores } = await buildClientContext(clientId);
   // pronouns is a string like "they/them/their" or "he/him/his" or "she/her/her"
   const pronounParts = pronouns.split("/");
@@ -412,15 +480,27 @@ Write directly to the client using "you" and "your" throughout. Do NOT include a
       `${ctx}\n\nWrite the Personality Profile chapter of the Lifework report. Write directly to the client using "you" and "your" throughout. Do NOT write any introductory paragraph before the first heading. Begin immediately with ## What the Psychometrics Show.\n\n## What the Psychometrics Show\nA PURE psychometric portrait. Interpret the Big Five scores on their own terms — as if you had not read the life history. For each of the five domains (Openness, Conscientiousness, Extraversion, Agreeableness, Neuroticism), write 2 sentences that:\n- State what the score means in plain language\n- Name what this score predicts about working style, stress responses, and environments where you thrive or struggle\n\nDo NOT reference the life history in this section.\n\nClose with: "From what you have told us, we can see:" followed by 3-4 tight bullets summarising the psychometric portrait.\n\n## Where the Two Pictures Meet\nCompare the psychometric portrait with the life history evidence. For each domain where there is a divergence, write one short paragraph (4-5 lines) that:\n- Names the divergence type: high score + low life history evidence (capacity not yet expressed), or low score + high life history evidence (deliberate effort, not natural ease)\n- States plainly what this means in career terms\n\nSkip domains where the two sources simply agree. Focus on divergences.\n\n## What This Means\nOne short paragraph (4-5 lines): the single most important insight that emerges from comparing the two pictures. What does the client now know about themselves that neither source alone could have revealed?`
     ),
     callLLMWithTimeout(insightsSys, insightsData),
-    callLLMWithTimeout(sys,
-      `${ctx}\n\nWrite the Career Directions chapter. Write directly to the client using "you" and "your" throughout. Begin IMMEDIATELY with the first direction — no introductory paragraph, no preamble.\n\nWrite 3 career directions. For each:\n- Name it as a ## heading (e.g. ## Strategic Leadership in Complex Organisations)\n- Write 2 short paragraphs (4-5 lines each):\n  - Paragraph 1: Why this direction fits your specific combination of life history, character strengths, and personality. Name specific evidence.\n  - Paragraph 2: What it could look like in practice. Name 2-3 concrete role types or environments.\n\nThese should feel tailored and specific — not generic job titles. Each direction should be something that could only be written for this person.\n\nClose with: "From what you have told us, we can see:" followed by 3 tight bullets naming the key career fit factors.`
-    ),
-    callLLMWithTimeout(sys,
-      `${ctx}\n\nWrite the Development Edge chapter. Write directly to the client using "you" and "your" throughout. Begin IMMEDIATELY with the first development area — no introductory paragraph.\n\nWrite 2-3 development edges. For each:\n- Name it precisely as a ## heading (e.g. ## The Visibility Gap)\n- Write 2 short paragraphs (4-5 lines each):\n  - Paragraph 1: What the evidence shows. Connect it directly to specific life history moments, psychometric scores, or both.\n  - Paragraph 2: What it costs in career terms if left unaddressed. Be direct. Do not soften.\n\nFrame these as analytical observations, not encouragements. The goal is to name the gap clearly enough that the client recognises it and understands why it matters.\n\nClose with: "From what you have told us, we can see:" followed by 2-3 tight bullets naming the core development findings.`
-    ),
-    callLLMWithTimeout(sys,
-      `${ctx}\n\nWrite the Conclusions chapter. This is the synthesis chapter — it draws together everything the report has uncovered. Write directly to the client using "you" and "your" throughout. Do NOT write any introductory paragraph. Begin immediately with ## Past.\n\n## Past\n2 short paragraphs (4-5 lines each):\n- Name the 2-3 seed themes present in the earliest recorded experiences\n- Show how these themes have reproduced across the decades. Reference specific achievements by name.\n- Identify the single most consistent thread from earliest experiences to today\n\n## Present\n2 short paragraphs (4-5 lines each):\n- Name the 3 most distinctive character strengths and what makes them powerful in combination\n- State plainly what kind of professional you are at your best, drawing on personality profile and behavioural style\n\n## Future\n2 short paragraphs (4-5 lines each):\n- Name the 2-3 most compelling career directions and why they fit specifically\n- Name the 1-2 development edges that, if addressed, would most expand your options\n- End with a forward-looking statement connecting the seed themes from Past to the future directions\n\n## Tell Me About Yourself\nIntroduce with exactly this sentence: "The following is a suggested answer to the interview question 'Tell me about yourself' — drawn from everything your Lifework analysis has revealed:"\n\nThen write THREE short paragraphs in the first person (to be spoken by the client):\n\nParagraph 1: Open with "I am fundamentally driven by three things:" then name them precisely — one clause each, separated by semicolons. These must come directly from the evidence. Specific and distinctive, not generic virtues.\n\nParagraph 2: Begin with "These drivers have prepared me to excel in roles that..." and describe 2-3 specific role types or environments. Be concrete.\n\nParagraph 3: A single closing sentence of intent. What are you looking for now, and why?\n\nThe three paragraphs together should be speakable in under 90 seconds. Each sentence must earn its place.`
-    ),
+(() => {
+      const { careerDirectionsPrompt } = getVariantPrompts(reportType, ctx, sys);
+      return callLLMWithTimeout(sys,
+        careerDirectionsPrompt ??
+        `${ctx}\n\nWrite the Career Directions chapter. Write directly to the client using "you" and "your" throughout. Begin IMMEDIATELY with the first direction — no introductory paragraph, no preamble.\n\nWrite 3 career directions. For each:\n- Name it as a ## heading (e.g. ## Strategic Leadership in Complex Organisations)\n- Write 2 short paragraphs (4-5 lines each):\n  - Paragraph 1: Why this direction fits your specific combination of life history, character strengths, and personality. Name specific evidence.\n  - Paragraph 2: What it could look like in practice. Name 2-3 concrete role types or environments.\n\nThese should feel tailored and specific — not generic job titles. Each direction should be something that could only be written for this person.\n\nClose with: "From what you have told us, we can see:" followed by 3 tight bullets naming the key career fit factors.`
+      );
+    })(),
+    (() => {
+      const { developmentEdgePrompt } = getVariantPrompts(reportType, ctx, sys);
+      return callLLMWithTimeout(sys,
+        developmentEdgePrompt ??
+        `${ctx}\n\nWrite the Development Edge chapter. Write directly to the client using "you" and "your" throughout. Begin IMMEDIATELY with the first development area — no introductory paragraph.\n\nWrite 2-3 development edges. For each:\n- Name it precisely as a ## heading (e.g. ## The Visibility Gap)\n- Write 2 short paragraphs (4-5 lines each):\n  - Paragraph 1: What the evidence shows. Connect it directly to specific life history moments, psychometric scores, or both.\n  - Paragraph 2: What it costs in career terms if left unaddressed. Be direct. Do not soften.\n\nFrame these as analytical observations, not encouragements. The goal is to name the gap clearly enough that the client recognises it and understands why it matters.\n\nClose with: "From what you have told us, we can see:" followed by 2-3 tight bullets naming the core development findings.`
+      );
+    })(),
+    (() => {
+      const { conclusionsPrompt } = getVariantPrompts(reportType, ctx, sys);
+      return callLLMWithTimeout(sys,
+        conclusionsPrompt ??
+        `${ctx}\n\nWrite the Conclusions chapter. This is the synthesis chapter — it draws together everything the report has uncovered. Write directly to the client using "you" and "your" throughout. Do NOT write any introductory paragraph. Begin immediately with ## Past.\n\n## Past\n2 short paragraphs (4-5 lines each):\n- Name the 2-3 seed themes present in the earliest recorded experiences\n- Show how these themes have reproduced across the decades. Reference specific achievements by name.\n- Identify the single most consistent thread from earliest experiences to today\n\n## Present\n2 short paragraphs (4-5 lines each):\n- Name the 3 most distinctive character strengths and what makes them powerful in combination\n- State plainly what kind of professional you are at your best, drawing on personality profile and behavioural style\n\n## Future\n2 short paragraphs (4-5 lines each):\n- Name the 2-3 most compelling career directions and why they fit specifically\n- Name the 1-2 development edges that, if addressed, would most expand your options\n- End with a forward-looking statement connecting the seed themes from Past to the future directions\n\n## Tell Me About Yourself\nIntroduce with exactly this sentence: "The following is a suggested answer to the interview question 'Tell me about yourself' — drawn from everything your Lifework analysis has revealed:"\n\nThen write THREE short paragraphs in the first person (to be spoken by the client):\n\nParagraph 1: Open with "I am fundamentally driven by three things:" then name them precisely — one clause each, separated by semicolons. These must come directly from the evidence. Specific and distinctive, not generic virtues.\n\nParagraph 2: Begin with "These drivers have prepared me to excel in roles that..." and describe 2-3 specific role types or environments. Be concrete.\n\nParagraph 3: A single closing sentence of intent. What are you looking for now, and why?\n\nThe three paragraphs together should be speakable in under 90 seconds. Each sentence must earn its place.`
+      );
+    })(),
   ]);
 
   console.log(`[WOW Report] All 8 sections generated successfully for client ${clientId}`);
@@ -1111,7 +1191,7 @@ async function renderWowPdf(sections: WowReportSections): Promise<Buffer> {
 
 // ─── Background Job ──────────────────────────────────────────────────────────
 
-async function runGenerationJob(clientId: number): Promise<void> {
+async function runGenerationJob(clientId: number, reportType: WowReportType = "standard"): Promise<void> {
   try {
     // ── Pre-flight completeness check ────────────────────────────────────────
     // Fetch all required data upfront and block generation if anything is missing.
@@ -1153,7 +1233,7 @@ async function runGenerationJob(clientId: number): Promise<void> {
     } as Parameters<typeof upsertAnalysisReport>[0]);
     // Generate sections via LLM (parallel, 7 calls)
     console.log(`[WOW Report] runGenerationJob starting for client ${clientId}`);
-    const sections = await generateWowSections(clientId);
+    const sections = await generateWowSections(clientId, reportType);
     // Render PDF
     console.log(`[WOW Report] Rendering PDF for client ${clientId}`);
     const pdfBuffer = await renderWowPdf(sections);
@@ -1172,6 +1252,7 @@ async function runGenerationJob(clientId: number): Promise<void> {
       wowReportGeneratedAt: new Date(),
       wowReportStatus: "done",
       wowReportError: null,
+      wowReportType: reportType,
     } as Parameters<typeof upsertAnalysisReport>[0]);
     console.log(`[WOW Report] Done for client ${clientId}`);
   } catch (err) {
@@ -1204,7 +1285,11 @@ export const wowReportRouter = router({
    * Returns immediately — client should poll wowReport.get for status.
    */
   generate: counselorProcedure
-    .input(z.object({ clientId: z.number(), forceRegenerate: z.boolean().optional().default(false) }))
+    .input(z.object({
+      clientId: z.number(),
+      forceRegenerate: z.boolean().optional().default(false),
+      reportType: z.enum(["standard", "student", "career_changer", "job_returner", "retirement"]).optional().default("standard"),
+    }))
     .mutation(async ({ input }) => {
       const existing = await getAnalysisReport(input.clientId);
       // Return cached if available and not forcing regeneration
@@ -1216,7 +1301,7 @@ export const wowReportRouter = router({
         return { started: false, alreadyRunning: true };
       }
       // Fire and forget — do NOT await
-      void runGenerationJob(input.clientId);
+      void runGenerationJob(input.clientId, input.reportType as WowReportType);
       return { started: true, cached: false };
     }),
   /**
@@ -1239,6 +1324,7 @@ export const wowReportRouter = router({
         generatedAt: report.wowReportGeneratedAt ?? null,
         sections,
         error: (report as any).wowReportError ?? null,
+        reportType: ((report as any).wowReportType ?? "standard") as WowReportType,
       };
     }),
 });
