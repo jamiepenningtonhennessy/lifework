@@ -321,10 +321,10 @@ export default function WowReportTab({ clientId, clientName }: WowReportTabProps
                       className="border-white/20 text-white hover:bg-white/10 text-xs"
                       onClick={() => handleGenerate(true)}
                       disabled={isGenerating}
-                      title="Regenerate report in current style"
+                      title="Rewrite this report in the current house style"
                     >
                       <RefreshCw className="w-3 h-3 mr-1" />
-                      Regenerate
+                      Rewrite in New Style
                     </Button>
                   </div>
                 </>
