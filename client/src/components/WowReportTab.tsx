@@ -306,7 +306,7 @@ export default function WowReportTab({ clientId, clientName }: WowReportTabProps
                       {generatedAt}
                     </div>
                   )}
-                  <div className="flex gap-2">
+                  <div className="flex gap-2 flex-wrap justify-end">
                     <Button
                       size="sm"
                       className="bg-[var(--lw-gold)] hover:bg-[var(--lw-gold)]/90 text-[var(--lw-navy)] font-semibold"
@@ -318,12 +318,13 @@ export default function WowReportTab({ clientId, clientName }: WowReportTabProps
                     <Button
                       size="sm"
                       variant="outline"
-                      className="border-white/20 text-white hover:bg-white/10"
+                      className="border-white/20 text-white hover:bg-white/10 text-xs"
                       onClick={() => handleGenerate(true)}
                       disabled={isGenerating}
-                      title="Regenerate report"
+                      title="Regenerate report in current style"
                     >
-                      <RefreshCw className="w-4 h-4" />
+                      <RefreshCw className="w-3 h-3 mr-1" />
+                      Regenerate
                     </Button>
                   </div>
                 </>
@@ -626,10 +627,10 @@ export default function WowReportTab({ clientId, clientName }: WowReportTabProps
             })}
           </div>
 
-          {/* Bottom download CTA */}
+          {/* Bottom download + rewrite CTA */}
           {pdfUrl && (
             <Card className="border-[var(--lw-gold)]/20 bg-[var(--lw-cream)]">
-              <CardContent className="p-4 flex items-center justify-between">
+              <CardContent className="p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                 <div>
                   <p className="text-sm font-semibold text-[var(--lw-navy)]">
                     Ready to share with {clientName ?? "the client"}?
@@ -638,13 +639,25 @@ export default function WowReportTab({ clientId, clientName }: WowReportTabProps
                     Download the branded PDF — suitable for printing, binding, and posting.
                   </p>
                 </div>
-                <Button
-                  className="bg-[var(--lw-navy)] hover:bg-[var(--lw-navy)]/90 text-white"
-                  onClick={() => window.open(pdfUrl, "_blank")}
-                >
-                  <Download className="w-4 h-4 mr-2" />
-                  Download PDF
-                </Button>
+                <div className="flex gap-2 flex-wrap">
+                  <Button
+                    className="bg-[var(--lw-navy)] hover:bg-[var(--lw-navy)]/90 text-white"
+                    onClick={() => window.open(pdfUrl, "_blank")}
+                  >
+                    <Download className="w-4 h-4 mr-2" />
+                    Download PDF
+                  </Button>
+                  <Button
+                    variant="outline"
+                    className="border-[var(--lw-navy)]/30 text-[var(--lw-navy)] hover:bg-[var(--lw-navy)]/5 text-sm"
+                    onClick={() => handleGenerate(true)}
+                    disabled={isGenerating}
+                    title="Regenerate this report in the current house style"
+                  >
+                    <RefreshCw className="w-4 h-4 mr-2" />
+                    Rewrite in New Style
+                  </Button>
+                </div>
               </CardContent>
             </Card>
           )}

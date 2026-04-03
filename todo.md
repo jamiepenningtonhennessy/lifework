@@ -724,3 +724,16 @@
 - [x] Derailer not yet part of this project — no change needed
 - [x] Sage 1 step already in dashboard at position 3 (after Background, before Psychometrics) — no change needed
 - [x] Update preview mode — PreviewVIAResults and PreviewIpipResults nav links and survey buttons now point to held-results screen
+
+## WOW Report — New House Style
+
+- [x] Update system prompt to enforce punchy house style (short paragraphs, evidence-led, bullet points with "From what you have told us, we can see:", active voice, no theatrical flourishes)
+- [x] Update Lifework Summary prompt: one opening paragraph + 5-6 specific bullets
+- [x] Update Life History Pattern prompt: structured sections with short paragraphs + bullet closes
+- [x] Update Character Strengths prompt: evidence table + 3 short paragraphs + bullet close
+- [x] Update Personality Profile prompt: streamlined two-movement structure with bullet close
+- [x] Update Career Directions prompt: 3 directions, 2 paragraphs each + bullet close
+- [x] Update Development Edge prompt: 2-3 edges, 2 paragraphs each + bullet close
+- [x] Update Conclusions prompt: shorter Past/Present/Future + Tell Me About Yourself
+- [x] Add "Rewrite in New Style" button to WOW Report tab (bottom CTA card)
+- [x] Add "Regenerate" label to the header icon button for clarity
