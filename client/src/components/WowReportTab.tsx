@@ -10,6 +10,7 @@ import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import SageCounsellorPanel from "@/components/SageCounsellorPanel";
 import {
   Select,
   SelectContent,
@@ -36,6 +37,7 @@ import {
   User,
   AlertCircle,
   Palette,
+  BrainCircuit,
 } from "lucide-react";
 import { toast } from "sonner";
 import { Streamdown } from "streamdown";
@@ -159,6 +161,7 @@ export default function WowReportTab({ clientId, clientName }: WowReportTabProps
   const [isPolling, setIsPolling] = useState(false);
   const [progressMsg, setProgressMsg] = useState(0);
   const [selectedReportType, setSelectedReportType] = useState<WowReportType>("standard");
+  const [sageOpen, setSageOpen] = useState(false);
   const pollIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const msgIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
@@ -261,6 +264,14 @@ export default function WowReportTab({ clientId, clientName }: WowReportTabProps
 
   return (
     <div className="space-y-6">
+      {/* Sage counsellor panel */}
+      <SageCounsellorPanel
+        clientId={clientId}
+        clientName={clientName}
+        open={sageOpen}
+        onClose={() => setSageOpen(false)}
+      />
+
       {/* Missing name warning */}
       {!clientName && (
         <div className="flex items-start gap-3 rounded-lg border border-amber-300 bg-amber-50 dark:bg-amber-950/30 dark:border-amber-700 p-4 text-sm">
@@ -345,6 +356,16 @@ export default function WowReportTab({ clientId, clientName }: WowReportTabProps
                     >
                       <Download className="w-4 h-4 mr-1" />
                       Download PDF
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="border-white/20 text-white hover:bg-white/10 text-xs"
+                      onClick={() => setSageOpen(true)}
+                      title="Consult Sage about this client before your session"
+                    >
+                      <BrainCircuit className="w-3 h-3 mr-1" />
+                      Ask Sage
                     </Button>
                     <Button
                       size="sm"

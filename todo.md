@@ -746,3 +746,10 @@
 - [x] Update generate procedure to accept and store reportType
 - [x] Show report type badge on generated report header in counsellor UI
 - [x] Checkpoint and deliver
+
+## Sage Counsellor Panel (Pre-Session Thinking Partner)
+
+- [x] Add counsellorSage tRPC procedure with streaming and full client context system prompt
+- [x] Build SageCounsellorPanel slide-over component (chat UI, ephemeral, pre-loaded context)
+- [x] Add "Ask Sage" button to WOW Report tab header
+- [x] Checkpoint and deliver
