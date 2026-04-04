@@ -782,4 +782,8 @@
 - [x] Write Job Returner variant prompts for Chapters 6 (What You Bring Back), 7 (What To Rebuild), 8 (Conclusions)
 - [x] Relabel Career Changer to use Standard prompts with Career Change Edition label
 - [x] Update variant-aware section titles for Student and Job Returner
-- [ ] Checkpoint and deliver
+- [x] Checkpoint and deliver
+
+## PDF Appendix — Font Fix
+
+- [x] Replace RobotoBold font references with bold:true in the variant appendix table

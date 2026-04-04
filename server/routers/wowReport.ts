@@ -1199,9 +1199,9 @@ async function renderWowPdf(sections: WowReportSections): Promise<Buffer> {
           widths: ["auto", "*", "*"],
           body: [
             [
-              { text: "Variant", font: "RobotoBold", fontSize: 9, color: CREAM, fillColor: NAVY, border: [false, false, false, false], margin: [8, 6, 8, 6] as [number, number, number, number] },
-              { text: "For", font: "RobotoBold", fontSize: 9, color: CREAM, fillColor: NAVY, border: [false, false, false, false], margin: [8, 6, 8, 6] as [number, number, number, number] },
-              { text: "The Central Question", font: "RobotoBold", fontSize: 9, color: CREAM, fillColor: NAVY, border: [false, false, false, false], margin: [8, 6, 8, 6] as [number, number, number, number] },
+              { text: "Variant", font: "Roboto", bold: true, fontSize: 9, color: CREAM, fillColor: NAVY, border: [false, false, false, false], margin: [8, 6, 8, 6] as [number, number, number, number] },
+              { text: "For", font: "Roboto", bold: true, fontSize: 9, color: CREAM, fillColor: NAVY, border: [false, false, false, false], margin: [8, 6, 8, 6] as [number, number, number, number] },
+              { text: "The Central Question", font: "Roboto", bold: true, fontSize: 9, color: CREAM, fillColor: NAVY, border: [false, false, false, false], margin: [8, 6, 8, 6] as [number, number, number, number] },
             ],
             ...[
               { key: "student", label: "First Career", target: "First career seekers", question: "\u201cWho am I, and where do I start?\u201d" },
@@ -1213,7 +1213,7 @@ async function renderWowPdf(sections: WowReportSections): Promise<Buffer> {
               const bg = isCurrent ? GOLD : CREAM;
               const fg = isCurrent ? NAVY : NAVY;
               return [
-                { text: row.label, font: isCurrent ? "RobotoBold" : "Roboto", fontSize: 9, color: fg, fillColor: bg, border: [false, false, false, false], margin: [8, 5, 8, 5] as [number, number, number, number] },
+                { text: row.label, font: "Roboto", bold: isCurrent, fontSize: 9, color: fg, fillColor: bg, border: [false, false, false, false], margin: [8, 5, 8, 5] as [number, number, number, number] },
                 { text: row.target, font: "Roboto", fontSize: 9, color: fg, fillColor: bg, border: [false, false, false, false], margin: [8, 5, 8, 5] as [number, number, number, number] },
                 { text: row.question, font: "Roboto", fontSize: 9, color: fg, fillColor: bg, border: [false, false, false, false], margin: [8, 5, 8, 5] as [number, number, number, number] },
               ];
