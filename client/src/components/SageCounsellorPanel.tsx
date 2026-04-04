@@ -241,9 +241,7 @@ export default function SageCounsellorPanel({
                 <div className="text-white/80 leading-relaxed">
                   <Streamdown>{briefingData.briefing}</Streamdown>
                 </div>
-                <p className="text-xs text-white/30 mt-3">
-                  Ask me anything about {displayName}'s profile, or float an idea you want to test.
-                </p>
+
               </div>
             )}
 
