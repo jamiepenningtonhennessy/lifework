@@ -766,3 +766,8 @@
 
 - [x] Fix PDF section titles to use variant-specific names (e.g. "What To Do With What You Know" for retirement variant)
 - [x] Fix web accordion section titles to match variant
+
+## WOW Report — Screen/PDF Sync Bug
+
+- [ ] Diagnose why on-screen accordion shows old standard content after retirement variant regeneration
+- [ ] Fix so screen content always matches the generated PDF

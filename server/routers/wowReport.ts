@@ -1205,7 +1205,8 @@ async function renderWowPdf(sections: WowReportSections): Promise<Buffer> {
   return pdfDoc.getBuffer() as Promise<Buffer>;
 }
 
-// ─── Background Job ──────────────────────────────────────────────────────────
+// ─── Background Job ─────────────────────────────────────────────────────────
+// v2: retirement variant prompts active — section titles and content are now variant-aware
 
 async function runGenerationJob(clientId: number, reportType: WowReportType = "standard"): Promise<void> {
   try {
