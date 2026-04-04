@@ -1174,6 +1174,58 @@ async function renderWowPdf(sections: WowReportSections): Promise<Buffer> {
       divider(),
       ...markdownToPdfContent(sections.coachingQuestions),
 
+      // ── Appendix: The Four Report Variants ──
+      { text: "", pageBreak: "before" },
+      heading("Appendix: The Four Report Variants"),
+      divider(),
+      {
+        text: (() => {
+          const variantDescriptions: Record<string, string> = {
+            standard: "Standard Edition",
+            student: "First Career Edition",
+            career_changer: "Career Change Edition",
+            job_returner: "Returning to Work Edition",
+            retirement: "Retirement & Legacy Edition",
+          };
+          const currentLabel = variantDescriptions[sections.reportType ?? "standard"] ?? "Standard Edition";
+          return `This report is the ${currentLabel}. The Lifework WOW Report is produced in four variants, each calibrated to a different life stage and set of questions. Chapters 1–5 (Summary, Life History, Character Strengths, Personality Profile, and Behavioural Style) are substantially the same across all four variants — the data does not change. Chapters 6, 7, and 8 (Directions, Development Edge, and Conclusions) are rewritten for each variant to address the specific questions and challenges of that life stage.`;
+        })(),
+        font: "Roboto",
+        fontSize: 10,
+        color: NAVY,
+        margin: [0, 0, 0, 16] as [number, number, number, number],
+        lineHeight: 1.5,
+      },
+      {
+        table: {
+          widths: ["auto", "*", "*"],
+          body: [
+            [
+              { text: "Variant", font: "RobotoBold", fontSize: 9, color: CREAM, fillColor: NAVY, border: [false, false, false, false], margin: [8, 6, 8, 6] as [number, number, number, number] },
+              { text: "For", font: "RobotoBold", fontSize: 9, color: CREAM, fillColor: NAVY, border: [false, false, false, false], margin: [8, 6, 8, 6] as [number, number, number, number] },
+              { text: "The Central Question", font: "RobotoBold", fontSize: 9, color: CREAM, fillColor: NAVY, border: [false, false, false, false], margin: [8, 6, 8, 6] as [number, number, number, number] },
+            ],
+            ...[
+              { key: "student", label: "First Career", target: "First career seekers", question: "\u201cWho am I, and where do I start?\u201d" },
+              { key: "career_changer", label: "Career Change", target: "Dissatisfied or confidence-depleted professionals", question: "\u201cWhat is wrong with where I am, and what would be right?\u201d" },
+              { key: "job_returner", label: "Returning to Work", target: "People re-entering after a career break", question: "\u201cWhat do I still have, and how do I re-establish it?\u201d" },
+              { key: "retirement", label: "Retirement & Legacy", target: "People actively planning their post-career chapter", question: "\u201cWhat do I do with everything I am and everything I know?\u201d" },
+            ].map(row => {
+              const isCurrent = (sections.reportType ?? "standard") === row.key;
+              const bg = isCurrent ? GOLD : CREAM;
+              const fg = isCurrent ? NAVY : NAVY;
+              return [
+                { text: row.label, font: isCurrent ? "RobotoBold" : "Roboto", fontSize: 9, color: fg, fillColor: bg, border: [false, false, false, false], margin: [8, 5, 8, 5] as [number, number, number, number] },
+                { text: row.target, font: "Roboto", fontSize: 9, color: fg, fillColor: bg, border: [false, false, false, false], margin: [8, 5, 8, 5] as [number, number, number, number] },
+                { text: row.question, font: "Roboto", fontSize: 9, color: fg, fillColor: bg, border: [false, false, false, false], margin: [8, 5, 8, 5] as [number, number, number, number] },
+              ];
+            }),
+          ],
+        },
+        layout: "noBorders",
+        margin: [0, 0, 0, 0] as [number, number, number, number],
+      },
+
       // ── Closing ──
       { text: "", margin: [0, 20, 0, 0] as [number, number, number, number] },
       {

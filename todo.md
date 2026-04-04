@@ -771,3 +771,7 @@
 
 - [ ] Diagnose why on-screen accordion shows old standard content after retirement variant regeneration
 - [ ] Fix so screen content always matches the generated PDF
+
+## WOW Report — Variant Footer in PDF
+
+- [x] Add variant explanation footer to all PDF variants (names current variant, briefly describes the other three)
