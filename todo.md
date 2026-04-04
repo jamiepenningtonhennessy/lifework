@@ -753,3 +753,7 @@
 - [x] Build SageCounsellorPanel slide-over component (chat UI, ephemeral, pre-loaded context)
 - [x] Add "Ask Sage" button to WOW Report tab header
 - [x] Checkpoint and deliver
+
+## Sage Panel — Mobile Scroll Fix
+
+- [x] Fix SageCounsellorPanel scroll layout so messages are scrollable on mobile devices
