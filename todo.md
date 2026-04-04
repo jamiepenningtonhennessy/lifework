@@ -775,3 +775,11 @@
 ## WOW Report — Variant Footer in PDF
 
 - [x] Add variant explanation footer to all PDF variants (names current variant, briefly describes the other three)
+
+## WOW Report — Student & Job Returner Variants
+
+- [x] Write Student variant prompts for Chapters 6 (Where You Are Headed), 7 (What To Build First), 8 (Conclusions)
+- [x] Write Job Returner variant prompts for Chapters 6 (What You Bring Back), 7 (What To Rebuild), 8 (Conclusions)
+- [x] Relabel Career Changer to use Standard prompts with Career Change Edition label
+- [x] Update variant-aware section titles for Student and Job Returner
+- [ ] Checkpoint and deliver

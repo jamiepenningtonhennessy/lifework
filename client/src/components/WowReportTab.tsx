@@ -609,6 +609,22 @@ export default function WowReportTab({ clientId, clientName }: WowReportTabProps
                   displayLabel = "What To Watch";
                   displayDescription = "Patterns and tendencies that, if unexamined, could limit the quality of the next chapter.";
                 }
+              } else if (activeType === "student") {
+                if (meta.key === "careerDirections") {
+                  displayLabel = "Where You Are Headed";
+                  displayDescription = "Three career directions grounded in what you have already demonstrated — not abstract potential.";
+                } else if (meta.key === "developmentEdge") {
+                  displayLabel = "What To Build First";
+                  displayDescription = "The habits and capabilities to develop in the first three years that will shape the rest of your career.";
+                }
+              } else if (activeType === "job_returner") {
+                if (meta.key === "careerDirections") {
+                  displayLabel = "What You Bring Back";
+                  displayDescription = "Three re-entry directions that acknowledge both what remains fully current and what the break has added.";
+                } else if (meta.key === "developmentEdge") {
+                  displayLabel = "What To Rebuild";
+                  displayDescription = "The specific priorities for re-establishing confidence, credibility, and momentum during the return.";
+                }
               }
 
               return (

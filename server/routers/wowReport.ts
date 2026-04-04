@@ -304,7 +304,7 @@ function getVariantPrompts(type: WowReportType, ctx: string, sys: string): {
   developmentEdgePrompt: string | null;
   conclusionsPrompt: string | null;
 } {
-  if (type === "standard") return { careerDirectionsPrompt: null, developmentEdgePrompt: null, conclusionsPrompt: null };
+  if (type === "standard" || type === "career_changer") return { careerDirectionsPrompt: null, developmentEdgePrompt: null, conclusionsPrompt: null };
 
   const variantInstructions: Record<WowReportType, { directions: string; edge: string; conclusions: string }> = {
     standard: { directions: "", edge: "", conclusions: "" }, // unused
@@ -1151,9 +1151,8 @@ async function renderWowPdf(sections: WowReportSections): Promise<Buffer> {
       // ── Section 6: Career Directions (variant-aware title) ──
       ...sectionBlock(
         sections.reportType === "retirement" ? "6. What To Do With What You Know"
-          : sections.reportType === "student" ? "6. Career Directions"
-          : sections.reportType === "job_returner" ? "6. Career Directions"
-          : sections.reportType === "career_changer" ? "6. Career Directions"
+          : sections.reportType === "student" ? "6. Where You Are Headed"
+          : sections.reportType === "job_returner" ? "6. What You Bring Back"
           : "6. Career Directions",
         sections.careerDirections
       ),
@@ -1161,9 +1160,8 @@ async function renderWowPdf(sections: WowReportSections): Promise<Buffer> {
       // ── Section 7: Development Edge (variant-aware title) ──
       ...sectionBlock(
         sections.reportType === "retirement" ? "7. What To Watch"
-          : sections.reportType === "student" ? "7. Development Edge"
-          : sections.reportType === "job_returner" ? "7. Development Edge"
-          : sections.reportType === "career_changer" ? "7. Development Edge"
+          : sections.reportType === "student" ? "7. What To Build First"
+          : sections.reportType === "job_returner" ? "7. What To Rebuild"
           : "7. Development Edge",
         sections.developmentEdge
       ),
