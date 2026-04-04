@@ -214,6 +214,7 @@ interface WowReportSections {
   coachingQuestions: string;
   viaRanked: Array<{ name: string; score: number; rank: number; strengthId?: string }>;
   domainScores: Record<string, number>;
+  reportType: WowReportType;
 }
 
 // ─── Helper: call LLM with a per-request timeout ────────────────────────────
@@ -522,6 +523,7 @@ Write directly to the client using "you" and "your" throughout. Do NOT include a
     coachingQuestions,
     viaRanked,
     domainScores,
+    reportType,
   };
 }
 
@@ -1146,11 +1148,25 @@ async function renderWowPdf(sections: WowReportSections): Promise<Buffer> {
         ];
       })(),
 
-      // ── Section 6: Career Directions ──
-      ...sectionBlock("6. Career Directions", sections.careerDirections),
+      // ── Section 6: Career Directions (variant-aware title) ──
+      ...sectionBlock(
+        sections.reportType === "retirement" ? "6. What To Do With What You Know"
+          : sections.reportType === "student" ? "6. Career Directions"
+          : sections.reportType === "job_returner" ? "6. Career Directions"
+          : sections.reportType === "career_changer" ? "6. Career Directions"
+          : "6. Career Directions",
+        sections.careerDirections
+      ),
 
-      // ── Section 7: Development Edge ──
-      ...sectionBlock("7. Development Edge", sections.developmentEdge),
+      // ── Section 7: Development Edge (variant-aware title) ──
+      ...sectionBlock(
+        sections.reportType === "retirement" ? "7. What To Watch"
+          : sections.reportType === "student" ? "7. Development Edge"
+          : sections.reportType === "job_returner" ? "7. Development Edge"
+          : sections.reportType === "career_changer" ? "7. Development Edge"
+          : "7. Development Edge",
+        sections.developmentEdge
+      ),
 
       // ── Section 8: Conclusions ──
       { text: "", pageBreak: "before" },

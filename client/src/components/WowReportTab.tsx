@@ -597,6 +597,20 @@ export default function WowReportTab({ clientId, clientName }: WowReportTabProps
               const isExpanded = expandedSection === meta.key;
               if (!content) return null;
 
+              // Variant-aware label overrides
+              const activeType = reportData?.reportType ?? "standard";
+              let displayLabel = meta.label;
+              let displayDescription = meta.description;
+              if (activeType === "retirement") {
+                if (meta.key === "careerDirections") {
+                  displayLabel = "What To Do With What You Know";
+                  displayDescription = "Three directions for the next chapter — purposeful deployment of a lifetime of capability.";
+                } else if (meta.key === "developmentEdge") {
+                  displayLabel = "What To Watch";
+                  displayDescription = "Patterns and tendencies that, if unexamined, could limit the quality of the next chapter.";
+                }
+              }
+
               return (
                 <Card
                   key={meta.key}
@@ -625,9 +639,9 @@ export default function WowReportTab({ clientId, clientName }: WowReportTabProps
                               {meta.eyebrow}
                             </span>
                           </div>
-                          <h3 className="text-sm font-semibold text-foreground">{meta.label}</h3>
+                          <h3 className="text-sm font-semibold text-foreground">{displayLabel}</h3>
                           {!isExpanded && (
-                            <p className="text-xs text-muted-foreground mt-0.5">{meta.description}</p>
+                            <p className="text-xs text-muted-foreground mt-0.5">{displayDescription}</p>
                           )}
                         </div>
                       </div>

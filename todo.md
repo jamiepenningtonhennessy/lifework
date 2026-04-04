@@ -761,3 +761,8 @@
 ## Sage Briefing — Remove Suggested Question from Prompt
 
 - [x] Update getBriefing system prompt so it does not end with a suggested question for the counsellor
+
+## WOW Report — Variant-Aware Section Titles
+
+- [x] Fix PDF section titles to use variant-specific names (e.g. "What To Do With What You Know" for retirement variant)
+- [x] Fix web accordion section titles to match variant
