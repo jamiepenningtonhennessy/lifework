@@ -757,3 +757,7 @@
 ## Sage Panel — Mobile Scroll Fix
 
 - [x] Fix SageCounsellorPanel scroll layout so messages are scrollable on mobile devices
+
+## Sage Briefing — Remove Suggested Question from Prompt
+
+- [x] Update getBriefing system prompt so it does not end with a suggested question for the counsellor

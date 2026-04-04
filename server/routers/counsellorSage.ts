@@ -264,7 +264,7 @@ export const counsellorSageRouter = router({
           { role: "system", content: systemPrompt },
           {
             role: "user",
-            content: `I am about to meet ${clientName}. Give me a brief pre-session briefing — no more than 4 sentences. Name the single most important theme to explore, one tension in the data worth naming, and one question worth asking. Be specific to this client's data.`,
+            content: `I am about to meet ${clientName}. Give me a brief pre-session briefing — no more than 3 sentences. Name the single most important theme in this client's data, and one key tension worth being aware of. Be specific and observational. Do not suggest questions or tell me what to ask — I will ask for those separately.`,
           },
         ] as any,
         max_tokens: 300,
