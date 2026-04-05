@@ -1,8 +1,8 @@
 {
-  "name": "Lifework Career Analysis",
-  "short_name": "Lifework",
-  "description": "Discover your strengths, understand your personality, and find the career that fits you.",
-  "start_url": "/coaching/lifework",
+  "name": "Pennington Hennessy",
+  "short_name": "Pennington Hennessy",
+  "description": "Professional development coaching and training for lawyers and professional services firms.",
+  "start_url": "/",
   "display": "standalone",
   "background_color": "#0d1b2e",
   "theme_color": "#0d1b2e",
