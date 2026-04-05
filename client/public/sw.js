@@ -1,20 +1,12 @@
 /**
  * Lifework Service Worker
- * Strategy: Cache-first for static assets, network-first for API calls.
- * Provides basic offline support for previously visited pages.
+ * Strategy: Network-first for all assets (avoids stale JS/CSS caches).
+ * Falls back to cache only when network is unavailable.
  */
 
-const CACHE_NAME = 'lifework-v1';
-
-// Static shell assets to pre-cache on install
-const PRECACHE_URLS = [
-  '/',
-];
+const CACHE_NAME = 'lifework-v3';
 
 self.addEventListener('install', (event) => {
-  event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(PRECACHE_URLS))
-  );
   self.skipWaiting();
 });
 
@@ -40,32 +32,21 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // For navigation requests (HTML pages), try network first, fall back to cache
-  if (request.mode === 'navigate') {
-    event.respondWith(
-      fetch(request)
-        .then((response) => {
-          const clone = response.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put(request, clone));
-          return response;
-        })
-        .catch(() => caches.match(request).then((cached) => cached || caches.match('/')))
-    );
+  // Never intercept Vite internal requests
+  if (url.pathname.startsWith('/@') || url.pathname.startsWith('/__')) {
     return;
   }
 
-  // For everything else (JS, CSS, images): cache-first
+  // Network-first for everything: always try network, fall back to cache
   event.respondWith(
-    caches.match(request).then(
-      (cached) =>
-        cached ||
-        fetch(request).then((response) => {
-          if (response.ok) {
-            const clone = response.clone();
-            caches.open(CACHE_NAME).then((cache) => cache.put(request, clone));
-          }
-          return response;
-        })
-    )
+    fetch(request)
+      .then((response) => {
+        if (response.ok) {
+          const clone = response.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(request, clone));
+        }
+        return response;
+      })
+      .catch(() => caches.match(request))
   );
 });
