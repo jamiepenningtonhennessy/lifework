@@ -126,7 +126,7 @@ export default function PHTraining() {
                 className="mb-4"
                 style={{ fontSize: "0.88rem", color: "rgba(255,255,255,0.65)", lineHeight: 1.8 }}
               >
-                I offer a suite of AI-driven role-play scenarios that allow professionals to practise difficult conversations in a psychologically safe environment. The learner is the protagonist; AI plays the other roles -- consistently, realistically, and without judgment.
+                A suite of AI-driven role-play scenarios that allow professionals to practise difficult conversations in a psychologically safe environment. The learner is the protagonist; AI plays the other roles -- consistently, realistically, and without judgment.
               </p>
               <p
                 className="mb-6"
