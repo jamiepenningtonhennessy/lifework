@@ -25,6 +25,7 @@ import PreviewMode from "./pages/PreviewMode";
 import LifeworkLanding from "./pages/LifeworkLanding";
 import ResultsHeld from "./pages/ResultsHeld";
 import { InstallPrompt } from "./components/InstallPrompt";
+import { LifeworkLayout } from "./components/LifeworkLayout";
 import {
   PreviewClientDashboard,
   PreviewInterview,
@@ -52,23 +53,23 @@ function Router() {
       {/* ── Lifework StoryBrand landing page ── */}
       <Route path="/lifework-landing" component={LifeworkLanding} />
 
-      {/* ── Results held — shown after completing VIA or IPIP (withheld until Wow Report session) ── */}
-      <Route path="/results-held/via">{() => <ResultsHeld assessmentName="VIA Character Strengths" />}</Route>
-      <Route path="/results-held/ipip">{() => <ResultsHeld assessmentName="Personality Profile" />}</Route>
-      <Route path="/coaching/lifework/results-held/via">{() => <ResultsHeld assessmentName="VIA Character Strengths" />}</Route>
-      <Route path="/coaching/lifework/results-held/ipip">{() => <ResultsHeld assessmentName="Personality Profile" />}</Route>
+      {/* Results held — shown after completing VIA or IPIP (withheld until Wow Report session) ── */}
+      <Route path="/results-held/via">{() => <LifeworkLayout><ResultsHeld assessmentName="VIA Character Strengths" /></LifeworkLayout>}</Route>
+      <Route path="/results-held/ipip">{() => <LifeworkLayout><ResultsHeld assessmentName="Personality Profile" /></LifeworkLayout>}</Route>
+      <Route path="/coaching/lifework/results-held/via">{() => <LifeworkLayout><ResultsHeld assessmentName="VIA Character Strengths" /></LifeworkLayout>}</Route>
+      <Route path="/coaching/lifework/results-held/ipip">{() => <LifeworkLayout><ResultsHeld assessmentName="Personality Profile" /></LifeworkLayout>}</Route>
 
       {/* ── Lifework app (under /coaching/lifework) ── */}
-      <Route path="/coaching/lifework" component={Home} />
-      <Route path="/coaching/lifework/interview" component={Interview} />
-      <Route path="/coaching/lifework/background" component={Background} />
-      <Route path="/coaching/lifework/via" component={VIASurvey} />
-      <Route path="/coaching/lifework/via/results" component={VIAResults} />
-      <Route path="/coaching/lifework/ipip-survey" component={IpipSurvey} />
-      <Route path="/coaching/lifework/ipip-results" component={IpipResults} />
-      <Route path="/coaching/lifework/ipip/results" component={IpipResults} />
-      <Route path="/coaching/lifework/my-report" component={MyReport} />
-      <Route path="/coaching/lifework/career-explorer" component={CareerExplorer} />
+      <Route path="/coaching/lifework">{() => <LifeworkLayout><Home /></LifeworkLayout>}</Route>
+      <Route path="/coaching/lifework/interview">{() => <LifeworkLayout><Interview /></LifeworkLayout>}</Route>
+      <Route path="/coaching/lifework/background">{() => <LifeworkLayout><Background /></LifeworkLayout>}</Route>
+      <Route path="/coaching/lifework/via">{() => <LifeworkLayout><VIASurvey /></LifeworkLayout>}</Route>
+      <Route path="/coaching/lifework/via/results">{() => <LifeworkLayout><VIAResults /></LifeworkLayout>}</Route>
+      <Route path="/coaching/lifework/ipip-survey">{() => <LifeworkLayout><IpipSurvey /></LifeworkLayout>}</Route>
+      <Route path="/coaching/lifework/ipip-results">{() => <LifeworkLayout><IpipResults /></LifeworkLayout>}</Route>
+      <Route path="/coaching/lifework/ipip/results">{() => <LifeworkLayout><IpipResults /></LifeworkLayout>}</Route>
+      <Route path="/coaching/lifework/my-report">{() => <LifeworkLayout><MyReport /></LifeworkLayout>}</Route>
+      <Route path="/coaching/lifework/career-explorer">{() => <LifeworkLayout><CareerExplorer /></LifeworkLayout>}</Route>
 
       {/* Backward-compatible redirects from old /lifework/* paths */}
       <Route path="/lifework"><Redirect to="/coaching/lifework" /></Route>
@@ -80,7 +81,7 @@ function Router() {
       <Route path="/lifework/ipip-results"><Redirect to="/coaching/lifework/ipip-results" /></Route>
       <Route path="/lifework/my-report"><Redirect to="/coaching/lifework/my-report" /></Route>
       <Route path="/lifework/career-explorer"><Redirect to="/coaching/lifework/career-explorer" /></Route>
-      <Route path="/dashboard" component={ClientDashboard} />
+      <Route path="/dashboard">{() => <LifeworkLayout><ClientDashboard /></LifeworkLayout>}</Route>
       <Route path="/counselor" component={CounselorDashboard} />
       <Route path="/counselor/client/:id" component={ClientProfile} />
 
@@ -91,15 +92,15 @@ function Router() {
       <Route path="/ph/about" component={PHAbout} />
 
       {/* Legacy bare Lifework routes — kept so existing bookmarks still work */}
-      <Route path="/interview" component={Interview} />
-      <Route path="/background" component={Background} />
-      <Route path="/via" component={VIASurvey} />
-      <Route path="/via/results" component={VIAResults} />
-      <Route path="/ipip-survey" component={IpipSurvey} />
-      <Route path="/ipip-results" component={IpipResults} />
-      <Route path="/ipip/results" component={IpipResults} />
-      <Route path="/my-report" component={MyReport} />
-      <Route path="/career-explorer" component={CareerExplorer} />
+      <Route path="/interview">{() => <LifeworkLayout><Interview /></LifeworkLayout>}</Route>
+      <Route path="/background">{() => <LifeworkLayout><Background /></LifeworkLayout>}</Route>
+      <Route path="/via">{() => <LifeworkLayout><VIASurvey /></LifeworkLayout>}</Route>
+      <Route path="/via/results">{() => <LifeworkLayout><VIAResults /></LifeworkLayout>}</Route>
+      <Route path="/ipip-survey">{() => <LifeworkLayout><IpipSurvey /></LifeworkLayout>}</Route>
+      <Route path="/ipip-results">{() => <LifeworkLayout><IpipResults /></LifeworkLayout>}</Route>
+      <Route path="/ipip/results">{() => <LifeworkLayout><IpipResults /></LifeworkLayout>}</Route>
+      <Route path="/my-report">{() => <LifeworkLayout><MyReport /></LifeworkLayout>}</Route>
+      <Route path="/career-explorer">{() => <LifeworkLayout><CareerExplorer /></LifeworkLayout>}</Route>
 
       {/* ── Preview Mode (counsellor-only, no auth required) ── */}
       <Route path="/preview" component={PreviewMode} />
