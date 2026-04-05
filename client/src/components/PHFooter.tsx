@@ -94,7 +94,7 @@ export function PHFooter() {
                 </li>
                 <li>
                   <a
-                    href="/ai-coaching"
+                    href="https://legalscenar-crucial.manus.space"
                     className="no-underline transition-opacity hover:opacity-100"
                     style={{ fontSize: "0.82rem", color: "rgba(255,255,255,0.5)" }}
                   >
