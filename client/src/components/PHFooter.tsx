@@ -116,6 +116,13 @@ export function PHFooter() {
           <p style={{ fontSize: "0.78rem", color: "rgba(255,255,255,0.35)" }}>
             Ryston House, Ryston End, Downham Market PE38 9AX
           </p>
+          <a
+            href="/data-security"
+            className="no-underline transition-opacity hover:opacity-100"
+            style={{ fontSize: "0.78rem", color: "rgba(255,255,255,0.35)" }}
+          >
+            Data Security &amp; Privacy
+          </a>
         </div>
       </div>
     </footer>

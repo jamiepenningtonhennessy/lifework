@@ -1,5 +1,9 @@
 import { COOKIE_NAME } from "@shared/const";
 import { wowReportRouter } from "./routers/wowReport";
+import bcrypt from "bcryptjs";
+import { eq } from "drizzle-orm";
+import { getDb } from "./db";
+import { counsellorPin } from "../drizzle/schema";
 import { counsellorSageRouter } from "./routers/counsellorSage";
 import { ENV } from "./_core/env";
 import { getSessionCookieOptions } from "./_core/cookies";
@@ -2189,6 +2193,48 @@ Now write the five-section closing annex for ${clientName}.`;
     }),
 });
 
+// ─── Counsellor PIN Router ─────────────────────────────────────────────────
+// Provides a PIN gate for the counsellor dashboard, independent of login state.
+// The PIN is stored as a bcrypt hash; the plain PIN is never persisted.
+const pinRouter = router({
+  // Check whether a PIN has been set
+  hasPin: counselorProcedure.query(async () => {
+    const db = await getDb();
+    if (!db) return { hasPin: false };
+    const rows = await db.select().from(counsellorPin).limit(1);
+    return { hasPin: rows.length > 0 };
+  }),
+
+  // Verify a submitted PIN against the stored hash
+  verify: counselorProcedure
+    .input(z.object({ pin: z.string().min(4).max(12) }))
+    .mutation(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+      const rows = await db.select().from(counsellorPin).limit(1);
+      if (rows.length === 0) throw new TRPCError({ code: "NOT_FOUND", message: "No PIN set" });
+      const match = await bcrypt.compare(input.pin, rows[0].pinHash);
+      if (!match) throw new TRPCError({ code: "UNAUTHORIZED", message: "Incorrect PIN" });
+      return { success: true };
+    }),
+
+  // Set or change the PIN (admin only)
+  setPin: counselorProcedure
+    .input(z.object({ pin: z.string().min(4).max(12) }))
+    .mutation(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+      const hash = await bcrypt.hash(input.pin, 12);
+      const rows = await db.select().from(counsellorPin).limit(1);
+      if (rows.length > 0) {
+        await db.update(counsellorPin).set({ pinHash: hash }).where(eq(counsellorPin.id, rows[0].id));
+      } else {
+        await db.insert(counsellorPin).values({ pinHash: hash });
+      }
+      return { success: true };
+    }),
+});
+
 // ─── App Router ─────────────────────────────────────────────────────────────
 export const appRouter = router({
   system: systemRouter,
@@ -2221,6 +2267,7 @@ export const appRouter = router({
   coachingAnnex: coachingAnnexRouter,
   wowReport: wowReportRouter,
   counsellorSage: counsellorSageRouter,
+  pin: pinRouter,
 });
 
 export type AppRouter = typeof appRouter;

@@ -26,6 +26,8 @@ import LifeworkLanding from "./pages/LifeworkLanding";
 import ResultsHeld from "./pages/ResultsHeld";
 import { InstallPrompt } from "./components/InstallPrompt";
 import { LifeworkLayout } from "./components/LifeworkLayout";
+import DataSecurity from "./pages/DataSecurity";
+import { CounsellorPinGate } from "./components/CounsellorPinGate";
 import {
   PreviewClientDashboard,
   PreviewInterview,
@@ -48,6 +50,7 @@ function Router() {
       <Route path="/coaching" component={PHCoaching} />
       <Route path="/training" component={PHTraining} />
       <Route path="/about" component={PHAbout} />
+      <Route path="/data-security" component={DataSecurity} />
       <Route path="/ai-coaching" component={AICoaching} />
 
       {/* ── Lifework StoryBrand landing page ── */}
@@ -82,8 +85,8 @@ function Router() {
       <Route path="/lifework/my-report"><Redirect to="/coaching/lifework/my-report" /></Route>
       <Route path="/lifework/career-explorer"><Redirect to="/coaching/lifework/career-explorer" /></Route>
       <Route path="/dashboard">{() => <LifeworkLayout><ClientDashboard /></LifeworkLayout>}</Route>
-      <Route path="/counselor" component={CounselorDashboard} />
-      <Route path="/counselor/client/:id" component={ClientProfile} />
+      <Route path="/counselor">{() => <CounsellorPinGate><CounselorDashboard /></CounsellorPinGate>}</Route>
+      <Route path="/counselor/client/:id">{(params) => <CounsellorPinGate><ClientProfile /></CounsellorPinGate>}</Route>
 
       {/* Legacy /ph/* redirects kept for backward compatibility */}
       <Route path="/ph" component={PHHome} />

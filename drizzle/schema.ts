@@ -363,3 +363,15 @@ export const leads = mysqlTable("leads", {
 
 export type Lead = typeof leads.$inferSelect;
 export type InsertLead = typeof leads.$inferInsert;
+
+// ─── Counsellor PIN Settings ───────────────────────────────────────────────
+// Stores a bcrypt-hashed PIN for the counsellor dashboard gate.
+// Only one row ever exists (id = 1). PIN is set by the admin owner.
+
+export const counsellorPin = mysqlTable("counsellor_pin", {
+  id: int("id").autoincrement().primaryKey(),
+  pinHash: varchar("pinHash", { length: 256 }).notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type CounsellorPin = typeof counsellorPin.$inferSelect;

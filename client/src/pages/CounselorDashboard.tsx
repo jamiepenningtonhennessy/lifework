@@ -4,7 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { useLocation } from "wouter";
 import { getLoginUrl } from "@/const";
 import { trpc } from "@/lib/trpc";
-import { ArrowRight, Loader2, Users, CheckCircle2, Clock, Circle, Eye } from "lucide-react";
+import { ArrowRight, Loader2, Users, CheckCircle2, Clock, Circle, Eye, Lock } from "lucide-react";
 
 function StatusBadge({ status }: { status: string }) {
   if (status === "completed") {
@@ -66,6 +66,19 @@ export default function CounselorDashboard() {
             <span className="text-sm" style={{ color: "rgba(255,255,255,0.55)" }}>Counsellor Dashboard</span>
           </div>
           <div className="flex items-center gap-2">
+            <button
+              onClick={() => {
+                try { sessionStorage.removeItem("counsellor_pin_verified"); } catch { /* ignore */ }
+                navigate("/counselor");
+                window.location.reload();
+              }}
+              className="px-3 py-1.5 text-xs font-medium tracking-wide uppercase cursor-pointer flex items-center gap-1.5"
+              style={{ border: "1px solid rgba(201,151,58,0.2)", color: "rgba(255,255,255,0.4)", background: "transparent", letterSpacing: "0.08em" }}
+              title="Lock dashboard"
+            >
+              <Lock className="w-3.5 h-3.5" />
+              Lock
+            </button>
             <button
               onClick={() => navigate("/preview")}
               className="px-3 py-1.5 text-xs font-medium tracking-wide uppercase cursor-pointer flex items-center gap-1.5"
