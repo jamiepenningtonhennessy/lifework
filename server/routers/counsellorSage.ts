@@ -220,6 +220,7 @@ export const counsellorSageRouter = router({
         content: z.string(),
       })),
       newMessage: z.string().min(1).max(4000),
+      documentContext: z.string().optional(),
     }))
     .mutation(async ({ input }) => {
       const clientContext = await buildCounsellorContext(input.clientId);
@@ -227,7 +228,10 @@ export const counsellorSageRouter = router({
       const profile = await getClientProfileById(input.clientId);
       const clientName = profile?.firstName ?? "the client";
 
-      const systemPrompt = buildSystemPrompt(clientContext, clientName);
+      let systemPrompt = buildSystemPrompt(clientContext, clientName);
+      if (input.documentContext) {
+        systemPrompt += `\n\n--- UPLOADED DOCUMENT ---\nThe counsellor has shared a document for discussion. Read it carefully and be ready to discuss, analyse, or compare it against the client data above.\n\n${input.documentContext}\n--- END DOCUMENT ---`;
+      }
 
       // Build LLM messages: system + history + new user message
       const llmMessages: Array<{ role: string; content: string }> = [

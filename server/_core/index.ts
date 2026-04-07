@@ -8,6 +8,7 @@ import { appRouter } from "../routers";
 import { createContext } from "./context";
 import { serveStatic, setupVite } from "./vite";
 import { pdfRouter } from "../pdf-export";
+import { pdfExtractRouter } from "../pdf-extract";
 import { getDb } from "../db";
 import { analysisReports } from "../../drizzle/schema";
 import { eq } from "drizzle-orm";
@@ -59,6 +60,8 @@ async function startServer() {
   registerOAuthRoutes(app);
   // PDF Export
   app.use(pdfRouter);
+  // PDF Text Extraction (for counsellor Sage document upload)
+  app.use(pdfExtractRouter);
   // tRPC API
   app.use(
     "/api/trpc",
