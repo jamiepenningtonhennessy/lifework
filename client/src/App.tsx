@@ -22,7 +22,6 @@ import PHCoaching from "./pages/ph/PHCoaching";
 import PHTraining from "./pages/ph/PHTraining";
 import PHAbout from "./pages/ph/PHAbout";
 import PreviewMode from "./pages/PreviewMode";
-import LifeworkLanding from "./pages/LifeworkLanding";
 import ResultsHeld from "./pages/ResultsHeld";
 import { InstallPrompt } from "./components/InstallPrompt";
 import { LifeworkLayout } from "./components/LifeworkLayout";
@@ -52,9 +51,6 @@ function Router() {
       <Route path="/about" component={PHAbout} />
       <Route path="/data-security" component={DataSecurity} />
       <Route path="/ai-coaching" component={AICoaching} />
-
-      {/* ── Lifework StoryBrand landing page ── */}
-      <Route path="/lifework-landing" component={LifeworkLanding} />
 
       {/* Results held — shown after completing VIA or IPIP (withheld until Wow Report session) ── */}
       <Route path="/results-held/via">{() => <LifeworkLayout><ResultsHeld assessmentName="VIA Character Strengths" /></LifeworkLayout>}</Route>
