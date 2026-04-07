@@ -121,7 +121,18 @@ export default function CounselorDashboard() {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-            {clients.map(({ profile, user: clientUser }) => (
+            {clients.map(({ profile, user: clientUser }) => {
+              // Prefer the name the client entered in their Lifework profile;
+              // fall back to the OAuth display name, then the email prefix.
+              const profileFullName =
+                profile.firstName || profile.lastName
+                  ? `${profile.firstName ?? ""} ${profile.lastName ?? ""}`.trim()
+                  : null;
+              const displayName =
+                profileFullName ??
+                clientUser?.name ??
+                (clientUser?.email ? clientUser.email.split("@")[0] : "Unknown Client");
+              return (
               <Card
                 key={profile.id}
                 className="border border-border hover:shadow-md transition-shadow cursor-pointer"
@@ -131,7 +142,7 @@ export default function CounselorDashboard() {
                   <div className="flex items-start justify-between mb-4">
                     <div>
                       <p className="font-serif font-semibold text-foreground">
-                        {clientUser?.name ?? "Unknown Client"}
+                        {displayName}
                       </p>
                       <p className="text-xs text-muted-foreground mt-0.5">{clientUser?.email ?? ""}</p>
                     </div>
@@ -160,7 +171,8 @@ export default function CounselorDashboard() {
                   </div>
                 </CardContent>
               </Card>
-            ))}
+            );
+            })}
           </div>
         )}
       </div>
