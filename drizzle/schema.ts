@@ -309,6 +309,7 @@ export const chatSessions = mysqlTable("chat_sessions", {
   messages: text("messages").notNull().default("[]"), // JSON array
   summary: text("summary"), // distilled insight for analysis
   isComplete: boolean("isComplete").default(false).notNull(),
+  uploadedDocuments: text("uploadedDocuments").default("[]"), // JSON array of {name, s3Key, extractedText}
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });

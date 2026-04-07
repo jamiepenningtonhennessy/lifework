@@ -56,6 +56,9 @@ import {
   upsertCoachingAnnex,
 } from "./db";
 import { invokeLLM } from "./_core/llm";
+import { storagePut } from "./storage";
+import * as pdfParseModule from "pdf-parse";
+const pdfParse = (pdfParseModule as any).default ?? pdfParseModule;
 import { scoreVia, VIA_QUESTIONS, VIA_STRENGTHS } from "../shared/via-data";
 import { scoreIpip, ipipCareerNarrative } from "../shared/ipip-data";
 
@@ -1773,11 +1776,19 @@ const chatPeterRouter = router({
       };
       await appendChatMessage(session.id, userMsg);
 
+      // Build document context from any uploaded PDFs
+      const uploadedDocs: Array<{name: string; s3Key: string; extractedText: string}> =
+        JSON.parse(session.uploadedDocuments ?? "[]");
+      const documentContext = uploadedDocs.length > 0
+        ? `\n\n---\nUPLOADED DOCUMENTS (the client has shared these for discussion):\n` +
+          uploadedDocs.map((d, i) => `Document ${i + 1}: "${d.name}"\n${d.extractedText.slice(0, 8000)}`).join("\n\n")
+        : "";
+
       // Build LLM messages array
       const llmMessages: Array<{ role: string; content: string }> = [
         {
           role: "system",
-          content: `${PETER_SYSTEM_PROMPT}\n\n---\nCLIENT PROFILE CONTEXT:\n${sectionContext}`,
+          content: `${PETER_SYSTEM_PROMPT}\n\n---\nCLIENT PROFILE CONTEXT:\n${sectionContext}${documentContext}`,
         },
         // Include conversation history
         ...existingMessages.map(m => ({
@@ -1860,6 +1871,60 @@ const chatPeterRouter = router({
       await saveChatSummary(input.sessionId, summary);
 
       return { summary };
+    }),
+
+  // Upload a PDF document to the session for Sage to read
+  uploadDocument: protectedProcedure
+    .input(z.object({
+      section: z.enum(["life_history", "career_education"]),
+      sessionId: z.number().optional(),
+      fileBase64: z.string(), // base64-encoded PDF
+      fileName: z.string(),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      const profile = await getOrCreateClientProfile(ctx.user.id);
+      let session = input.sessionId
+        ? await getChatSessionById(input.sessionId)
+        : null;
+      if (!session) {
+        session = await getOrCreateChatSession(profile.id, input.section);
+      }
+
+      // Decode base64 to buffer
+      const fileBuffer = Buffer.from(input.fileBase64, "base64");
+      if (fileBuffer.length > 10 * 1024 * 1024) {
+        throw new TRPCError({ code: "BAD_REQUEST", message: "File too large (max 10 MB)" });
+      }
+
+      // Extract text from PDF
+      let extractedText = "";
+      try {
+        const parsed = await pdfParse(fileBuffer);
+        extractedText = parsed.text?.trim() ?? "";
+      } catch {
+        throw new TRPCError({ code: "BAD_REQUEST", message: "Could not read PDF — please check the file is not password-protected." });
+      }
+
+      if (!extractedText) {
+        throw new TRPCError({ code: "BAD_REQUEST", message: "No text could be extracted from this PDF. It may be a scanned image." });
+      }
+
+      // Upload to S3
+      const s3Key = `chat-docs/${profile.id}-${Date.now()}-${input.fileName.replace(/[^a-zA-Z0-9._-]/g, "_")}`;
+      await storagePut(s3Key, fileBuffer, "application/pdf");
+
+      // Save document metadata + extracted text to session
+      const existing: Array<{name: string; s3Key: string; extractedText: string}> =
+        JSON.parse(session.uploadedDocuments ?? "[]");
+      existing.push({ name: input.fileName, s3Key, extractedText });
+
+      const db = await getDb();
+      const { chatSessions } = await import("../drizzle/schema");
+      await db!.update(chatSessions)
+        .set({ uploadedDocuments: JSON.stringify(existing) })
+        .where(eq(chatSessions.id, session.id));
+
+      return { sessionId: session.id, fileName: input.fileName, charCount: extractedText.length };
     }),
 
   // Reset/start a new conversation

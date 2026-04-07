@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { MessageCircle, X, Send, Loader2, CheckCircle2, BookmarkCheck } from "lucide-react";
+import { MessageCircle, X, Send, Loader2, CheckCircle2, BookmarkCheck, Paperclip, FileText } from "lucide-react";
 import { toast } from "sonner";
 
 type Section = "life_history" | "career_education";
@@ -68,6 +68,9 @@ export function ChatToPeter({
   const [inputValue, setInputValue] = useState("");
   const [isSummarised, setIsSummarised] = useState(false);
   const [showSavePrompt, setShowSavePrompt] = useState(false);
+  const [uploadedDocs, setUploadedDocs] = useState<string[]>([]);
+  const [isUploading, setIsUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -112,6 +115,55 @@ export function ChatToPeter({
     },
     onError: () => toast.error("Failed to get a response. Please try again."),
   });
+
+  const uploadDocument = trpc.chatPeter.uploadDocument.useMutation({
+    onSuccess: (data) => {
+      setUploadedDocs(prev => [...prev, data.fileName]);
+      // Notify Sage about the uploaded document via a system message in the chat
+      const noticeMsg: Message = {
+        role: "client",
+        content: `📄 I've uploaded a document: "${data.fileName}" (${Math.round(data.charCount / 1000)}k characters extracted). Please read it and let me know what you notice.`,
+        timestamp: Date.now(),
+      };
+      setMessages(prev => [...prev, noticeMsg]);
+      sendMessage.mutate({
+        section,
+        userMessage: `I've just uploaded a document called "${data.fileName}". Please read it and share your initial observations — what stands out to you in relation to what you know about me?`,
+        sessionId: sessionId ?? undefined,
+      });
+      toast.success(`"${data.fileName}" uploaded — Sage is reading it now.`);
+    },
+    onError: (err) => toast.error(err.message || "Upload failed. Please try again."),
+  });
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.type !== "application/pdf") {
+      toast.error("Only PDF files are supported.");
+      return;
+    }
+    if (file.size > 10 * 1024 * 1024) {
+      toast.error("File too large — maximum 10 MB.");
+      return;
+    }
+    setIsUploading(true);
+    try {
+      const arrayBuffer = await file.arrayBuffer();
+      const base64 = btoa(String.fromCharCode(...Array.from(new Uint8Array(arrayBuffer))));
+      uploadDocument.mutate({
+        section,
+        sessionId: sessionId ?? undefined,
+        fileBase64: base64,
+        fileName: file.name,
+      });
+    } catch {
+      toast.error("Could not read file.");
+    } finally {
+      setIsUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
+  };
 
   const generateSummary = trpc.chatPeter.generateSummary.useMutation({
     onSuccess: () => {
@@ -326,7 +378,44 @@ export function ChatToPeter({
                 </div>
               ) : (
                 <>
+                  {/* Uploaded documents list */}
+                  {uploadedDocs.length > 0 && (
+                    <div className="flex flex-wrap gap-1.5 mb-2">
+                      {uploadedDocs.map((name, i) => (
+                        <div key={i} className="flex items-center gap-1 text-xs bg-[var(--lw-gold-light)]/20 border border-[var(--lw-gold)]/30 rounded-full px-2.5 py-1 text-[var(--lw-gold)]">
+                          <FileText className="w-3 h-3" />
+                          <span className="max-w-[140px] truncate">{name}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                   <div className="flex gap-2 items-end">
+                    {/* PDF upload button — only for career_education section */}
+                    {section === "career_education" && (
+                      <>
+                        <input
+                          ref={fileInputRef}
+                          type="file"
+                          accept="application/pdf"
+                          className="hidden"
+                          onChange={handleFileUpload}
+                        />
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="h-[60px] w-10 p-0 flex-shrink-0 border-[var(--lw-gold)]/40 text-[var(--lw-gold)] hover:bg-[var(--lw-gold-light)]/10"
+                          onClick={() => fileInputRef.current?.click()}
+                          disabled={isUploading || uploadDocument.isPending || sendMessage.isPending}
+                          title="Upload a PDF document for Sage to read"
+                        >
+                          {isUploading || uploadDocument.isPending ? (
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                          ) : (
+                            <Paperclip className="w-4 h-4" />
+                          )}
+                        </Button>
+                      </>
+                    )}
                     <Textarea
                       ref={textareaRef}
                       rows={2}
