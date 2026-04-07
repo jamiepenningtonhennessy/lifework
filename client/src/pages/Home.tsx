@@ -404,13 +404,19 @@ export default function Home() {
               Lifework
             </span>
           </div>
-          <p style={{ fontSize: "0.75rem", color: "rgba(255,255,255,0.4)" }}>
-            Inspired by the work of Bernard Haldane · A{" "}
-            <a href="https://www.penningtonhennessy.com" target="_blank" rel="noopener noreferrer"
-              style={{ color: "var(--lw-gold)", textDecoration: "none" }}>
-              Pennington Hennessy
-            </a>{" "}service
-          </p>
+            <div className="flex flex-col sm:flex-row items-center gap-3 sm:gap-6">
+            <p style={{ fontSize: "0.75rem", color: "rgba(255,255,255,0.4)" }}>
+              Inspired by the work of Bernard Haldane · A{""}              <a href="https://www.penningtonhennessy.com" target="_blank" rel="noopener noreferrer"
+                style={{ color: "var(--lw-gold)", textDecoration: "none" }}>
+                Pennington Hennessy
+              </a>{""}service
+            </p>
+            <a href="/data-security"
+              style={{ fontSize: "0.75rem", color: "rgba(255,255,255,0.4)", textDecoration: "none" }}
+              className="hover:opacity-80 transition-opacity whitespace-nowrap">
+              Data Security &amp; Privacy
+            </a>
+          </div>
         </div>
       </footer>
 
