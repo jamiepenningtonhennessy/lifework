@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { MessageCircle, X, Send, Loader2, RefreshCw, CheckCircle2 } from "lucide-react";
+import { MessageCircle, X, Send, Loader2, CheckCircle2, BookmarkCheck } from "lucide-react";
 import { toast } from "sonner";
 
 type Section = "life_history" | "career_education";
@@ -26,12 +26,10 @@ interface ChatToPeterProps {
  * Returns { behaviour: string | null, speech: string }
  */
 function parseSageMessage(content: string): { behaviour: string | null; speech: string } {
-  // Match [behaviour: ...] or [Sage ...] at the start of the message
   const match = content.match(/^\[([^\]]+)\]\s*/);
   if (match) {
     const tag = match[1].trim();
     if (/^behaviour:/i.test(tag) || /^Sage\b/i.test(tag)) {
-      // Strip "behaviour:" prefix; keep the rest as plain stage direction text
       const behaviour = tag.replace(/^behaviour:\s*/i, "").trim();
       return {
         behaviour,
@@ -69,6 +67,7 @@ export function ChatToPeter({
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState("");
   const [isSummarised, setIsSummarised] = useState(false);
+  const [showSavePrompt, setShowSavePrompt] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -94,6 +93,13 @@ export function ChatToPeter({
     }
   }, [sessions, section]);
 
+  // Show save prompt after 8+ messages if not yet summarised
+  useEffect(() => {
+    if (messages.length >= 8 && !isSummarised) {
+      setShowSavePrompt(true);
+    }
+  }, [messages.length, isSummarised]);
+
   const sendMessage = trpc.chatPeter.sendMessage.useMutation({
     onSuccess: (data) => {
       const sageMsg: Message = {
@@ -110,19 +116,11 @@ export function ChatToPeter({
   const generateSummary = trpc.chatPeter.generateSummary.useMutation({
     onSuccess: () => {
       setIsSummarised(true);
-      toast.success("Conversation summarised — this will be included in your analysis.");
-    },
-    onError: () => toast.error("Failed to generate summary."),
-  });
-
-  const resetSession = trpc.chatPeter.resetSession.useMutation({
-    onSuccess: (data) => {
-      setSessionId(data.sessionId);
-      setMessages([]);
-      setIsSummarised(false);
+      setShowSavePrompt(false);
       refetchSessions();
-      toast.success("Started a new conversation.");
+      toast.success("Conversation saved — your insights will be included in your analysis.");
     },
+    onError: () => toast.error("Failed to save conversation. Please try again."),
   });
 
   const handleSend = () => {
@@ -167,6 +165,9 @@ export function ChatToPeter({
     ? "Sage has read your life history achievements. She'd like to explore them with you — reflecting back what she's noticed and asking a few questions to help you see your own pattern more clearly."
     : "Sage has read your education and career history. She'd like to explore the relationship between your formal career path and what you've actually found most rewarding.";
 
+  // How many messages before the "Save & finish" button appears
+  const MIN_MESSAGES_TO_SAVE = 4;
+
   return (
     <>
       {/* Trigger button */}
@@ -203,34 +204,27 @@ export function ChatToPeter({
                 <p className="text-xs text-muted-foreground">Your Lifework Coach</p>
               </div>
               <div className="flex items-center gap-1">
-                {messages.length >= 4 && !isSummarised && (
+                {/* Save & finish button — only shown when there are enough messages and not yet saved */}
+                {messages.length >= MIN_MESSAGES_TO_SAVE && !isSummarised && (
                   <Button
                     size="sm"
                     variant="ghost"
-                    className="text-xs h-7 px-2 text-muted-foreground hover:text-foreground"
+                    className="text-xs h-7 px-2.5 gap-1.5 text-emerald-700 hover:text-emerald-800 hover:bg-emerald-50"
                     onClick={() => sessionId && generateSummary.mutate({ sessionId })}
                     disabled={generateSummary.isPending}
-                    title="Save conversation insights to your profile"
+                    title="Save this conversation to your profile — do this when you have finished chatting with Sage"
                   >
                     {generateSummary.isPending ? (
                       <Loader2 className="w-3.5 h-3.5 animate-spin" />
                     ) : (
-                      "Save insights"
+                      <>
+                        <BookmarkCheck className="w-3.5 h-3.5" />
+                        Save &amp; finish
+                      </>
                     )}
                   </Button>
                 )}
-                {messages.length > 0 && (
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    className="h-7 w-7 p-0 text-muted-foreground hover:text-foreground"
-                    onClick={() => resetSession.mutate({ section })}
-                    disabled={resetSession.isPending}
-                    title="Start a new conversation"
-                  >
-                    <RefreshCw className="w-3.5 h-3.5" />
-                  </Button>
-                )}
+                {/* Close button */}
                 <Button
                   size="sm"
                   variant="ghost"
@@ -260,7 +254,22 @@ export function ChatToPeter({
               {isSummarised && messages.length > 0 && (
                 <div className="flex items-center gap-2 text-xs text-emerald-600 bg-emerald-50 border border-emerald-200 rounded-lg px-3 py-2">
                   <CheckCircle2 className="w-3.5 h-3.5 flex-shrink-0" />
-                  <span>Conversation insights saved — they will inform your analysis report.</span>
+                  <span>Conversation saved — your insights will inform your analysis report.</span>
+                </div>
+              )}
+
+              {/* Save prompt banner — appears after 8 messages */}
+              {showSavePrompt && !isSummarised && (
+                <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 space-y-2">
+                  <p className="text-xs text-amber-800 leading-relaxed">
+                    <strong>You've had a good conversation with Sage.</strong> When you feel ready to wrap up, click <strong>Save &amp; finish</strong> in the top-right corner to save your insights to your profile. You can continue chatting first if you'd like.
+                  </p>
+                  <button
+                    className="text-xs text-amber-600 underline"
+                    onClick={() => setShowSavePrompt(false)}
+                  >
+                    Dismiss
+                  </button>
                 </div>
               )}
 
@@ -304,35 +313,50 @@ export function ChatToPeter({
 
             {/* Input area */}
             <div className="px-4 pb-4 pt-2 border-t border-border/50">
-              <div className="flex gap-2 items-end">
-                <Textarea
-                  ref={textareaRef}
-                  rows={2}
-                  value={inputValue}
-                  onChange={(e) => setInputValue(e.target.value)}
-                  onKeyDown={handleKeyDown}
-                  placeholder="Type your response… (Enter to send, Shift+Enter for new line)"
-                  className="text-sm resize-none flex-1"
-                  disabled={sendMessage.isPending}
-                />
-                <Button
-                  size="sm"
-                  className="h-[60px] w-10 p-0 bg-[var(--lw-gold)] hover:bg-[oklch(0.60 0.13 72)] flex-shrink-0"
-                  onClick={handleSend}
-                  disabled={!inputValue.trim() || sendMessage.isPending}
-                >
-                  {sendMessage.isPending ? (
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                  ) : (
-                    <Send className="w-4 h-4" />
-                  )}
-                </Button>
-              </div>
-              <p className="text-xs text-muted-foreground mt-1.5 text-center">
-                {messages.length >= 4 && !isSummarised
-                  ? <>You can tell Sage you're ready to wrap up, or click <strong>Save insights</strong> when you're done.</>
-                  : "Your conversation is private and will only be used to inform your career analysis."}
-              </p>
+              {isSummarised ? (
+                /* Locked state — conversation is complete */
+                <div className="flex flex-col items-center gap-2 py-2">
+                  <div className="flex items-center gap-2 text-sm text-emerald-600">
+                    <CheckCircle2 className="w-4 h-4" />
+                    <span>Conversation complete</span>
+                  </div>
+                  <p className="text-xs text-muted-foreground text-center">
+                    Your insights have been saved and will be included in your analysis.
+                  </p>
+                </div>
+              ) : (
+                <>
+                  <div className="flex gap-2 items-end">
+                    <Textarea
+                      ref={textareaRef}
+                      rows={2}
+                      value={inputValue}
+                      onChange={(e) => setInputValue(e.target.value)}
+                      onKeyDown={handleKeyDown}
+                      placeholder="Type your response… (Enter to send, Shift+Enter for new line)"
+                      className="text-sm resize-none flex-1"
+                      disabled={sendMessage.isPending}
+                    />
+                    <Button
+                      size="sm"
+                      className="h-[60px] w-10 p-0 bg-[var(--lw-gold)] hover:bg-[oklch(0.60 0.13 72)] flex-shrink-0"
+                      onClick={handleSend}
+                      disabled={!inputValue.trim() || sendMessage.isPending}
+                    >
+                      {sendMessage.isPending ? (
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                      ) : (
+                        <Send className="w-4 h-4" />
+                      )}
+                    </Button>
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-1.5 text-center">
+                    {messages.length >= MIN_MESSAGES_TO_SAVE
+                      ? <>When you're done, click <strong>Save &amp; finish</strong> above to save your insights.</>
+                      : "Your conversation is private and will only be used to inform your career analysis."}
+                  </p>
+                </>
+              )}
             </div>
           </div>
         </div>
