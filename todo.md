@@ -826,3 +826,8 @@
 - [x] Update counsellor triggerAnalysis to use canonical Stage 1 instead of re-running its own
 - [x] Add Regenerate Life History Analysis button to counsellor ClientProfile view
 - [x] Run canonical Stage 1 for Toby so both reports are immediately consistent
+
+## Life History Tab & WoW Report Improvements
+
+- [x] Add "Last analysed" timestamp to the Life History tab showing when canonical Stage 1 was last generated
+- [x] Wire canonical Stage 1 into WoW report Chapter 3 (VIA / Character Strengths) so VIA analysis is grounded in the same life history interpretation

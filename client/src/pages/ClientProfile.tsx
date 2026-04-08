@@ -507,9 +507,18 @@ export default function ClientProfile() {
                 <div className="flex items-center justify-between p-3 rounded-xl border border-blue-500/20 bg-blue-500/5">
                   <div className="flex items-center gap-2">
                     <RefreshCw className="w-4 h-4 text-blue-400" />
-                    <span className="text-sm text-foreground">
-                      Regenerate the canonical life history analysis — both the counsellor report and WoW report will use the new version.
-                    </span>
+                    <div className="flex flex-col">
+                      <span className="text-sm text-foreground">
+                        Canonical life history analysis — shared by the counsellor report and WoW report.
+                      </span>
+                      {data?.report?.canonicalStage1GeneratedAt ? (
+                        <span className="text-xs text-muted-foreground mt-0.5">
+                          Last analysed: {new Date(data.report.canonicalStage1GeneratedAt).toLocaleString()}
+                        </span>
+                      ) : (
+                        <span className="text-xs text-amber-400 mt-0.5">Not yet generated — click to generate now</span>
+                      )}
+                    </div>
                   </div>
                   <Button
                     size="sm"
