@@ -414,9 +414,42 @@ export default function ClientProfile() {
             const achievements = data.achievements ?? [];
             const chatSessions = (data as any).chatSessions ?? [];
             const hasAny = achievements.length > 0;
+            const enrichedCount = achievements.filter((a: any) => a.sageEnrichment).length;
+
+            // Sage enrichment mutation
+            const enrichMutation = trpc.counselor.enrichClientFromSage.useMutation({
+              onSuccess: (result) => {
+                toast.success(`Enrichment complete — ${result.enriched} record${result.enriched !== 1 ? 's' : ''} updated`);
+                utils.counselor.getClientProfile.invalidate({ clientId: Number(params.id) });
+              },
+              onError: () => toast.error("Enrichment failed — please try again"),
+            });
 
             return (
               <div className="max-w-3xl space-y-8">
+                {/* Sage enrichment action bar */}
+                {data.messages && data.messages.length > 0 && (
+                  <div className="flex items-center justify-between p-3 rounded-xl border border-[var(--lw-gold)]/30 bg-[var(--lw-gold)]/5">
+                    <div className="flex items-center gap-2">
+                      <Sparkles className="w-4 h-4 text-[var(--lw-gold)]" />
+                      <span className="text-sm text-foreground">
+                        {enrichedCount > 0
+                          ? `${enrichedCount} of ${achievements.length} records Sage-enriched`
+                          : "Sage 1 conversation available — enrich achievement records"}
+                      </span>
+                    </div>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="border-[var(--lw-gold)]/40 text-[var(--lw-gold)] hover:bg-[var(--lw-gold)]/10"
+                      onClick={() => enrichMutation.mutate({ clientId: Number(params.id) })}
+                      disabled={enrichMutation.isPending}
+                    >
+                      {enrichMutation.isPending ? <><Loader2 className="w-3 h-3 mr-1 animate-spin" />Enriching...</> : <><Sparkles className="w-3 h-3 mr-1" />{enrichedCount > 0 ? "Re-enrich" : "Enrich from Sage"}</>}
+                    </Button>
+                  </div>
+                )}
+
                 {!hasAny && (
                   <p className="text-muted-foreground text-sm">No life history entries recorded yet.</p>
                 )}
@@ -442,10 +475,13 @@ export default function ClientProfile() {
                             ? (a.title ?? "").replace(`[${phase.subPhase}] `, "")
                             : (a.title ?? "");
                           return (
-                            <div key={a.id} className="p-4 rounded-xl border border-border bg-card">
+                            <div key={a.id} className={`p-4 rounded-xl border bg-card ${a.sageEnrichment ? 'border-[var(--lw-gold)]/40' : 'border-border'}`}>
                               <div className="flex items-start justify-between gap-3 mb-1">
                                 <p className="font-semibold text-sm text-foreground leading-snug">{displayTitle}</p>
                                 <div className="flex items-center gap-2 flex-shrink-0">
+                                  {a.sageEnrichment && (
+                                    <span className="text-xs px-2 py-0.5 rounded-full font-semibold bg-[var(--lw-gold)]/15 text-[var(--lw-gold)] border border-[var(--lw-gold)]/30">Sage-enriched</span>
+                                  )}
                                   {a.age != null && (
                                     <span className="text-xs text-muted-foreground">Age {a.age}</span>
                                   )}
@@ -458,6 +494,12 @@ export default function ClientProfile() {
                               </div>
                               {a.description && (
                                 <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-wrap">{a.description}</p>
+                              )}
+                              {a.sageEnrichment && (
+                                <div className="mt-3 pt-3 border-t border-[var(--lw-gold)]/20">
+                                  <p className="text-xs font-semibold uppercase tracking-wide text-[var(--lw-gold)] mb-1">Sage conversation</p>
+                                  <p className="text-sm text-foreground/80 leading-relaxed whitespace-pre-wrap">{a.sageEnrichment}</p>
+                                </div>
                               )}
                             </div>
                           );

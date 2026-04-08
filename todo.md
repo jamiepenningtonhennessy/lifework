@@ -787,3 +787,17 @@
 ## PDF Appendix — Font Fix
 
 - [x] Replace RobotoBold font references with bold:true in the variant appendix table
+
+## Sage Enrichment — Auditable Life History Records
+
+- [x] Add sageEnrichment column to achievements table (ALTER TABLE applied)
+- [x] Update Drizzle schema.ts with sageEnrichment field
+- [x] Add updateAchievementSageEnrichment helper to db.ts
+- [x] Build runSageEnrichment() helper function in routers.ts (AI matches Sage transcript to achievement records)
+- [x] Add achievements.enrichFromSage tRPC procedure (client-side trigger)
+- [x] Add counselor.enrichClientFromSage tRPC procedure (counsellor-side trigger)
+- [x] Wire enrichment to fire automatically on completeInterview (non-blocking)
+- [x] Update ClientProfile interview tab: show sageEnrichment with gold separator and "Sage conversation" label
+- [x] Add "Sage-enriched" badge to achievement cards that have enrichment data
+- [x] Add "Enrich from Sage" action bar to interview tab (shows when Sage messages exist)
+- [x] Run enrichment against Toby Greenhill's data (6 of 12 records enriched)

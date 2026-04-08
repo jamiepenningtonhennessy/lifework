@@ -54,6 +54,7 @@ import {
   type CareerExplorerMessage,
   getCoachingAnnex,
   upsertCoachingAnnex,
+  updateAchievementSageEnrichment,
 } from "./db";
 import { invokeLLM } from "./_core/llm";
 import { storagePut } from "./storage";
@@ -236,9 +237,80 @@ If this is the first message, introduce yourself briefly as Sage, explain that y
   completeInterview: protectedProcedure.mutation(async ({ ctx }) => {
     const profile = await getOrCreateClientProfile(ctx.user.id);
     await updateClientProfile(profile.id, { interviewStatus: "completed" });
+    // Automatically enrich achievement records from the Sage conversation (non-blocking)
+    runSageEnrichment(profile.id).catch(() => {
+      // Non-fatal — enrichment can be triggered manually from the counsellor dashboard
+    });
     return { success: true };
   }),
 });
+
+// ─── Sage Enrichment Helper ─────────────────────────────────────────────────
+// Reads a client's Sage 1 interview messages, then for each achievement record
+// asks the AI what additional detail the conversation revealed. The result is
+// written back to achievements.sageEnrichment with a clear separator so the
+// counsellor can always see what came from the original written response versus
+// what Sage drew out in conversation.
+async function runSageEnrichment(clientId: number): Promise<{ enriched: number; skipped: number }> {
+  const [achievementsList, messages] = await Promise.all([
+    getAchievements(clientId),
+    getInterviewMessages(clientId),
+  ]);
+
+  if (messages.length === 0) {
+    return { enriched: 0, skipped: achievementsList.length };
+  }
+
+  const transcript = messages
+    .map((m) => `${m.role === "user" ? "Client" : "Sage"}: ${m.content}`)
+    .join("\n\n");
+
+  const achievementsSummary = achievementsList
+    .map((a) => `ID:${a.id} | [${a.decade}] ${a.title} | ${a.description ?? "(no description)"}`)
+    .join("\n");
+
+  const systemPrompt = `You are a career counsellor assistant helping to enrich a client's achievement records.
+You have a list of achievement stories the client wrote themselves, and a transcript of their conversation with Sage (a life history interviewer).
+Your task: for each achievement story, identify any additional detail, clarification, or emotional nuance that the client revealed during the Sage conversation that was NOT already present in their original written description.
+Only include genuinely new information — do not repeat what is already in the description.
+If the Sage conversation added nothing new for a particular story, return null for that entry.
+Return a JSON array. Each element must have:
+  - id: the achievement ID (integer)
+  - enrichment: a string of 1-4 sentences in the third person capturing the new detail, OR null if nothing new was revealed
+Return ONLY the JSON array. No markdown fences, no commentary.`;
+
+  const userPrompt = `ACHIEVEMENT STORIES:\n${achievementsSummary}\n\nSAGE CONVERSATION TRANSCRIPT:\n${transcript}`;
+
+  const response = await invokeLLM({
+    messages: [
+      { role: "system", content: systemPrompt },
+      { role: "user", content: userPrompt },
+    ],
+    max_tokens: 2000,
+  });
+
+  const raw = (response.choices[0]?.message?.content as string) ?? "[]";
+  let results: Array<{ id: number; enrichment: string | null }>;
+  try {
+    const cleaned = raw.replace(/^```[\s\S]*?\n/, "").replace(/```$/, "").trim();
+    results = JSON.parse(cleaned);
+  } catch {
+    results = [];
+  }
+
+  let enriched = 0;
+  let skipped = 0;
+  for (const item of results) {
+    if (item.enrichment && item.enrichment.trim().length > 0) {
+      await updateAchievementSageEnrichment(item.id, item.enrichment.trim());
+      enriched++;
+    } else {
+      skipped++;
+    }
+  }
+
+  return { enriched, skipped };
+}
 
 // ─── Achievements Router ─────────────────────────────────────────────────────
 const achievementsRouter = router({
@@ -273,6 +345,15 @@ const achievementsRouter = router({
       await deleteAchievement(input.id);
       return { success: true };
     }),
+
+  // ── Sage Enrichment ──────────────────────────────────────────────────────
+  // Called after a client saves their Sage 1 conversation.
+  // Reads the interview messages, matches each to an achievement record,
+  // and writes the additional detail back as sageEnrichment on that record.
+  enrichFromSage: protectedProcedure.mutation(async ({ ctx }) => {
+    const profile = await getOrCreateClientProfile(ctx.user.id);
+    return runSageEnrichment(profile.id);
+  }),
 });
 
 // ─── Background Router ────────────────────────────────────────────────────────
@@ -1386,6 +1467,15 @@ Critical analytical principle: the earliest experiences carry the deepest imprin
       if (!profile) throw new TRPCError({ code: "NOT_FOUND" });
       await updateClientProfile(input.clientId, { firstName: input.firstName, lastName: input.lastName ?? undefined });
       return { success: true };
+    }),
+
+  // Counsellor-triggered Sage enrichment for a specific client
+  enrichClientFromSage: counselorProcedure
+    .input(z.object({ clientId: z.number() }))
+    .mutation(async ({ input }) => {
+      const profile = await getClientProfileById(input.clientId);
+      if (!profile) throw new TRPCError({ code: "NOT_FOUND" });
+      return runSageEnrichment(input.clientId);
     }),
 });
 // ─── Virtual Peter Router ────────────────────────────────────────────────────

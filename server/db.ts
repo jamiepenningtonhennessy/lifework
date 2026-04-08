@@ -173,6 +173,18 @@ export async function deleteAchievement(id: number) {
   await db.delete(achievements).where(eq(achievements.id, id));
 }
 
+export async function updateAchievementSageEnrichment(
+  id: number,
+  sageEnrichment: string
+) {
+  const db = await getDb();
+  if (!db) throw new Error("DB not available");
+  await db
+    .update(achievements)
+    .set({ sageEnrichment })
+    .where(eq(achievements.id, id));
+}
+
 // ─── Family Background ────────────────────────────────────────────────────────
 
 export async function getFamilyBackground(clientId: number) {
