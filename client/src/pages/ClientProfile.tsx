@@ -480,15 +480,15 @@ export default function ClientProfile() {
 
             return (
               <div className="max-w-3xl space-y-8">
-                {/* Sage enrichment action bar */}
-                {data.messages && data.messages.length > 0 && (
+                {/* Sage enrichment action bar — show if legacy interview messages OR chat sessions with summaries exist */}
+                {((data.messages && data.messages.length > 0) || chatSessions.some((s: any) => s.summary)) && (
                   <div className="flex items-center justify-between p-3 rounded-xl border border-[var(--lw-gold)]/30 bg-[var(--lw-gold)]/5">
                     <div className="flex items-center gap-2">
                       <Sparkles className="w-4 h-4 text-[var(--lw-gold)]" />
                       <span className="text-sm text-foreground">
                         {enrichedCount > 0
                           ? `${enrichedCount} of ${achievements.length} records Sage-enriched`
-                          : "Sage 1 conversation available — enrich achievement records"}
+                          : "Chat to Sage conversation available — enrich achievement records"}
                       </span>
                     </div>
                     <Button

@@ -874,3 +874,4 @@
 - [x] Fix runSageEnrichment to read from chat_sessions (life_history section) instead of deprecated interview_messages table
 - [x] Also trigger runSageEnrichment when generateSummary is called (so enrichment runs automatically when client saves Sage insights)
 - [ ] Re-run enrichment for Charlie Gush via counsellor dashboard "Run Sage Enrichment" button
+- [x] Add visible "Run Sage Enrichment" button to the Interview tab header in ClientProfile.tsx (currently missing/hidden)
