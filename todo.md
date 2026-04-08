@@ -841,3 +841,9 @@
 - [x] Add writingStyle to get procedure return value
 - [x] Add Writing Style selector (House Style / Mark) to WowReportTab UI alongside Report Variant selector
 - [x] Show "Regenerate in Mark Style" button when style has changed
+
+## WoW Report PDF — Writing Style Fix
+
+- [x] Identify why PDF renderer ignores writingStyle and always uses house style
+- [x] Pass writingStyle through to the PDF build function
+- [x] Apply Mark-specific formatting to PDF (no subheadings within sections, flowing prose paragraphs)

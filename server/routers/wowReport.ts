@@ -569,7 +569,7 @@ Write directly to the client using "you" and "your" throughout. Do NOT include a
 
 // ─── Helper: Render PDF with pdfmake 0.3.x ───────────────────────────────────
 
-async function renderWowPdf(sections: WowReportSections): Promise<Buffer> {
+async function renderWowPdf(sections: WowReportSections, writingStyle: WritingStyle = "house"): Promise<Buffer> {
   // pdfmake 0.3.x server API — load via createRequire (ESM-compatible)
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const pdfmake = _require("pdfmake") as any;
@@ -647,7 +647,7 @@ async function renderWowPdf(sections: WowReportSections): Promise<Buffer> {
     }
     return { text: parts };
   };
-  const markdownToPdfContent = (markdown: string): unknown[] => {
+  const markdownToPdfContent = (markdown: string, suppressSubheadings = false): unknown[] => {
     const lines = markdown.split("\n");
     const result: unknown[] = [];
     let listBuffer: unknown[] = [];
@@ -733,17 +733,30 @@ async function renderWowPdf(sections: WowReportSections): Promise<Buffer> {
       const line = rawLine.trimEnd();
       if (/^##\s/.test(line)) {
         flushPara(); flushList();
-        result.push(subheading(line.replace(/^##\s+/, "")));
+        if (suppressSubheadings) {
+          // Mark style: render subheadings as bold paragraph openers, not separate heading elements
+          result.push(para(line.replace(/^##\s+/, ""), { bold: true, margin: [0, 10, 0, 4] }));
+        } else {
+          result.push(subheading(line.replace(/^##\s+/, "")));
+        }
         continue;
       }
       if (/^###\s/.test(line)) {
         flushPara(); flushList();
-        result.push(subheading(line.replace(/^###\s+/, "")));
+        if (suppressSubheadings) {
+          result.push(para(line.replace(/^###\s+/, ""), { bold: true, margin: [0, 8, 0, 4] }));
+        } else {
+          result.push(subheading(line.replace(/^###\s+/, "")));
+        }
         continue;
       }
       if (/^#\s/.test(line)) {
         flushPara(); flushList();
-        result.push(subheading(line.replace(/^#\s+/, "")));
+        if (suppressSubheadings) {
+          result.push(para(line.replace(/^#\s+/, ""), { bold: true, margin: [0, 10, 0, 4] }));
+        } else {
+          result.push(subheading(line.replace(/^#\s+/, "")));
+        }
         continue;
       }
       const bulletMatch = line.match(/^[\-\*]\s+(.+)/);
@@ -784,11 +797,12 @@ async function renderWowPdf(sections: WowReportSections): Promise<Buffer> {
     flushPara(); flushList(); flushTable();
     return result;
   };
+  const isMark = writingStyle === "mark";
   const sectionBlock = (title: string, content: string) => [
     { text: "", pageBreak: "before" },
     heading(title),
     divider(),
-    ...markdownToPdfContent(content),
+    ...markdownToPdfContent(content, isMark),
   ];
 
   // ── Bar chart helper — nested 2-cell table with fillColor (no canvas, no Unicode glyphs) ──
@@ -1011,7 +1025,7 @@ async function renderWowPdf(sections: WowReportSections): Promise<Buffer> {
             },
           ]
         : []),
-      ...markdownToPdfContent(sections.viaSection),
+      ...markdownToPdfContent(sections.viaSection, isMark),
 
       // ── Section 4: Personality Profile ──
       { text: "", pageBreak: "before" },
@@ -1034,7 +1048,7 @@ async function renderWowPdf(sections: WowReportSections): Promise<Buffer> {
             },
           ]
         : []),
-      ...markdownToPdfContent(sections.personalitySection),
+      ...markdownToPdfContent(sections.personalitySection, isMark),
 
       // ── Section 5: Behavioural Style ──
       { text: "", pageBreak: "before" },
@@ -1220,7 +1234,7 @@ async function renderWowPdf(sections: WowReportSections): Promise<Buffer> {
       { text: "", pageBreak: "before" },
       heading("8. Conclusions"),
       divider(),
-      ...markdownToPdfContent(sections.coachingQuestions),
+      ...markdownToPdfContent(sections.coachingQuestions, isMark),
 
       // ── Appendix: The Four Report Variants ──
       { text: "", pageBreak: "before" },
@@ -1353,7 +1367,7 @@ async function runGenerationJob(clientId: number, reportType: WowReportType = "s
     const sections = await generateWowSections(clientId, reportType, writingStyle);
     // Render PDF
     console.log(`[WOW Report] Rendering PDF for client ${clientId}`);
-    const pdfBuffer = await renderWowPdf(sections);
+    const pdfBuffer = await renderWowPdf(sections, writingStyle);
     console.log(`[WOW Report] PDF rendered, size: ${pdfBuffer.length} bytes`);
     // Upload to S3
     const fileKey = `wow-reports/client-${clientId}-${Date.now()}.pdf`;
