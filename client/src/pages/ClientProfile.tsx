@@ -116,6 +116,14 @@ export default function ClientProfile() {
     onError: () => toast.error("Failed to update name."),
   });
 
+  const enrichFromSageMutation = trpc.counselor.enrichClientFromSage.useMutation({
+    onSuccess: (result) => {
+      toast.success(`Enrichment complete — ${result.enriched} record${result.enriched !== 1 ? 's' : ''} updated`);
+      utils.counselor.getClientProfile.invalidate({ clientId });
+    },
+    onError: () => toast.error("Enrichment failed — please try again"),
+  });
+
   if (!loading && !isAuthenticated) {
     window.location.href = getLoginUrl();
     return null;
@@ -416,15 +424,6 @@ export default function ClientProfile() {
             const hasAny = achievements.length > 0;
             const enrichedCount = achievements.filter((a: any) => a.sageEnrichment).length;
 
-            // Sage enrichment mutation
-            const enrichMutation = trpc.counselor.enrichClientFromSage.useMutation({
-              onSuccess: (result) => {
-                toast.success(`Enrichment complete — ${result.enriched} record${result.enriched !== 1 ? 's' : ''} updated`);
-                utils.counselor.getClientProfile.invalidate({ clientId: Number(params.id) });
-              },
-              onError: () => toast.error("Enrichment failed — please try again"),
-            });
-
             return (
               <div className="max-w-3xl space-y-8">
                 {/* Sage enrichment action bar */}
@@ -442,10 +441,10 @@ export default function ClientProfile() {
                       size="sm"
                       variant="outline"
                       className="border-[var(--lw-gold)]/40 text-[var(--lw-gold)] hover:bg-[var(--lw-gold)]/10"
-                      onClick={() => enrichMutation.mutate({ clientId: Number(params.id) })}
-                      disabled={enrichMutation.isPending}
+                      onClick={() => enrichFromSageMutation.mutate({ clientId: Number(params.id) })}
+                      disabled={enrichFromSageMutation.isPending}
                     >
-                      {enrichMutation.isPending ? <><Loader2 className="w-3 h-3 mr-1 animate-spin" />Enriching...</> : <><Sparkles className="w-3 h-3 mr-1" />{enrichedCount > 0 ? "Re-enrich" : "Enrich from Sage"}</>}
+                      {enrichFromSageMutation.isPending ? <><Loader2 className="w-3 h-3 mr-1 animate-spin" />Enriching...</> : <><Sparkles className="w-3 h-3 mr-1" />{enrichedCount > 0 ? "Re-enrich" : "Enrich from Sage"}</>}
                     </Button>
                   </div>
                 )}
