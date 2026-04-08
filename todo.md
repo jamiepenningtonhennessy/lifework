@@ -815,3 +815,4 @@
 
 - [x] Add VIA framework overview text at the start of Chapter 3 (Character Strengths)
 - [x] Add Big Five / OCEAN overview text at the start of Chapter 4 (Personality Profile)
+- [x] Add Behavioural Style overview text at the start of Chapter 5 (Option B — extrapolation from Big Five, treat as basis for discussion)

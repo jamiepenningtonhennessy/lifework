@@ -1002,6 +1002,9 @@ async function renderWowPdf(sections: WowReportSections): Promise<Buffer> {
       { text: "", pageBreak: "before" },
       heading("5. Behavioural Style"),
       divider(),
+      // Behavioural Style framework overview
+      para("The behavioural style described in this chapter is not drawn from a separate questionnaire. It has been extrapolated from your Big Five personality profile, using a mapping between personality dimensions and the four broad orientations that shape how people typically engage with others, lead, and respond to challenge."),
+      para("In our experience, this extrapolation tends to be accurate — most clients find it a recognisable portrait. We ask you to hold it lightly, however: treat it as a prompt for reflection and conversation rather than a fixed description of who you are. The most useful question to bring to this chapter is not \"Is this right?\" but \"What does this tell me about how I show up — and where might I want to show up differently?\""),
       // Wheel + colour energy cards side by side
       ...(sections.primaryColour ? [
         {
