@@ -868,3 +868,9 @@
 - [x] Remove the Mark-style Life History rewrite pass from generateWowSections (now handled by post-processor)
 - [x] Write rewrite prompt: instructs LLM to rewrite prose in Mark's voice, shorter, punchier, no "From what you have told us" bullet formula, max 2 sub-sections per chapter
 - [ ] Test: regenerate Mark Brandon's report in Mark style and verify all 8 sections are in Mark's voice
+
+## Bug Fix — Sage Enrichment Not Integrating Chat to Sage Content
+
+- [x] Fix runSageEnrichment to read from chat_sessions (life_history section) instead of deprecated interview_messages table
+- [x] Also trigger runSageEnrichment when generateSummary is called (so enrichment runs automatically when client saves Sage insights)
+- [ ] Re-run enrichment for Charlie Gush via counsellor dashboard "Run Sage Enrichment" button

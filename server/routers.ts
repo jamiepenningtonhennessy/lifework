@@ -254,18 +254,45 @@ If this is the first message, introduce yourself briefly as Sage, explain that y
 // counsellor can always see what came from the original written response versus
 // what Sage drew out in conversation.
 async function runSageEnrichment(clientId: number): Promise<{ enriched: number; skipped: number }> {
-  const [achievementsList, messages] = await Promise.all([
+  const [achievementsList, chatSessionsList, legacyMessages] = await Promise.all([
     getAchievements(clientId),
+    getChatSessionsByClient(clientId),
     getInterviewMessages(clientId),
   ]);
 
-  if (messages.length === 0) {
-    return { enriched: 0, skipped: achievementsList.length };
+  // Build transcript from Chat to Sage sessions (life_history section) — primary source.
+  // Fall back to legacy interview_messages if no chat sessions with messages exist.
+  const lifeHistorySessions = chatSessionsList.filter(s => s.section === "life_history");
+  let transcript = "";
+
+  if (lifeHistorySessions.length > 0) {
+    const allMessages: Array<{ role: string; content: string }> = [];
+    for (const session of lifeHistorySessions) {
+      try {
+        const msgs: ChatMessage[] = JSON.parse(session.messages || "[]");
+        allMessages.push(...msgs);
+      } catch { /* skip malformed */ }
+    }
+    if (allMessages.length === 0 && legacyMessages.length === 0) {
+      return { enriched: 0, skipped: achievementsList.length };
+    }
+    if (allMessages.length > 0) {
+      transcript = allMessages
+        .map((m) => `${m.role === "peter" || m.role === "assistant" ? "Sage" : "Client"}: ${m.content}`)
+        .join("\n\n");
+    }
   }
 
-  const transcript = messages
-    .map((m) => `${m.role === "user" ? "Client" : "Sage"}: ${m.content}`)
-    .join("\n\n");
+  // If no chat session transcript, fall back to legacy interview messages
+  if (!transcript && legacyMessages.length > 0) {
+    transcript = legacyMessages
+      .map((m) => `${m.role === "user" ? "Client" : "Sage"}: ${m.content}`)
+      .join("\n\n");
+  }
+
+  if (!transcript) {
+    return { enriched: 0, skipped: achievementsList.length };
+  }
 
   const achievementsSummary = achievementsList
     .map((a) => `ID:${a.id} | [${a.decade}] ${a.title} | ${a.description ?? "(no description)"}`)
@@ -1986,6 +2013,12 @@ const chatPeterRouter = router({
 
       const summary = summaryResponse.choices[0]?.message?.content as string;
       await saveChatSummary(input.sessionId, summary);
+
+      // Automatically re-run Sage enrichment so achievement records pick up
+      // the new conversation content without requiring a manual counsellor action.
+      runSageEnrichment(profile.id).catch(() => {
+        // Non-fatal — enrichment can be triggered manually from the counsellor dashboard
+      });
 
       return { summary };
     }),
