@@ -251,8 +251,30 @@ export default function WowReportTab({ clientId, clientName }: WowReportTabProps
     generateMutation.mutate({ clientId, forceRegenerate, reportType: overrideType ?? selectedReportType, writingStyle: overrideStyle ?? selectedWritingStyle });
   };
 
+  // Rebuild PDF from stored sections without re-running the LLM pipeline
+  const rebuildPdfMutation = trpc.wowReport.rebuildPdf.useMutation({
+    onSuccess: (result) => {
+      utils.wowReport.get.invalidate({ clientId });
+      toast.success("PDF rebuilt in " + (result.writingStyle === "mark" ? "Mark" : "House") + " style — ready to download.");
+    },
+    onError: (err) => {
+      toast.error("Could not rebuild PDF: " + err.message);
+    },
+  });
+
   const sections: WowSections | null = reportData?.sections ?? null;
   const pdfUrl = reportData?.pdfUrl ?? null;
+  /** True when the stored PDF was built with a different style than currently selected */
+  const pdfStyleMismatch = !!pdfUrl && selectedWritingStyle !== ((reportData as any)?.writingStyle ?? "house");
+
+  const handleDownloadPdf = () => {
+    if (!pdfUrl) return;
+    if (pdfStyleMismatch) {
+      rebuildPdfMutation.mutate({ clientId, writingStyle: selectedWritingStyle });
+    } else {
+      window.open(pdfUrl, "_blank");
+    }
+  };
   const generatedAt = reportData?.generatedAt
     ? new Date(reportData.generatedAt).toLocaleDateString("en-GB", {
         day: "numeric",
@@ -356,10 +378,12 @@ export default function WowReportTab({ clientId, clientName }: WowReportTabProps
                     <Button
                       size="sm"
                       className="bg-[var(--lw-gold)] hover:bg-[var(--lw-gold)]/90 text-[var(--lw-navy)] font-semibold"
-                      onClick={() => window.open(pdfUrl, "_blank")}
+                      onClick={handleDownloadPdf}
+                      disabled={rebuildPdfMutation.isPending}
+                      title={pdfStyleMismatch ? `PDF will be rebuilt in ${selectedWritingStyle === "mark" ? "Mark" : "House"} style before download` : "Download PDF"}
                     >
-                      <Download className="w-4 h-4 mr-1" />
-                      Download PDF
+                      {rebuildPdfMutation.isPending ? <Loader2 className="w-4 h-4 mr-1 animate-spin" /> : <Download className="w-4 h-4 mr-1" />}
+                      {pdfStyleMismatch ? "Rebuild & Download" : "Download PDF"}
                     </Button>
                     <Button
                       size="sm"
@@ -476,16 +500,29 @@ export default function WowReportTab({ clientId, clientName }: WowReportTabProps
                     <SelectItem value="mark">Mark</SelectItem>
                   </SelectContent>
                 </Select>
-                {pdfUrl && selectedWritingStyle !== ((reportData as any)?.writingStyle ?? "house") && (
-                  <Button
-                    size="sm"
-                    className="bg-[var(--lw-gold)] hover:bg-[var(--lw-gold)]/90 text-[var(--lw-navy)] font-semibold whitespace-nowrap"
-                    onClick={() => handleGenerate(true, undefined, selectedWritingStyle)}
-                    disabled={isGenerating}
-                  >
-                    <RefreshCw className="w-3 h-3 mr-1" />
-                    Regenerate in {selectedWritingStyle === "mark" ? "Mark" : "House"} Style
-                  </Button>
+                {pdfStyleMismatch && (
+                  <div className="flex flex-col gap-1">
+                    <Button
+                      size="sm"
+                      className="bg-[var(--lw-gold)] hover:bg-[var(--lw-gold)]/90 text-[var(--lw-navy)] font-semibold whitespace-nowrap"
+                      onClick={() => rebuildPdfMutation.mutate({ clientId, writingStyle: selectedWritingStyle })}
+                      disabled={rebuildPdfMutation.isPending || isGenerating}
+                    >
+                      {rebuildPdfMutation.isPending ? <Loader2 className="w-3 h-3 mr-1 animate-spin" /> : <RefreshCw className="w-3 h-3 mr-1" />}
+                      Rebuild PDF in {selectedWritingStyle === "mark" ? "Mark" : "House"} Style
+                    </Button>
+                    <p className="text-xs text-white/40">Rebuilds PDF from current sections (fast — no LLM)</p>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      className="text-white/40 hover:text-white/70 text-xs h-6 px-1"
+                      onClick={() => handleGenerate(true, undefined, selectedWritingStyle)}
+                      disabled={isGenerating}
+                    >
+                      <Sparkles className="w-3 h-3 mr-1" />
+                      Full regenerate (re-run LLM)
+                    </Button>
+                  </div>
                 )}
               </div>
             </div>
@@ -805,10 +842,12 @@ export default function WowReportTab({ clientId, clientName }: WowReportTabProps
                 <div className="flex gap-2 flex-wrap">
                   <Button
                     className="bg-[var(--lw-navy)] hover:bg-[var(--lw-navy)]/90 text-white"
-                    onClick={() => window.open(pdfUrl, "_blank")}
+                    onClick={handleDownloadPdf}
+                    disabled={rebuildPdfMutation.isPending}
+                    title={pdfStyleMismatch ? `PDF will be rebuilt in ${selectedWritingStyle === "mark" ? "Mark" : "House"} style before download` : "Download PDF"}
                   >
-                    <Download className="w-4 h-4 mr-2" />
-                    Download PDF
+                    {rebuildPdfMutation.isPending ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Download className="w-4 h-4 mr-2" />}
+                    {pdfStyleMismatch ? "Rebuild & Download PDF" : "Download PDF"}
                   </Button>
                   <Button
                     variant="outline"

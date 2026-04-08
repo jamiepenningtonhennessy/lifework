@@ -847,3 +847,13 @@
 - [x] Identify why PDF renderer ignores writingStyle and always uses house style
 - [x] Pass writingStyle through to the PDF build function
 - [x] Apply Mark-specific formatting to PDF (no subheadings within sections, flowing prose paragraphs)
+
+## WoW Report — Writing Style Selector Bug
+
+- [ ] Restore the Writing Style selector (House Style / Mark) to the WoW report generation panel
+
+## WoW Report PDF — Stale Cache Fix
+
+- [ ] Add server-side rebuildPdf procedure that re-renders PDF from stored JSON sections with correct writing style
+- [ ] Update Download PDF button to detect style mismatch and trigger rebuild
+- [ ] Ensure PDF always reflects the currently displayed on-screen content

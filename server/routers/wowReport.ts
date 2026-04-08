@@ -1461,4 +1461,33 @@ export const wowReportRouter = router({
         writingStyle: ((report as any).wowReportWritingStyle ?? "house") as WritingStyle,
       };
     }),
+
+  /** Re-render the PDF from stored JSON sections using a (possibly updated) writing style.
+   *  Use this when the on-screen sections have changed style but the stored PDF is stale. */
+  rebuildPdf: protectedProcedure
+    .input(z.object({
+      clientId: z.number(),
+      writingStyle: z.enum(["house", "mark"]).optional().default("house"),
+    }))
+    .mutation(async ({ input }) => {
+      const report = await getAnalysisReport(input.clientId);
+      if (!report || !report.wowReportJson) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "No stored report sections found — generate the report first." });
+      }
+      let sections: WowReportSections;
+      try { sections = JSON.parse(report.wowReportJson); }
+      catch { throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Stored report sections are corrupted." }); }
+      const writingStyle = (input.writingStyle ?? "house") as WritingStyle;
+      const pdfBuffer = await renderWowPdf(sections, writingStyle);
+      const fileKey = `wow-reports/client-${input.clientId}-${Date.now()}.pdf`;
+      const { url: pdfUrl } = await storagePut(fileKey, pdfBuffer, "application/pdf");
+      // Update stored PDF URL and writing style via the standard upsert helper
+      await upsertAnalysisReport({
+        clientId: input.clientId,
+        wowReportPdfUrl: pdfUrl,
+        wowReportWritingStyle: writingStyle,
+        generatedAt: new Date(),
+      });
+      return { pdfUrl, writingStyle };
+    }),
 });
