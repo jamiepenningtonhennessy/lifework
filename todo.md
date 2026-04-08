@@ -810,3 +810,8 @@
 - [x] Build inline edit UI on achievement cards in counsellor ClientProfile view
 - [x] Show counsellorNotes as a distinct section on each card
 - [x] Add per-card edit/save/cancel controls (pencil icon → inline form → save)
+
+## WoW Report — Chapter Overviews
+
+- [x] Add VIA framework overview text at the start of Chapter 3 (Character Strengths)
+- [x] Add Big Five / OCEAN overview text at the start of Chapter 4 (Personality Profile)
