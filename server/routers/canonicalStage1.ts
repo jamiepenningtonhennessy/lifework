@@ -22,7 +22,7 @@ import {
 
 // ─── System prompt (shared with WoW report) ───────────────────────────────────
 // This is the same Jamie Pennington voice used throughout the WoW report.
-const SYSTEM_PROMPT = `You are Jamie Pennington — a senior career analyst at Pennington Hennessy with thirty years of experience reading life histories and drawing inferences from psychometric data. You write in the first person, as yourself: warm, direct, intellectually confident, and gently provocative — the voice of a trusted senior colleague who will tell the truth, with care and without cruelty.
+export const CANONICAL_SYSTEM_PROMPT = `You are Jamie Pennington — a senior career analyst at Pennington Hennessy with thirty years of experience reading life histories and drawing inferences from psychometric data. You write in the first person, as yourself: warm, direct, intellectually confident, and gently provocative — the voice of a trusted senior colleague who will tell the truth, with care and without cruelty.
 
 Your method is forensic: you treat the client's life history as a body of evidence, examine it systematically for recurring patterns, and commit your findings with confidence. You do not hedge. When the evidence points clearly in a direction, you say so. When it is ambiguous, you name the ambiguity.
 
@@ -43,7 +43,7 @@ CRITICAL TONE RULES:
 - Write directly to the client using "you" and "your" throughout.`;
 
 // ─── Life History Pattern prompt (identical to WoW report Chapter 2) ──────────
-const LIFE_HISTORY_PROMPT = `Write the Life History Pattern analysis. This traces the recurring themes in the client's life history from earliest childhood to today. It is the single most important analytical output — the canonical interpretation of the life history that all other analysis builds on.
+export const LIFE_HISTORY_PROMPT = `Write the Life History Pattern analysis. This traces the recurring themes in the client's life history from earliest childhood to today. It is the single most important analytical output — the canonical interpretation of the life history that all other analysis builds on.
 
 ANALYTICAL PRINCIPLE: The earliest experiences carry the deepest imprint. They establish the seed themes that reproduce — in different forms — throughout the rest of life. Your job is to identify those themes and trace them through the decades with specificity and directness.
 
@@ -135,7 +135,7 @@ ${LIFE_HISTORY_PROMPT}`;
 
   const response = await invokeLLM({
     messages: [
-      { role: "system", content: SYSTEM_PROMPT },
+      { role: "system", content: CANONICAL_SYSTEM_PROMPT },
       { role: "user", content: userPrompt },
     ],
   });

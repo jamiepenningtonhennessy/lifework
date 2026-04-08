@@ -854,6 +854,8 @@
 
 ## WoW Report PDF — Stale Cache Fix
 
-- [ ] Add server-side rebuildPdf procedure that re-renders PDF from stored JSON sections with correct writing style
-- [ ] Update Download PDF button to detect style mismatch and trigger rebuild
-- [ ] Ensure PDF always reflects the currently displayed on-screen content
+- [x] Add server-side rebuildPdf procedure that re-renders PDF from stored JSON sections with correct writing style
+- [x] Update Download PDF button to detect style mismatch and trigger rebuild
+- [x] Ensure PDF always reflects the currently displayed on-screen content
+- [x] Fix Life History Pattern (Chapter 2) not applying Mark Brandon style — canonical Stage 1 is style-neutral; WoW pipeline must re-write it through the Mark voice LLM when Mark style is selected
+- [x] Fix Behavioural Style (Chapter 5 / Insights section) not applying Mark Brandon style — insightsSys was hardcoded, now uses effectiveInsightsSys with Mark overlay

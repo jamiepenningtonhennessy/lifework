@@ -23,7 +23,7 @@ import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { router, protectedProcedure } from "../_core/trpc";
 import { invokeLLM } from "../_core/llm";
-import { getOrGenerateCanonicalStage1 } from "./canonicalStage1";
+import { getOrGenerateCanonicalStage1, CANONICAL_SYSTEM_PROMPT, LIFE_HISTORY_PROMPT } from "./canonicalStage1";
 import { storagePut } from "../storage";
 import { generateWheelPng } from "./insightsWheelPng.js";
 
@@ -490,15 +490,36 @@ Describe how you are likely to behave when stressed or outside your comfort zone
 Give one or two precise observations about how you tend to work with people whose colour energies are very different from your own. Name the likely friction points and the likely complementarities. End with a practical observation about what you can do with this awareness.
 
 Write directly to the client using "you" and "your" throughout. Do NOT include any introductory paragraph before the first ## heading. Do NOT use flattering or encouraging language.`;
-
+  // Apply Mark Brandon style overlay to the Behavioural Style section too
+  const effectiveInsightsSys = writingStyle === "mark"
+    ? `${insightsSys}\n\nADDITIONAL VOICE INSTRUCTION — MARK BRANDON STYLE:\n${MARK_BRANDON_SYS}`
+    : insightsSys;
   const insightsData = Object.keys(domainScores).length > 0
     ? `Primary colour energy: ${primaryColour}\nSecondary colour energy: ${secondaryColour}\nJungian type approximation: ${jungianType}\nExtraversion: ${eScore}/100\nAgreeableness: ${aScore}/100\nOpenness: ${oScore}/100\nConscientiousness: ${cScore}/100`
     : "IPIP-NEO data not available — Insights profile cannot be generated.";
 
   console.log(`[WOW Report] Starting generation for client ${clientId}`);
   // Step 1: Get (or generate) the canonical life history analysis — single source of truth
-  const lifeHistoryPattern = await getOrGenerateCanonicalStage1(clientId);
+  const canonicalLifeHistory = await getOrGenerateCanonicalStage1(clientId);
   console.log(`[WOW Report] Canonical Stage 1 ready for client ${clientId}`);
+
+  // If Mark style is selected, rewrite the Life History Pattern through the Mark Brandon voice.
+  // The canonical output is style-neutral (house style); for Mark we run a fast LLM pass that
+  // rewrites the prose in Mark's voice while preserving all the analytical content.
+  let lifeHistoryPattern: string;
+  if (writingStyle === "mark") {
+    console.log(`[WOW Report] Rewriting Life History Pattern in Mark Brandon style for client ${clientId}`);
+    const markSys = `${CANONICAL_SYSTEM_PROMPT}\n\nADDITIONAL VOICE INSTRUCTION — MARK BRANDON STYLE:\n${MARK_BRANDON_SYS}`;
+    const rewritePrompt = `Below is the canonical Life History Pattern analysis for ${clientName}, written in house style. Rewrite it entirely in Mark Brandon's voice as described in the style instructions above. Preserve ALL analytical content, evidence references, achievement names, and structural headings (## and ###). Do not add or remove analytical observations — only change the voice, sentence construction, and prose style. The result must still be addressed directly to the client using "you" and "your".
+
+--- CANONICAL LIFE HISTORY PATTERN ---
+${canonicalLifeHistory}
+--- END ---`;
+    const rewriteResp = await callLLMWithTimeout(markSys, rewritePrompt);
+    lifeHistoryPattern = rewriteResp;
+  } else {
+    lifeHistoryPattern = canonicalLifeHistory;
+  }
   // Step 2: Run remaining 7 sections in parallel — each with its own 90s timeout
   const [
     summary,
@@ -518,7 +539,7 @@ Write directly to the client using "you" and "your" throughout. Do NOT include a
     callLLMWithTimeout(effectiveSys,
       `${ctx}\n\nWrite the Personality Profile chapter of the Lifework report. Write directly to the client using "you" and "your" throughout. Do NOT write any introductory paragraph before the first heading. Begin immediately with ## What the Psychometrics Show.\n\n## What the Psychometrics Show\nA PURE psychometric portrait. Interpret the Big Five scores on their own terms — as if you had not read the life history. For each of the five domains (Openness, Conscientiousness, Extraversion, Agreeableness, Neuroticism), write 2 sentences that:\n- State what the score means in plain language\n- Name what this score predicts about working style, stress responses, and environments where you thrive or struggle\n\nDo NOT reference the life history in this section.\n\nClose with: "From what you have told us, we can see:" followed by 3-4 tight bullets summarising the psychometric portrait.\n\n## Where the Two Pictures Meet\nCompare the psychometric portrait with the life history evidence. For each domain where there is a divergence, write one short paragraph (4-5 lines) that:\n- Names the divergence type: high score + low life history evidence (capacity not yet expressed), or low score + high life history evidence (deliberate effort, not natural ease)\n- States plainly what this means in career terms\n\nSkip domains where the two sources simply agree. Focus on divergences.\n\n## What This Means\nOne short paragraph (4-5 lines): the single most important insight that emerges from comparing the two pictures. What does the client now know about themselves that neither source alone could have revealed?`
     ),
-    callLLMWithTimeout(insightsSys, insightsData),
+    callLLMWithTimeout(effectiveInsightsSys, insightsData),
 (() => {
       const { careerDirectionsPrompt } = getVariantPrompts(reportType, ctx, sys);
       return callLLMWithTimeout(effectiveSys,
