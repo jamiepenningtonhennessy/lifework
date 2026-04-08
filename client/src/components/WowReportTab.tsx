@@ -350,7 +350,7 @@ export default function WowReportTab({ clientId, clientName }: WowReportTabProps
                   <Button
                     size="sm"
                     className="bg-[var(--lw-gold)] hover:bg-[var(--lw-gold)]/90 text-[var(--lw-navy)] font-semibold"
-                    onClick={() => handleGenerate(true)}
+                    onClick={() => handleGenerate(true, undefined, selectedWritingStyle)}
                   >
                     <RefreshCw className="w-4 h-4 mr-1" />
                     Try Again
@@ -399,9 +399,9 @@ export default function WowReportTab({ clientId, clientName }: WowReportTabProps
                       size="sm"
                       variant="outline"
                       className="border-white/20 text-white hover:bg-white/10 text-xs"
-                      onClick={() => handleGenerate(true)}
+                      onClick={() => handleGenerate(true, undefined, selectedWritingStyle)}
                       disabled={isGenerating}
-                      title="Regenerate this report using the current report type and house style"
+                      title="Regenerate this report using the current report type and writing style"
                     >
                       <RefreshCw className="w-3 h-3 mr-1" />
                       Regenerate
@@ -418,7 +418,7 @@ export default function WowReportTab({ clientId, clientName }: WowReportTabProps
                   <Button
                     size="sm"
                     className="bg-[var(--lw-gold)] hover:bg-[var(--lw-gold)]/90 text-[var(--lw-navy)] font-semibold"
-                    onClick={() => handleGenerate(false)}
+                    onClick={() => handleGenerate(false, undefined, selectedWritingStyle)}
                     disabled={generateMutation.isPending}
                   >
                     {generateMutation.isPending ? (
@@ -469,7 +469,7 @@ export default function WowReportTab({ clientId, clientName }: WowReportTabProps
                   <Button
                     size="sm"
                     className="bg-[var(--lw-gold)] hover:bg-[var(--lw-gold)]/90 text-[var(--lw-navy)] font-semibold whitespace-nowrap"
-                    onClick={() => handleGenerate(true, selectedReportType)}
+                    onClick={() => handleGenerate(true, selectedReportType, selectedWritingStyle)}
                     disabled={isGenerating}
                   >
                     <RefreshCw className="w-3 h-3 mr-1" />
@@ -852,9 +852,9 @@ export default function WowReportTab({ clientId, clientName }: WowReportTabProps
                   <Button
                     variant="outline"
                     className="border-[var(--lw-navy)]/30 text-[var(--lw-navy)] hover:bg-[var(--lw-navy)]/5 text-sm"
-                    onClick={() => handleGenerate(true)}
+                    onClick={() => handleGenerate(true, undefined, selectedWritingStyle)}
                     disabled={isGenerating}
-                    title="Regenerate this report in the current house style"
+                    title="Regenerate this report in the current writing style"
                   >
                     <RefreshCw className="w-4 h-4 mr-2" />
                     Rewrite in New Style
@@ -903,7 +903,7 @@ export default function WowReportTab({ clientId, clientName }: WowReportTabProps
             </div>
             <Button
               className="mt-2 bg-[var(--lw-navy)] hover:bg-[var(--lw-navy)]/90 text-white"
-              onClick={() => handleGenerate(false)}
+              onClick={() => handleGenerate(false, undefined, selectedWritingStyle)}
               disabled={generateMutation.isPending}
             >
               {generateMutation.isPending ? (
