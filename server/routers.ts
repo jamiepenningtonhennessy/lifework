@@ -55,6 +55,7 @@ import {
   getCoachingAnnex,
   upsertCoachingAnnex,
   updateAchievementSageEnrichment,
+  updateAchievementCounsellor,
 } from "./db";
 import { invokeLLM } from "./_core/llm";
 import { storagePut } from "./storage";
@@ -1476,6 +1477,23 @@ Critical analytical principle: the earliest experiences carry the deepest imprin
       const profile = await getClientProfileById(input.clientId);
       if (!profile) throw new TRPCError({ code: "NOT_FOUND" });
       return runSageEnrichment(input.clientId);
+    }),
+
+  // Counsellor edits an achievement record (premium service)
+  updateAchievement: counselorProcedure
+    .input(z.object({
+      id: z.number(),
+      title: z.string().min(1).optional(),
+      description: z.string().nullable().optional(),
+      age: z.number().nullable().optional(),
+      esf: z.enum(["enjoyable", "satisfying", "fulfilling"]).nullable().optional(),
+      sageEnrichment: z.string().nullable().optional(),
+      counsellorNotes: z.string().nullable().optional(),
+    }))
+    .mutation(async ({ input }) => {
+      const { id, ...fields } = input;
+      await updateAchievementCounsellor(id, fields);
+      return { success: true };
     }),
 });
 // ─── Virtual Peter Router ────────────────────────────────────────────────────

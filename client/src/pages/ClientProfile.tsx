@@ -124,6 +124,52 @@ export default function ClientProfile() {
     onError: () => toast.error("Enrichment failed — please try again"),
   });
 
+  // Achievement inline editing
+  const [editingAchievementId, setEditingAchievementId] = useState<number | null>(null);
+  const [achievementDraft, setAchievementDraft] = useState<{
+    title: string;
+    description: string;
+    age: string;
+    esf: string;
+    sageEnrichment: string;
+    counsellorNotes: string;
+  } | null>(null);
+
+  const updateAchievementMutation = trpc.counselor.updateAchievement.useMutation({
+    onSuccess: () => {
+      toast.success("Achievement updated.");
+      setEditingAchievementId(null);
+      setAchievementDraft(null);
+      utils.counselor.getClientProfile.invalidate({ clientId });
+    },
+    onError: () => toast.error("Failed to save changes."),
+  });
+
+  function startEditAchievement(a: any) {
+    setEditingAchievementId(a.id);
+    setAchievementDraft({
+      title: a.title ?? "",
+      description: a.description ?? "",
+      age: a.age != null ? String(a.age) : "",
+      esf: a.esf ?? "",
+      sageEnrichment: a.sageEnrichment ?? "",
+      counsellorNotes: a.counsellorNotes ?? "",
+    });
+  }
+
+  function saveAchievementEdit(id: number) {
+    if (!achievementDraft) return;
+    updateAchievementMutation.mutate({
+      id,
+      title: achievementDraft.title || undefined,
+      description: achievementDraft.description || null,
+      age: achievementDraft.age ? parseInt(achievementDraft.age) : null,
+      esf: (achievementDraft.esf as any) || null,
+      sageEnrichment: achievementDraft.sageEnrichment || null,
+      counsellorNotes: achievementDraft.counsellorNotes || null,
+    });
+  }
+
   if (!loading && !isAuthenticated) {
     window.location.href = getLoginUrl();
     return null;
@@ -473,31 +519,146 @@ export default function ClientProfile() {
                           const displayTitle = phase.subPhase
                             ? (a.title ?? "").replace(`[${phase.subPhase}] `, "")
                             : (a.title ?? "");
+                          const isEditing = editingAchievementId === a.id;
+                          const draft = isEditing ? achievementDraft : null;
+
                           return (
-                            <div key={a.id} className={`p-4 rounded-xl border bg-card ${a.sageEnrichment ? 'border-[var(--lw-gold)]/40' : 'border-border'}`}>
-                              <div className="flex items-start justify-between gap-3 mb-1">
-                                <p className="font-semibold text-sm text-foreground leading-snug">{displayTitle}</p>
-                                <div className="flex items-center gap-2 flex-shrink-0">
+                            <div key={a.id} className={`rounded-xl border bg-card ${
+                              isEditing ? 'border-[var(--lw-gold)]/60 ring-1 ring-[var(--lw-gold)]/20' :
+                              a.sageEnrichment ? 'border-[var(--lw-gold)]/40' : 'border-border'
+                            }`}>
+                              {/* ── View mode ── */}
+                              {!isEditing && (
+                                <div className="p-4">
+                                  <div className="flex items-start justify-between gap-3 mb-1">
+                                    <p className="font-semibold text-sm text-foreground leading-snug">{displayTitle}</p>
+                                    <div className="flex items-center gap-2 flex-shrink-0">
+                                      {a.sageEnrichment && (
+                                        <span className="text-xs px-2 py-0.5 rounded-full font-semibold bg-[var(--lw-gold)]/15 text-[var(--lw-gold)] border border-[var(--lw-gold)]/30">Sage-enriched</span>
+                                      )}
+                                      {a.age != null && (
+                                        <span className="text-xs text-muted-foreground">Age {a.age}</span>
+                                      )}
+                                      {a.esf && (
+                                        <span className={`text-xs px-2 py-0.5 rounded-full font-semibold capitalize ${
+                                          ESF_COLORS[a.esf] ?? "bg-muted text-muted-foreground"
+                                        }`}>{a.esf}</span>
+                                      )}
+                                      <button
+                                        onClick={() => startEditAchievement(a)}
+                                        className="ml-1 p-1 rounded hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
+                                        title="Edit this achievement"
+                                      >
+                                        <Pencil className="w-3.5 h-3.5" />
+                                      </button>
+                                    </div>
+                                  </div>
+                                  {a.description && (
+                                    <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-wrap">{a.description}</p>
+                                  )}
                                   {a.sageEnrichment && (
-                                    <span className="text-xs px-2 py-0.5 rounded-full font-semibold bg-[var(--lw-gold)]/15 text-[var(--lw-gold)] border border-[var(--lw-gold)]/30">Sage-enriched</span>
+                                    <div className="mt-3 pt-3 border-t border-[var(--lw-gold)]/20">
+                                      <p className="text-xs font-semibold uppercase tracking-wide text-[var(--lw-gold)] mb-1">Sage conversation</p>
+                                      <p className="text-sm text-foreground/80 leading-relaxed whitespace-pre-wrap">{a.sageEnrichment}</p>
+                                    </div>
                                   )}
-                                  {a.age != null && (
-                                    <span className="text-xs text-muted-foreground">Age {a.age}</span>
-                                  )}
-                                  {a.esf && (
-                                    <span className={`text-xs px-2 py-0.5 rounded-full font-semibold capitalize ${
-                                      ESF_COLORS[a.esf] ?? "bg-muted text-muted-foreground"
-                                    }`}>{a.esf}</span>
+                                  {a.counsellorNotes && (
+                                    <div className="mt-3 pt-3 border-t border-border">
+                                      <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-1">Counsellor notes</p>
+                                      <p className="text-sm text-foreground leading-relaxed whitespace-pre-wrap">{a.counsellorNotes}</p>
+                                    </div>
                                   )}
                                 </div>
-                              </div>
-                              {a.description && (
-                                <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-wrap">{a.description}</p>
                               )}
-                              {a.sageEnrichment && (
-                                <div className="mt-3 pt-3 border-t border-[var(--lw-gold)]/20">
-                                  <p className="text-xs font-semibold uppercase tracking-wide text-[var(--lw-gold)] mb-1">Sage conversation</p>
-                                  <p className="text-sm text-foreground/80 leading-relaxed whitespace-pre-wrap">{a.sageEnrichment}</p>
+
+                              {/* ── Edit mode ── */}
+                              {isEditing && draft && (
+                                <div className="p-4 space-y-3">
+                                  <p className="text-xs font-semibold uppercase tracking-wide text-[var(--lw-gold)] mb-2">Editing achievement</p>
+
+                                  <div>
+                                    <label className="text-xs text-muted-foreground mb-1 block">Title</label>
+                                    <input
+                                      className="w-full text-sm border border-border rounded px-2 py-1.5 bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-[var(--lw-gold)]/50"
+                                      value={draft.title}
+                                      onChange={e => setAchievementDraft(d => d ? { ...d, title: e.target.value } : d)}
+                                    />
+                                  </div>
+
+                                  <div className="flex gap-3">
+                                    <div className="w-20">
+                                      <label className="text-xs text-muted-foreground mb-1 block">Age</label>
+                                      <input
+                                        type="number"
+                                        className="w-full text-sm border border-border rounded px-2 py-1.5 bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-[var(--lw-gold)]/50"
+                                        value={draft.age}
+                                        onChange={e => setAchievementDraft(d => d ? { ...d, age: e.target.value } : d)}
+                                      />
+                                    </div>
+                                    <div className="flex-1">
+                                      <label className="text-xs text-muted-foreground mb-1 block">ESF</label>
+                                      <select
+                                        className="w-full text-sm border border-border rounded px-2 py-1.5 bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-[var(--lw-gold)]/50"
+                                        value={draft.esf}
+                                        onChange={e => setAchievementDraft(d => d ? { ...d, esf: e.target.value } : d)}
+                                      >
+                                        <option value="">Not set</option>
+                                        <option value="enjoyable">Enjoyable</option>
+                                        <option value="satisfying">Satisfying</option>
+                                        <option value="fulfilling">Fulfilling</option>
+                                      </select>
+                                    </div>
+                                  </div>
+
+                                  <div>
+                                    <label className="text-xs text-muted-foreground mb-1 block">Client description</label>
+                                    <textarea
+                                      rows={3}
+                                      className="w-full text-sm border border-border rounded px-2 py-1.5 bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-[var(--lw-gold)]/50 resize-y"
+                                      value={draft.description}
+                                      onChange={e => setAchievementDraft(d => d ? { ...d, description: e.target.value } : d)}
+                                    />
+                                  </div>
+
+                                  <div>
+                                    <label className="text-xs text-muted-foreground mb-1 block">Sage conversation <span className="text-[var(--lw-gold)]">&#9679;</span></label>
+                                    <textarea
+                                      rows={3}
+                                      className="w-full text-sm border border-[var(--lw-gold)]/30 rounded px-2 py-1.5 bg-[var(--lw-gold)]/5 text-foreground focus:outline-none focus:ring-1 focus:ring-[var(--lw-gold)]/50 resize-y"
+                                      value={draft.sageEnrichment}
+                                      onChange={e => setAchievementDraft(d => d ? { ...d, sageEnrichment: e.target.value } : d)}
+                                    />
+                                  </div>
+
+                                  <div>
+                                    <label className="text-xs text-muted-foreground mb-1 block">Counsellor notes <span className="text-xs text-muted-foreground">(private — feeds into analysis)</span></label>
+                                    <textarea
+                                      rows={3}
+                                      className="w-full text-sm border border-border rounded px-2 py-1.5 bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-[var(--lw-gold)]/50 resize-y"
+                                      placeholder="Add your own observations, patterns noticed, or follow-up questions..."
+                                      value={draft.counsellorNotes}
+                                      onChange={e => setAchievementDraft(d => d ? { ...d, counsellorNotes: e.target.value } : d)}
+                                    />
+                                  </div>
+
+                                  <div className="flex gap-2 pt-1">
+                                    <Button
+                                      size="sm"
+                                      className="bg-[var(--lw-gold)] text-white hover:bg-[var(--lw-gold)]/90"
+                                      onClick={() => saveAchievementEdit(a.id)}
+                                      disabled={updateAchievementMutation.isPending}
+                                    >
+                                      {updateAchievementMutation.isPending ? <><Loader2 className="w-3 h-3 mr-1 animate-spin" />Saving...</> : "Save changes"}
+                                    </Button>
+                                    <Button
+                                      size="sm"
+                                      variant="outline"
+                                      onClick={() => { setEditingAchievementId(null); setAchievementDraft(null); }}
+                                      disabled={updateAchievementMutation.isPending}
+                                    >
+                                      Cancel
+                                    </Button>
+                                  </div>
                                 </div>
                               )}
                             </div>

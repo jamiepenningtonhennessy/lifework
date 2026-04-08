@@ -185,7 +185,27 @@ export async function updateAchievementSageEnrichment(
     .where(eq(achievements.id, id));
 }
 
-// ─── Family Background ────────────────────────────────────────────────────────
+//// Counsellor can edit any field on an achievement record (premium service)
+export async function updateAchievementCounsellor(
+  id: number,
+  fields: {
+    title?: string;
+    description?: string | null;
+    age?: number | null;
+    esf?: "enjoyable" | "satisfying" | "fulfilling" | null;
+    sageEnrichment?: string | null;
+    counsellorNotes?: string | null;
+  }
+) {
+  const db = await getDb();
+  if (!db) throw new Error("DB not available");
+  await db
+    .update(achievements)
+    .set(fields)
+    .where(eq(achievements.id, id));
+}
+
+// ─── Family Background ─────────────────────────────────────────────────────
 
 export async function getFamilyBackground(clientId: number) {
   const db = await getDb();

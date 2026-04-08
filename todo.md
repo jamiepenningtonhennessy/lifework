@@ -801,3 +801,12 @@
 - [x] Add "Sage-enriched" badge to achievement cards that have enrichment data
 - [x] Add "Enrich from Sage" action bar to interview tab (shows when Sage messages exist)
 - [x] Run enrichment against Toby Greenhill's data (6 of 12 records enriched)
+
+## Counsellor-Editable Life History
+
+- [x] Add counsellorNotes column to achievements table (for premium counsellor annotations)
+- [x] Update Drizzle schema.ts with counsellorNotes field
+- [x] Add counselor.updateAchievement tRPC procedure (edit title, description, age, ESF, sageEnrichment, counsellorNotes)
+- [x] Build inline edit UI on achievement cards in counsellor ClientProfile view
+- [x] Show counsellorNotes as a distinct section on each card
+- [x] Add per-card edit/save/cancel controls (pencil icon → inline form → save)
