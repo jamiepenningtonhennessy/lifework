@@ -7,7 +7,7 @@ const MODULES = [
   { title: "Feedback Conversations", body: "Giving and receiving feedback with clarity and confidence. Practised through AI-powered role-play scenarios." },
   { title: "Networking & Relationship Building", body: "A practical framework for building a professional network -- not as a social exercise, but as a business development discipline." },
   { title: "Commercial Awareness", body: "Understanding the business context in which law is practised -- and communicating that understanding to clients." },
-  { title: "Business Writing", body: "Concise, purposeful writing for proposals, reports, and client communications." },
+  { title: "Legal Project Management", body: "Concise, purposeful writing for proposals, reports, and client communications." },
   { title: "Negotiation", body: "Principled negotiation skills for lawyers -- from fee discussions to complex commercial deals." },
   { title: "The Talking Money Protocol", body: "A four-stage process for scoping work, agreeing estimates, working within budgets, and managing cash flow conversations with clients." },
   { title: "The 7 Step BD Process", body: "A structured, repeatable system for winning new clients and growing a practice -- built around the specific realities of professional services." },
