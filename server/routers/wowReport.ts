@@ -23,6 +23,7 @@ import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { router, protectedProcedure } from "../_core/trpc";
 import { invokeLLM } from "../_core/llm";
+import { getOrGenerateCanonicalStage1 } from "./canonicalStage1";
 import { storagePut } from "../storage";
 import { generateWheelPng } from "./insightsWheelPng.js";
 
@@ -455,12 +456,13 @@ Write directly to the client using "you" and "your" throughout. Do NOT include a
     ? `Primary colour energy: ${primaryColour}\nSecondary colour energy: ${secondaryColour}\nJungian type approximation: ${jungianType}\nExtraversion: ${eScore}/100\nAgreeableness: ${aScore}/100\nOpenness: ${oScore}/100\nConscientiousness: ${cScore}/100`
     : "IPIP-NEO data not available — Insights profile cannot be generated.";
 
-  console.log(`[WOW Report] Starting 8-section parallel generation for client ${clientId}`);
-
-  // Run all 8 sections in parallel — each with its own 90s timeout
+  console.log(`[WOW Report] Starting generation for client ${clientId}`);
+  // Step 1: Get (or generate) the canonical life history analysis — single source of truth
+  const lifeHistoryPattern = await getOrGenerateCanonicalStage1(clientId);
+  console.log(`[WOW Report] Canonical Stage 1 ready for client ${clientId}`);
+  // Step 2: Run remaining 7 sections in parallel — each with its own 90s timeout
   const [
     summary,
-    lifeHistoryPattern,
     viaSection,
     personalitySection,
     behaviouralStyle,
@@ -470,9 +472,6 @@ Write directly to the client using "you" and "your" throughout. Do NOT include a
   ] = await Promise.all([
     callLLMWithTimeout(sys,
       `${ctx}\n\nWrite the Lifework Summary — the opening portrait of this client. This is the most important paragraph in the report: the first thing they read, and the statement that should make them feel immediately and precisely seen.\n\nSTRUCTURE:\n\nParagraph 1 (4-5 lines): Begin with "You are..." and write a single direct, evidence-grounded portrait. Name the core theme that runs from the earliest experiences to today. Reference 2-3 specific achievements or moments from the life history. Name the 2-3 character strengths that are most active in the evidence. End with a sentence that captures the single most distinctive thing about this person as a professional.\n\nThen write: "From what you have told us, we can see:"\n\nThen 5-6 tight bullet points, each one a specific, evidence-grounded observation about this person's pattern, motivation, or working style. Each bullet should be one complete sentence. No generalities — every bullet should be something that could only be written about this specific person.\n\nDo NOT include any introductory paragraph. Begin immediately with "You are...". Do NOT use hollow superlatives. Do NOT write more than one opening paragraph before the bullets.`
-    ),
-    callLLMWithTimeout(sys,
-      `${ctx}\n\nWrite the Life History Pattern chapter. This chapter traces the recurring themes in the client's life history from earliest childhood to today. It is one of the most important sections of the report.\n\nANALYTICAL PRINCIPLE: The earliest experiences carry the deepest imprint. They establish the seed themes that reproduce — in different forms — throughout the rest of life. Your job is to identify those themes and trace them through the decades with specificity and directness.\n\nSTRUCTURE THE CHAPTER AS FOLLOWS:\n\n## The Opening Bars\nExamine the client's earliest recorded achievements — childhood and adolescence. Write 2 short paragraphs (4-5 lines each) that:\n- Name the 2-3 seed themes already visible in these early experiences\n- Reference specific early achievements by name and decade\n- State plainly why these early patterns matter: they were chosen freely, before career pressures shaped the choices\n\nClose with: "From what you have told us, we can see:" followed by 3-4 tight bullets naming the specific early-established patterns.\n\n## Recurring Motifs\nThis is the heart of the chapter. For EACH of the 2-3 seed themes:\n- Give it a clear, direct name as a ### subheading (e.g. ### The Drive for Mastery)\n- Write 2 short paragraphs (4-5 lines each) that:\n  - Show how this theme first appeared in early life\n  - Trace 3-4 concrete examples of how it has reproduced across different decades and contexts\n  - Name what others have consistently observed about you in relation to this theme\n\n## What the Pattern Reveals\nClose the chapter with 2 short paragraphs that:\n- Name the single most consistent thread running from earliest experiences to today\n- State what the ESF distribution tells us about deepest motivational drivers\n\nClose with: "From what you have told us, we can see:" followed by 3-5 bullets that name the core motivational findings.\n\nThroughout: write directly to the client using "you" and "your", reference actual achievements from the data by name and decade. Keep every paragraph to 4-5 lines maximum.`
     ),
     callLLMWithTimeout(sys,
       `${ctx}\n\nWrite the Character Strengths chapter of the Lifework report. Write directly to the client using "you" and "your" throughout. Do NOT write any introductory paragraph before the first heading.\n\n## The Evidence Table\nProduce a markdown table with EXACTLY these six columns:\n| Strength | VIA Definition | Survey Rank | Freq (of N) | Identity Salience | Achievements with evidence |\n|---|---|---|---|---|---|\n\nCRITICAL: The separator row MUST use plain ASCII hyphens (-) only. No en-dashes, em-dashes, or other typographic characters in the separator row.\n\nRules:\n- Strength: the strength name\n- VIA Definition: a plain-language definition — 1 concise sentence, not clinical wording\n- Survey Rank: its rank in the VIA results (1 = highest)\n- Freq (of N): count of fulfilling achievements in the life history showing clear evidence of this strength\n- Identity Salience: LOW / MEDIUM / HIGH / VERY HIGH based on how centrally the client narrates this strength\n- Achievements with evidence: specific achievement names where the evidence is clearest, comma-separated\n\nInclude ALL top 5 VIA strengths. No prose before or after the table in this section.\n\n## The Key Findings\nWrite 3 short paragraphs (4-5 lines each). Each paragraph that names a divergence MUST begin with a bold lead sentence: **[Strength] (rank N) is doing more work than [Strength] (rank N).**\n\nThe paragraphs must:\n- Name the most analytically significant divergence: which strength has the highest frequency in fulfilling moments but a lower survey rank?\n- Identify any strength where frequency and identity salience diverge: high frequency + low salience = trained behaviour. Low frequency but pivotal moments + high salience = deepest organising value.\n- Where the evidence warrants it, quote the specific life history detail that proves the point (use italics: *"exact words"*).\n\nClose with: "From what you have told us, we can see:" followed by 3-4 tight bullets naming the key strength findings.\n\nFinal line: one sentence that captures the most important insight this analysis reveals — something the survey rank alone would not have shown.`

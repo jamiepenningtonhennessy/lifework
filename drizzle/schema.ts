@@ -239,6 +239,9 @@ export const analysisReports = mysqlTable("analysis_reports", {
   wowReportStatus: varchar("wowReportStatus", { length: 20 }),  // pending|generating|done|error
   wowReportError: text("wowReportError"),     // error message if status=error
   wowReportType: mysqlEnum("wowReportType", ["standard", "student", "career_changer", "job_returner", "retirement"]).default("standard"),  // report variant
+  // ── Canonical Stage 1: single source of truth for life history analysis ──
+  canonicalStage1: text("canonical_stage1"),           // Dependable Strengths analysis — shared by WoW and counsellor reports
+  canonicalStage1GeneratedAt: int("canonical_stage1_generated_at"),  // Unix ms timestamp
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });

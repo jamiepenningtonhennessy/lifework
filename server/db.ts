@@ -376,6 +376,16 @@ export async function upsertAnalysisReport(
     .onDuplicateKeyUpdate({ set: data });
 }
 
+/** Store (or overwrite) the canonical Stage 1 Dependable Strengths output for a client. */
+export async function updateCanonicalStage1(clientId: number, stage1Text: string) {
+  const db = await getDb();
+  if (!db) throw new Error("DB not available");
+  const now = Date.now();
+  await db
+    .insert(analysisReports)
+    .values({ clientId, canonicalStage1: stage1Text, canonicalStage1GeneratedAt: now, generatedAt: new Date() })
+    .onDuplicateKeyUpdate({ set: { canonicalStage1: stage1Text, canonicalStage1GeneratedAt: now } });
+}
 
 // ─── Virtual Peter: Historical Clients ───────────────────────────────────────
 

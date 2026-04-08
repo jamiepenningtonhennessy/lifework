@@ -1,5 +1,6 @@
 import { COOKIE_NAME } from "@shared/const";
 import { wowReportRouter } from "./routers/wowReport";
+import { getOrGenerateCanonicalStage1, generateAndStoreCanonicalStage1 } from "./routers/canonicalStage1";
 import bcrypt from "bcryptjs";
 import { eq } from "drizzle-orm";
 import { getDb } from "./db";
@@ -1165,12 +1166,9 @@ IMPORTANT: Be concise. Each summary: 2-3 sentences max (under 60 words). Each ex
           getIpipResults(profile.id),
         ]);
 
-      const conversationText = messages
-        .map((m) => `${m.role === "user" ? "Client" : "Counsellor"}: ${m.content}`)
-        .join("\n");
-      const achievementsText = achievementsList
-        .map((a) => `[${a.decade}] ${a.title} (${a.esf ?? "unclassified"}): ${a.description ?? ""}`)
-        .join("\n");
+      // ── Use the canonical Stage 1 (single source of truth for life history) ──
+      const canonicalLifeHistory = await getOrGenerateCanonicalStage1(profile.id);
+
       const viaText =
         via && via.rankedStrengths
           ? (via.rankedStrengths as any[]).slice(0, 10).map((s: any) => `${s.rank}. ${s.name} (score: ${s.score})`).join("\n")
@@ -1183,11 +1181,10 @@ IMPORTANT: Be concise. Each summary: 2-3 sentences max (under 60 words). Each ex
 
       const prompt = `You are an expert career analyst using the narrative life history methodology of Bernard Haldane, as practised by Pennington Hennessy. Produce a comprehensive career analysis report in Markdown for the following client data.
 
-### Life History Interview
-${conversationText || "No interview data."}
+### Life History Pattern Analysis (Canonical — Dependable Strengths)
+The following is the authoritative interpretation of this client's life history, generated from their enriched achievement records. Use this as the foundation for all sections of your report.
 
-### Achievements (by decade, ESF)
-${achievementsText || "None."}
+${canonicalLifeHistory}
 
 ### Family Background
 Father: ${family?.fatherOccupation ?? "Unknown"}, Mother: ${family?.motherOccupation ?? "Unknown"}
@@ -1494,6 +1491,18 @@ Critical analytical principle: the earliest experiences carry the deepest imprin
       const { id, ...fields } = input;
       await updateAchievementCounsellor(id, fields);
       return { success: true };
+    }),
+
+  // ── Regenerate the canonical life history analysis (single source of truth) ──
+  // Use this after editing achievements, adding Sage enrichment, or adding counsellor notes.
+  // Both the WoW report and the counsellor report will use the new output.
+  regenerateCanonicalStage1: counselorProcedure
+    .input(z.object({ clientId: z.number() }))
+    .mutation(async ({ input }) => {
+      const profile = await getClientProfileById(input.clientId);
+      if (!profile) throw new TRPCError({ code: "NOT_FOUND" });
+      const stage1Text = await generateAndStoreCanonicalStage1(input.clientId);
+      return { success: true, preview: stage1Text.slice(0, 300) };
     }),
 });
 // ─── Virtual Peter Router ────────────────────────────────────────────────────

@@ -816,3 +816,13 @@
 - [x] Add VIA framework overview text at the start of Chapter 3 (Character Strengths)
 - [x] Add Big Five / OCEAN overview text at the start of Chapter 4 (Personality Profile)
 - [x] Add Behavioural Style overview text at the start of Chapter 5 (Option B — extrapolation from Big Five, treat as basis for discussion)
+
+## Single Canonical Life History Analysis
+
+- [x] Add canonicalStage1 and canonicalStage1GeneratedAt columns to analysis_reports table
+- [x] Update Drizzle schema.ts with new columns
+- [x] Build generateCanonicalStage1 shared helper (reads achievements + sageEnrichment + counsellorNotes + Sage interview)
+- [x] Update WoW report Stage 1 to use canonical output (generate if missing)
+- [x] Update counsellor triggerAnalysis to use canonical Stage 1 instead of re-running its own
+- [x] Add Regenerate Life History Analysis button to counsellor ClientProfile view
+- [x] Run canonical Stage 1 for Toby so both reports are immediately consistent

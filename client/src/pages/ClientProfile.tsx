@@ -124,6 +124,14 @@ export default function ClientProfile() {
     onError: () => toast.error("Enrichment failed — please try again"),
   });
 
+  const regenerateStage1Mutation = trpc.counselor.regenerateCanonicalStage1.useMutation({
+    onSuccess: () => {
+      toast.success("Life history analysis regenerated — both reports will use the new version");
+      utils.counselor.getClientProfile.invalidate({ clientId });
+    },
+    onError: () => toast.error("Regeneration failed — please try again"),
+  });
+
   // Achievement inline editing
   const [editingAchievementId, setEditingAchievementId] = useState<number | null>(null);
   const [achievementDraft, setAchievementDraft] = useState<{
@@ -494,6 +502,27 @@ export default function ClientProfile() {
                     </Button>
                   </div>
                 )}
+
+                {/* ── Regenerate canonical Stage 1 button ── */}
+                <div className="flex items-center justify-between p-3 rounded-xl border border-blue-500/20 bg-blue-500/5">
+                  <div className="flex items-center gap-2">
+                    <RefreshCw className="w-4 h-4 text-blue-400" />
+                    <span className="text-sm text-foreground">
+                      Regenerate the canonical life history analysis — both the counsellor report and WoW report will use the new version.
+                    </span>
+                  </div>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="border-blue-500/40 text-blue-400 hover:bg-blue-500/10 whitespace-nowrap ml-3"
+                    onClick={() => regenerateStage1Mutation.mutate({ clientId: Number(params.id) })}
+                    disabled={regenerateStage1Mutation.isPending}
+                  >
+                    {regenerateStage1Mutation.isPending
+                      ? <><Loader2 className="w-3 h-3 mr-1 animate-spin" />Generating...</>
+                      : <><RefreshCw className="w-3 h-3 mr-1" />Regenerate Life History Analysis</>}
+                  </Button>
+                </div>
 
                 {!hasAny && (
                   <p className="text-muted-foreground text-sm">No life history entries recorded yet.</p>
