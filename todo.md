@@ -859,3 +859,12 @@
 - [x] Ensure PDF always reflects the currently displayed on-screen content
 - [x] Fix Life History Pattern (Chapter 2) not applying Mark Brandon style — canonical Stage 1 is style-neutral; WoW pipeline must re-write it through the Mark voice LLM when Mark style is selected
 - [x] Fix Behavioural Style (Chapter 5 / Insights section) not applying Mark Brandon style — insightsSys was hardcoded, now uses effectiveInsightsSys with Mark overlay
+
+## Mark Style Rewrite — Post-Processing Stage
+
+- [x] Build rewriteSectionsForMark() function: takes completed house-style WowReportSections, runs each prose section through a Mark Brandon rewrite LLM call
+- [x] Wire rewriteSectionsForMark() into runGenerationJob: call after generateWowSections() when writingStyle === "mark"
+- [x] Remove old effectiveSys / effectiveInsightsSys voice overlay from generateWowSections (revert to always using house-style prompts)
+- [x] Remove the Mark-style Life History rewrite pass from generateWowSections (now handled by post-processor)
+- [x] Write rewrite prompt: instructs LLM to rewrite prose in Mark's voice, shorter, punchier, no "From what you have told us" bullet formula, max 2 sub-sections per chapter
+- [ ] Test: regenerate Mark Brandon's report in Mark style and verify all 8 sections are in Mark's voice

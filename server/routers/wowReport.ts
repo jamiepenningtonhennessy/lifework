@@ -462,10 +462,9 @@ FORMATTING RULES (strictly follow):
 - Never write walls of text. White space is as important as the words.
 - Headers should name the idea, not just the category.`;
 
-  // Apply writing style overlay
-  const effectiveSys = writingStyle === "mark"
-    ? `${sys}\n\nADDITIONAL VOICE INSTRUCTION — MARK BRANDON STYLE:\n${MARK_BRANDON_SYS}`
-    : sys;
+  // generateWowSections always produces house-style output.
+  // Mark Brandon style is applied as a post-processing rewrite stage in rewriteSectionsForMark().
+  const effectiveSys = sys;
   const ctx = `CLIENT DATA FOR ${clientName.toUpperCase()}:\n${contextText}`;
 
   const insightsSys = `You are Jamie Pennington — a senior career analyst at Pennington Hennessy — writing the Behavioural Style section of a career analysis report for ${clientName}. You write in the first person, as yourself: warm, direct, intellectually confident, and gently provocative — the voice of a trusted senior colleague who tells the truth with care and without cruelty.
@@ -490,10 +489,8 @@ Describe how you are likely to behave when stressed or outside your comfort zone
 Give one or two precise observations about how you tend to work with people whose colour energies are very different from your own. Name the likely friction points and the likely complementarities. End with a practical observation about what you can do with this awareness.
 
 Write directly to the client using "you" and "your" throughout. Do NOT include any introductory paragraph before the first ## heading. Do NOT use flattering or encouraging language.`;
-  // Apply Mark Brandon style overlay to the Behavioural Style section too
-  const effectiveInsightsSys = writingStyle === "mark"
-    ? `${insightsSys}\n\nADDITIONAL VOICE INSTRUCTION — MARK BRANDON STYLE:\n${MARK_BRANDON_SYS}`
-    : insightsSys;
+  // Behavioural Style always generated in house style; Mark rewrite applied post-generation.
+  const effectiveInsightsSys = insightsSys;
   const insightsData = Object.keys(domainScores).length > 0
     ? `Primary colour energy: ${primaryColour}\nSecondary colour energy: ${secondaryColour}\nJungian type approximation: ${jungianType}\nExtraversion: ${eScore}/100\nAgreeableness: ${aScore}/100\nOpenness: ${oScore}/100\nConscientiousness: ${cScore}/100`
     : "IPIP-NEO data not available — Insights profile cannot be generated.";
@@ -503,23 +500,9 @@ Write directly to the client using "you" and "your" throughout. Do NOT include a
   const canonicalLifeHistory = await getOrGenerateCanonicalStage1(clientId);
   console.log(`[WOW Report] Canonical Stage 1 ready for client ${clientId}`);
 
-  // If Mark style is selected, rewrite the Life History Pattern through the Mark Brandon voice.
-  // The canonical output is style-neutral (house style); for Mark we run a fast LLM pass that
-  // rewrites the prose in Mark's voice while preserving all the analytical content.
-  let lifeHistoryPattern: string;
-  if (writingStyle === "mark") {
-    console.log(`[WOW Report] Rewriting Life History Pattern in Mark Brandon style for client ${clientId}`);
-    const markSys = `${CANONICAL_SYSTEM_PROMPT}\n\nADDITIONAL VOICE INSTRUCTION — MARK BRANDON STYLE:\n${MARK_BRANDON_SYS}`;
-    const rewritePrompt = `Below is the canonical Life History Pattern analysis for ${clientName}, written in house style. Rewrite it entirely in Mark Brandon's voice as described in the style instructions above. Preserve ALL analytical content, evidence references, achievement names, and structural headings (## and ###). Do not add or remove analytical observations — only change the voice, sentence construction, and prose style. The result must still be addressed directly to the client using "you" and "your".
-
---- CANONICAL LIFE HISTORY PATTERN ---
-${canonicalLifeHistory}
---- END ---`;
-    const rewriteResp = await callLLMWithTimeout(markSys, rewritePrompt);
-    lifeHistoryPattern = rewriteResp;
-  } else {
-    lifeHistoryPattern = canonicalLifeHistory;
-  }
+  // Life History Pattern always uses the canonical house-style output.
+  // Mark Brandon rewrite is applied post-generation by rewriteSectionsForMark().
+  const lifeHistoryPattern = canonicalLifeHistory;
   // Step 2: Run remaining 7 sections in parallel — each with its own 90s timeout
   const [
     summary,
@@ -584,6 +567,107 @@ ${canonicalLifeHistory}
     domainScores,
     reportType,
   };
+}
+
+// ─── Helper: Rewrite house-style sections in Mark Brandon's voice ────────────
+/**
+ * Takes a fully-generated house-style WowReportSections object and rewrites
+ * every prose section through Mark Brandon's voice in a single parallel batch.
+ *
+ * Sections that are NOT rewritten (structured data, not prose):
+ *   - clientName, clientFullName, generatedAt, reportType
+ *   - viaRanked, domainScores (raw numbers)
+ *   - primaryColour, secondaryColour, jungianType (labels)
+ *   - coachingQuestions (counsellor-facing tool, intentionally style-neutral)
+ *
+ * The VIA evidence table inside viaSection is preserved verbatim; only the
+ * surrounding prose is rewritten.
+ */
+const MARK_REWRITE_SYS = `You are a rewriter working in the style of Mark Brandon — a British writer, journalist, and legal sector consultant. You will be given a section of a career analysis report written in formal house style. Your task is to rewrite it in Mark's voice.
+
+MARK'S VOICE — THE RULES:
+
+1. SHORTER. Cut the word count by roughly half. Every sentence must earn its place. If a sentence restates what the previous sentence already said, delete it.
+
+2. NO BULLET FORMULA. Do NOT use the phrase "From what you have told us, we can see:" followed by bullets. Replace any such section with a short closing paragraph of prose, or a single punchy closing sentence. Bullets are permitted only where they carry genuinely distinct information that would be clumsy in prose (e.g. a list of specific role types).
+
+3. FEWER SUB-SECTIONS. Collapse 4-6 sub-sections into 2 at most. Merge related content rather than giving every idea its own heading.
+
+4. DIRECT OPENINGS. Never open a section with a scene-setting sentence, a definition of a framework, or a statement of what you are about to do. Go straight into the observation about this specific person.
+
+5. SHORT DECLARATIVE SENTENCES FOR EMPHASIS. After a longer analytical sentence, land the point with a short one. "That's not restlessness. That's your operating system."
+
+6. PARENTHETICAL ASIDES. Use dashes or brackets for wry observations mid-sentence. "(That last one, incidentally, tells you more about yourself than most CVs manage in three pages.)"
+
+7. DRY BRITISH WIT. Humour lives in the construction of the sentence, not in jokes. Understated, never silly.
+
+8. BRITISH SPELLINGS. colour, organised, recognise, behaviour, etc.
+
+9. PRESERVE ALL ANALYTICAL CONTENT. Do not remove any finding, evidence reference, or conclusion. Only change the voice and structure. The client's specific achievements, strength names, scores, and career directions must all remain.
+
+10. PRESERVE ALL MARKDOWN STRUCTURE. Keep ## headings, **bold** terms, markdown tables (do not rewrite table content), and any structured lists that carry data. Only rewrite prose paragraphs.
+
+11. WRITE TO THE CLIENT. Use "you" and "your" throughout. Never use the client's name or third-person pronouns in prose.
+
+12. NO PREAMBLE. Do not begin your response with "Here is the rewritten section" or any similar meta-commentary. Output only the rewritten section text.`;
+
+async function rewriteSectionsForMark(
+  sections: WowReportSections,
+  clientName: string
+): Promise<WowReportSections> {
+  console.log(`[WOW Report] Rewriting all sections in Mark Brandon style for ${clientName}`);
+
+  // Sections to rewrite (prose only — structured data fields are passed through unchanged)
+  const proseSections: Array<keyof WowReportSections> = [
+    "summary",
+    "lifeHistoryPattern",
+    "viaSection",
+    "personalitySection",
+    "behaviouralStyle",
+    "careerDirections",
+    "developmentEdge",
+  ];
+
+  // Section-specific rewrite instructions to help the model understand context
+  const sectionContext: Record<string, string> = {
+    summary: "This is Chapter 1: Who You Are — the opening portrait. It should be the punchiest section of the report. Open with a direct statement of who this person is, not 'You are a...' boilerplate.",
+    lifeHistoryPattern: "This is Chapter 2: Life History — The Pattern. Rename the chapter heading to '2. Life History — The Pattern' if it currently says '2. Life History Pattern'. Open with a direct observation about where the pattern starts.",
+    viaSection: "This is Chapter 3: Character Strengths. Preserve the markdown evidence table exactly as-is. Only rewrite the prose paragraphs in The Key Findings section and any closing prose.",
+    personalitySection: "This is Chapter 4: Personality Profile. Preserve any charts or structured data. Rewrite the prose commentary. The 'Where the Two Pictures Meet' divergence analysis should be the most interesting part — make it feel like a discovery, not a checklist.",
+    behaviouralStyle: "This is Chapter 5: Behavioural Style. This section already uses a slightly different voice (Jamie Pennington's). Rewrite it in Mark's voice instead. Preserve the colour energy labels and Jungian type.",
+    careerDirections: "This is Chapter 6: Career Directions. Each direction should feel like a genuine recommendation, not a job description. Make the case for each one with conviction.",
+    developmentEdge: "This is Chapter 7: Development Edge. This is where the report tells the client something uncomfortable. Mark's voice is particularly well-suited here — direct, not cruel, but not softened either.",
+  };
+
+  // Run all rewrites in parallel
+  const rewritePromises = proseSections.map(async (key) => {
+    const original = sections[key] as string;
+    if (!original || original.trim().length === 0) return [key, original] as const;
+
+    const context = sectionContext[key as string] ?? "";
+    const userPrompt = `${context ? context + "\n\n" : ""}--- HOUSE STYLE ORIGINAL ---\n${original}\n--- END ---\n\nRewrite the above in Mark Brandon's voice following all the rules in your system prompt.`;
+
+    try {
+      const rewritten = await callLLMWithTimeout(MARK_REWRITE_SYS, userPrompt, 120_000);
+      return [key, rewritten] as const;
+    } catch (err) {
+      console.warn(`[WOW Report] Mark rewrite failed for section ${String(key)}, keeping original:`, err);
+      return [key, original] as const;
+    }
+  });
+
+  const results = await Promise.all(rewritePromises);
+
+  // Build the rewritten sections object
+  const rewritten = { ...sections };
+  for (const [key, value] of results) {
+    (rewritten as Record<string, unknown>)[key as string] = value;
+  }
+
+  // Update section title labels for Mark style
+  // Chapter 1 title change is handled in the PDF renderer via writingStyle flag
+  console.log(`[WOW Report] Mark Brandon rewrite complete for ${clientName}`);
+  return rewritten;
 }
 
 // ─── Helper: Render PDF with pdfmake ─────────────────────────────────────────
@@ -1385,7 +1469,11 @@ async function runGenerationJob(clientId: number, reportType: WowReportType = "s
     } as Parameters<typeof upsertAnalysisReport>[0]);
     // Generate sections via LLM (parallel, 7 calls)
     console.log(`[WOW Report] runGenerationJob starting for client ${clientId}`);
-    const sections = await generateWowSections(clientId, reportType, writingStyle);
+    const houseSections = await generateWowSections(clientId, reportType, "house");
+    // If Mark style is selected, run the post-processing rewrite stage
+    const sections = writingStyle === "mark"
+      ? await rewriteSectionsForMark(houseSections, houseSections.clientName)
+      : houseSections;
     // Render PDF
     console.log(`[WOW Report] Rendering PDF for client ${clientId}`);
     const pdfBuffer = await renderWowPdf(sections, writingStyle);
