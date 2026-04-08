@@ -161,6 +161,7 @@ export default function WowReportTab({ clientId, clientName }: WowReportTabProps
   const [isPolling, setIsPolling] = useState(false);
   const [progressMsg, setProgressMsg] = useState(0);
   const [selectedReportType, setSelectedReportType] = useState<WowReportType>("standard");
+  const [selectedWritingStyle, setSelectedWritingStyle] = useState<"house" | "mark">("house");
   const [sageOpen, setSageOpen] = useState(false);
   const pollIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const msgIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -236,15 +237,18 @@ export default function WowReportTab({ clientId, clientName }: WowReportTabProps
     }
   }, [reportData?.status]);
 
-  // Sync selectedReportType with the stored type when the report loads
+  // Sync selectedReportType and writingStyle with the stored values when the report loads
   useEffect(() => {
     if (reportData?.reportType && reportData.reportType !== selectedReportType) {
       setSelectedReportType(reportData.reportType as WowReportType);
     }
-  }, [reportData?.reportType]);
+    if (reportData?.writingStyle && reportData.writingStyle !== selectedWritingStyle) {
+      setSelectedWritingStyle(reportData.writingStyle as "house" | "mark");
+    }
+  }, [reportData?.reportType, reportData?.writingStyle]);
 
-  const handleGenerate = (forceRegenerate = false, overrideType?: WowReportType) => {
-    generateMutation.mutate({ clientId, forceRegenerate, reportType: overrideType ?? selectedReportType });
+  const handleGenerate = (forceRegenerate = false, overrideType?: WowReportType, overrideStyle?: "house" | "mark") => {
+    generateMutation.mutate({ clientId, forceRegenerate, reportType: overrideType ?? selectedReportType, writingStyle: overrideStyle ?? selectedWritingStyle });
   };
 
   const sections: WowSections | null = reportData?.sections ?? null;
@@ -410,9 +414,10 @@ export default function WowReportTab({ clientId, clientName }: WowReportTabProps
             </div>
           </div>
 
-          {/* Report type selector — shown when no report yet, or when report is ready (to change type before regenerating) */}
+          {/* Report type + writing style selectors */}
           {!isGenerating && (
-            <div className="px-6 pb-5 border-t border-white/10 pt-4">
+            <div className="px-6 pb-5 border-t border-white/10 pt-4 space-y-4">
+              {/* Report Variant row */}
               <div className="flex flex-col sm:flex-row sm:items-center gap-3">
                 <div className="flex-1">
                   <p className="text-xs font-semibold tracking-wide uppercase mb-1" style={{ color: "var(--lw-gold)" }}>Report Variant</p>
@@ -445,6 +450,41 @@ export default function WowReportTab({ clientId, clientName }: WowReportTabProps
                   >
                     <RefreshCw className="w-3 h-3 mr-1" />
                     Regenerate as {REPORT_TYPE_OPTIONS.find(o => o.value === selectedReportType)?.label}
+                  </Button>
+                )}
+              </div>
+              {/* Writing Style row */}
+              <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+                <div className="flex-1">
+                  <p className="text-xs font-semibold tracking-wide uppercase mb-1" style={{ color: "var(--lw-gold)" }}>Writing Style</p>
+                  <p className="text-xs text-white/40">
+                    {selectedWritingStyle === "mark"
+                      ? "Mark Brandon — conversational, dry British wit, punchy sentences, no jargon."
+                      : "House Style — direct, evidence-led, second person, structured with subheadings."}
+                  </p>
+                </div>
+                <Select
+                  value={selectedWritingStyle}
+                  onValueChange={(v) => setSelectedWritingStyle(v as "house" | "mark")}
+                  disabled={isGenerating}
+                >
+                  <SelectTrigger className="w-[220px] bg-white/5 border-white/20 text-white text-sm">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="house">House Style</SelectItem>
+                    <SelectItem value="mark">Mark</SelectItem>
+                  </SelectContent>
+                </Select>
+                {pdfUrl && selectedWritingStyle !== ((reportData as any)?.writingStyle ?? "house") && (
+                  <Button
+                    size="sm"
+                    className="bg-[var(--lw-gold)] hover:bg-[var(--lw-gold)]/90 text-[var(--lw-navy)] font-semibold whitespace-nowrap"
+                    onClick={() => handleGenerate(true, undefined, selectedWritingStyle)}
+                    disabled={isGenerating}
+                  >
+                    <RefreshCw className="w-3 h-3 mr-1" />
+                    Regenerate in {selectedWritingStyle === "mark" ? "Mark" : "House"} Style
                   </Button>
                 )}
               </div>

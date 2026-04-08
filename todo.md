@@ -831,3 +831,13 @@
 
 - [x] Add "Last analysed" timestamp to the Life History tab showing when canonical Stage 1 was last generated
 - [x] Wire canonical Stage 1 into WoW report Chapter 3 (VIA / Character Strengths) so VIA analysis is grounded in the same life history interpretation
+
+## WoW Report — Mark Brandon Writing Style
+
+- [x] Add WritingStyle type ("house" | "mark") and wowReportWritingStyle column to database and Drizzle schema
+- [x] Build MARK_BRANDON_STYLE_PROMPT constant with full voice brief
+- [x] Apply style prompt as an additional system instruction to all four WoW report stage LLM calls
+- [x] Add writingStyle parameter to generate procedure input schema
+- [x] Add writingStyle to get procedure return value
+- [x] Add Writing Style selector (House Style / Mark) to WowReportTab UI alongside Report Variant selector
+- [x] Show "Regenerate in Mark Style" button when style has changed
