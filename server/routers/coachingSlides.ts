@@ -18,7 +18,9 @@
  * Theme: Lifework navy (#1a2744) + gold (#c9973a) + cream (#f5f0e8)
  */
 
-import PptxGenJS from "pptxgenjs";
+import PptxGenJSModule from "pptxgenjs";
+// pptxgenjs ships as CJS; handle both default and named export patterns
+const PptxGenJS = (PptxGenJSModule as any).default ?? PptxGenJSModule;
 import { storagePut } from "../storage.js";
 import { invokeLLM } from "../_core/llm.js";
 import { LIFEWORK_LOGO_BASE64 } from "./lifeworkLogoBase64.js";
@@ -85,7 +87,7 @@ Return ONLY a JSON array of strings, nothing else. Example: ["You thrive when bu
 }
 
 // ─── Helper: add branded footer to every slide ───────────────────────────────
-function addFooter(slide: PptxGenJS.Slide, clientName: string, slideNum: number, total: number) {
+function addFooter(slide: any, clientName: string, slideNum: number, total: number) {
   // Gold rule line
   slide.addShape("rect", { x: 0.4, y: H - 0.45, w: W - 0.8, h: 0.02, fill: { color: GOLD }, line: { color: GOLD } });
   // Client name left
@@ -101,7 +103,7 @@ function addFooter(slide: PptxGenJS.Slide, clientName: string, slideNum: number,
 }
 
 // ─── Helper: add logo top-right ───────────────────────────────────────────────
-function addLogo(slide: PptxGenJS.Slide) {
+function addLogo(slide: any) {
   try {
     slide.addImage({ data: LIFEWORK_LOGO_BASE64, x: W - 1.4, y: 0.2, w: 1.0, h: 0.5 });
   } catch {
@@ -110,7 +112,7 @@ function addLogo(slide: PptxGenJS.Slide) {
 }
 
 // ─── Helper: section eyebrow label ───────────────────────────────────────────
-function addEyebrow(slide: PptxGenJS.Slide, text: string, x = 0.55, y = 0.28) {
+function addEyebrow(slide: any, text: string, x = 0.55, y = 0.28) {
   slide.addText(text.toUpperCase(), {
     x, y, w: 8, h: 0.25,
     fontSize: 7.5, color: GOLD, bold: true, fontFace: "Calibri",
@@ -119,7 +121,7 @@ function addEyebrow(slide: PptxGenJS.Slide, text: string, x = 0.55, y = 0.28) {
 }
 
 // ─── Helper: section heading ──────────────────────────────────────────────────
-function addHeading(slide: PptxGenJS.Slide, text: string, x = 0.55, y = 0.55, w = 8) {
+function addHeading(slide: any, text: string, x = 0.55, y = 0.55, w = 8) {
   slide.addText(text, {
     x, y, w, h: 0.7,
     fontSize: 26, color: WHITE, bold: true, fontFace: "Georgia",
@@ -127,13 +129,13 @@ function addHeading(slide: PptxGenJS.Slide, text: string, x = 0.55, y = 0.55, w 
 }
 
 // ─── Helper: gold accent bar ──────────────────────────────────────────────────
-function addAccentBar(slide: PptxGenJS.Slide, x = 0.55, y = 1.25, w = 1.2) {
+function addAccentBar(slide: any, x = 0.55, y = 1.25, w = 1.2) {
   slide.addShape("rect", { x, y, w, h: 0.04, fill: { color: GOLD }, line: { color: GOLD } });
 }
 
 // ─── Helper: bullet list ──────────────────────────────────────────────────────
 function addBullets(
-  slide: PptxGenJS.Slide,
+  slide: any,
   bullets: string[],
   x: number,
   y: number,
