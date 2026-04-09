@@ -515,22 +515,17 @@ export default function Interview() {
             </div>
           </div>
 
-          {/* Opening framing — verbatim */}
-          <div className="space-y-4 text-[15px] leading-relaxed text-foreground mb-8">
-            <p>
-              Who you are now is a continuation of who you were one year, three years, five years,
-              and a decade ago, right back to when you were a babe in arms — and perhaps even when
-              in the womb.
-            </p>
-
-          </div>
-
-          {/* How it works */}
+            {/* How it works */}
           <div className="p-5 rounded-xl bg-card border border-border mb-5">
             <h2 className="font-serif font-semibold text-foreground text-lg mb-3 flex items-center gap-2">
               <BookOpen className="w-5 h-5 text-[var(--lw-gold)]" /> How it works
             </h2>
             <div className="space-y-3 text-sm text-foreground leading-relaxed">
+              <p>
+                Who you are now is a continuation of who you were one year, three years, five years,
+                and a decade ago, right back to when you were a babe in arms — and perhaps even when
+                in the womb.
+              </p>
               <p>
                 Although you will have many adult experiences that are noteworthy, it is your{" "}
                 <strong>earlier life that underpins "you"</strong>. We start with childhood and work
