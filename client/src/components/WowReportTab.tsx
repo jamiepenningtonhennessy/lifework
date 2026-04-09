@@ -38,6 +38,7 @@ import {
   AlertCircle,
   Palette,
   BrainCircuit,
+  Presentation,
 } from "lucide-react";
 import { toast } from "sonner";
 import { Streamdown } from "streamdown";
@@ -252,6 +253,16 @@ export default function WowReportTab({ clientId, clientName }: WowReportTabProps
   };
 
   // Rebuild PDF from stored sections without re-running the LLM pipeline
+  const generateSlidesMutation = trpc.coachingSlides.generate.useMutation({
+    onSuccess: (result) => {
+      toast.success("Coaching slides ready!");
+      window.open(result.url, "_blank");
+    },
+    onError: (err) => {
+      toast.error("Could not generate slides: " + err.message);
+    },
+  });
+
   const rebuildPdfMutation = trpc.wowReport.rebuildPdf.useMutation({
     onSuccess: (result) => {
       utils.wowReport.get.invalidate({ clientId });
@@ -384,6 +395,21 @@ export default function WowReportTab({ clientId, clientName }: WowReportTabProps
                     >
                       {rebuildPdfMutation.isPending ? <Loader2 className="w-4 h-4 mr-1 animate-spin" /> : <Download className="w-4 h-4 mr-1" />}
                       {pdfStyleMismatch ? "Rebuild & Download" : "Download PDF"}
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="border-[var(--lw-gold)]/60 text-[var(--lw-gold)] hover:bg-[var(--lw-gold)]/10 text-xs"
+                      onClick={() => generateSlidesMutation.mutate({ clientId })}
+                      disabled={generateSlidesMutation.isPending}
+                      title="Generate a branded coaching session PowerPoint deck"
+                    >
+                      {generateSlidesMutation.isPending ? (
+                        <Loader2 className="w-3 h-3 mr-1 animate-spin" />
+                      ) : (
+                        <Presentation className="w-3 h-3 mr-1" />
+                      )}
+                      {generateSlidesMutation.isPending ? "Building slides…" : "Coaching Slides"}
                     </Button>
                     <Button
                       size="sm"

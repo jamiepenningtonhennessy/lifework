@@ -6,6 +6,7 @@ import { eq } from "drizzle-orm";
 import { getDb } from "./db";
 import { counsellorPin } from "../drizzle/schema";
 import { counsellorSageRouter } from "./routers/counsellorSage";
+import { coachingSlidesRouter } from "./routers/coachingSlides";
 import { ENV } from "./_core/env";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
@@ -2492,6 +2493,7 @@ export const appRouter = router({
   coachingAnnex: coachingAnnexRouter,
   wowReport: wowReportRouter,
   counsellorSage: counsellorSageRouter,
+  coachingSlides: coachingSlidesRouter,
   pin: pinRouter,
 });
 

@@ -879,3 +879,12 @@
 - [x] Always show name/pronouns screen at start of Lifework process, pre-filled with existing profile data
 - [x] After login from /lifework access code page, redirect to Lifework opening page (with video) instead of main homepage
 - [x] Move "Others" field from each individual action to a single phase-level box after Action 4, with updated wording about what others said during that phase
+
+## Coaching Session Slides
+
+- [x] Build server-side PPTX generation using pptxgenjs (Lifework navy/gold theme)
+- [x] 8-slide structure: title, who you are, life history, VIA, OCEAN, colour energies, cross-instrument synthesis, so what
+- [x] LLM-extracted bullet points from stored report sections (runs in parallel)
+- [x] Add coachingSlidesRouter to main router
+- [x] Add "Coaching Slides" button to WowReportTab (gold-accented, beside Ask Sage)
+- [x] Download triggers automatically when PPTX is ready
