@@ -522,11 +522,7 @@ export default function Interview() {
               and a decade ago, right back to when you were a babe in arms — and perhaps even when
               in the womb.
             </p>
-            <p>
-              To enable more effective coaching, it is therefore good to understand more about your
-              past: what you did, when and why. To capture this information in a simple, structured
-              way, we use a life history format.
-            </p>
+
           </div>
 
           {/* How it works */}
