@@ -688,7 +688,8 @@ export default function Interview() {
           <Button
             size="lg"
             onClick={() => {
-              if (!nameScreenDone && !myProfile?.firstName) {
+              if (!nameScreenDone) {
+                // Always show name/pronouns screen first (pre-filled if already set)
                 setShowIntro(false);
                 setShowNameScreen(true);
               } else if (!ageScreenDone && !userAge) {

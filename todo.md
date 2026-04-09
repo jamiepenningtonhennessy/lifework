@@ -876,3 +876,4 @@
 - [ ] Re-run enrichment for Charlie Gush via counsellor dashboard "Run Sage Enrichment" button
 - [x] Add visible "Run Sage Enrichment" button to the Interview tab header in ClientProfile.tsx (currently missing/hidden)
 - [x] Fix infinite loop in client Lifework onboarding: clicking "Begin Early Childhood" sends user back to "A couple of quick questions" instead of proceeding to life history entry
+- [x] Always show name/pronouns screen at start of Lifework process, pre-filled with existing profile data
