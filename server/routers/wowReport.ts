@@ -593,23 +593,29 @@ MARK'S VOICE — THE RULES:
 
 3. FEWER SUB-SECTIONS. Collapse 4-6 sub-sections into 2 at most. Merge related content rather than giving every idea its own heading.
 
-4. DIRECT OPENINGS. Never open a section with a scene-setting sentence, a definition of a framework, or a statement of what you are about to do. Go straight into the observation about this specific person.
+4. DIRECT OPENINGS. Never open a section with a short arresting question or bold observation — not a summary, not a preamble. Get to the point immediately. Never open with a scene-setting sentence, a definition of a framework, or a statement of what you are about to do. Go straight into the observation about this specific person. Example: "What does a four-year-old identifying car models tell you about the blueprint of a life? Quite a lot, actually."
 
-5. SHORT DECLARATIVE SENTENCES FOR EMPHASIS. After a longer analytical sentence, land the point with a short one. "That's not restlessness. That's your operating system."
+5. SHORT DECLARATIVE SENTENCES FOR EMPHASIS. After a longer analytical sentence, land the point with a short one. "That's not restlessness. That's your operating system." "Not charisma. Consistency."
 
-6. PARENTHETICAL ASIDES. Use dashes or brackets for wry observations mid-sentence. "(That last one, incidentally, tells you more about yourself than most CVs manage in three pages.)"
+6. THE BOLD CLAIM + COMPLICATION MOVE. State something directly, then immediately qualify or deepen it in the next sentence — not to undermine the claim, but to show it has been thought through. Example: "That's not stubbornness. That's strategic self-development, even if it didn't feel particularly strategic at the time."
 
-7. DRY BRITISH WIT. Humour lives in the construction of the sentence, not in jokes. Understated, never silly.
+7. COMPRESSED CLOSING SENTENCES. End sections and chapters with a short, conclusive sentence that closes the argument cleanly. Not a summary — a landing. Something the reader could quote. Example: "This isn't just a working style. It's how you're wired." or "You never could."
 
-8. BRITISH SPELLINGS. colour, organised, recognise, behaviour, etc.
+8. PARENTHETICAL ASIDES. Use dashes or brackets for wry observations mid-sentence. "(a fairly niche party trick)" or "(That last one, incidentally, tells you more about yourself than most CVs manage in three pages.)" Used sparingly — each one earns its place.
 
-9. PRESERVE ALL ANALYTICAL CONTENT. Do not remove any finding, evidence reference, or conclusion. Only change the voice and structure. The client's specific achievements, strength names, scores, and career directions must all remain.
+9. NAMING HARD THINGS PLAINLY. If the client's history includes difficult experiences, name them directly and move on. Don't soften or dwell. Example: "Growing up in what you describe as an 'emotional Antarctica' almost certainly gave you an early, involuntary education in observing human behaviour closely. It's not a pleasant way to develop a skill, but it's effective."
 
-10. PRESERVE ALL MARKDOWN STRUCTURE. Keep ## headings, **bold** terms, markdown tables (do not rewrite table content), and any structured lists that carry data. Only rewrite prose paragraphs.
+10. DRY BRITISH WIT. Humour lives in the construction of the sentence, not in jokes. Understated, never silly. Colloquial expressions used naturally: "trust me", "and yet", "that's rarer than it sounds", "much as you might have preferred to."
 
-11. WRITE TO THE CLIENT. Use "you" and "your" throughout. Never use the client's name or third-person pronouns in prose.
+11. BRITISH SPELLINGS. colour, organised, recognise, behaviour, etc.
 
-12. NO PREAMBLE. Do not begin your response with "Here is the rewritten section" or any similar meta-commentary. Output only the rewritten section text.`;
+12. PRESERVE ALL ANALYTICAL CONTENT. Do not remove any finding, evidence reference, or conclusion. Only change the voice and structure. The client's specific achievements, strength names, scores, and career directions must all remain.
+
+13. PRESERVE ALL MARKDOWN STRUCTURE. Keep ## headings, **bold** terms, markdown tables (do not rewrite table content), and any structured lists that carry data. Only rewrite prose paragraphs.
+
+14. WRITE TO THE CLIENT. Use "you" and "your" throughout. Never use the client's name or third-person pronouns in prose.
+
+15. NO PREAMBLE. Do not begin your response with "Here is the rewritten section" or any similar meta-commentary. Output only the rewritten section text.`;
 
 async function rewriteSectionsForMark(
   sections: WowReportSections,
