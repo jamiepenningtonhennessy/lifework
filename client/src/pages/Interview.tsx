@@ -435,7 +435,8 @@ export default function Interview() {
       setUserAge(parsed);
       setAgeScreenDone(true);
       setShowAgeScreen(false);
-      setShowIntro(true);
+      setPhaseIndex(0);
+      // Don't go back to intro — proceed directly to phase 1
     };
     return (
       <div className="min-h-screen" style={{ background: "var(--lw-cream)" }}>
@@ -652,7 +653,7 @@ export default function Interview() {
         <div className="p-4 rounded-lg bg-[var(--lw-gold-light)]/20 border border-[var(--lw-gold)]/15 mb-6 text-sm text-foreground leading-relaxed">
           Think of things where <strong>some skill was indicated</strong> — where you were
           personally pleased with what you did. Don't take any notice of what others thought. Record{" "}
-          <strong>4 actions</strong> for this stage using short phrases.
+          <strong>4 actions</strong> for this stage using several short phrases — the more detail the better.
         </div>
 
         {/* ESF quick-reference pills */}
@@ -798,11 +799,8 @@ export default function Interview() {
         </div>
         {/* Phase-level Others box — shown once after all 4 actions */}
         <div className="mt-5 p-5 rounded-xl border-2 border-border bg-card">
-          <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide block mb-1.5">
-            Others{" "}
-            <span className="font-normal normal-case text-muted-foreground">
-              — what did others say about you during this phase? (perhaps a teacher's comment, a colleague's observation, a manager's feedback)
-            </span>
+          <label className="text-sm text-muted-foreground block mb-1.5">
+            A final question — what did others say about you during this phase? (perhaps a teacher's comment, a colleague's observation, a manager's feedback)
           </label>
           <Textarea
             value={phaseOthers[currentPhase.id] ?? ""}
