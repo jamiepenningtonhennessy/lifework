@@ -120,6 +120,10 @@ export default function Interview() {
   const { data: myProfile } = trpc.profile.getMyProfile.useQuery(undefined, {
     enabled: isAuthenticated,
   });
+  // Track whether name/age screens have been completed this session
+  // (prevents re-showing them when myProfile cache is stale after save)
+  const [nameScreenDone, setNameScreenDone] = useState(false);
+  const [ageScreenDone, setAgeScreenDone] = useState(false);
   useEffect(() => {
     if (myProfile) {
       if (myProfile.firstName) setNameInput(myProfile.firstName);
@@ -146,7 +150,9 @@ export default function Interview() {
       })
     : PHASES;
 
-  const updateProfile = trpc.profile.updateProfile.useMutation();
+  const updateProfile = trpc.profile.updateProfile.useMutation({
+    onSuccess: () => utils.profile.getMyProfile.invalidate(),
+  });
 
   // Load existing achievements from the achievements router
   const { data: existing } = trpc.achievements.list.useQuery(undefined, {
@@ -330,6 +336,7 @@ export default function Interview() {
           firstName: nameInput.trim(),
           pronouns: pronounsInput || undefined,
         });
+        setNameScreenDone(true);
         setShowNameScreen(false);
         // Show age screen next if we don't have age yet
         if (!userAge) {
@@ -413,6 +420,7 @@ export default function Interview() {
       const parsed = parseInt(ageInput, 10);
       if (!parsed || parsed < 10 || parsed > 110) return;
       setUserAge(parsed);
+      setAgeScreenDone(true);
       setShowAgeScreen(false);
       setShowIntro(true);
     };
@@ -680,10 +688,10 @@ export default function Interview() {
           <Button
             size="lg"
             onClick={() => {
-              if (!myProfile?.firstName) {
+              if (!nameScreenDone && !myProfile?.firstName) {
                 setShowIntro(false);
                 setShowNameScreen(true);
-              } else if (!userAge) {
+              } else if (!ageScreenDone && !userAge) {
                 setShowIntro(false);
                 setShowAgeScreen(true);
               } else {
