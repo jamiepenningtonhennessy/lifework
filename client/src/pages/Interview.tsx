@@ -97,6 +97,10 @@ export default function Interview() {
       PHASES.map((p) => [p.id, [emptyAction(), emptyAction(), emptyAction(), emptyAction()]]) // Always init all phases
     )
   );
+  // Phase-level "Others" observation — stored in action[0].othersObservations for backward compat
+  const [phaseOthers, setPhaseOthers] = useState<Record<string, string>>(() =>
+    Object.fromEntries(PHASES.map((p) => [p.id, ""]))
+  );
   const [showIntro, setShowIntro] = useState(true);
   const [showExample, setShowExample] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -191,6 +195,15 @@ export default function Interview() {
       });
     });
     setPhaseActions(loaded);
+    // Load phase-level Others from action[0].othersObservations
+    const loadedOthers: Record<string, string> = Object.fromEntries(PHASES.map((p) => [p.id, ""]));
+    PHASES.forEach((phase) => {
+      const items = (existing as any[]).filter((a: any) => a.decade === phase.decade);
+      if (items.length > 0) {
+        loadedOthers[phase.id] = items[0]?.othersObservations ?? "";
+      }
+    });
+    setPhaseOthers(loadedOthers);
     // Auto-resume: on first load, advance to the first phase with no saved entries
     if (!hasResumed) {
       const firstIncomplete = ACTIVE_PHASES.findIndex((p) =>
@@ -251,11 +264,11 @@ export default function Interview() {
           age: a.age ? parseInt(a.age) : undefined,
           description: a.description.trim() || undefined,
           esf: (a.esf as "enjoyable" | "satisfying" | "fulfilling") || undefined,
-          othersObservations: a.othersObservations.trim() || undefined,
+           // Phase-level Others stored on action[0] only; clear from other actions
+          othersObservations: i === 0 ? (phaseOthers[currentPhase.id] ?? "").trim() || undefined : undefined,
           decade: currentPhase.decade,
           sortOrder: i,
         });
-
         // Store the returned id so the next save on the same session does an UPDATE
         if (result?.id && !a.id) {
           updatedActions[i] = { ...a, id: result.id };
@@ -305,7 +318,7 @@ export default function Interview() {
           age: a.age ? parseInt(a.age) : undefined,
           description: a.description.trim() || undefined,
           esf: (a.esf as "enjoyable" | "satisfying" | "fulfilling") || undefined,
-          othersObservations: a.othersObservations.trim() || undefined,
+          othersObservations: i === 0 ? (phaseOthers[currentPhase.id] ?? "").trim() || undefined : undefined,
           decade: currentPhase.decade,
           sortOrder: i,
         });
@@ -855,23 +868,6 @@ export default function Interview() {
                 />
               </div>
 
-              {/* Others' observations */}
-              <div className="mb-4">
-                <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide block mb-1.5">
-                  Others{" "}
-                  <span className="font-normal normal-case text-muted-foreground">
-                    — what did others say about you at this time? (a teacher's comment, a colleague's observation, a manager's feedback)
-                  </span>
-                </label>
-                <Textarea
-                  value={action.othersObservations}
-                  onChange={(e) => updateAction(idx, "othersObservations", e.target.value)}
-                  placeholder='e.g. "My teacher said I was always organising the other children" or "My manager said I was the one who always found a way through"'
-                  rows={2}
-                  className="text-sm resize-none"
-                />
-              </div>
-
               {/* ESF selector */}
               <div>
                 <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide block mb-2">
@@ -911,7 +907,22 @@ export default function Interview() {
             </div>
           ))}
         </div>
-
+        {/* Phase-level Others box — shown once after all 4 actions */}
+        <div className="mt-5 p-5 rounded-xl border-2 border-border bg-card">
+          <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide block mb-1.5">
+            Others{" "}
+            <span className="font-normal normal-case text-muted-foreground">
+              — what did others say about you during this phase? (perhaps a teacher's comment, a colleague's observation, a manager's feedback)
+            </span>
+          </label>
+          <Textarea
+            value={phaseOthers[currentPhase.id] ?? ""}
+            onChange={(e) => setPhaseOthers((prev) => ({ ...prev, [currentPhase.id]: e.target.value }))}
+            placeholder='e.g. "My teacher said I was always organising the other children" or "My manager said I was the one who always found a way through"'
+            rows={2}
+            className="text-sm resize-none"
+          />
+        </div>
         {/* Navigation */}
         <div className="mt-8 flex items-center justify-between gap-2">
           <Button

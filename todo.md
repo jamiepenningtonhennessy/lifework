@@ -878,3 +878,4 @@
 - [x] Fix infinite loop in client Lifework onboarding: clicking "Begin Early Childhood" sends user back to "A couple of quick questions" instead of proceeding to life history entry
 - [x] Always show name/pronouns screen at start of Lifework process, pre-filled with existing profile data
 - [x] After login from /lifework access code page, redirect to Lifework opening page (with video) instead of main homepage
+- [x] Move "Others" field from each individual action to a single phase-level box after Action 4, with updated wording about what others said during that phase
