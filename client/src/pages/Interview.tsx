@@ -524,24 +524,14 @@ export default function Interview() {
               <p>
                 Who you are now is a continuation of who you were one year, three years, five years,
                 and a decade ago, right back to when you were a babe in arms — and perhaps even when
-                in the womb.
+                in the womb. We want to capture this journey through a set of data points — times when
+                you remember being pleased with what you had achieved.
               </p>
               <p>
-                Although you will have many adult experiences that are noteworthy, it is your{" "}
-                <strong>earlier life that underpins "you"</strong>. We start with childhood and work
-                forward through the decades.
+                We start with childhood and work forward through the decades. Early ones are the most
+                significant. It's what you personally found interesting that counts.
               </p>
-              <p>
-                Think of the things you have done where there is perhaps{" "}
-                <strong>some skill indicated</strong> — where you were pleased personally with what
-                you did. Don't take any notice of what others thought. It's what you personally
-                found interesting that counts.
-              </p>
-              <p>
-                You will record <strong>4 actions for each stage</strong>. Each action should take
-                no more than 5 minutes to record, so the whole exercise should only take about an
-                hour.
-              </p>
+
             </div>
           </div>
 
