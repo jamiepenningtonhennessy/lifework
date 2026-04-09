@@ -24,8 +24,8 @@ export default function Home() {
         setCodeError("");
         // Store in sessionStorage so it survives a page refresh within the session
         sessionStorage.setItem("lw_access_granted", "1");
-        // Proceed to sign-in
-        window.location.href = getLoginUrl();
+        // Proceed to sign-in — return to Lifework opening page after login
+        window.location.href = getLoginUrl("/coaching/lifework");
       } else {
         setCodeError("That code doesn't match. Please check with your counsellor.");
       }
@@ -42,7 +42,7 @@ export default function Home() {
     }
     // Check if already granted this session
     if (sessionStorage.getItem("lw_access_granted") === "1") {
-      window.location.href = getLoginUrl();
+      window.location.href = getLoginUrl("/coaching/lifework");
       return;
     }
     setShowCodeModal(true);
