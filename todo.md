@@ -923,3 +923,8 @@
 - [x] Slide 6: descriptor font 14pt, add "On bad day" paragraph
 - [x] Slide 7: descriptor font 14pt, add "On bad day" paragraph
 - [x] Slide 8: subtitle 14pt, career direction bullets 32pt
+
+## Coaching Slides — Download Fix
+
+- [x] Switch PPTX delivery from tRPC blob URL to direct Express streaming endpoint (same pattern as PDF fix)
+- [x] Update frontend button to use fetch + blob URL trigger reliably

@@ -255,8 +255,14 @@ export default function WowReportTab({ clientId, clientName }: WowReportTabProps
   // Rebuild PDF from stored sections without re-running the LLM pipeline
   const generateSlidesMutation = trpc.coachingSlides.generate.useMutation({
     onSuccess: (result) => {
-      toast.success("Coaching slides ready!");
-      window.open(result.url, "_blank");
+      toast.success("Coaching slides ready — downloading…");
+      // Trigger a real file download rather than window.open (which browsers block)
+      const a = document.createElement("a");
+      a.href = result.url;
+      a.download = `Lifework-Coaching-Slides.pptx`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
     },
     onError: (err) => {
       toast.error("Could not generate slides: " + err.message);
