@@ -641,8 +641,8 @@ async function rewriteSectionsForMark(
     viaSection: "This is Chapter 3: Character Strengths. Preserve the markdown evidence table exactly as-is. Only rewrite the prose paragraphs in The Key Findings section and any closing prose.",
     personalitySection: "This is Chapter 4: Personality Profile. Preserve any charts or structured data. Rewrite the prose commentary. The 'Where the Two Pictures Meet' divergence analysis should be the most interesting part — make it feel like a discovery, not a checklist.",
     behaviouralStyle: "This is Chapter 5: Behavioural Style. This section already uses a slightly different voice (Jamie Pennington's). Rewrite it in Mark's voice instead. Preserve the colour energy labels and Jungian type.",
-    careerDirections: "This is Chapter 6: Career Directions. Each direction should feel like a genuine recommendation, not a job description. Make the case for each one with conviction.",
-    developmentEdge: "This is Chapter 7: Development Edge. This is where the report tells the client something uncomfortable. Mark's voice is particularly well-suited here — direct, not cruel, but not softened either.",
+    developmentEdge: "This is Chapter 6: Development Edge. This is where the report tells the client something uncomfortable. Mark's voice is particularly well-suited here — direct, not cruel, but not softened either.",
+    careerDirections: "This is Chapter 7: Career Directions. Each direction should feel like a genuine recommendation, not a job description. Make the case for each one with conviction.",
   };
 
   // Run all rewrites in parallel
@@ -1318,22 +1318,22 @@ async function renderWowPdf(sections: WowReportSections, writingStyle: WritingSt
         ];
       })(),
 
-      // ── Section 6: Career Directions (variant-aware title) ──
+      // ── Chapter 6: Development Edge (variant-aware title) ──
       ...sectionBlock(
-        sections.reportType === "retirement" ? "6. What To Do With What You Know"
-          : sections.reportType === "student" ? "6. Where You Are Headed"
-          : sections.reportType === "job_returner" ? "6. What You Bring Back"
-          : "6. Career Directions",
-        sections.careerDirections
+        sections.reportType === "retirement" ? "6. What To Watch"
+          : sections.reportType === "student" ? "6. What To Build First"
+          : sections.reportType === "job_returner" ? "6. What To Rebuild"
+          : "6. Development Edge",
+        sections.developmentEdge
       ),
 
-      // ── Section 7: Development Edge (variant-aware title) ──
+      // ── Chapter 7: Career Directions (variant-aware title) ──
       ...sectionBlock(
-        sections.reportType === "retirement" ? "7. What To Watch"
-          : sections.reportType === "student" ? "7. What To Build First"
-          : sections.reportType === "job_returner" ? "7. What To Rebuild"
-          : "7. Development Edge",
-        sections.developmentEdge
+        sections.reportType === "retirement" ? "7. What To Do With What You Know"
+          : sections.reportType === "student" ? "7. Where You Are Headed"
+          : sections.reportType === "job_returner" ? "7. What You Bring Back"
+          : "7. Career Directions",
+        sections.careerDirections
       ),
 
       // ── Section 8: Conclusions ──
@@ -1356,7 +1356,7 @@ async function renderWowPdf(sections: WowReportSections, writingStyle: WritingSt
             retirement: "Retirement & Legacy Edition",
           };
           const currentLabel = variantDescriptions[sections.reportType ?? "standard"] ?? "Standard Edition";
-          return `This report is the ${currentLabel}. The Lifework WOW Report is produced in four variants, each calibrated to a different life stage and set of questions. Chapters 1–5 (Summary, Life History, Character Strengths, Personality Profile, and Behavioural Style) are substantially the same across all four variants — the data does not change. Chapters 6, 7, and 8 (Directions, Development Edge, and Conclusions) are rewritten for each variant to address the specific questions and challenges of that life stage.`;
+          return `This report is the ${currentLabel}. The Lifework WOW Report is produced in four variants, each calibrated to a different life stage and set of questions. Chapters 1–5 (Summary, Life History, Character Strengths, Personality Profile, and Behavioural Style) are substantially the same across all four variants — the data does not change. Chapters 6, 7, and 8 (Development Edge, Career Directions, and Conclusions) are rewritten for each variant to address the specific questions and challenges of that life stage.`;
         })(),
         font: "Roboto",
         fontSize: 10,

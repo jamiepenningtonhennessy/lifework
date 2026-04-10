@@ -959,3 +959,11 @@
 - [x] Show Lock/Unlock toggle button in counsellor header actions
 - [x] Hide Regenerate and Rewrite buttons when report is locked
 - [x] Add Rebuild PDF button for reports with JSON but no PDF URL
+
+## WOW Report & Slides — Chapter Reorder & Rename
+
+- [x] WOW report: rename all "Section N" headings to "Chapter N" (in LLM prompts, PDF renderer, UI labels)
+- [x] WOW report: swap Chapter 6 (Career Directions) and Chapter 7 (Development Edge) — Development Edge first
+- [x] Slides: add new Slide 6 "Development Edge" summarising the development edge section
+- [x] Slides: rename existing "So What?" slide to "Chapter 7 — Career Directions" with career direction bullets
+- [x] Reset cached WOW report PDFs so all reports regenerate with new chapter order

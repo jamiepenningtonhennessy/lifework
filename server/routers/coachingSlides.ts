@@ -220,6 +220,7 @@ export interface SlideSections {
   secondaryColour: string;
   jungianType: string;
   careerDirections: string;
+  developmentEdge: string;
   reportType: string;
 }
 
@@ -227,7 +228,7 @@ export async function generateCoachingSlides(data: SlideSections): Promise<Buffe
   const pptx = new PptxGenJS();
   pptx.layout = "LAYOUT_WIDE";
 
-  const TOTAL = 8;
+  const TOTAL = 9;
   const name = data.clientName || "Client";
 
   // ── Extract all LLM content in parallel ──────────────────────────────────
@@ -237,6 +238,7 @@ export async function generateCoachingSlides(data: SlideSections): Promise<Buffe
     viaEvidence,
     oceanConclusions,
     patternBullets,
+    devEdgeBullets,
     soWhatBullets,
   ] = await Promise.all([
     extractBulletsWithExamples(
@@ -254,6 +256,11 @@ export async function generateCoachingSlides(data: SlideSections): Promise<Buffe
     extractBullets(
       [data.summary, data.lifeHistoryPattern, data.viaSection, data.personalitySection].join("\n\n"),
       "Extract 4 insights that emerge ONLY when you look across ALL instruments together.",
+      4
+    ),
+    extractBullets(
+      data.developmentEdge ?? "",
+      "Extract 3-4 concise development edge insights. Each should name the gap clearly and what it costs if unaddressed.",
       4
     ),
     extractBullets(
@@ -288,7 +295,8 @@ export async function generateCoachingSlides(data: SlideSections): Promise<Buffe
       "Personality profile (OCEAN)",
       "Behavioural style",
       "The pattern across all instruments",
-      "So what? — your next steps",
+      "Development edge",
+      "Career directions",
     ];
     agenda.forEach((item, i) => {
       slide.addText(`${i + 1}.  ${item}`, {
@@ -592,7 +600,32 @@ export async function generateCoachingSlides(data: SlideSections): Promise<Buffe
     addFooter(slide, name, 7, TOTAL);
   }
 
-  // ── SLIDE 8: So What? — subtitle 14pt, bullets 32pt ───────────────────────
+  // ── SLIDE 8: Development Edge ──────────────────────────────────────────────────────────────
+  {
+    const slide = pptx.addSlide();
+    slide.addShape("rect", { x: 0, y: 0, w: W, h: H, fill: { color: NAVY }, line: { color: NAVY } });
+    slide.addShape("rect", { x: 0, y: 0, w: 0.12, h: H, fill: { color: GOLD }, line: { color: GOLD } });
+
+    addLogo(slide);
+    addEyebrow(slide, "Chapter 6");
+    addHeading(slide, "Development Edge");
+    addAccentBar(slide);
+
+    slide.addText("Where the evidence points to growth opportunities", {
+      x: 0.55, y: 1.32, w: W - 1.1, h: 0.3,
+      fontSize: 14, color: MUTED, fontFace: "Calibri", italic: true,
+    });
+
+    const devItems = devEdgeBullets.map((b) => ({
+      text: b,
+      options: { bullet: { code: "25CF", color: GOLD }, color: WHITE, fontSize: 15, fontFace: "Calibri", paraSpaceAfter: 10 },
+    }));
+    slide.addText(devItems, { x: 0.55, y: 1.72, w: W - 1.1, h: 4.5, valign: "top" });
+
+    addFooter(slide, name, 8, TOTAL);
+  }
+
+  // ── SLIDE 9: Career Directions ──────────────────────────────────────────────────────────────
   {
     const slide = pptx.addSlide();
     slide.addShape("rect", { x: 0, y: 0, w: W, h: H, fill: { color: CREAM }, line: { color: CREAM } });
@@ -600,17 +633,17 @@ export async function generateCoachingSlides(data: SlideSections): Promise<Buffe
     slide.addShape("rect", { x: 0, y: 0, w: 0.12, h: H, fill: { color: GOLD }, line: { color: GOLD } });
 
     addLogo(slide);
-    addEyebrow(slide, "Application");
-    addHeading(slide, "So What?");
+    addEyebrow(slide, "Chapter 7");
+    addHeading(slide, "Career Directions");
 
-     // "Your question" prompt box — at top, just below the navy header band
+    // "Your question" prompt box — at top, just below the navy header band
     slide.addShape("rect", { x: 0.55, y: 1.5, w: W - 1.1, h: 0.65, fill: { color: NAVY }, line: { color: GOLD, pt: 1 } });
     slide.addText("Your question for today:", {
       x: 0.75, y: 1.52, w: W - 1.5, h: 0.6,
       fontSize: 11, color: GOLD, bold: true, fontFace: "Calibri", valign: "middle",
     });
     // Subtitle at 14pt — below the question box
-    slide.addText("Career directions — what this means for you", {
+    slide.addText("What the evidence suggests you might be considering", {
       x: 0.55, y: 2.28, w: W - 1.1, h: 0.38,
       fontSize: 14, color: NAVY, fontFace: "Calibri", italic: true, bold: false,
     });
@@ -619,9 +652,9 @@ export async function generateCoachingSlides(data: SlideSections): Promise<Buffe
       text: b,
       options: { bullet: { code: "25CF", color: GOLD }, color: NAVY, fontSize: 18, fontFace: "Georgia", bold: true, paraSpaceAfter: 10 },
     }));
-    slide.addText(items, { x: 0.55, y: 2.75, w: W - 1.1, h: 3.5, valign: "top" });;
+    slide.addText(items, { x: 0.55, y: 2.75, w: W - 1.1, h: 3.5, valign: "top" });
 
-    addFooter(slide, name, 8, TOTAL);
+    addFooter(slide, name, 9, TOTAL);
   }
 
   // ── Write to buffer ────────────────────────────────────────────────────────
