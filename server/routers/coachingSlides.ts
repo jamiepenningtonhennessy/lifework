@@ -610,30 +610,12 @@ export async function generateCoachingSlides(data: SlideSections): Promise<Buffe
         .trim();
       // Split into lines and build pptxgenjs paragraph objects
       const lines = body.split(/\n/).filter(l => l.trim());
-      // Extract first name for third-person conversion on paragraph lines
-      const firstName = (name ?? '').split(' ')[0] || 'They';
-      const toThirdPerson = (s: string): string => s
-        .replace(/\bYou are\b/g, `${firstName} is`)
-        .replace(/\bYou do\b/g, `${firstName} does`)
-        .replace(/\bYou have\b/g, `${firstName} has`)
-        .replace(/\bYou work\b/g, `${firstName} works`)
-        .replace(/\bYou bring\b/g, `${firstName} brings`)
-        .replace(/\bYou thrive\b/g, `${firstName} thrives`)
-        .replace(/\bYou lead\b/g, `${firstName} leads`)
-        .replace(/\bYou build\b/g, `${firstName} builds`)
-        .replace(/\bYou excel\b/g, `${firstName} excels`)
-        .replace(/\bYou combine\b/g, `${firstName} combines`)
-        .replace(/\bYou offer\b/g, `${firstName} offers`)
-        .replace(/\bYou\b/g, firstName)
-        .replace(/\byour\b/g, 'their')
-        .replace(/\bYour\b/g, 'Their');
-
       const runs: Array<{ text: string; options: any }> = [];
       for (const line of lines) {
         const isBullet = /^[*\-]\s+/.test(line.trim());
         const clean = line.replace(/^[*\-]\s+/, '').replace(/\*\*/g, '').trim();
-        // Paragraphs (non-bullets) are converted to third person
-        const display = isBullet ? clean : toThirdPerson(clean);
+        // Display verbatim — second person throughout
+        const display = clean;
         runs.push({
           text: (isBullet ? '\u2022  ' : '') + display + '\n',
           options: {
