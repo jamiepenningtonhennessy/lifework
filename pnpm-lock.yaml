@@ -119,6 +119,9 @@ importers:
       '@types/pdf-parse':
         specifier: ^1.1.5
         version: 1.1.5
+      '@types/pdfkit':
+        specifier: ^0.17.5
+        version: 0.17.5
       '@types/pdfmake':
         specifier: ^0.3.2
         version: 0.3.2
@@ -182,6 +185,9 @@ importers:
       pdf-parse:
         specifier: ^2.4.5
         version: 2.4.5
+      pdfkit:
+        specifier: ^0.18.0
+        version: 0.18.0
       pdfmake:
         specifier: ^0.3.5
         version: 0.3.7

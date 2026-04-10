@@ -1,6 +1,8 @@
+import { useState } from "react";
 import { Link } from "wouter";
 import { PHNav } from "@/components/PHNav";
 import { PHFooter } from "@/components/PHFooter";
+import { LifeworkDownloadModal } from "@/components/LifeworkDownloadModal";
 import { ArrowRight, CheckCircle, Download, ChevronRight } from "lucide-react";
 
 // ─── Brand constants ──────────────────────────────────────────────────────────
@@ -63,20 +65,21 @@ function CTAButton({ label = "Book a Discovery Call", href = "/coaching" }: { la
 }
 
 // ─── Secondary (outline) CTA ──────────────────────────────────────────────────
-function SecondaryButton({ label, href = "#" }: { label: string; href?: string }) {
+function SecondaryButton({ label, onClick }: { label: string; onClick?: () => void }) {
   return (
-    <a
-      href={href}
-      className="inline-flex items-center gap-2 px-7 py-3.5 font-medium text-sm tracking-widest uppercase no-underline transition-opacity hover:opacity-80"
+    <button
+      onClick={onClick}
+      className="inline-flex items-center gap-2 px-7 py-3.5 font-medium text-sm tracking-widest uppercase transition-opacity hover:opacity-80"
       style={{
         border: `1px solid rgba(201,151,58,0.55)`,
         color: GOLD,
         letterSpacing: "0.1em",
         background: "transparent",
+        cursor: "pointer",
       }}
     >
       <Download className="w-4 h-4" /> {label}
-    </a>
+    </button>
   );
 }
 
@@ -167,8 +170,11 @@ function ProblemCard({ label, text }: { label: string; text: string }) {
 
 // ─── Main page ────────────────────────────────────────────────────────────────
 export default function LifeworkStorybrand() {
+  const [showModal, setShowModal] = useState(false);
+
   return (
     <div className="min-h-screen flex flex-col" style={{ background: CREAM }}>
+      <LifeworkDownloadModal open={showModal} onClose={() => setShowModal(false)} />
       <PHNav />
 
       {/* ══════════════════════════════════════════════════════════════════════
@@ -235,7 +241,7 @@ export default function LifeworkStorybrand() {
               </p>
               <div className="flex flex-wrap gap-4">
                 <CTAButton label="Book a Discovery Call" href="/coaching" />
-                <SecondaryButton label="What Lifework Reveals" href="#guide" />
+                <SecondaryButton label="What Lifework Reveals" onClick={() => setShowModal(true)} />
               </div>
             </div>
 

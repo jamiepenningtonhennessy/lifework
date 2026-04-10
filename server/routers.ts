@@ -76,6 +76,41 @@ const counselorProcedure = protectedProcedure.use(({ ctx, next }) => {
 
 // ─── Marketing Router ───────────────────────────────────────────────────────
 const marketingRouter = router({
+  downloadLifeworkPdf: publicProcedure
+    .input(
+      z.object({
+        name: z.string().min(1).max(200),
+        email: z.string().email().max(320),
+      })
+    )
+    .mutation(async ({ input }) => {
+      const { getDb } = await import("./db");
+      const { leadMagnetDownloads } = await import("../drizzle/schema");
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB unavailable" });
+      // Store the lead
+      await db.insert(leadMagnetDownloads).values({
+        name: input.name,
+        email: input.email,
+        document: "lifework_overview",
+      });
+      // Notify owner
+      try {
+        const { notifyOwner } = await import("./_core/notification");
+        await notifyOwner({
+          title: "New Lifework PDF Download",
+          content: `${input.name} (${input.email}) downloaded the Lifework overview PDF`,
+        });
+      } catch (_) {
+        // non-fatal
+      }
+      // Generate PDF
+      const { generateLifeworkPdf } = await import("./routers/lifeworkPdf");
+      const pdfBuffer = generateLifeworkPdf(input.name);
+      // Return as base64 so tRPC can serialise it
+      return { pdf: pdfBuffer.toString("base64") };
+    }),
+
   submitLead: publicProcedure
     .input(
       z.object({

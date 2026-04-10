@@ -9,6 +9,18 @@ import {
   boolean,
 } from "drizzle-orm/mysql-core";
 
+// ─── Lead Magnet Downloads ─────────────────────────────────────────────────
+
+export const leadMagnetDownloads = mysqlTable("lead_magnet_downloads", {
+  id: int("id").autoincrement().primaryKey(),
+  name: varchar("name", { length: 256 }).notNull(),
+  email: varchar("email", { length: 320 }).notNull(),
+  document: varchar("document", { length: 64 }).default("lifework_overview").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type LeadMagnetDownload = typeof leadMagnetDownloads.$inferSelect;
+
 export const users = mysqlTable("users", {
   id: int("id").autoincrement().primaryKey(),
   openId: varchar("openId", { length: 64 }).notNull().unique(),

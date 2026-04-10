@@ -900,3 +900,11 @@
 - [x] Stakes section: cost of inaction
 - [x] Success section: transformation + testimonial quote
 - [x] Wire into App.tsx as /lifework-storybrand route
+
+## Lead Magnet — "What Lifework Reveals" PDF
+
+- [x] Server-side PDF generation endpoint using pdfkit/weasyprint in navy/gold brand style
+- [x] Database table to store leads (name, email, timestamp)
+- [x] Name/email capture modal on StoryBrand page before download
+- [x] PDF content: overview, 3 instruments, dummy quotes, CTA
+- [x] Store lead and serve PDF download on form submit
