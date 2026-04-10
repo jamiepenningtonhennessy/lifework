@@ -975,3 +975,11 @@
 - [x] WOW report: update LLM prompt labels and appendix text to reflect new order
 - [x] WOW report UI: update SECTION_META order so Conclusions is Chapter 7, Career Directions is Chapter 8
 - [x] Reset cached WOW report PDFs
+
+## Coaching Slides — Reorder & Conclusions Rebuild
+
+- [ ] Swap Slide 7 (Conclusions) and Slide 8 (Development Edge) — Dev Edge first
+- [ ] Rebuild Conclusions slide to mirror WOW Chapter 7: Past / Present / Future sections with bullets extracted from coachingQuestions
+- [ ] Add new Slide 9 "Tell Me About Yourself" with verbatim paragraph extracted from coachingQuestions chapter
+- [ ] Career Directions becomes Slide 10, update TOTAL to 10
+- [ ] Update title slide agenda to reflect new order

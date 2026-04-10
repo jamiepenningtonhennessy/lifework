@@ -17,6 +17,10 @@ const PptxGenJS = (PptxGenJSModule as any).default ?? PptxGenJSModule;
 import { storagePut } from "../storage.js";
 import { invokeLLM } from "../_core/llm.js";
 import { LIFEWORK_LOGO_BASE64 } from "./lifeworkLogoBase64.js";
+import { z } from "zod";
+import { router, protectedProcedure } from "../_core/trpc.js";
+import { TRPCError } from "@trpc/server";
+import { getAnalysisReport } from "../db.js";
 
 // ─── Brand colours ────────────────────────────────────────────────────────────
 const NAVY       = "1a2744";
@@ -221,6 +225,7 @@ export interface SlideSections {
   jungianType: string;
   careerDirections: string;
   developmentEdge: string;
+  coachingQuestions: string;
   reportType: string;
 }
 
@@ -228,7 +233,7 @@ export async function generateCoachingSlides(data: SlideSections): Promise<Buffe
   const pptx = new PptxGenJS();
   pptx.layout = "LAYOUT_WIDE";
 
-  const TOTAL = 9;
+  const TOTAL = 10;
   const name = data.clientName || "Client";
 
   // ── Extract all LLM content in parallel ──────────────────────────────────
@@ -294,8 +299,9 @@ export async function generateCoachingSlides(data: SlideSections): Promise<Buffe
       "Character strengths (VIA)",
       "Personality profile (OCEAN)",
       "Behavioural style",
-      "Conclusions",
       "Development edge",
+      "Conclusions",
+      "Tell me about yourself",
       "Career directions",
     ];
     agenda.forEach((item, i) => {
@@ -565,42 +571,7 @@ export async function generateCoachingSlides(data: SlideSections): Promise<Buffe
     addFooter(slide, name, 6, TOTAL);
   }
 
-  // ── SLIDE 7: Conclusions (synthesis across all instruments) ───────────────────────
-  {
-    const slide = pptx.addSlide();
-    slide.addShape("rect", { x: 0, y: 0, w: W, h: H, fill: { color: NAVY }, line: { color: NAVY } });
-    slide.addShape("rect", { x: 0, y: 0, w: 0.12, h: H, fill: { color: GOLD }, line: { color: GOLD } });
-
-    addLogo(slide);
-    addEyebrow(slide, "Chapter 7");
-    addHeading(slide, "Conclusions");
-    addAccentBar(slide);
-
-    slide.addText("What emerges when all the instruments are read together", {
-      x: 0.55, y: 1.32, w: W - 1.1, h: 0.3,
-      fontSize: 14, color: MUTED, fontFace: "Calibri", italic: true,
-    });
-
-    const patternItems = patternBullets.map((b) => ({
-      text: b,
-      options: { bullet: { code: "25CF", color: GOLD }, color: WHITE, fontSize: 15, fontFace: "Calibri", paraSpaceAfter: 8 },
-    }));
-    slide.addText(patternItems, { x: 0.55, y: 1.72, w: W - 1.1, h: 2.8, valign: "top" });
-
-    // "On bad day" for secondary colour (the shadow side of the pattern)
-    const badDayText = COLOUR_BAD_DAY[data.secondaryColour] ?? COLOUR_BAD_DAY[data.primaryColour] ?? "";
-    if (badDayText) {
-      slide.addShape("rect", { x: 0.55, y: 4.65, w: W - 1.1, h: 0.04, fill: { color: GOLD }, line: { color: GOLD } });
-      slide.addText(badDayText, {
-        x: 0.55, y: 4.75, w: W - 1.1, h: 0.7,
-        fontSize: 12, color: MUTED, fontFace: "Calibri", italic: true,
-      });
-    }
-
-    addFooter(slide, name, 7, TOTAL);
-  }
-
-  // ── SLIDE 8: Development Edge ──────────────────────────────────────────────────────────────
+  // ── SLIDE 7: Development Edge ──────────────────────────────────────────────────────────────
   {
     const slide = pptx.addSlide();
     slide.addShape("rect", { x: 0, y: 0, w: W, h: H, fill: { color: NAVY }, line: { color: NAVY } });
@@ -616,17 +587,69 @@ export async function generateCoachingSlides(data: SlideSections): Promise<Buffe
       fontSize: 14, color: MUTED, fontFace: "Calibri", italic: true,
     });
 
-    const devItems = devEdgeBullets.map((b) => ({
+    const devItems7 = devEdgeBullets.map((b) => ({
       text: b,
       options: { bullet: { code: "25CF", color: GOLD }, color: WHITE, fontSize: 15, fontFace: "Calibri", paraSpaceAfter: 10 },
     }));
-    slide.addText(devItems, { x: 0.55, y: 1.72, w: W - 1.1, h: 4.5, valign: "top" });
+    slide.addText(devItems7, { x: 0.55, y: 1.72, w: W - 1.1, h: 4.5, valign: "top" });
+    addFooter(slide, name, 7, TOTAL);
+  }
+
+  // ── SLIDE 8: Conclusions (Past / Present / Future) ─────────────────────────────────────────
+  {
+    const extractSection8 = (text: string, heading: string): string => {
+      const regex = new RegExp(`##\\s*${heading}\\s*\\n([\\s\\S]*?)(?=##|$)`, 'i');
+      const m = text.match(regex);
+      return m ? m[1].trim() : "";
+    };
+    const pastText = extractSection8(data.coachingQuestions ?? "", "Past");
+    const presentText = extractSection8(data.coachingQuestions ?? "", "Present");
+    const futureText = extractSection8(data.coachingQuestions ?? "", "Future");
+    const truncate8 = (s: string, max = 220) => s.length > max ? s.slice(0, max).replace(/\s\S*$/, '') + '\u2026' : s;
+
+    const slide = pptx.addSlide();
+    slide.addShape("rect", { x: 0, y: 0, w: W, h: H, fill: { color: NAVY }, line: { color: NAVY } });
+    slide.addShape("rect", { x: 0, y: 0, w: 0.12, h: H, fill: { color: GOLD }, line: { color: GOLD } });
+
+    addLogo(slide);
+    addEyebrow(slide, "Chapter 7");
+    addHeading(slide, "Conclusions");
+    addAccentBar(slide);
+
+    const colW8 = (W - 1.1 - 0.4) / 3;
+    const colY8 = 1.55;
+    const colH8 = H - colY8 - 0.7;
+    const cols8 = [
+      { label: "Past",    text: pastText,    x: 0.55 },
+      { label: "Present", text: presentText, x: 0.55 + colW8 + 0.2 },
+      { label: "Future",  text: futureText,  x: 0.55 + (colW8 + 0.2) * 2 },
+    ];
+
+    cols8.forEach(({ label, text, x }) => {
+      slide.addText(label.toUpperCase(), {
+        x, y: colY8, w: colW8, h: 0.28,
+        fontSize: 8, color: GOLD, bold: true, fontFace: "Calibri", charSpacing: 2,
+      });
+      slide.addShape("rect", { x, y: colY8 + 0.3, w: colW8, h: 0.02, fill: { color: GOLD }, line: { color: GOLD } });
+      slide.addText(truncate8(text || "\u2014"), {
+        x, y: colY8 + 0.38, w: colW8, h: colH8 - 0.38,
+        fontSize: 11, color: WHITE, fontFace: "Calibri", valign: "top",
+      });
+    });
 
     addFooter(slide, name, 8, TOTAL);
   }
 
-  // ── SLIDE 9: Career Directions ──────────────────────────────────────────────────────────────
+  // ── SLIDE 9: Tell Me About Yourself ───────────────────────────────────────────────────────────
   {
+    const extractTellMe9 = (text: string): string => {
+      const regex = /##\s*Tell Me About Yourself[\s\S]*?\n([\s\S]*?)(?=##|$)/i;
+      const m = text.match(regex);
+      if (!m) return "";
+      return m[1].replace(/^The following is a suggested answer[^\n]*\n+/i, '').trim();
+    };
+    const tellMeText = extractTellMe9(data.coachingQuestions ?? "");
+
     const slide = pptx.addSlide();
     slide.addShape("rect", { x: 0, y: 0, w: W, h: H, fill: { color: CREAM }, line: { color: CREAM } });
     slide.addShape("rect", { x: 0, y: 0, w: W, h: 1.4, fill: { color: NAVY }, line: { color: NAVY } });
@@ -634,46 +657,61 @@ export async function generateCoachingSlides(data: SlideSections): Promise<Buffe
 
     addLogo(slide);
     addEyebrow(slide, "Chapter 7");
+    addHeading(slide, "Tell Me About Yourself");
+
+    slide.addText("A suggested answer \u2014 drawn from everything your Lifework analysis has revealed", {
+      x: 0.55, y: 1.48, w: W - 1.1, h: 0.32,
+      fontSize: 10, color: NAVY, fontFace: "Calibri", italic: true,
+    });
+    slide.addShape("rect", { x: 0.55, y: 1.82, w: W - 1.1, h: 0.02, fill: { color: GOLD }, line: { color: GOLD } });
+
+    slide.addText(tellMeText || "(Conclusions chapter not yet generated \u2014 generate the WOW Report first)", {
+      x: 0.55, y: 1.9, w: W - 1.1, h: H - 2.6,
+      fontSize: 12.5, color: NAVY, fontFace: "Georgia", valign: "top",
+    });
+
+    addFooter(slide, name, 9, TOTAL);
+  }
+
+  // ── SLIDE 10: Career Directions ──────────────────────────────────────────────────────────────
+  {
+    const slide = pptx.addSlide();
+    slide.addShape("rect", { x: 0, y: 0, w: W, h: H, fill: { color: CREAM }, line: { color: CREAM } });
+    slide.addShape("rect", { x: 0, y: 0, w: W, h: 1.4, fill: { color: NAVY }, line: { color: NAVY } });
+    slide.addShape("rect", { x: 0, y: 0, w: 0.12, h: H, fill: { color: GOLD }, line: { color: GOLD } });
+
+    addLogo(slide);
+    addEyebrow(slide, "Chapter 8");
     addHeading(slide, "Career Directions");
 
-    // "Your question" prompt box — at top, just below the navy header band
     slide.addShape("rect", { x: 0.55, y: 1.5, w: W - 1.1, h: 0.65, fill: { color: NAVY }, line: { color: GOLD, pt: 1 } });
     slide.addText("Your question for today:", {
       x: 0.75, y: 1.52, w: W - 1.5, h: 0.6,
       fontSize: 11, color: GOLD, bold: true, fontFace: "Calibri", valign: "middle",
     });
-    // Subtitle at 14pt — below the question box
     slide.addText("What the evidence suggests you might be considering", {
       x: 0.55, y: 2.28, w: W - 1.1, h: 0.38,
       fontSize: 14, color: NAVY, fontFace: "Calibri", italic: true, bold: false,
     });
-    // Career direction bullets at 18pt Georgia bold
-    const items = soWhatBullets.map((b) => ({
+    const items10 = soWhatBullets.map((b) => ({
       text: b,
       options: { bullet: { code: "25CF", color: GOLD }, color: NAVY, fontSize: 18, fontFace: "Georgia", bold: true, paraSpaceAfter: 10 },
     }));
-    slide.addText(items, { x: 0.55, y: 2.75, w: W - 1.1, h: 3.5, valign: "top" });
-
-    addFooter(slide, name, 9, TOTAL);
+    slide.addText(items10, { x: 0.55, y: 2.75, w: W - 1.1, h: 3.5, valign: "top" });
+    addFooter(slide, name, 10, TOTAL);
   }
 
   // ── Write to buffer ────────────────────────────────────────────────────────
   const buffer = await pptx.write({ outputType: "nodebuffer" }) as unknown as Buffer;
   return buffer;
 }
-
 // ─── tRPC procedure wrapper ───────────────────────────────────────────────────
-import { z } from "zod";
-import { router, protectedProcedure } from "../_core/trpc.js";
-import { TRPCError } from "@trpc/server";
-
 const counselorProcedure = protectedProcedure.use(({ ctx, next }: { ctx: any; next: any }) => {
   if (ctx.user.role !== "admin") {
     throw new TRPCError({ code: "FORBIDDEN", message: "Counselor access required" });
   }
   return next({ ctx });
 });
-import { getAnalysisReport } from "../db.js";
 
 export const coachingSlidesRouter = router({
   generate: counselorProcedure

@@ -1036,7 +1036,7 @@ async function renderWowPdf(sections: WowReportSections, writingStyle: WritingSt
       },
       {
         ul: [
-          "If you’re naturally impatient it’s OK to start with Chapter 7 – Conclusions. It’s here we summarise what we believe to be true, and give you a suggested reply to that dreaded interview question “So, tell me about yourself”.",
+          "If you\u2019re naturally impatient it\u2019s OK to start with Chapter 7 \u2013 Conclusions. It\u2019s here we summarise what we believe to be true, and give you a suggested reply to that dreaded interview question \u201cSo, tell me about yourself\u201d.",
           "If you\u2019re more patient, the report builds your analysis from your early years life history, step-by-step, so you can see how the analysis unfolds.",
         ],
         font: "Roboto",
