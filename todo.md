@@ -944,3 +944,9 @@
 
 - [x] Add Express POST /api/download/coaching-slides endpoint that streams PPTX directly (same pattern as PDF)
 - [x] Update frontend to use fetch + createObjectURL + click trigger (same-origin, no cross-origin block)
+
+## Coaching Slides — Slide 4 Evidence Table
+
+- [x] Replace current Slide 4 strength table with full 5-column evidence table (Strength, VIA Definition, Survey Rank, Freq of N, Identity Salience, Achievements with evidence)
+- [x] Rename slide heading from "Evidence Table" to "Character Strengths"
+- [x] Parse table directly from stored viaSection markdown (no extra data passing needed)

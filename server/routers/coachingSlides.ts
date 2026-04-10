@@ -361,59 +361,91 @@ export async function generateCoachingSlides(data: SlideSections): Promise<Buffe
     addFooter(slide, name, 3, TOTAL);
   }
 
-  // ── SLIDE 4: Character Strengths — evidence table (no bars) ───────────────
+  // ── SLIDE 4: Character Strengths — full evidence table (matches WOW report) ─
   {
-    const slide = pptx.addSlide();
-    slide.addShape("rect", { x: 0, y: 0, w: W, h: H, fill: { color: NAVY }, line: { color: NAVY } });
-    slide.addShape("rect", { x: 0, y: 0, w: 0.12, h: H, fill: { color: GOLD }, line: { color: GOLD } });
+    // Parse the markdown evidence table from viaSection
+    const parseViaTable = (viaSection: string) => {
+      const rows: Array<{ strength: string; definition: string; rank: string; freq: string; salience: string; achievements: string }> = [];
+      const lines = viaSection.split("\n");
+      let inTable = false;
+      let headerParsed = false;
+      for (const line of lines) {
+        const trimmed = line.trim();
+        if (!trimmed.startsWith("|")) { if (inTable && rows.length > 0) break; continue; }
+        if (/^\|[-:\| ]+\|$/.test(trimmed)) { headerParsed = true; inTable = true; continue; }
+        const cells = trimmed.slice(1, -1).split("|").map((c: string) => c.trim());
+        if (!headerParsed) { inTable = true; continue; } // skip header row
+        if (cells.length >= 6) {
+          rows.push({ strength: cells[0], definition: cells[1], rank: cells[2], freq: cells[3], salience: cells[4], achievements: cells[5] });
+        }
+      }
+      return rows;
+    };
+    const tableRows = parseViaTable(data.viaSection ?? "");
 
+    const slide = pptx.addSlide();
+    // Cream background (matches WOW report style for this table)
+    slide.addShape("rect", { x: 0, y: 0, w: W, h: H, fill: { color: CREAM }, line: { color: CREAM } });
+    slide.addShape("rect", { x: 0, y: 0, w: W, h: 1.15, fill: { color: NAVY }, line: { color: NAVY } });
+    slide.addShape("rect", { x: 0, y: 0, w: 0.12, h: H, fill: { color: GOLD }, line: { color: GOLD } });
     addLogo(slide);
     addEyebrow(slide, "Chapter 3");
     addHeading(slide, "Character Strengths");
-    addAccentBar(slide);
 
-    // Column headers
-    slide.addText("Strength", {
-      x: 0.55, y: 1.38, w: 2.8, h: 0.28,
-      fontSize: 8, color: GOLD, bold: true, fontFace: "Calibri", charSpacing: 1.5,
-    });
-    slide.addText("Evidence from your life history", {
-      x: 3.5, y: 1.38, w: W - 4.0, h: 0.28,
-      fontSize: 8, color: GOLD, bold: true, fontFace: "Calibri", charSpacing: 1.5,
-    });
-    // Header divider
-    slide.addShape("rect", { x: 0.55, y: 1.67, w: W - 1.1, h: 0.015, fill: { color: GOLD }, line: { color: GOLD } });
+    // Column layout (inches): Strength(1.5) | Definition(3.0) | Rank(0.7) | Freq(0.7) | Salience(1.1) | Achievements(rest)
+    const COL_W = [1.5, 3.0, 0.7, 0.7, 1.1, 4.68];
+    const xs: number[] = [];
+    let cx = 0.55;
+    for (const w of COL_W) { xs.push(cx); cx += w; }
 
-    const rowH = 0.88;
-    viaEvidence.slice(0, 5).forEach((row, i) => {
-      const y = 1.72 + i * rowH;
-      // Alternating row tint
-      if (i % 2 === 0) {
-        slide.addShape("rect", { x: 0.55, y, w: W - 1.1, h: rowH - 0.06, fill: { color: LIGHT_NAVY }, line: { color: LIGHT_NAVY } });
-      }
-      // Rank circle
-      slide.addShape("ellipse", { x: 0.6, y: y + 0.18, w: 0.38, h: 0.38, fill: { color: GOLD }, line: { color: GOLD } });
-      slide.addText(String(i + 1), {
-        x: 0.6, y: y + 0.18, w: 0.38, h: 0.38,
-        fontSize: 10, color: NAVY, bold: true, fontFace: "Calibri", align: "center", valign: "middle",
-      });
-      // Strength name
-      slide.addText(row.strength ?? "—", {
-        x: 1.1, y: y + 0.1, w: 2.3, h: 0.65,
-        fontSize: 13, color: WHITE, bold: true, fontFace: "Calibri", valign: "middle",
-      });
-      // Evidence items
-      const ev = row.evidence ?? ["—", "—"];
-      slide.addText(`· ${ev[0] ?? "—"}`, {
-        x: 3.5, y: y + 0.06, w: W - 4.0, h: 0.35,
-        fontSize: 11, color: WHITE, fontFace: "Calibri",
-      });
-      slide.addText(`· ${ev[1] ?? "—"}`, {
-        x: 3.5, y: y + 0.42, w: W - 4.0, h: 0.35,
-        fontSize: 11, color: MUTED, fontFace: "Calibri",
+    // Header row
+    const HEADER_Y = 1.22;
+    const HEADER_H = 0.32;
+    slide.addShape("rect", { x: 0.55, y: HEADER_Y, w: W - 0.85, h: HEADER_H, fill: { color: NAVY }, line: { color: NAVY } });
+    const headers = ["Strength", "VIA Definition", "Survey Rank", "Freq (of N)", "Identity Salience", "Achievements with evidence"];
+    headers.forEach((h, ci) => {
+      slide.addText(h, {
+        x: xs[ci] + 0.06, y: HEADER_Y + 0.02, w: COL_W[ci] - 0.08, h: HEADER_H - 0.04,
+        fontSize: 7, color: GOLD, bold: true, fontFace: "Calibri", valign: "middle",
       });
     });
+    // Gold divider under header
+    slide.addShape("rect", { x: 0.55, y: HEADER_Y + HEADER_H, w: W - 0.85, h: 0.015, fill: { color: GOLD }, line: { color: GOLD } });
 
+    // Data rows
+    const DATA_Y = HEADER_Y + HEADER_H + 0.03;
+    const rowCount = Math.min(tableRows.length > 0 ? tableRows.length : (data.viaRanked ?? []).length, 7);
+    const rowH = rowCount > 0 ? Math.min(0.82, (H - DATA_Y - 0.55) / rowCount) : 0.82;
+    const rowColors = ["f5f0e8", "ede5d8"];
+
+    if (tableRows.length === 0) {
+      // Fallback: show viaRanked only
+      (data.viaRanked ?? []).slice(0, 5).forEach((s, i) => {
+        const y = DATA_Y + i * rowH;
+        slide.addShape("rect", { x: 0.55, y, w: W - 0.85, h: rowH - 0.04, fill: { color: rowColors[i % 2] }, line: { color: rowColors[i % 2] } });
+        slide.addText(s.name, { x: xs[0] + 0.06, y: y + 0.04, w: COL_W[0] - 0.08, h: rowH - 0.1, fontSize: 11, color: NAVY, bold: true, fontFace: "Calibri", valign: "middle" });
+        slide.addText(String(s.rank ?? i + 1), { x: xs[2] + 0.06, y: y + 0.04, w: COL_W[2] - 0.08, h: rowH - 0.1, fontSize: 11, color: NAVY, fontFace: "Calibri", align: "center", valign: "middle" });
+      });
+    } else {
+      tableRows.slice(0, 7).forEach((row, i) => {
+        const y = DATA_Y + i * rowH;
+        const bg = rowColors[i % 2];
+        slide.addShape("rect", { x: 0.55, y, w: W - 0.85, h: rowH - 0.04, fill: { color: bg }, line: { color: bg } });
+        // Strength name (bold navy)
+        slide.addText(row.strength, { x: xs[0] + 0.06, y: y + 0.04, w: COL_W[0] - 0.08, h: rowH - 0.1, fontSize: 10, color: NAVY, bold: true, fontFace: "Calibri", valign: "top" });
+        // VIA Definition
+        slide.addText(row.definition, { x: xs[1] + 0.06, y: y + 0.04, w: COL_W[1] - 0.08, h: rowH - 0.1, fontSize: 9, color: "333333", fontFace: "Calibri", valign: "top" });
+        // Survey Rank (centred)
+        slide.addText(row.rank, { x: xs[2] + 0.06, y: y + 0.04, w: COL_W[2] - 0.08, h: rowH - 0.1, fontSize: 10, color: NAVY, fontFace: "Calibri", align: "center", valign: "middle" });
+        // Freq (centred)
+        slide.addText(row.freq, { x: xs[3] + 0.06, y: y + 0.04, w: COL_W[3] - 0.08, h: rowH - 0.1, fontSize: 10, color: NAVY, fontFace: "Calibri", align: "center", valign: "middle" });
+        // Identity Salience — colour-coded
+        const salCol = row.salience.includes("VERY") ? "7b2d00" : row.salience === "HIGH" ? "1a5c2a" : row.salience === "MEDIUM" ? "7a5c00" : "555555";
+        slide.addText(row.salience, { x: xs[4] + 0.06, y: y + 0.04, w: COL_W[4] - 0.08, h: rowH - 0.1, fontSize: 9, color: salCol, bold: true, fontFace: "Calibri", valign: "middle" });
+        // Achievements
+        slide.addText(row.achievements, { x: xs[5] + 0.06, y: y + 0.04, w: COL_W[5] - 0.1, h: rowH - 0.1, fontSize: 9, color: "333333", fontFace: "Calibri", valign: "top" });
+      });
+    }
     addFooter(slide, name, 4, TOTAL);
   }
 
