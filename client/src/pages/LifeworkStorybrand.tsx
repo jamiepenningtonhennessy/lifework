@@ -258,7 +258,7 @@ export default function LifeworkStorybrand() {
                 className="text-sm font-medium tracking-wide uppercase mb-8"
                 style={{ color: GOLD, fontSize: "0.72rem", letterSpacing: "0.12em" }}
               >
-                — Mark Brandon, Pennington Hennessy
+                — Jamie Pennington, Pennington Hennessy
               </div>
               <div
                 style={{ borderTop: "1px solid rgba(201,151,58,0.2)", paddingTop: "2rem" }}
@@ -366,7 +366,7 @@ export default function LifeworkStorybrand() {
                 We know how hard it is to name the feeling — the sense that your career is slightly out of register with who you are. We know how much it costs, in energy and in confidence, to keep performing a version of yourself that does not quite fit.
               </p>
               <p style={{ color: "rgba(15,31,53,0.7)", lineHeight: 1.8, fontSize: "0.97rem", marginBottom: "2rem" }}>
-                The Lifework programme was developed by Mark Brandon of Pennington Hennessy, drawing on the Haldane Dependable Strengths methodology — one of the most rigorous frameworks in career analysis. Over three decades and nearly a thousand individual analyses, one finding has remained consistent: when people do work that aligns with their genuine strengths and motivations, they do not just perform better. They feel like themselves.
+                The Lifework programme was developed by Jamie Pennington of Pennington Hennessy, drawing on the Haldane Dependable Strengths methodology — one of the most dependable frameworks in career analysis. Over three decades and nearly a thousand individual analyses, one finding has remained consistent: when people do work that aligns with their genuine strengths and motivations, they do not just perform better. They feel like themselves.
               </p>
               <div className="flex flex-col gap-3">
                 {[
@@ -392,7 +392,7 @@ export default function LifeworkStorybrand() {
               </div>
             </div>
 
-            {/* Right: Mark Brandon profile card */}
+            {/* Right: Jamie Pennington profile card */}
             <div
               style={{
                 background: NAVY,
@@ -414,7 +414,7 @@ export default function LifeworkStorybrand() {
                 "I have worked with lawyers and professionals for thirty years. The ones who thrive are not the ones who are most technically skilled. They are the ones who know what they are for."
               </blockquote>
               <div style={{ color: GOLD, fontSize: "0.78rem", letterSpacing: "0.12em", textTransform: "uppercase", fontWeight: 600 }}>
-                Mark Brandon
+                Jamie Pennington
               </div>
               <div style={{ color: "rgba(255,255,255,0.45)", fontSize: "0.78rem", marginTop: "0.25rem" }}>
                 Founder, Pennington Hennessy
@@ -694,7 +694,7 @@ export default function LifeworkStorybrand() {
               "I have worked with lawyers and professionals for thirty years. The ones who thrive are not the ones who are most technically skilled. They are the ones who know what they are for."
             </blockquote>
             <div style={{ color: GOLD, fontSize: "0.78rem", letterSpacing: "0.12em", textTransform: "uppercase", fontWeight: 600 }}>
-              Mark Brandon — Pennington Hennessy
+              Jamie Pennington — Pennington Hennessy
             </div>
           </div>
 
