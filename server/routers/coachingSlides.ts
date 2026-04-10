@@ -596,13 +596,38 @@ export async function generateCoachingSlides(data: SlideSections): Promise<Buffe
 
   // ── SLIDE 8: Tell Me About Yourself ───────────────────────────────────────────────────────────
   {
-    const extractTellMe9 = (text: string): string => {
-      const regex = /##\s*Tell Me About Yourself[\s\S]*?\n([\s\S]*?)(?=##|$)/i;
-      const m = text.match(regex);
-      if (!m) return "";
-      return m[1].replace(/^The following is a suggested answer[^\n]*\n+/i, '').trim();
+    // Extract the Tell Me About Yourself paragraph from coachingQuestions
+    // The stored text uses a plain heading (no ## prefix) followed by the intro line then the content
+    const extractTellMe9 = (text: string): Array<{ text: string; options: any }> => {
+      const idx = text.search(/Tell Me About Yourself/i);
+      if (idx < 0) return [];
+      const after = text.slice(idx);
+      // Skip the heading line and the intro line
+      const body = after
+        .replace(/^Tell Me About Yourself[^\n]*\n+/i, '')
+        .replace(/^The following is a suggested answer[^\n]*\n+/i, '')
+        .replace(/^drawn from everything[^\n]*\n+/i, '')
+        .trim();
+      // Split into lines and build pptxgenjs paragraph objects
+      const lines = body.split(/\n/).filter(l => l.trim());
+      const runs: Array<{ text: string; options: any }> = [];
+      for (const line of lines) {
+        const isBullet = /^[*\-]\s+/.test(line.trim());
+        const clean = line.replace(/^[*\-]\s+/, '').replace(/\*\*/g, '').trim();
+        runs.push({
+          text: (isBullet ? '\u2022  ' : '') + clean + '\n',
+          options: {
+            fontSize: isBullet ? 14 : 12,
+            bold: isBullet,
+            color: NAVY,
+            fontFace: "Georgia",
+            paraSpaceAfter: isBullet ? 2 : 6,
+          }
+        });
+      }
+      return runs;
     };
-    const tellMeText = extractTellMe9(data.coachingQuestions ?? "");
+    const tellMeRuns = extractTellMe9(data.coachingQuestions ?? "");
 
     const slide = pptx.addSlide();
     slide.addShape("rect", { x: 0, y: 0, w: W, h: H, fill: { color: CREAM }, line: { color: CREAM } });
@@ -619,10 +644,17 @@ export async function generateCoachingSlides(data: SlideSections): Promise<Buffe
     });
     slide.addShape("rect", { x: 0.55, y: 1.82, w: W - 1.1, h: 0.02, fill: { color: GOLD }, line: { color: GOLD } });
 
-    slide.addText(tellMeText || "(Conclusions chapter not yet generated \u2014 generate the WOW Report first)", {
-      x: 0.55, y: 1.9, w: W - 1.1, h: H - 2.6,
-      fontSize: 12.5, color: NAVY, fontFace: "Georgia", valign: "top",
-    });
+    if (tellMeRuns.length > 0) {
+      slide.addText(tellMeRuns, {
+        x: 0.55, y: 1.9, w: W - 1.1, h: H - 2.6,
+        valign: "top",
+      });
+    } else {
+      slide.addText("(Conclusions chapter not yet generated \u2014 generate the WOW Report first)", {
+        x: 0.55, y: 1.9, w: W - 1.1, h: H - 2.6,
+        fontSize: 12, color: NAVY, fontFace: "Georgia", valign: "top", italic: true,
+      });
+    }
 
     addFooter(slide, name, 8, TOTAL);
   }
