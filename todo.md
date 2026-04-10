@@ -913,3 +913,13 @@
 
 - [x] Switch PDF delivery from tRPC base64 to direct Express HTTP streaming endpoint
 - [x] Update frontend modal to use fetch + blob URL for reliable browser download
+
+## Coaching Slides Amendments (v2)
+
+- [x] Slide 2: font 32pt, spacing, add 2 examples per bullet
+- [x] Slide 3: font 32pt, spacing, add 2 examples per bullet
+- [x] Slide 4: replace bar chart with evidence table (strength + life history evidence)
+- [x] Slide 5: bars in top half, conclusions (what it says + VIA comparison) in bottom half
+- [x] Slide 6: descriptor font 14pt, add "On bad day" paragraph
+- [x] Slide 7: descriptor font 14pt, add "On bad day" paragraph
+- [x] Slide 8: subtitle 14pt, career direction bullets 32pt
