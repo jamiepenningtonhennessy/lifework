@@ -106,7 +106,7 @@ const marketingRouter = router({
       }
       // Generate PDF
       const { generateLifeworkPdf } = await import("./routers/lifeworkPdf");
-      const pdfBuffer = generateLifeworkPdf(input.name);
+      const pdfBuffer = await generateLifeworkPdf(input.name);
       // Return as base64 so tRPC can serialise it
       return { pdf: pdfBuffer.toString("base64") };
     }),

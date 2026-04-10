@@ -56,7 +56,8 @@ function eyebrow(doc: PDFKit.PDFDocument, text: string, x: number, y: number, li
 }
 
 // ─── Main export ─────────────────────────────────────────────────────────────
-export function generateLifeworkPdf(recipientName: string): Buffer {
+export function generateLifeworkPdf(recipientName: string): Promise<Buffer> {
+  return new Promise((resolve, reject) => {
   const chunks: Buffer[] = [];
   const doc = new PDFDocument({
     size: "A4",
@@ -69,6 +70,8 @@ export function generateLifeworkPdf(recipientName: string): Buffer {
   });
 
   doc.on("data", (chunk: Buffer) => chunks.push(chunk));
+  doc.on("error", reject);
+  doc.on("end", () => resolve(Buffer.concat(chunks)));
 
   // ══════════════════════════════════════════════════════════════════════
   // PAGE 1 — COVER
@@ -482,6 +485,6 @@ export function generateLifeworkPdf(recipientName: string): Buffer {
     );
 
   doc.end();
-
-  return Buffer.concat(chunks);
+  });
 }
+

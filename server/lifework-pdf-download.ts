@@ -55,7 +55,7 @@ lifeworkPdfRouter.post("/api/download/lifework-overview", async (req: Request, r
     }
 
     // Generate PDF
-    const pdfBuffer = generateLifeworkPdf(cleanName);
+    const pdfBuffer = await generateLifeworkPdf(cleanName);
 
     // Stream as a file download
     res.setHeader("Content-Type", "application/pdf");
