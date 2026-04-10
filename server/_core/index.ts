@@ -9,6 +9,7 @@ import { createContext } from "./context";
 import { serveStatic, setupVite } from "./vite";
 import { pdfRouter } from "../pdf-export";
 import { pdfExtractRouter } from "../pdf-extract";
+import { lifeworkPdfRouter } from "../lifework-pdf-download";
 import { getDb } from "../db";
 import { analysisReports } from "../../drizzle/schema";
 import { eq } from "drizzle-orm";
@@ -62,6 +63,8 @@ async function startServer() {
   app.use(pdfRouter);
   // PDF Text Extraction (for counsellor Sage document upload)
   app.use(pdfExtractRouter);
+  // Lifework overview PDF download (lead magnet)
+  app.use(lifeworkPdfRouter);
   // tRPC API
   app.use(
     "/api/trpc",

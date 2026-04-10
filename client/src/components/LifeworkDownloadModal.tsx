@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { X, Download, Loader2, CheckCircle } from "lucide-react";
-import { trpc } from "@/lib/trpc";
 
 interface LifeworkDownloadModalProps {
   open: boolean;
@@ -15,17 +14,28 @@ export function LifeworkDownloadModal({ open, onClose }: LifeworkDownloadModalPr
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [done, setDone] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const download = trpc.marketing.downloadLifeworkPdf.useMutation({
-    onSuccess: (data) => {
-      // Decode base64 PDF and trigger download
-      const binary = atob(data.pdf);
-      const bytes = new Uint8Array(binary.length);
-      for (let i = 0; i < binary.length; i++) {
-        bytes[i] = binary.charCodeAt(i);
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
+    if (!name.trim() || !email.trim()) {
+      setError("Please enter your name and email.");
+      return;
+    }
+    setLoading(true);
+    try {
+      const res = await fetch("/api/download/lifework-overview", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: name.trim(), email: email.trim() }),
+      });
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        throw new Error((body as { error?: string }).error || "Something went wrong. Please try again.");
       }
-      const blob = new Blob([bytes], { type: "application/pdf" });
+      const blob = await res.blob();
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
@@ -35,20 +45,11 @@ export function LifeworkDownloadModal({ open, onClose }: LifeworkDownloadModalPr
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
       setDone(true);
-    },
-    onError: (err) => {
-      setError(err.message || "Something went wrong. Please try again.");
-    },
-  });
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    setError("");
-    if (!name.trim() || !email.trim()) {
-      setError("Please enter your name and email.");
-      return;
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Something went wrong. Please try again.");
+    } finally {
+      setLoading(false);
     }
-    download.mutate({ name: name.trim(), email: email.trim() });
   };
 
   const handleClose = () => {
@@ -203,7 +204,7 @@ export function LifeworkDownloadModal({ open, onClose }: LifeworkDownloadModalPr
 
               <button
                 type="submit"
-                disabled={download.isPending}
+                disabled={loading}
                 className="w-full flex items-center justify-center gap-2 py-3.5 font-medium tracking-widest uppercase text-sm transition-opacity hover:opacity-85 disabled:opacity-60"
                 style={{
                   background: GOLD,
@@ -212,7 +213,7 @@ export function LifeworkDownloadModal({ open, onClose }: LifeworkDownloadModalPr
                   fontWeight: 600,
                 }}
               >
-                {download.isPending ? (
+                {loading ? (
                   <>
                     <Loader2 className="w-4 h-4 animate-spin" />
                     Generating your PDF…

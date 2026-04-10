@@ -908,3 +908,8 @@
 - [x] Name/email capture modal on StoryBrand page before download
 - [x] PDF content: overview, 3 instruments, dummy quotes, CTA
 - [x] Store lead and serve PDF download on form submit
+
+## PDF Download Fix
+
+- [x] Switch PDF delivery from tRPC base64 to direct Express HTTP streaming endpoint
+- [x] Update frontend modal to use fetch + blob URL for reliable browser download
