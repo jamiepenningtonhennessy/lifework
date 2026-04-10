@@ -950,3 +950,12 @@
 - [x] Replace current Slide 4 strength table with full 5-column evidence table (Strength, VIA Definition, Survey Rank, Freq of N, Identity Salience, Achievements with evidence)
 - [x] Rename slide heading from "Evidence Table" to "Character Strengths"
 - [x] Parse table directly from stored viaSection markdown (no extra data passing needed)
+
+## WOW Report — Lookup Bug & Lock Feature
+
+- [x] Diagnose and fix: `exists` check was using `wowReportPdfUrl` (null for many clients) instead of `wowReportJson`
+- [x] Add `wowReportLocked` boolean field to analysis_reports schema (migration applied)
+- [x] Auto-lock report when PDF is first downloaded
+- [x] Show Lock/Unlock toggle button in counsellor header actions
+- [x] Hide Regenerate and Rewrite buttons when report is locked
+- [x] Add Rebuild PDF button for reports with JSON but no PDF URL

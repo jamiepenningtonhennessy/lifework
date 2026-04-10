@@ -1,0 +1,1 @@
+ALTER TABLE `analysis_reports` ADD `wowReportLocked` boolean DEFAULT false NOT NULL;

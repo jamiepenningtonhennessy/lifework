@@ -1555,13 +1555,14 @@ export const wowReportRouter = router({
     .input(z.object({ clientId: z.number() }))
     .query(async ({ input }) => {
       const report = await getAnalysisReport(input.clientId);
-      if (!report) return { exists: false, status: null, pdfUrl: null, generatedAt: null, sections: null, error: null };
+      if (!report) return { exists: false, status: null, pdfUrl: null, generatedAt: null, sections: null, error: null, locked: false };
       const sections = (() => {
         try { return report.wowReportJson ? JSON.parse(report.wowReportJson) : null; }
         catch { return null; }
       })();
       return {
-        exists: !!report.wowReportPdfUrl,
+        // exists = true if we have JSON sections OR a PDF URL (JSON is the source of truth)
+        exists: !!(report.wowReportJson || report.wowReportPdfUrl),
         status: (report as any).wowReportStatus ?? null,
         pdfUrl: report.wowReportPdfUrl ?? null,
         generatedAt: report.wowReportGeneratedAt ?? null,
@@ -1569,6 +1570,7 @@ export const wowReportRouter = router({
         error: (report as any).wowReportError ?? null,
         reportType: ((report as any).wowReportType ?? "standard") as WowReportType,
         writingStyle: ((report as any).wowReportWritingStyle ?? "house") as WritingStyle,
+        locked: !!((report as any).wowReportLocked),
       };
     }),
 
@@ -1599,5 +1601,17 @@ export const wowReportRouter = router({
         generatedAt: new Date(),
       });
       return { pdfUrl, writingStyle };
+    }),
+
+  /** Set or clear the report lock for a client. */
+  setLock: counselorProcedure
+    .input(z.object({ clientId: z.number(), locked: z.boolean() }))
+    .mutation(async ({ input }) => {
+      await upsertAnalysisReport({
+        clientId: input.clientId,
+        wowReportLocked: input.locked,
+        generatedAt: new Date(),
+      });
+      return { locked: input.locked };
     }),
 });

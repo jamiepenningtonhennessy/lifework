@@ -39,6 +39,8 @@ import {
   Palette,
   BrainCircuit,
   Presentation,
+  Lock,
+  Unlock,
 } from "lucide-react";
 import { toast } from "sonner";
 import { Streamdown } from "streamdown";
@@ -287,6 +289,14 @@ export default function WowReportTab({ clientId, clientName }: WowReportTabProps
   // Keep a stub so the button reference below still compiles
   const generateSlidesMutation = { isPending: slidesBuilding };
 
+  const setLockMutation = trpc.wowReport.setLock.useMutation({
+    onSuccess: (result) => {
+      utils.wowReport.get.invalidate({ clientId });
+      toast.success(result.locked ? "Report locked — regeneration disabled." : "Report unlocked — you can now regenerate.");
+    },
+    onError: (err) => toast.error("Could not update lock: " + err.message),
+  });
+
   const rebuildPdfMutation = trpc.wowReport.rebuildPdf.useMutation({
     onSuccess: (result) => {
       utils.wowReport.get.invalidate({ clientId });
@@ -299,15 +309,37 @@ export default function WowReportTab({ clientId, clientName }: WowReportTabProps
 
   const sections: WowSections | null = reportData?.sections ?? null;
   const pdfUrl = reportData?.pdfUrl ?? null;
+  const isLocked = !!(reportData as any)?.locked;
+  // Report exists if we have JSON sections (even without a PDF URL)
+  const reportExists = !!(reportData?.exists);
   /** True when the stored PDF was built with a different style than currently selected */
   const pdfStyleMismatch = !!pdfUrl && selectedWritingStyle !== ((reportData as any)?.writingStyle ?? "house");
 
-  const handleDownloadPdf = () => {
+  const handleDownloadPdf = async () => {
     if (!pdfUrl) return;
     if (pdfStyleMismatch) {
       rebuildPdfMutation.mutate({ clientId, writingStyle: selectedWritingStyle });
-    } else {
+      return;
+    }
+    // Fetch via same-origin to force a real download (avoids cross-origin anchor block)
+    try {
+      const res = await fetch(pdfUrl);
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `WOW-Report-${clientName ?? "client"}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch {
+      // Fallback: open in new tab
       window.open(pdfUrl, "_blank");
+    }
+    // Auto-lock on first download if not already locked
+    if (!reportData?.locked) {
+      setLockMutation.mutate({ clientId, locked: true });
     }
   };
   const generatedAt = reportData?.generatedAt
@@ -391,7 +423,7 @@ export default function WowReportTab({ clientId, clientName }: WowReportTabProps
                     Try Again
                   </Button>
                 </>
-              ) : pdfUrl ? (
+              ) : reportExists ? (
                 <>
                   <div className="flex items-center gap-2 text-sm" style={{ color: "var(--lw-gold)" }}>
                     <CheckCircle2 className="w-4 h-4" />
@@ -445,16 +477,36 @@ export default function WowReportTab({ clientId, clientName }: WowReportTabProps
                       <BrainCircuit className="w-3 h-3 mr-1" />
                       Ask Sage
                     </Button>
+                    {isLocked ? (
+                      <div className="flex items-center gap-1 text-xs px-2 py-1 rounded border border-amber-400/40 text-amber-300/80 bg-amber-900/20">
+                        <Lock className="w-3 h-3" />
+                        <span>Locked</span>
+                      </div>
+                    ) : (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="border-white/20 text-white hover:bg-white/10 text-xs"
+                        onClick={() => handleGenerate(true, undefined, selectedWritingStyle)}
+                        disabled={isGenerating}
+                        title="Regenerate this report using the current report type and writing style"
+                      >
+                        <RefreshCw className="w-3 h-3 mr-1" />
+                        Regenerate
+                      </Button>
+                    )}
                     <Button
                       size="sm"
                       variant="outline"
-                      className="border-white/20 text-white hover:bg-white/10 text-xs"
-                      onClick={() => handleGenerate(true, undefined, selectedWritingStyle)}
-                      disabled={isGenerating}
-                      title="Regenerate this report using the current report type and writing style"
+                      className={isLocked
+                        ? "border-amber-400/40 text-amber-300/80 hover:bg-amber-900/20 text-xs"
+                        : "border-white/20 text-white/60 hover:bg-white/10 text-xs"}
+                      onClick={() => setLockMutation.mutate({ clientId, locked: !isLocked })}
+                      disabled={setLockMutation.isPending}
+                      title={isLocked ? "Unlock: allow regeneration" : "Lock: prevent accidental regeneration"}
                     >
-                      <RefreshCw className="w-3 h-3 mr-1" />
-                      Regenerate
+                      {isLocked ? <Unlock className="w-3 h-3 mr-1" /> : <Lock className="w-3 h-3 mr-1" />}
+                      {isLocked ? "Unlock" : "Lock"}
                     </Button>
                   </div>
                 </>
@@ -878,7 +930,7 @@ export default function WowReportTab({ clientId, clientName }: WowReportTabProps
           </div>
 
           {/* Bottom download + rewrite CTA */}
-          {pdfUrl && (
+          {reportExists && (
             <Card className="border-[var(--lw-gold)]/20 bg-[var(--lw-cream)]">
               <CardContent className="p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                 <div>
@@ -886,29 +938,44 @@ export default function WowReportTab({ clientId, clientName }: WowReportTabProps
                     Ready to share with {clientName ?? "the client"}?
                   </p>
                   <p className="text-xs text-muted-foreground mt-0.5">
-                    Download the branded PDF — suitable for printing, binding, and posting.
+                    {pdfUrl
+                      ? "Download the branded PDF — suitable for printing, binding, and posting."
+                      : "PDF not yet rendered — click Rebuild PDF to generate it from stored sections."}
                   </p>
                 </div>
                 <div className="flex gap-2 flex-wrap">
-                  <Button
-                    className="bg-[var(--lw-navy)] hover:bg-[var(--lw-navy)]/90 text-white"
-                    onClick={handleDownloadPdf}
-                    disabled={rebuildPdfMutation.isPending}
-                    title={pdfStyleMismatch ? `PDF will be rebuilt in ${selectedWritingStyle === "mark" ? "Mark" : "House"} style before download` : "Download PDF"}
-                  >
-                    {rebuildPdfMutation.isPending ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Download className="w-4 h-4 mr-2" />}
-                    {pdfStyleMismatch ? "Rebuild & Download PDF" : "Download PDF"}
-                  </Button>
-                  <Button
-                    variant="outline"
-                    className="border-[var(--lw-navy)]/30 text-[var(--lw-navy)] hover:bg-[var(--lw-navy)]/5 text-sm"
-                    onClick={() => handleGenerate(true, undefined, selectedWritingStyle)}
-                    disabled={isGenerating}
-                    title="Regenerate this report in the current writing style"
-                  >
-                    <RefreshCw className="w-4 h-4 mr-2" />
-                    Rewrite in New Style
-                  </Button>
+                  {pdfUrl ? (
+                    <Button
+                      className="bg-[var(--lw-navy)] hover:bg-[var(--lw-navy)]/90 text-white"
+                      onClick={handleDownloadPdf}
+                      disabled={rebuildPdfMutation.isPending}
+                      title={pdfStyleMismatch ? `PDF will be rebuilt in ${selectedWritingStyle === "mark" ? "Mark" : "House"} style before download` : "Download PDF"}
+                    >
+                      {rebuildPdfMutation.isPending ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Download className="w-4 h-4 mr-2" />}
+                      {pdfStyleMismatch ? "Rebuild & Download PDF" : "Download PDF"}
+                    </Button>
+                  ) : (
+                    <Button
+                      className="bg-[var(--lw-navy)] hover:bg-[var(--lw-navy)]/90 text-white"
+                      onClick={() => rebuildPdfMutation.mutate({ clientId, writingStyle: selectedWritingStyle })}
+                      disabled={rebuildPdfMutation.isPending}
+                    >
+                      {rebuildPdfMutation.isPending ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <RefreshCw className="w-4 h-4 mr-2" />}
+                      Rebuild PDF
+                    </Button>
+                  )}
+                  {!isLocked && (
+                    <Button
+                      variant="outline"
+                      className="border-[var(--lw-navy)]/30 text-[var(--lw-navy)] hover:bg-[var(--lw-navy)]/5 text-sm"
+                      onClick={() => handleGenerate(true, undefined, selectedWritingStyle)}
+                      disabled={isGenerating}
+                      title="Regenerate this report in the current writing style"
+                    >
+                      <RefreshCw className="w-4 h-4 mr-2" />
+                      Rewrite in New Style
+                    </Button>
+                  )}
                 </div>
               </CardContent>
             </Card>

@@ -252,6 +252,7 @@ export const analysisReports = mysqlTable("analysis_reports", {
   wowReportError: text("wowReportError"),     // error message if status=error
   wowReportType: mysqlEnum("wowReportType", ["standard", "student", "career_changer", "job_returner", "retirement"]).default("standard"),  // report variant
   wowReportWritingStyle: varchar("wow_report_writing_style", { length: 20 }).$default(() => "house"),  // writing style: house | mark
+  wowReportLocked: boolean("wowReportLocked").default(false).notNull(),  // locked after first download; prevents accidental regeneration
   // ── Canonical Stage 1: single source of truth for life history analysis ──
   canonicalStage1: text("canonical_stage1"),           // Dependable Strengths analysis — shared by WoW and counsellor reports
   canonicalStage1GeneratedAt: int("canonical_stage1_generated_at"),  // Unix ms timestamp
