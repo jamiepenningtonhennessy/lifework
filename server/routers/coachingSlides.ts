@@ -190,7 +190,8 @@ function addFooter(slide: any, clientName: string, slideNum: number, total: numb
 }
 
 function addLogo(slide: any) {
-  try { slide.addImage({ data: LIFEWORK_LOGO_BASE64, x: W - 1.4, y: 0.2, w: 1.0, h: 0.5 }); } catch { /* skip */ }
+  // Logo ratio is 2.48:1 (171×69px). Width 1.24in → height 0.5in
+  try { slide.addImage({ data: LIFEWORK_LOGO_BASE64, x: W - 1.55, y: 0.15, w: 1.24, h: 0.5 }); } catch { /* skip */ }
 }
 
 function addEyebrow(slide: any, text: string, x = 0.55, y = 0.28) {
@@ -570,25 +571,23 @@ export async function generateCoachingSlides(data: SlideSections): Promise<Buffe
     addEyebrow(slide, "Application");
     addHeading(slide, "So What?");
 
-    // Subtitle at 14pt
+     // "Your question" prompt box — at top, just below the navy header band
+    slide.addShape("rect", { x: 0.55, y: 1.5, w: W - 1.1, h: 0.65, fill: { color: NAVY }, line: { color: GOLD, pt: 1 } });
+    slide.addText("Your question for today:", {
+      x: 0.75, y: 1.52, w: W - 1.5, h: 0.6,
+      fontSize: 11, color: GOLD, bold: true, fontFace: "Calibri", valign: "middle",
+    });
+    // Subtitle at 14pt — below the question box
     slide.addText("Career directions — what this means for you", {
-      x: 0.55, y: 1.5, w: W - 1.1, h: 0.38,
+      x: 0.55, y: 2.28, w: W - 1.1, h: 0.38,
       fontSize: 14, color: NAVY, fontFace: "Calibri", italic: true, bold: false,
     });
-
-    // Career direction bullets at 32pt (large, impactful)
+    // Career direction bullets at 18pt Georgia bold
     const items = soWhatBullets.map((b) => ({
       text: b,
       options: { bullet: { code: "25CF", color: GOLD }, color: NAVY, fontSize: 18, fontFace: "Georgia", bold: true, paraSpaceAfter: 10 },
     }));
-    slide.addText(items, { x: 0.55, y: 2.0, w: W - 1.1, h: 4.0, valign: "top" });
-
-    // "Your question" prompt box at bottom
-    slide.addShape("rect", { x: 0.55, y: H - 1.2, w: W - 1.1, h: 0.65, fill: { color: NAVY }, line: { color: GOLD, pt: 1 } });
-    slide.addText("Your question for today:", {
-      x: 0.75, y: H - 1.15, w: 3.5, h: 0.55,
-      fontSize: 9, color: GOLD, bold: true, fontFace: "Calibri", valign: "middle",
-    });
+    slide.addText(items, { x: 0.55, y: 2.75, w: W - 1.1, h: 3.5, valign: "top" });;
 
     addFooter(slide, name, 8, TOTAL);
   }

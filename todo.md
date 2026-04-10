@@ -928,3 +928,8 @@
 
 - [x] Switch PPTX delivery from tRPC blob URL to direct Express streaming endpoint (same pattern as PDF fix)
 - [x] Update frontend button to use fetch + blob URL trigger reliably
+
+## Coaching Slides — Slide 8 & Logo Updates
+
+- [x] Move "Your question for today" box to top of Slide 8 (below heading, above career direction bullets)
+- [x] Replace logo in all slides with correct navy-background Lifework logo (no white band)
