@@ -939,3 +939,8 @@
 - [x] Replace VIA intro (4 paragraphs) with new shorter 3-sentence version
 - [x] Replace Big Five intro (3 paragraphs) with new shorter 3-sentence version
 - [x] Reset existing reports to regenerate with updated intros
+
+## Coaching Slides — Download Fix (Round 2)
+
+- [x] Add Express POST /api/download/coaching-slides endpoint that streams PPTX directly (same pattern as PDF)
+- [x] Update frontend to use fetch + createObjectURL + click trigger (same-origin, no cross-origin block)

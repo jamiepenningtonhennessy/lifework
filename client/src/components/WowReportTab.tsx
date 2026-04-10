@@ -253,21 +253,39 @@ export default function WowReportTab({ clientId, clientName }: WowReportTabProps
   };
 
   // Rebuild PDF from stored sections without re-running the LLM pipeline
-  const generateSlidesMutation = trpc.coachingSlides.generate.useMutation({
-    onSuccess: (result) => {
-      toast.success("Coaching slides ready — downloading…");
-      // Trigger a real file download rather than window.open (which browsers block)
+  const [slidesBuilding, setSlidesBuilding] = useState(false);
+  const handleGenerateSlides = async () => {
+    setSlidesBuilding(true);
+    try {
+      const res = await fetch("/api/download/coaching-slides", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ clientId }),
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({ error: "Unknown error" }));
+        toast.error("Could not generate slides: " + (err.error ?? res.statusText));
+        return;
+      }
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
-      a.href = result.url;
-      a.download = `Lifework-Coaching-Slides.pptx`;
+      a.href = url;
+      a.download = "Lifework-Coaching-Slides.pptx";
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
-    },
-    onError: (err) => {
-      toast.error("Could not generate slides: " + err.message);
-    },
-  });
+      URL.revokeObjectURL(url);
+      toast.success("Coaching slides downloaded.");
+    } catch (err: any) {
+      toast.error("Could not generate slides: " + (err?.message ?? "Unknown error"));
+    } finally {
+      setSlidesBuilding(false);
+    }
+  };
+  // Keep a stub so the button reference below still compiles
+  const generateSlidesMutation = { isPending: slidesBuilding };
 
   const rebuildPdfMutation = trpc.wowReport.rebuildPdf.useMutation({
     onSuccess: (result) => {
@@ -406,7 +424,7 @@ export default function WowReportTab({ clientId, clientName }: WowReportTabProps
                       size="sm"
                       variant="outline"
                       className="border-[var(--lw-gold)]/60 text-[var(--lw-gold)] hover:bg-[var(--lw-gold)]/10 text-xs"
-                      onClick={() => generateSlidesMutation.mutate({ clientId })}
+                      onClick={handleGenerateSlides}
                       disabled={generateSlidesMutation.isPending}
                       title="Generate a branded coaching session PowerPoint deck"
                     >
