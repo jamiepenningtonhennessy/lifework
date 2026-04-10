@@ -25,7 +25,8 @@ import PreviewMode from "./pages/PreviewMode";
 import ResultsHeld from "./pages/ResultsHeld";
 import { InstallPrompt } from "./components/InstallPrompt";
 import { LifeworkLayout } from "./components/LifeworkLayout";
-import DataSecurity from "./pages/DataSecurity";
+import DataSecurity from "@/pages/DataSecurity";
+import LifeworkStorybrand from "@/pages/LifeworkStorybrand";
 import { CounsellorPinGate } from "./components/CounsellorPinGate";
 import {
   PreviewClientDashboard,
@@ -50,6 +51,7 @@ function Router() {
       <Route path="/training" component={PHTraining} />
       <Route path="/about" component={PHAbout} />
       <Route path="/data-security" component={DataSecurity} />
+      <Route path="/lifework-storybrand" component={LifeworkStorybrand} />
       <Route path="/ai-coaching" component={AICoaching} />
 
       {/* Results held — shown after completing VIA or IPIP (withheld until Wow Report session) ── */}

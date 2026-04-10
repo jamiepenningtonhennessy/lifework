@@ -888,3 +888,15 @@
 - [x] Add coachingSlidesRouter to main router
 - [x] Add "Coaching Slides" button to WowReportTab (gold-accented, beside Ask Sage)
 - [x] Download triggers automatically when PPTX is ready
+
+## StoryBrand Homepage (Lifework)
+
+- [x] Build /lifework-storybrand page with all 7 StoryBrand sections in navy/gold/cream brand design
+- [x] Hero section: headline, subheadline, primary + transitional CTA
+- [x] Problem section: external/internal/philosophical framing
+- [x] Guide section: empathy statement + authority stats
+- [x] Plan section: 3-step process with icons
+- [x] CTA section: repeated direct CTA with visual weight
+- [x] Stakes section: cost of inaction
+- [x] Success section: transformation + testimonial quote
+- [x] Wire into App.tsx as /lifework-storybrand route
