@@ -933,3 +933,9 @@
 
 - [x] Move "Your question for today" box to top of Slide 8 (below heading, above career direction bullets)
 - [x] Replace logo in all slides with correct navy-background Lifework logo (no white band)
+
+## WOW Report — VIA & Big Five Intro Text Update
+
+- [x] Replace VIA intro (4 paragraphs) with new shorter 3-sentence version
+- [x] Replace Big Five intro (3 paragraphs) with new shorter 3-sentence version
+- [x] Reset existing reports to regenerate with updated intros

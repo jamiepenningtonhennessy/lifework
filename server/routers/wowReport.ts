@@ -1119,10 +1119,7 @@ async function renderWowPdf(sections: WowReportSections, writingStyle: WritingSt
       heading("3. Character Strengths"),
       divider(),
       // VIA framework overview
-      para("The VIA Character Strengths framework set out to create a rigorous, empirically grounded classification of what is best in people. The result was the VIA Classification of Character Strengths and Virtues, identifying 24 strengths organised under six broad virtues: Wisdom, Courage, Humanity, Justice, Temperance, and Transcendence."),
-      para("Underpinning the framework is a simple but profound conviction: that understanding and deploying what is genuinely strong in us is at least as important to human flourishing as addressing what is broken."),
-      para("Central to the practical application of VIA is the concept of signature strengths — those top strengths that feel most authentically and energetically you. Research suggests that signature strengths are not simply what you do well, but what you are drawn to use, what gives you a sense of vitality when expressed, and what others tend to recognise in you over time."),
-      para("When people find ways to deploy their signature strengths in their work and relationships, studies consistently show improvements in wellbeing, engagement, and resilience. The invitation in what follows is not to treat your results as a fixed label, but as a lens — a starting point for reflection on where you are already thriving, and where deliberate attention to your strengths might open new possibilities."),
+      para("The VIA framework identifies 24 character strengths organised under six virtues. Central to its application is the idea of signature strengths — those you are most drawn to use and that give you energy. Research shows that deploying signature strengths improves wellbeing, engagement, and resilience."),
       ...(sections.viaRanked.length > 0
         ? [
             subheading("Strength Rankings"),
@@ -1143,9 +1140,7 @@ async function renderWowPdf(sections: WowReportSections, writingStyle: WritingSt
       heading("4. Personality Profile"),
       divider(),
       // Big Five / OCEAN framework overview
-      para("The five-factor model of personality — often referred to as the \"Big Five\" — represents one of the most robust and extensively replicated findings in psychological science. Emerging from decades of factor-analytic research across cultures and languages, it identifies five broad dimensions that reliably capture the core architecture of human personality: Openness to Experience, Conscientiousness, Extraversion, Agreeableness, and Neuroticism (sometimes reframed as Emotional Stability)."),
-      para("Unlike some psychological assessments that assign people to fixed types or categories, the Big Five measures traits as dimensions — continuous spectrums on which each of us sits at a particular point, shaped by both temperament and life experience. There are no good or bad scores. A high score on Conscientiousness and a low one tell us something meaningfully different about how a person operates, but neither is inherently preferable — context, role, and self-awareness matter far more than position on any single scale."),
-      para("What the profile offers is a coherent, evidence-based picture of your characteristic tendencies: how you typically engage with ideas, with other people, with structure, and with emotional experience. Used well, it is less a verdict and more a vocabulary — a way of naming patterns you may already have sensed, and exploring what they mean for how you work and lead."),
+      para("The Big Five identifies five core personality dimensions: Openness, Conscientiousness, Extraversion, Agreeableness, and Emotional Stability. Unlike type-based assessments, it measures traits as continuous spectrums — there are no good or bad scores. It offers a vocabulary for patterns you may already sense in how you work and lead."),
       ...(big5Rows.length > 0
         ? [
             subheading("Big Five Personality Dimensions"),
