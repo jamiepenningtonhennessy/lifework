@@ -967,3 +967,11 @@
 - [x] Slides: add new Slide 6 "Development Edge" summarising the development edge section
 - [x] Slides: rename existing "So What?" slide to "Chapter 7 — Career Directions" with career direction bullets
 - [x] Reset cached WOW report PDFs so all reports regenerate with new chapter order
+
+## WOW Report & Slides — Conclusions/Career Directions Swap
+
+- [x] Slides: rename Slide 7 "The Pattern" → "Chapter 7 — Conclusions" (keep synthesis content, update eyebrow/heading)
+- [x] WOW report: swap Ch7 (Conclusions/coachingQuestions) and Ch8 (Career Directions) — Conclusions first, Career Directions last
+- [x] WOW report: update LLM prompt labels and appendix text to reflect new order
+- [x] WOW report UI: update SECTION_META order so Conclusions is Chapter 7, Career Directions is Chapter 8
+- [x] Reset cached WOW report PDFs

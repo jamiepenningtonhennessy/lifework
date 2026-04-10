@@ -124,18 +124,18 @@ const SECTION_META = [
     description: "Constructive growth areas framed as edges to develop.",
   },
   {
-    key: "careerDirections" as keyof WowSections,
-    label: "Career Directions",
-    Icon: Compass,
-    eyebrow: "Chapter 7",
-    description: "3-5 tailored career directions with specific rationale.",
-  },
-  {
     key: "coachingQuestions" as keyof WowSections,
     label: "Conclusions",
     Icon: HelpCircle,
-    eyebrow: "Chapter 8",
+    eyebrow: "Chapter 7",
     description: "Final synthesis — dependable strengths, career meaning, and forward-looking close.",
+  },
+  {
+    key: "careerDirections" as keyof WowSections,
+    label: "Career Directions",
+    Icon: Compass,
+    eyebrow: "Chapter 8",
+    description: "3-5 tailored career directions with specific rationale.",
   },
 ];
 

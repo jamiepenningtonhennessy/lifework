@@ -294,7 +294,7 @@ export async function generateCoachingSlides(data: SlideSections): Promise<Buffe
       "Character strengths (VIA)",
       "Personality profile (OCEAN)",
       "Behavioural style",
-      "The pattern across all instruments",
+      "Conclusions",
       "Development edge",
       "Career directions",
     ];
@@ -565,15 +565,15 @@ export async function generateCoachingSlides(data: SlideSections): Promise<Buffe
     addFooter(slide, name, 6, TOTAL);
   }
 
-  // ── SLIDE 7: The Pattern (synthesis) — descriptor 14pt, "On bad day" ──────
+  // ── SLIDE 7: Conclusions (synthesis across all instruments) ───────────────────────
   {
     const slide = pptx.addSlide();
     slide.addShape("rect", { x: 0, y: 0, w: W, h: H, fill: { color: NAVY }, line: { color: NAVY } });
     slide.addShape("rect", { x: 0, y: 0, w: 0.12, h: H, fill: { color: GOLD }, line: { color: GOLD } });
 
     addLogo(slide);
-    addEyebrow(slide, "Synthesis");
-    addHeading(slide, "The Pattern");
+    addEyebrow(slide, "Chapter 7");
+    addHeading(slide, "Conclusions");
     addAccentBar(slide);
 
     slide.addText("What emerges when all the instruments are read together", {

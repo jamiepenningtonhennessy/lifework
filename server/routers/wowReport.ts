@@ -642,7 +642,7 @@ async function rewriteSectionsForMark(
     personalitySection: "This is Chapter 4: Personality Profile. Preserve any charts or structured data. Rewrite the prose commentary. The 'Where the Two Pictures Meet' divergence analysis should be the most interesting part — make it feel like a discovery, not a checklist.",
     behaviouralStyle: "This is Chapter 5: Behavioural Style. This section already uses a slightly different voice (Jamie Pennington's). Rewrite it in Mark's voice instead. Preserve the colour energy labels and Jungian type.",
     developmentEdge: "This is Chapter 6: Development Edge. This is where the report tells the client something uncomfortable. Mark's voice is particularly well-suited here — direct, not cruel, but not softened either.",
-    careerDirections: "This is Chapter 7: Career Directions. Each direction should feel like a genuine recommendation, not a job description. Make the case for each one with conviction.",
+    careerDirections: "This is Chapter 8: Career Directions. Each direction should feel like a genuine recommendation, not a job description. Make the case for each one with conviction.",
   };
 
   // Run all rewrites in parallel
@@ -1036,7 +1036,7 @@ async function renderWowPdf(sections: WowReportSections, writingStyle: WritingSt
       },
       {
         ul: [
-          "If you\u2019re naturally impatient it\u2019s OK to start with Chapter 8 \u2013 Conclusions. It\u2019s here we summarise what we believe to be true, and give you a suggested reply to that dreaded interview question \u201cSo, tell me about yourself\u201d.",
+          "If you’re naturally impatient it’s OK to start with Chapter 7 – Conclusions. It’s here we summarise what we believe to be true, and give you a suggested reply to that dreaded interview question “So, tell me about yourself”.",
           "If you\u2019re more patient, the report builds your analysis from your early years life history, step-by-step, so you can see how the analysis unfolds.",
         ],
         font: "Roboto",
@@ -1327,20 +1327,20 @@ async function renderWowPdf(sections: WowReportSections, writingStyle: WritingSt
         sections.developmentEdge
       ),
 
-      // ── Chapter 7: Career Directions (variant-aware title) ──
-      ...sectionBlock(
-        sections.reportType === "retirement" ? "7. What To Do With What You Know"
-          : sections.reportType === "student" ? "7. Where You Are Headed"
-          : sections.reportType === "job_returner" ? "7. What You Bring Back"
-          : "7. Career Directions",
-        sections.careerDirections
-      ),
-
-      // ── Section 8: Conclusions ──
+      // ── Chapter 7: Conclusions ──
       { text: "", pageBreak: "before" },
-      heading("8. Conclusions"),
+      heading("7. Conclusions"),
       divider(),
       ...markdownToPdfContent(sections.coachingQuestions, isMark),
+
+      // ── Chapter 8: Career Directions (variant-aware title) ──
+      ...sectionBlock(
+        sections.reportType === "retirement" ? "8. What To Do With What You Know"
+          : sections.reportType === "student" ? "8. Where You Are Headed"
+          : sections.reportType === "job_returner" ? "8. What You Bring Back"
+          : "8. Career Directions",
+        sections.careerDirections
+      ),
 
       // ── Appendix: The Four Report Variants ──
       { text: "", pageBreak: "before" },
