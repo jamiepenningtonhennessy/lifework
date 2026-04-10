@@ -989,3 +989,7 @@
 - [ ] Remove Conclusions slide (slide 8) from coaching deck; renumber footers
 - [ ] Update Tell Me About Yourself LLM prompt: 3 driver bullets + 2 short paragraphs
 - [ ] Clear cached WOW report PDFs so all reports regenerate with new style
+
+## Coaching Slides — Tell Me About Yourself Third Person
+
+- [ ] Convert paragraph lines (non-bullet) on Slide 8 from second person to third person (You→first name, your→their, you→them/first name)
