@@ -1,4 +1,4 @@
-import { eq, desc, and } from "drizzle-orm";
+import { eq, desc, and, isNotNull } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
 import {
   InsertUser,
@@ -728,4 +728,14 @@ export async function upsertCoachingAnnex(data: {
       approvedAt: data.approvedAt ?? null,
     });
   }
+}
+
+export async function clearAllWowPdfUrls(): Promise<number> {
+  const db = await getDb();
+  if (!db) throw new Error("DB not available");
+  const result = await db
+    .update(analysisReports)
+    .set({ wowReportPdfUrl: null })
+    .where(isNotNull(analysisReports.wowReportPdfUrl));
+  return (result as any)[0]?.affectedRows ?? 0;
 }

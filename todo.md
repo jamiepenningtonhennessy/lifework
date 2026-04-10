@@ -983,3 +983,9 @@
 - [ ] Add new Slide 9 "Tell Me About Yourself" with verbatim paragraph extracted from coachingQuestions chapter
 - [ ] Career Directions becomes Slide 10, update TOTAL to 10
 - [ ] Update title slide agenda to reflect new order
+
+## Slides & WOW Report — Tell Me About Yourself Refactor
+
+- [ ] Remove Conclusions slide (slide 8) from coaching deck; renumber footers
+- [ ] Update Tell Me About Yourself LLM prompt: 3 driver bullets + 2 short paragraphs
+- [ ] Clear cached WOW report PDFs so all reports regenerate with new style

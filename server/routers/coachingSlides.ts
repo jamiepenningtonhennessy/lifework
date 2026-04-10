@@ -233,7 +233,7 @@ export async function generateCoachingSlides(data: SlideSections): Promise<Buffe
   const pptx = new PptxGenJS();
   pptx.layout = "LAYOUT_WIDE";
 
-  const TOTAL = 10;
+  const TOTAL = 9;
   const name = data.clientName || "Client";
 
   // ── Extract all LLM content in parallel ──────────────────────────────────
@@ -300,7 +300,6 @@ export async function generateCoachingSlides(data: SlideSections): Promise<Buffe
       "Personality profile (OCEAN)",
       "Behavioural style",
       "Development edge",
-      "Conclusions",
       "Tell me about yourself",
       "Career directions",
     ];
@@ -595,52 +594,7 @@ export async function generateCoachingSlides(data: SlideSections): Promise<Buffe
     addFooter(slide, name, 7, TOTAL);
   }
 
-  // ── SLIDE 8: Conclusions (Past / Present / Future) ─────────────────────────────────────────
-  {
-    const extractSection8 = (text: string, heading: string): string => {
-      const regex = new RegExp(`##\\s*${heading}\\s*\\n([\\s\\S]*?)(?=##|$)`, 'i');
-      const m = text.match(regex);
-      return m ? m[1].trim() : "";
-    };
-    const pastText = extractSection8(data.coachingQuestions ?? "", "Past");
-    const presentText = extractSection8(data.coachingQuestions ?? "", "Present");
-    const futureText = extractSection8(data.coachingQuestions ?? "", "Future");
-    const truncate8 = (s: string, max = 220) => s.length > max ? s.slice(0, max).replace(/\s\S*$/, '') + '\u2026' : s;
-
-    const slide = pptx.addSlide();
-    slide.addShape("rect", { x: 0, y: 0, w: W, h: H, fill: { color: NAVY }, line: { color: NAVY } });
-    slide.addShape("rect", { x: 0, y: 0, w: 0.12, h: H, fill: { color: GOLD }, line: { color: GOLD } });
-
-    addLogo(slide);
-    addEyebrow(slide, "Chapter 7");
-    addHeading(slide, "Conclusions");
-    addAccentBar(slide);
-
-    const colW8 = (W - 1.1 - 0.4) / 3;
-    const colY8 = 1.55;
-    const colH8 = H - colY8 - 0.7;
-    const cols8 = [
-      { label: "Past",    text: pastText,    x: 0.55 },
-      { label: "Present", text: presentText, x: 0.55 + colW8 + 0.2 },
-      { label: "Future",  text: futureText,  x: 0.55 + (colW8 + 0.2) * 2 },
-    ];
-
-    cols8.forEach(({ label, text, x }) => {
-      slide.addText(label.toUpperCase(), {
-        x, y: colY8, w: colW8, h: 0.28,
-        fontSize: 8, color: GOLD, bold: true, fontFace: "Calibri", charSpacing: 2,
-      });
-      slide.addShape("rect", { x, y: colY8 + 0.3, w: colW8, h: 0.02, fill: { color: GOLD }, line: { color: GOLD } });
-      slide.addText(truncate8(text || "\u2014"), {
-        x, y: colY8 + 0.38, w: colW8, h: colH8 - 0.38,
-        fontSize: 11, color: WHITE, fontFace: "Calibri", valign: "top",
-      });
-    });
-
-    addFooter(slide, name, 8, TOTAL);
-  }
-
-  // ── SLIDE 9: Tell Me About Yourself ───────────────────────────────────────────────────────────
+  // ── SLIDE 8: Tell Me About Yourself ───────────────────────────────────────────────────────────
   {
     const extractTellMe9 = (text: string): string => {
       const regex = /##\s*Tell Me About Yourself[\s\S]*?\n([\s\S]*?)(?=##|$)/i;
@@ -670,10 +624,10 @@ export async function generateCoachingSlides(data: SlideSections): Promise<Buffe
       fontSize: 12.5, color: NAVY, fontFace: "Georgia", valign: "top",
     });
 
-    addFooter(slide, name, 9, TOTAL);
+    addFooter(slide, name, 8, TOTAL);
   }
 
-  // ── SLIDE 10: Career Directions ──────────────────────────────────────────────────────────────
+  // ── SLIDE 9: Career Directions ──────────────────────────────────────────────────────────────
   {
     const slide = pptx.addSlide();
     slide.addShape("rect", { x: 0, y: 0, w: W, h: H, fill: { color: CREAM }, line: { color: CREAM } });
@@ -698,7 +652,7 @@ export async function generateCoachingSlides(data: SlideSections): Promise<Buffe
       options: { bullet: { code: "25CF", color: GOLD }, color: NAVY, fontSize: 18, fontFace: "Georgia", bold: true, paraSpaceAfter: 10 },
     }));
     slide.addText(items10, { x: 0.55, y: 2.75, w: W - 1.1, h: 3.5, valign: "top" });
-    addFooter(slide, name, 10, TOTAL);
+    addFooter(slide, name, 9, TOTAL);
   }
 
   // ── Write to buffer ────────────────────────────────────────────────────────
