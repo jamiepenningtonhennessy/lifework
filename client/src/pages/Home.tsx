@@ -145,31 +145,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── VIDEO SECTION ── */}
-      <section className="py-20" style={{ background: "var(--lw-navy-mid)", borderTop: "1px solid rgba(201,151,58,0.2)", borderBottom: "1px solid rgba(201,151,58,0.2)" }}>
-        <div className="container max-w-4xl">
-          <div className="mb-10 text-center">
-            <div className="lw-eyebrow mb-4" style={{ color: "var(--lw-gold)" }}>Watch First</div>
-            <h2 className="font-serif font-bold" style={{ fontSize: "1.8rem", color: "white" }}>
-              The story of Lifework — in four minutes
-            </h2>
-            <p className="mt-3" style={{ color: "rgba(255,255,255,0.6)", fontSize: "0.95rem" }}>
-              Rooted in positive psychology, anchored in your own life story.
-            </p>
-          </div>
-          {/* Native video player */}
-          <div style={{ border: "2px solid rgba(201,151,58,0.4)", borderRadius: "2px", overflow: "hidden" }}>
-            <video
-              src={LIFEWORK_VIDEO_URL}
-              controls
-              playsInline
-              style={{ width: "100%", display: "block" }}
-              title="Lifework Overview"
-            />
-          </div>
-        </div>
-      </section>
-
       {/* ── BEAT 3: The Guide — Empathy + Authority ── */}
       <section className="py-20" style={{ background: "var(--lw-cream)" }}>
         <div className="container max-w-4xl">
@@ -243,6 +218,31 @@ export default function Home() {
                 </div>
               ))}
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── VIDEO SECTION ── */}
+      <section className="py-20" style={{ background: "var(--lw-navy-mid)", borderTop: "1px solid rgba(201,151,58,0.2)", borderBottom: "1px solid rgba(201,151,58,0.2)" }}>
+        <div className="container max-w-4xl">
+          <div className="mb-10 text-center">
+            <div className="lw-eyebrow mb-4" style={{ color: "var(--lw-gold)" }}>How it works</div>
+            <h2 className="font-serif font-bold" style={{ fontSize: "1.8rem", color: "white" }}>
+              The story of Lifework — in four minutes
+            </h2>
+            <p className="mt-3" style={{ color: "rgba(255,255,255,0.6)", fontSize: "0.95rem" }}>
+              Rooted in positive psychology, anchored in your own life story.
+            </p>
+          </div>
+          {/* Native video player */}
+          <div style={{ border: "2px solid rgba(201,151,58,0.4)", borderRadius: "2px", overflow: "hidden" }}>
+            <video
+              src={LIFEWORK_VIDEO_URL}
+              controls
+              playsInline
+              style={{ width: "100%", display: "block" }}
+              title="Lifework Overview"
+            />
           </div>
         </div>
       </section>
