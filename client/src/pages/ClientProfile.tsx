@@ -1568,28 +1568,22 @@ function CounsellorAnalysisTab({
               )}
             </Button>
           )}
-          {/* OCEAN: keeps Regenerate button */}
-          {type === "ocean" && displayAnalysis && (
+          {/* OCEAN: same one-time pattern as VIA */}
+          {type === "ocean" && (
             <Button
               size="sm"
-              variant="outline"
-              disabled={isPending}
-              onClick={() => handleGenerate(true)}
-              className="gap-1.5 text-xs"
-            >
-              {isPending ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <RefreshCw className="w-3.5 h-3.5" />}
-              Regenerate
-            </Button>
-          )}
-          {type === "ocean" && !displayAnalysis && (
-            <Button
-              size="sm"
-              disabled={isPending}
+              disabled={isPending || !!displayAnalysis}
               onClick={() => handleGenerate(false)}
-              className="gap-1.5 bg-[var(--lw-gold)] hover:bg-[oklch(0.60_0.13_72)] text-white"
+              className={`gap-1.5 ${
+                displayAnalysis
+                  ? "bg-muted text-muted-foreground cursor-not-allowed opacity-50"
+                  : "bg-[var(--lw-gold)] hover:bg-[oklch(0.60_0.13_72)] text-white"
+              }`}
             >
               {isPending ? (
                 <><Loader2 className="w-3.5 h-3.5 animate-spin" /> Generating analysis… (1–2 min)</>
+              ) : displayAnalysis ? (
+                <><Sparkles className="w-3.5 h-3.5" /> OCEAN Analysis Generated</>
               ) : (
                 <><Sparkles className="w-3.5 h-3.5" /> Generate OCEAN Analysis</>
               )}

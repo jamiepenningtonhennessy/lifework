@@ -1026,3 +1026,7 @@
 ## VIA Tab — Button Behaviour
 
 - [x] Remove Regenerate button from VIA tab; show single Generate button that greys out permanently after analysis is generated
+
+## OCEAN Tab — Button Behaviour
+
+- [x] Apply same one-time generate-and-grey-out pattern to OCEAN tab (remove Regenerate, grey out Generate after use)
