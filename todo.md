@@ -1018,3 +1018,7 @@
 ## Bug Fix — VIA Tab Content
 
 - [x] Fix: VIA tab content does not match PDF — fixed S1 prompt to suppress episode-by-episode coding output; LLM now does coding as internal reasoning and outputs only Evidence Table + Key Findings
+
+## VIA Tab — Full Profile Table
+
+- [x] Add full VIA profile (all 24 strengths ranked 1-24) as opening data section above the generated analysis

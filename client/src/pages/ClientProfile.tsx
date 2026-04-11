@@ -1587,6 +1587,33 @@ function CounsellorAnalysisTab({
         </div>
       )}
 
+      {/* Full VIA profile — always shown when analysis exists */}
+      {type === "via" && displayAnalysis && viaData && strengthsMap && (
+        <div className="rounded-xl border border-border bg-card overflow-hidden">
+          <div className="px-4 py-3 bg-[var(--lw-navy)] border-b border-border">
+            <h3 className="text-sm font-semibold text-white tracking-wide">VIA Character Strengths — Full Profile (24 strengths)</h3>
+          </div>
+          <div className="divide-y divide-border">
+            {(viaData.rankedStrengths as any[]).map((s: any, i: number) => {
+              const strength = strengthsMap.get(s.strengthId);
+              const pct = Math.round((s.score / 25) * 100);
+              const isTop5 = i < 5;
+              return (
+                <div key={s.strengthId} className={`flex items-center gap-3 px-4 py-2.5 ${isTop5 ? "bg-[var(--lw-gold-light)]/15" : ""}`}>
+                  <span className={`text-sm font-bold w-6 text-right flex-shrink-0 ${isTop5 ? "text-[var(--lw-gold)]" : "text-muted-foreground"}`}>{i + 1}</span>
+                  <span className={`text-sm font-medium flex-1 ${isTop5 ? "text-foreground font-semibold" : "text-foreground"}`}>{strength?.name ?? s.strengthId}</span>
+                  {strength?.virtue && <span className="text-xs text-muted-foreground capitalize hidden sm:inline">{strength.virtue}</span>}
+                  <div className="w-24 h-1.5 bg-muted rounded-full overflow-hidden flex-shrink-0">
+                    <div className={`h-full rounded-full ${isTop5 ? "bg-[var(--lw-gold)]" : "bg-muted-foreground/40"}`} style={{ width: `${pct}%` }} />
+                  </div>
+                  <span className={`text-sm font-bold w-10 text-right flex-shrink-0 ${isTop5 ? "text-[var(--lw-gold)]" : "text-muted-foreground"}`}>{s.score}/25</span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
       {/* Analysis content */}
       {displayAnalysis && !showRaw && (
         <div className="prose-report">
