@@ -9,7 +9,7 @@ export function PHFooter() {
           <div>
             <div className="mb-5">
               <img
-                src="https://d2xsxph8kpxj0f.cloudfront.net/107696804/kFbbE6kqNApXGDFpQJUGV7/ph_logo_white_50c7173c.png"
+                src="https://d2xsxph8kpxj0f.cloudfront.net/107696804/kFbbE6kqNApXGDFpQJUGV7/penhenlong_a1952c94.jpg"
                 alt="Pennington Hennessy"
                 style={{ height: "36px", width: "auto", objectFit: "contain" }}
               />
