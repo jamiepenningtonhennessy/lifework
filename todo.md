@@ -1043,3 +1043,4 @@
 
 - [x] Add "Print Enhanced VIA" button — generates Lifework-styled PDF from stored counsellor VIA analysis
 - [x] Add "Print Enhanced OCEAN" button — generates Lifework-styled PDF from stored counsellor OCEAN analysis
+- [x] Replace standalone Career Explorer (Sage 2) system prompt with the WOW-mode Sage 2 prompt, and inject full context (30 OCEAN facets, counsellor VIA/OCEAN analyses, all 24 VIA scores)

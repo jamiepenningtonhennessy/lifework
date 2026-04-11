@@ -2606,30 +2606,35 @@ const chatPeterRouter = router({
 
 // ─── Career Explorer Router ────────────────────────────────────────────────
 
-const CAREER_EXPLORER_SYSTEM_PROMPT = `You are Sage. You have spent twenty years working with professionals at career crossroads. You are not easily impressed, but you are genuinely interested in this person. You work within the Lifework methodology of Pennington Hennessy. You have read this client's full Lifework profile — their life history achievements (tagged as Enjoyable, Satisfying, or Fulfilling), their VIA character strengths, their Big Five personality profile, their Insights colour energy profile, their education and career history, and their full WOW Report analysis.
+const CAREER_EXPLORER_SYSTEM_PROMPT = `You are Sage. You have spent twenty years working with professionals at career crossroads. You work within the Lifework methodology of Pennington Hennessy.
 
-You are present with this person as if sitting across a table from them. You are warm, thoughtful, and direct. You do not flatter. You do not give information dumps. You help people think clearly.
+You have read everything about this person: their full life history achievements (tagged as Enjoyable, Satisfying, or Fulfilling), their complete VIA character strengths profile (all 24 strengths, ranked and scored), their full Big Five personality profile (all 30 facets, not just the five domains), their education and career history, their family background, and their full WOW Report — every section of it. You have also read the counsellor's deeper analytical layer: the enhanced VIA analysis and the enhanced OCEAN analysis, where these have been generated.
+
+This person has already had their career coaching session. They have received their report. They know the broad shape of what the analysis found. Your job now is not to introduce them to their data — it is to help them think clearly about what to do with it.
+
+You are present with this person as if sitting across a table from them. You are warm, direct, and analytically precise. You do not flatter. You do not give information dumps. You help people think clearly about what the evidence actually means for their next move.
 
 OPENING MOVE — MANDATORY FOR FIRST MESSAGE:
 If this is the first message in the session (no prior conversation history), do NOT wait for the client to ask a question. Instead:
-1. Introduce yourself briefly as Sage.
-2. Name the single most striking thing you have noticed in their profile — one specific achievement, strength, or pattern that stands out. Be concrete and specific, not generic.
-3. Ask one question about it.
-This opening should feel like a coach who has done their homework, not a chatbot waiting for input.
+1. Greet them briefly and warmly — acknowledge that they have been through the process and have had their coaching session.
+2. Name the single most striking or unresolved thing you noticed in their profile — something specific that the report surfaced but that often takes time to sit with. Be concrete: name an achievement, a tension between two data sources, a strength that surprised them, or a career direction the evidence strongly supports.
+3. Ask one focused question about it.
+This opening should feel like a coach who has done their homework and is picking up a real conversation, not starting from scratch.
 
 SESSION ARC — guide the conversation through these stages naturally:
-- Opening: establish what brings them here today, what they most want to explore
-- Exploration: use the profile data to surface what is most relevant to their question
-- Challenge: when you see hesitation, avoidance, or repeated circling, name it gently
+- Opening: establish what they are still sitting with after the coaching session, what they most want to think through
+- Exploration: use the full profile data — including the counsellor analyses — to surface what is most relevant to their question
+- Challenge: when you see hesitation, avoidance, or repeated circling, name it gently and directly
 - Commitment: end conversations with a concrete next thought or action, however small
 
 SPEAKING STYLE — strictly enforced:
 - Speak in 1–2 short paragraphs only. Never more.
 - End with one question. Only one.
 - Do NOT give information dumps or long lists of options.
-- Ground everything in the client's actual profile — name their real achievements, real strengths, real traits.
-- When asked about a specific career: briefly name 1–2 things from their profile that are genuinely relevant, then ask what draws them to that direction.
-- When asked open questions ("what suits me?"): name the most striking theme you see in their profile and ask them to respond to it before offering options.
+- Ground everything in the client's actual profile — name their real achievements, real strengths, real facet scores, real patterns from the report.
+- When asked about a specific career direction: briefly name 1–2 things from their profile that are genuinely relevant (or that create tension), then ask what draws them to that direction.
+- When asked open questions ("what suits me?"): name the most striking theme or tension you see in their full profile and ask them to respond to it before offering options.
+- You may refer to the counsellor's VIA or OCEAN analysis when it is relevant — but summarise the key insight in your own words rather than quoting it at length.
 
 CHALLENGE INSTRUCTION:
 When a client repeatedly returns to the same direction, idea, or concern without committing or moving forward, gently name what you observe: "You keep coming back to this — and yet something seems to be holding you back. What do you think that is?" Do not let avoidance go unnamed. A good coach notices the pattern and names it with care.
@@ -2647,7 +2652,7 @@ Examples of stage directions:
 
 The stage direction must feel natural and specific to what the client just said — not generic.
 
-Your job is to help them think clearly, not to give them a report. Never give generic career advice. Everything must be grounded in their specific evidence.`;
+Your job is to help them think clearly and move forward. Never give generic career advice. Everything must be grounded in their specific evidence — the life history, the psychometrics, and the report.`;
 
 const careerExplorerRouter = router({
   getSession: protectedProcedure.query(async ({ ctx }) => {
@@ -2678,7 +2683,7 @@ const careerExplorerRouter = router({
           getAnalysisReport(profile.id),
         ]);
 
-      // Build context strings
+      // ── Life history achievements ──
       const achievementsCtx = achievementsList.length > 0
         ? achievementsList.map(a => {
             const base = `[${a.decade}] ${a.title} (${a.esf ?? "untagged"}): ${a.description ?? ""}`;
@@ -2695,18 +2700,51 @@ const careerExplorerRouter = router({
         ? careerList.map(c => `${c.yearFrom ?? "?"}–${c.yearTo ?? "present"}: ${c.role ?? ""} at ${c.organisation}`).join("\n")
         : "No career history recorded.";
 
-      const viaCtx = viaData?.rankedStrengths
-        ? `Top VIA strengths: ${(viaData.rankedStrengths as any[]).slice(0, 10).map((s: any) => s.strength).join(", ")}`
-        : "VIA survey not yet completed.";
+      // ── Full VIA profile (all 24 strengths, ranked) ──
+      const viaCtx = (() => {
+        try {
+          const ranked: any[] = typeof viaData?.rankedStrengths === "string"
+            ? JSON.parse(viaData.rankedStrengths)
+            : (viaData?.rankedStrengths as any[] ?? []);
+          if (ranked.length === 0) return "VIA survey not yet completed.";
+          const lines = ranked.map((s: any, i: number) =>
+            `${i + 1}. ${s.name ?? s.strength ?? s.strengthId} — ${s.score ?? "?"}/${25}`
+          );
+          return `VIA CHARACTER STRENGTHS (all 24, ranked 1 = highest):\n${lines.join("\n")}`;
+        } catch { return "VIA survey not yet completed."; }
+      })();
 
-      const ipipCtx = ipipData?.domainScores
-        ? (() => {
-            const d = ipipData.domainScores as any;
-            return `IPIP personality: Openness ${d.O ?? "?"}%, Conscientiousness ${d.C ?? "?"}%, Extraversion ${d.E ?? "?"}%, Agreeableness ${d.A ?? "?"}%, Neuroticism ${d.N ?? "?"}%`;
-          })()
-        : "Personality survey not yet completed.";
+      // ── Full OCEAN profile (5 domains + all 30 facets) ──
+      const FACET_LABELS_CE: Record<string,string> = {
+        O1:"Imagination",O2:"Artistic Interests",O3:"Emotionality",O4:"Adventurousness",O5:"Intellect",O6:"Liberalism",
+        C1:"Self-Efficacy",C2:"Orderliness",C3:"Dutifulness",C4:"Achievement Striving",C5:"Self-Discipline",C6:"Cautiousness",
+        E1:"Friendliness",E2:"Gregariousness",E3:"Assertiveness",E4:"Activity Level",E5:"Excitement-Seeking",E6:"Positive Emotions",
+        A1:"Trust",A2:"Morality",A3:"Altruism",A4:"Cooperation",A5:"Modesty",A6:"Sympathy",
+        N1:"Anxiety",N2:"Anger",N3:"Depression",N4:"Self-Consciousness",N5:"Immoderation",N6:"Vulnerability"
+      };
+      const DOMAIN_NAMES_CE: Record<string,string> = { O:"Openness",C:"Conscientiousness",E:"Extraversion",A:"Agreeableness",N:"Neuroticism" };
+      const ipipCtx = (() => {
+        try {
+          const domainScores: Record<string,number> = typeof ipipData?.domainScores === "string"
+            ? JSON.parse(ipipData.domainScores)
+            : (ipipData?.domainScores as Record<string,number> ?? {});
+          const facetScores: Record<string,number> = typeof ipipData?.facetScores === "string"
+            ? JSON.parse(ipipData.facetScores)
+            : (ipipData?.facetScores as Record<string,number> ?? {});
+          if (Object.keys(domainScores).length === 0) return "Personality survey not yet completed.";
+          const lines: string[] = ["BIG FIVE PERSONALITY — IPIP-NEO (percentile 0–100):"];
+          for (const d of ["O","C","E","A","N"]) {
+            lines.push(`\n${DOMAIN_NAMES_CE[d]}: ${domainScores[d] ?? "?"}`);
+            for (let i = 1; i <= 6; i++) {
+              const fk = `${d}${i}`;
+              lines.push(`  ${FACET_LABELS_CE[fk]} (${fk}): ${facetScores[fk] ?? "?"}`);
+            }
+          }
+          return lines.join("\n");
+        } catch { return "Personality survey not yet completed."; }
+      })();
 
-      // Build WOW Report context — inject full sections if available
+      // ── WOW Report (full sections) ──
       let reportCtx: string;
       if (report?.wowReportJson && report.wowReportStatus === "done") {
         try {
@@ -2732,6 +2770,14 @@ const careerExplorerRouter = router({
         reportCtx = "No analysis report generated yet.";
       }
 
+      // ── Counsellor analyses (enhanced VIA + OCEAN) ──
+      const counsellorViaCtx = (report as any)?.counsellorViaAnalysis
+        ? `COUNSELLOR ENHANCED VIA ANALYSIS:\n${(report as any).counsellorViaAnalysis}`
+        : "";
+      const counsellorOceanCtx = (report as any)?.counsellorOceanAnalysis
+        ? `COUNSELLOR ENHANCED OCEAN ANALYSIS:\n${(report as any).counsellorOceanAnalysis}`
+        : "";
+
       const profileContext = `CLIENT PROFILE:
 
 LIFE HISTORY ACHIEVEMENTS:
@@ -2749,7 +2795,7 @@ ${viaCtx}
 
 ${ipipCtx}
 
-${reportCtx}`;
+${reportCtx}${counsellorViaCtx ? `\n\n---\n\n${counsellorViaCtx}` : ""}${counsellorOceanCtx ? `\n\n---\n\n${counsellorOceanCtx}` : ""}`;
 
       // Build conversation history
       const existingMessages: CareerExplorerMessage[] = JSON.parse(session.messages ?? "[]");
