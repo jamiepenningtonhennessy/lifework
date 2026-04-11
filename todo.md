@@ -1010,3 +1010,7 @@
 ## Bug Fix — CounsellorAnalysisTab
 
 - [x] Fix: generated analysis briefly flashes then disappears — invalidation not persisting the result in the tab
+
+## Bug Fix — CounsellorAnalysisTab (Round 2)
+
+- [x] Deep debug: white box appears but analysis does not render in tab — ROOT CAUSE: counsellor_ocean_generated_at was INT (32-bit) but Date.now() is 13-digit ms timestamp, causing silent DB write failure. Fixed by migrating columns to BIGINT.
