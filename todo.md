@@ -1014,3 +1014,7 @@
 ## Bug Fix — CounsellorAnalysisTab (Round 2)
 
 - [x] Deep debug: white box appears but analysis does not render in tab — ROOT CAUSE: counsellor_ocean_generated_at was INT (32-bit) but Date.now() is 13-digit ms timestamp, causing silent DB write failure. Fixed by migrating columns to BIGINT.
+
+## Bug Fix — VIA Tab Content
+
+- [x] Fix: VIA tab content does not match PDF — fixed S1 prompt to suppress episode-by-episode coding output; LLM now does coding as internal reasoning and outputs only Evidence Table + Key Findings

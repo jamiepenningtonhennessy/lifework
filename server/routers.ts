@@ -1636,7 +1636,43 @@ Critical analytical principle: the earliest experiences carry the deepest imprin
 
       const SYS_VIA = `You are a senior career analyst at Pennington Hennessy preparing a Lifework counsellor analysis for ${clientName}. Write directly to the client using "you" and "your" throughout. Be warm, direct, intellectually confident. Short paragraphs (4-5 lines max). Evidence-led. Active voice. No hedging. No theatrical flourishes. NEVER open with a greeting or preamble. Begin immediately with the first heading.`;
 
-      const S1 = await invokeLLM({ messages: [{ role:"system",content:SYS_VIA },{ role:"user",content:`Apply the 5-stage VIA structured analysis framework to the life history below.\n\nSTAGE 1 & 2 — Code each episode by the VIA strength most active in the client's moments of greatest satisfaction. Ask: what is the client bringing that is distinctively theirs? What would have been lost if they had not been there? What suggests pleasure in the activity itself rather than relief at the outcome?\n\nSTAGE 3 — Identify the empirical signature cluster: which strengths appear most repeatedly as primary codes across episodes?\n\nThen produce the Evidence Table.\n\n## The Evidence Table\n\nProduce a markdown table with EXACTLY these six columns:\n| Strength | VIA Definition | Survey Rank | Freq (of N) | Identity Salience | Achievements with evidence |\n|---|---|---|---|---|---|\n\nRules:\n- Include ALL top 7 VIA strengths (not just top 5)\n- Strength: the strength name\n- VIA Definition: a plain-language definition — 1 concise sentence, not clinical wording\n- Survey Rank: its rank in the VIA results (1 = highest)\n- Freq (of N): count of fulfilling life history episodes showing clear evidence of this strength as a PRIMARY code\n- Identity Salience: LOW / MEDIUM / HIGH / VERY HIGH — how central is this strength to how the client understands themselves?\n- Achievements with evidence: specific episode titles where the evidence is clearest, comma-separated\n\nNo prose before or after the table in this section.\n\n## The Key Findings\n\nWrite 3 short paragraphs (4-5 lines each). Each paragraph that names a divergence MUST begin with a bold lead sentence: **[Strength] (rank N) is doing more work than [Strength] (rank N).**\n\nThe paragraphs must:\n- Name the most analytically significant divergence: which strength has the highest frequency in fulfilling moments but a lower survey rank?\n- Identify any strength where frequency and identity salience diverge: high frequency + low salience = trained behaviour. Low frequency but pivotal moments + high salience = deepest organising value.\n- Where the evidence warrants it, quote the specific life history detail that proves the point (use italics: *"exact words"*).\n\nClose with: "From what you have told us, we can see:" followed by 4-5 tight bullets naming the key strength findings.\n\nFinal line: one sentence that captures the most important insight this analysis reveals — something the survey rank alone would not have shown.\n\n${viaBlock}\n\n${lifeBlock}` }] });
+      const S1 = await invokeLLM({ messages: [{ role:"system",content:SYS_VIA },{ role:"user",content:`You are preparing a counsellor analysis. First, do your internal analytical work (do NOT write it out): mentally code each life history episode by the VIA strength most active in the client's moments of greatest satisfaction. Ask yourself: what is the client bringing that is distinctively theirs? What would have been lost if they had not been there? What suggests pleasure in the activity itself rather than relief at the outcome? Then identify the empirical signature cluster — which strengths appear most repeatedly as primary codes.
+
+Now write ONLY the following two sections. Do NOT include any episode-by-episode coding, stage labels, or analytical working. Begin immediately with the Evidence Table heading.
+
+## The Evidence Table
+
+Produce a markdown table with EXACTLY these six columns:
+| Strength | VIA Definition | Survey Rank | Freq (of N) | Identity Salience | Achievements with evidence |
+|---|---|---|---|---|---|
+
+Rules:
+- Include the top 7 VIA strengths by survey rank
+- Strength: the strength name
+- VIA Definition: a plain-language definition — 1 concise sentence, not clinical wording
+- Survey Rank: its rank in the VIA results (1 = highest)
+- Freq (of N): count of fulfilling life history episodes showing clear evidence of this strength as a PRIMARY code
+- Identity Salience: LOW / MEDIUM / HIGH / VERY HIGH — how central is this strength to how the client understands themselves?
+- Achievements with evidence: specific episode titles where the evidence is clearest, comma-separated, ALL CAPS
+
+No prose before or after the table in this section.
+
+## The Key Findings
+
+Write 3 short paragraphs (4-5 lines each). Each paragraph that names a divergence MUST begin with a bold lead sentence: **[Strength] (rank N) is doing more work than [Strength] (rank N).**
+
+The paragraphs must:
+- Name the most analytically significant divergence: which strength has the highest frequency in fulfilling moments but a lower survey rank?
+- Identify any strength where frequency and identity salience diverge: high frequency + low salience = trained behaviour. Low frequency but pivotal moments + high salience = deepest organising value.
+- Where the evidence warrants it, quote the specific life history detail that proves the point (use italics: *"exact words"*).
+
+Close with: "From what you have told us, we can see:" followed by 4-5 tight bullets naming the key strength findings.
+
+Final line: one sentence that captures the most important insight this analysis reveals — something the survey rank alone would not have shown.
+
+${viaBlock}
+
+${lifeBlock}` }] });
 
       const S2 = await invokeLLM({ messages: [{ role:"system",content:SYS_VIA },{ role:"user",content:`Write the Signature Strengths section for the top 5 VIA strengths: ${top5Str}.\n\nIMPORTANT INSTRUCTION: Do NOT reference the client's life history in this section at all. The client was asked only to record successes, so the life history contains no overuse or underuse evidence. Instead, draw entirely on VIA source material and the Niemiec overuse/underuse framework to write two standard, universally applicable paragraphs per strength.\n\n## Your Signature Strengths — In Full\n\nFor EACH of the top 5 strengths, write a section using EXACTLY this structure:\n\n### [Strength Name] — Rank [N], Score [X]/25\n\nA single opening sentence (2 lines max) that states what this strength looks like at its best — drawn from the VIA definition and research on signature strengths. Do not reference the life history.\n\n#### [Strength Name] if Overplayed\n\nOne paragraph of exactly 3 sentences:\n- Sentence 1: Define what overuse of this strength looks like in general, using Niemiec's framework.\n- Sentence 2: Describe the interpersonal or professional consequences that typically follow.\n- Sentence 3: Give a concrete, vivid illustrative example — a generic scenario that shows what this looks like in practice.\n\n#### [Strength Name] if Underplayed\n\nOne paragraph of exactly 3 sentences:\n- Sentence 1: Define what underuse of this strength looks like.\n- Sentence 2: Describe the personal or relational cost that typically follows.\n- Sentence 3: Give a concrete, vivid illustrative example.\n\nDraw on the following VIA/Niemiec source definitions for accuracy:\n${overuseBlock}\n\nClient VIA profile for reference (scores only — do NOT use life history):\n${viaBlock}` }] });
 
