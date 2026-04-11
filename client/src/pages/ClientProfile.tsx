@@ -1356,6 +1356,44 @@ function CoachingAnnexTab({ clientId }: { clientId: number }) {
 }
 
 // ─── IPIP Personality Tab ─────────────────────────────────────────────────────
+const FACET_DEFINITIONS: Record<string, string> = {
+  // Neuroticism
+  N1: "Tendency to experience worry, fear, and nervousness — how often anxiety surfaces in daily life.",
+  N2: "Tendency to feel frustration, irritability, and hostility when things go wrong.",
+  N3: "Tendency to experience low mood, sadness, and feelings of hopelessness.",
+  N4: "Sensitivity to embarrassment and discomfort in social situations; concern about others' judgements.",
+  N5: "Difficulty resisting urges and cravings; tendency to act impulsively rather than delay gratification.",
+  N6: "How easily one feels overwhelmed, panicked, or helpless under pressure or in a crisis.",
+  // Extraversion
+  E1: "Warmth and ease in forming close interpersonal bonds; how readily one connects with others.",
+  E2: "Preference for being in groups and crowds; enjoyment of social gatherings and company.",
+  E3: "Tendency to take charge, speak up, and influence others; social dominance and confidence.",
+  E4: "Preference for a fast-paced, busy lifestyle; energy and drive to stay active and on the go.",
+  E5: "Appetite for thrills, novelty, and stimulation; willingness to take risks for excitement.",
+  E6: "Tendency to experience positive emotions, joy, and optimism in everyday life.",
+  // Openness
+  O1: "Richness of inner fantasy life; enjoyment of daydreaming, creative visualisation, and 'what if' thinking.",
+  O2: "Appreciation of beauty in art, music, poetry, and nature; aesthetic sensitivity.",
+  O3: "Receptivity to one's own feelings and inner emotional states; emotional self-awareness.",
+  O4: "Preference for novelty and variety over routine; willingness to try new activities and approaches.",
+  O5: "Enjoyment of abstract ideas, philosophical debate, and intellectual puzzles.",
+  O6: "Readiness to question authority, tradition, and convention; openness to social and political change.",
+  // Agreeableness
+  A1: "Tendency to assume good intentions in others; willingness to take people at face value.",
+  A2: "Straightforwardness and sincerity; discomfort with manipulation or deception.",
+  A3: "Genuine concern for others' wellbeing; enjoyment of helping and giving.",
+  A4: "Preference for harmony over conflict; willingness to compromise and accommodate others.",
+  A5: "Tendency to downplay one's own achievements and avoid drawing attention to oneself.",
+  A6: "Capacity to feel compassion and concern for those who are suffering or in need.",
+  // Conscientiousness
+  C1: "Belief in one's own ability to accomplish tasks and handle challenges effectively.",
+  C2: "Preference for neatness, structure, and systematic organisation in work and environment.",
+  C3: "Strong sense of moral obligation; tendency to follow rules and honour commitments.",
+  C4: "Drive to excel and achieve high standards; ambition and goal-directedness.",
+  C5: "Ability to persist with tasks despite distractions or low motivation; self-control in action.",
+  C6: "Tendency to think carefully before acting; deliberateness and caution in decision-making.",
+};
+
 const IPIP_DOMAINS_INFO = [
   { key: "N", name: "Neuroticism", color: "#7C3AED", lowLabel: "Emotionally stable, calm", highLabel: "Emotionally reactive, prone to stress",
     facets: [
@@ -1439,6 +1477,7 @@ function IpipTab({ ipip }: { ipip: any }) {
               <div className="px-4 pb-4 pt-2 border-t border-border/50 grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {domain.facets.map((facet) => {
                   const fs = facetScores[facet.key] ?? 50;
+                  const def = FACET_DEFINITIONS[facet.key];
                   return (
                     <div key={facet.key} className="space-y-1">
                       <div className="flex items-center justify-between">
@@ -1448,6 +1487,9 @@ function IpipTab({ ipip }: { ipip: any }) {
                       <div className="h-1.5 bg-muted rounded-full overflow-hidden">
                         <div className="h-full rounded-full" style={{ width: `${fs}%`, backgroundColor: domain.color }} />
                       </div>
+                      {def && (
+                        <p className="text-[11px] text-muted-foreground leading-snug">{def}</p>
+                      )}
                     </div>
                   );
                 })}

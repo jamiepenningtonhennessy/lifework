@@ -1030,3 +1030,7 @@
 ## OCEAN Tab — Button Behaviour
 
 - [x] Apply same one-time generate-and-grey-out pattern to OCEAN tab (remove Regenerate, grey out Generate after use)
+
+## OCEAN Tab — Facet Definitions
+
+- [x] Add short plain-language definitions for all 30 OCEAN sub-scale facets, displayed inline beneath each facet name in the raw survey data section
