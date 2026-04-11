@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { MessageCircle, X, Send, Loader2, CheckCircle2, BookmarkCheck, Paperclip, FileText } from "lucide-react";
+import { MessageCircle, X, Send, Loader2, CheckCircle2, BookmarkCheck, Paperclip, FileText, RotateCcw } from "lucide-react";
 import { toast } from "sonner";
 
 type Section = "life_history" | "career_education";
@@ -165,6 +165,18 @@ export function ChatToPeter({
     }
   };
 
+  const resetSession = trpc.chatPeter.resetSession.useMutation({
+    onSuccess: (data) => {
+      setMessages([]);
+      setSessionId(data.sessionId);
+      setIsSummarised(false);
+      setShowSavePrompt(false);
+      setUploadedDocs([]);
+      toast.success("Conversation reset — Sage is ready to start fresh.");
+    },
+    onError: () => toast.error("Could not reset the conversation. Please try again."),
+  });
+
   const generateSummary = trpc.chatPeter.generateSummary.useMutation({
     onSuccess: () => {
       setIsSummarised(true);
@@ -256,7 +268,28 @@ export function ChatToPeter({
                 <p className="text-xs text-muted-foreground">Your Lifework Coach</p>
               </div>
               <div className="flex items-center gap-1">
-                {/* Save & finish button — only shown when there are enough messages and not yet saved */}
+                {/* Reset button — always visible when there are messages */}
+                {messages.length > 0 && (
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    className="text-xs h-7 px-2 gap-1 text-muted-foreground hover:text-foreground hover:bg-muted"
+                    onClick={() => {
+                      if (confirm("Start a fresh conversation with Sage? This will clear the current session.")) {
+                        resetSession.mutate({ section });
+                      }
+                    }}
+                    disabled={resetSession.isPending || sendMessage.isPending}
+                    title="Clear this conversation and start fresh"
+                  >
+                    {resetSession.isPending ? (
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    ) : (
+                      <RotateCcw className="w-3.5 h-3.5" />
+                    )}
+                  </Button>
+                )}
+              {/* Save & finish button — only shown when there are enough messages and not yet saved */}
                 {messages.length >= MIN_MESSAGES_TO_SAVE && !isSummarised && (
                   <Button
                     size="sm"
