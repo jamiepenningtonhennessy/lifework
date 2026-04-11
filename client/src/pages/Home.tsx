@@ -5,7 +5,7 @@ import { useLocation } from "wouter";
 import { ArrowRight, CheckCircle, X, Lock, Download } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 
-const GOOGLE_DRIVE_VIDEO_ID = "1UA06Kdal_ANUxcxPK5jytkO5xYPexg7V";
+const GOOGLE_DRIVE_VIDEO_ID = "1Bg426lfU_SRdwvDQ6CbCvMjz9p608SSo";
 
 export default function Home() {
   const { user, isAuthenticated } = useAuth();
