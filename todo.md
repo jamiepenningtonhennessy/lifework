@@ -1006,3 +1006,7 @@
 - [x] Add new "Insights" tab with dedicated InsightsTab component (Insights Discovery colour-energy mapping)
 - [x] CounsellorAnalysisTab: generate-once, stored forever, regenerate button available
 - [x] CounsellorAnalysisTab: toggle between rendered analysis and raw survey data
+
+## Bug Fix — CounsellorAnalysisTab
+
+- [x] Fix: generated analysis briefly flashes then disappears — invalidation not persisting the result in the tab

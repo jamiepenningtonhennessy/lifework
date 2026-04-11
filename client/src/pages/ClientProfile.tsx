@@ -1493,9 +1493,12 @@ function CounsellorAnalysisTab({
 }) {
   const utils = trpc.useUtils();
   const [showRaw, setShowRaw] = useState(false);
+  // Local state holds the analysis immediately after generation (before query refetch completes)
+  const [localAnalysis, setLocalAnalysis] = useState<string | null>(null);
 
   const generateVia = trpc.counselor.generateCounsellorVia.useMutation({
-    onSuccess: () => {
+    onSuccess: (data) => {
+      setLocalAnalysis(data.analysis);
       toast.success("VIA analysis generated.");
       utils.counselor.getClientProfile.invalidate({ clientId });
     },
@@ -1503,7 +1506,8 @@ function CounsellorAnalysisTab({
   });
 
   const generateOcean = trpc.counselor.generateCounsellorOcean.useMutation({
-    onSuccess: () => {
+    onSuccess: (data) => {
+      setLocalAnalysis(data.analysis);
       toast.success("OCEAN analysis generated.");
       utils.counselor.getClientProfile.invalidate({ clientId });
     },
@@ -1511,6 +1515,8 @@ function CounsellorAnalysisTab({
   });
 
   const isPending = type === "via" ? generateVia.isPending : generateOcean.isPending;
+  // Use locally-captured analysis first (instant), fall back to DB-fetched prop
+  const displayAnalysis = localAnalysis ?? storedAnalysis;
 
   function handleGenerate(force = false) {
     if (type === "via") generateVia.mutate({ clientId, forceRegenerate: force });
@@ -1531,7 +1537,7 @@ function CounsellorAnalysisTab({
       {/* Action bar */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          {storedAnalysis && (
+          {displayAnalysis && (
             <button
               className="text-xs text-muted-foreground hover:text-foreground transition-colors"
               onClick={() => setShowRaw(!showRaw)}
@@ -1541,7 +1547,7 @@ function CounsellorAnalysisTab({
           )}
         </div>
         <div className="flex gap-2">
-          {storedAnalysis && (
+          {displayAnalysis && (
             <Button
               size="sm"
               variant="outline"
@@ -1553,7 +1559,7 @@ function CounsellorAnalysisTab({
               Regenerate
             </Button>
           )}
-          {!storedAnalysis && (
+          {!displayAnalysis && (
             <Button
               size="sm"
               disabled={isPending}
@@ -1582,14 +1588,14 @@ function CounsellorAnalysisTab({
       )}
 
       {/* Analysis content */}
-      {storedAnalysis && !showRaw && (
+      {displayAnalysis && !showRaw && (
         <div className="prose-report">
-          <Streamdown>{storedAnalysis}</Streamdown>
+          <Streamdown>{displayAnalysis}</Streamdown>
         </div>
       )}
 
       {/* Raw survey data (toggle) */}
-      {showRaw && type === "via" && viaData && strengthsMap && (
+      {displayAnalysis && showRaw && type === "via" && viaData && strengthsMap && (
         <div className="space-y-3">
           <p className="text-sm text-muted-foreground mb-2">Full VIA profile (all 24 strengths, ranked):</p>
           {(viaData.rankedStrengths as any[]).map((s: any, i: number) => {
@@ -1614,12 +1620,12 @@ function CounsellorAnalysisTab({
         </div>
       )}
 
-      {showRaw && type === "ocean" && ipipData && (
+      {displayAnalysis && showRaw && type === "ocean" && ipipData && (
         <IpipTab ipip={ipipData} />
       )}
 
       {/* No analysis yet — show raw data with generate prompt */}
-      {!storedAnalysis && !isPending && (
+      {!displayAnalysis && !isPending && (
         <div className="space-y-4">
           <div className="p-4 rounded-xl bg-[var(--lw-gold-light)]/10 border border-[var(--lw-gold)]/20">
             <p className="text-sm text-muted-foreground">
