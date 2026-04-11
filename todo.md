@@ -1038,3 +1038,8 @@
 ## WOW Report — Print Counsellor Report Button
 
 - [x] Add "Print Counsellor Report" button to WOW report page that generates and downloads the Career Analysis Brief PDF
+
+## WOW Report — Print Enhanced VIA & OCEAN Buttons
+
+- [x] Add "Print Enhanced VIA" button — generates Lifework-styled PDF from stored counsellor VIA analysis
+- [x] Add "Print Enhanced OCEAN" button — generates Lifework-styled PDF from stored counsellor OCEAN analysis

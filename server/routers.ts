@@ -1892,6 +1892,162 @@ ${lifeBlock}` }] });
       const { url: pdfUrl } = await storagePut(fileKey, pdfBuffer, "application/pdf");
       return { url: pdfUrl };
     }),
+
+  // ── Generate Enhanced VIA PDF ────────────────────────────────────────────────────────────────────────────
+  generateCounsellorViaPdf: counselorProcedure
+    .input(z.object({ clientId: z.number() }))
+    .mutation(async ({ input }) => {
+      const report = await getAnalysisReport(input.clientId);
+      if (!report?.counsellorViaAnalysis) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "No VIA analysis found. Please generate the VIA analysis from the counsellor dashboard first." });
+      }
+      const profile = await getClientProfileById(input.clientId);
+      const clientName = profile ? `${profile.firstName ?? ""} ${profile.lastName ?? ""}`.trim() : "Client";
+
+      const { createRequire } = await import("module");
+      const _req = createRequire(import.meta.url);
+      const pdfmake = _req("pdfmake") as any;
+      const RobotoFonts = _req("pdfmake/fonts/Roboto") as any;
+      pdfmake.addFonts(RobotoFonts);
+
+      const NAVY = "#0a1628"; const GOLD = "#c9973a"; const CREAM = "#f5f0e8"; const DARK_GREY = "#2c2c2c";
+      const DARK_RED = "#8b1a1a"; const DARK_BLUE = "#1a3a6b";
+
+      const parseBoldInline = (text: string): unknown => {
+        if (!text.includes("**")) return text;
+        const parts: unknown[] = [];
+        for (const seg of text.split(/(\*\*[^*]+\*\*)/)) {
+          if (seg.startsWith("**") && seg.endsWith("**")) parts.push({ text: seg.slice(2,-2), bold: true });
+          else if (seg) parts.push(seg);
+        }
+        return { text: parts };
+      };
+
+      const mdToContent = (markdown: string): unknown[] => {
+        const lines = markdown.split("\n"); const result: unknown[] = [];
+        let listBuffer: unknown[] = []; let listType: "bullet" | null = null; let paraBuffer: string[] = [];
+        const flushList = () => { if (!listBuffer.length) return; result.push({ ul: listBuffer, font: "Roboto", fontSize: 10.5, color: DARK_GREY, lineHeight: 1.4, margin: [0,4,0,8] }); listBuffer = []; listType = null; };
+        const flushPara = () => { if (!paraBuffer.length) return; const t = paraBuffer.join(" ").trim(); if (!t) { paraBuffer=[]; return; } result.push(t.includes("**") ? { text: parseBoldInline(t), font:"Roboto", fontSize:10.5, color:DARK_GREY, lineHeight:1.5, margin:[0,0,0,8] } : { text:t, font:"Roboto", fontSize:10.5, color:DARK_GREY, lineHeight:1.5, margin:[0,0,0,8] }); paraBuffer=[]; };
+        for (const rawLine of lines) {
+          const line = rawLine.trimEnd();
+          if (/^##\s/.test(line)) { flushPara(); flushList(); result.push({ text: line.replace(/^##\s+/,""), font:"Roboto", fontSize:14, bold:true, color:NAVY, margin:[0,20,0,6] }); }
+          else if (/^###\s/.test(line)) { flushPara(); flushList();
+            const t = line.replace(/^###\s+/,"");
+            const isOver = /overplayed/i.test(t); const isUnder = /underplayed/i.test(t);
+            result.push({ text: t, font:"Roboto", fontSize:11, bold:true, color: isOver ? DARK_RED : isUnder ? DARK_BLUE : GOLD, margin:[0,10,0,4] });
+          }
+          else if (/^####\s/.test(line)) { flushPara(); flushList(); result.push({ text: line.replace(/^####\s+/,""), font:"Roboto", fontSize:10.5, bold:true, color:NAVY, margin:[0,8,0,3] }); }
+          else if (/^[\*\-]\s/.test(line)) { flushPara(); if (listType !== "bullet") { flushList(); listType = "bullet"; } const item = line.replace(/^[\*\-]\s+/,""); listBuffer.push(item.includes("**") ? parseBoldInline(item) : item); }
+          else if (line.trim() === "") { flushPara(); flushList(); }
+          else { paraBuffer.push(line); }
+        }
+        flushPara(); flushList(); return result;
+      };
+
+      const content: unknown[] = [
+        { text: "PENNINGTON HENNESSY", font:"Roboto", fontSize:9, bold:true, color:GOLD, letterSpacing:2, margin:[0,0,0,40] },
+        { text: clientName, font:"Roboto", fontSize:28, bold:true, color:"#ffffff", margin:[0,0,0,8] },
+        { text: "VIA Character Strengths Analysis", font:"Roboto", fontSize:16, color:GOLD, margin:[0,0,0,8] },
+        { text: "LIFEWORK ANALYSIS", font:"Roboto", fontSize:9, color:"#ffffff", opacity:0.5, letterSpacing:2, margin:[0,0,0,4] },
+        { text: "Counsellor Reference Only — Not for Client Distribution", font:"Roboto", fontSize:8, color:"#ff9999", margin:[0,0,0,60] },
+        { text: `Generated: ${new Date().toLocaleDateString("en-GB",{day:"numeric",month:"long",year:"numeric"})}`, font:"Roboto", fontSize:9, color:"#ffffff", opacity:0.4 },
+        { text: "", pageBreak: "after" },
+        ...mdToContent(report.counsellorViaAnalysis),
+      ];
+
+      const docDefinition = {
+        pageSize: "A4", pageMargins: [50,60,50,60] as [number,number,number,number],
+        background: (p: number) => p === 1 ? [{ canvas:[{ type:"rect",x:0,y:0,w:595.28,h:841.89,color:NAVY }] }] : [{ canvas:[{ type:"rect",x:0,y:0,w:595.28,h:841.89,color:CREAM }] }],
+        content, defaultStyle: { font:"Roboto", fontSize:10.5, color:DARK_GREY },
+        footer: (p: number, pc: number) => p === 1 ? {} : ({ columns: [{ text:`${clientName} | VIA Character Strengths Analysis`, font:"Roboto", fontSize:7.5, color:NAVY, opacity:0.5, margin:[50,0,0,0] },{ text:`Page ${p} of ${pc}`, font:"Roboto", fontSize:7.5, color:NAVY, opacity:0.5, alignment:"right", margin:[0,0,50,0] }], margin:[0,10,0,0] }),
+      };
+
+      const pdfDoc = pdfmake.createPdf(docDefinition as any);
+      const pdfBuffer: Buffer = await pdfDoc.getBuffer();
+      const fileKey = `counsellor-reports/via-${input.clientId}-${Date.now()}.pdf`;
+      const { url: pdfUrl } = await storagePut(fileKey, pdfBuffer, "application/pdf");
+      return { url: pdfUrl };
+    }),
+
+  // ── Generate Enhanced OCEAN PDF ───────────────────────────────────────────────────────────────────────────
+  generateCounsellorOceanPdf: counselorProcedure
+    .input(z.object({ clientId: z.number() }))
+    .mutation(async ({ input }) => {
+      const report = await getAnalysisReport(input.clientId);
+      if (!report?.counsellorOceanAnalysis) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "No OCEAN analysis found. Please generate the OCEAN analysis from the counsellor dashboard first." });
+      }
+      const profile = await getClientProfileById(input.clientId);
+      const clientName = profile ? `${profile.firstName ?? ""} ${profile.lastName ?? ""}`.trim() : "Client";
+
+      const { createRequire } = await import("module");
+      const _req = createRequire(import.meta.url);
+      const pdfmake = _req("pdfmake") as any;
+      const RobotoFonts = _req("pdfmake/fonts/Roboto") as any;
+      pdfmake.addFonts(RobotoFonts);
+
+      const NAVY = "#0a1628"; const GOLD = "#c9973a"; const CREAM = "#f5f0e8"; const DARK_GREY = "#2c2c2c";
+
+      const parseBoldInline = (text: string): unknown => {
+        if (!text.includes("**")) return text;
+        const parts: unknown[] = [];
+        for (const seg of text.split(/(\*\*[^*]+\*\*)/)) {
+          if (seg.startsWith("**") && seg.endsWith("**")) parts.push({ text: seg.slice(2,-2), bold: true });
+          else if (seg) parts.push(seg);
+        }
+        return { text: parts };
+      };
+
+      const mdToContent = (markdown: string): unknown[] => {
+        const lines = markdown.split("\n"); const result: unknown[] = [];
+        let listBuffer: unknown[] = []; let listType: "bullet" | null = null; let paraBuffer: string[] = [];
+        const flushList = () => { if (!listBuffer.length) return; result.push({ ul: listBuffer, font:"Roboto", fontSize:10.5, color:DARK_GREY, lineHeight:1.4, margin:[0,4,0,8] }); listBuffer=[]; listType=null; };
+        const flushPara = () => { if (!paraBuffer.length) return; const t = paraBuffer.join(" ").trim(); if (!t) { paraBuffer=[]; return; } result.push(t.includes("**") ? { text:parseBoldInline(t), font:"Roboto", fontSize:10.5, color:DARK_GREY, lineHeight:1.5, margin:[0,0,0,8] } : { text:t, font:"Roboto", fontSize:10.5, color:DARK_GREY, lineHeight:1.5, margin:[0,0,0,8] }); paraBuffer=[]; };
+        for (const rawLine of lines) {
+          const line = rawLine.trimEnd();
+          if (/^##\s/.test(line)) { flushPara(); flushList(); result.push({ text:line.replace(/^##\s+/,""), font:"Roboto", fontSize:14, bold:true, color:NAVY, margin:[0,20,0,6] }); }
+          else if (/^###\s/.test(line)) { flushPara(); flushList();
+            const t = line.replace(/^###\s+/,"");
+            // Domain banners: navy background with gold text for OCEAN domain headings
+            const isDomain = /^(Openness|Conscientiousness|Extraversion|Agreeableness|Emotional Stability|Neuroticism)/i.test(t);
+            if (isDomain) {
+              result.push({ table: { widths:["*"], body:[[{ text:t, font:"Roboto", fontSize:11, bold:true, color:"#ffffff", fillColor:NAVY, border:[false,false,false,false], margin:[8,6,8,2] }]] }, layout:"noBorders", margin:[0,12,0,0] });
+            } else {
+              result.push({ text:t, font:"Roboto", fontSize:11, bold:true, color:GOLD, margin:[0,10,0,4] });
+            }
+          }
+          else if (/^####\s/.test(line)) { flushPara(); flushList(); result.push({ text:line.replace(/^####\s+/,""), font:"Roboto", fontSize:10.5, bold:true, color:NAVY, margin:[0,8,0,3] }); }
+          else if (/^[\*\-]\s/.test(line)) { flushPara(); if (listType !== "bullet") { flushList(); listType="bullet"; } const item = line.replace(/^[\*\-]\s+/,""); listBuffer.push(item.includes("**") ? parseBoldInline(item) : item); }
+          else if (line.trim() === "") { flushPara(); flushList(); }
+          else { paraBuffer.push(line); }
+        }
+        flushPara(); flushList(); return result;
+      };
+
+      const content: unknown[] = [
+        { text:"PENNINGTON HENNESSY", font:"Roboto", fontSize:9, bold:true, color:GOLD, letterSpacing:2, margin:[0,0,0,40] },
+        { text:clientName, font:"Roboto", fontSize:28, bold:true, color:"#ffffff", margin:[0,0,0,8] },
+        { text:"OCEAN Personality Analysis", font:"Roboto", fontSize:16, color:GOLD, margin:[0,0,0,8] },
+        { text:"LIFEWORK ANALYSIS", font:"Roboto", fontSize:9, color:"#ffffff", opacity:0.5, letterSpacing:2, margin:[0,0,0,4] },
+        { text:"Counsellor Reference Only — Not for Client Distribution", font:"Roboto", fontSize:8, color:"#ff9999", margin:[0,0,0,60] },
+        { text:`Generated: ${new Date().toLocaleDateString("en-GB",{day:"numeric",month:"long",year:"numeric"})}`, font:"Roboto", fontSize:9, color:"#ffffff", opacity:0.4 },
+        { text:"", pageBreak:"after" },
+        ...mdToContent(report.counsellorOceanAnalysis),
+      ];
+
+      const docDefinition = {
+        pageSize:"A4", pageMargins:[50,60,50,60] as [number,number,number,number],
+        background: (p: number) => p===1 ? [{ canvas:[{ type:"rect",x:0,y:0,w:595.28,h:841.89,color:NAVY }] }] : [{ canvas:[{ type:"rect",x:0,y:0,w:595.28,h:841.89,color:CREAM }] }],
+        content, defaultStyle:{ font:"Roboto", fontSize:10.5, color:DARK_GREY },
+        footer: (p: number, pc: number) => p===1 ? {} : ({ columns:[{ text:`${clientName} | OCEAN Personality Analysis`, font:"Roboto", fontSize:7.5, color:NAVY, opacity:0.5, margin:[50,0,0,0] },{ text:`Page ${p} of ${pc}`, font:"Roboto", fontSize:7.5, color:NAVY, opacity:0.5, alignment:"right", margin:[0,0,50,0] }], margin:[0,10,0,0] }),
+      };
+
+      const pdfDoc = pdfmake.createPdf(docDefinition as any);
+      const pdfBuffer: Buffer = await pdfDoc.getBuffer();
+      const fileKey = `counsellor-reports/ocean-${input.clientId}-${Date.now()}.pdf`;
+      const { url: pdfUrl } = await storagePut(fileKey, pdfBuffer, "application/pdf");
+      return { url: pdfUrl };
+    }),
 });
 // ─── Virtual Peter Router ────────────────────────────────────────────────────
 // The core matching logic: given a client's analysis report, find the most

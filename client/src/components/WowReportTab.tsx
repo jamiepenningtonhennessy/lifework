@@ -297,6 +297,40 @@ export default function WowReportTab({ clientId, clientName }: WowReportTabProps
     onError: (err) => toast.error("Could not update lock: " + err.message),
   });
 
+  const printEnhancedViaMutation = trpc.counselor.generateCounsellorViaPdf.useMutation({
+    onSuccess: async (result) => {
+      try {
+        const res = await fetch(result.url);
+        const blob = await res.blob();
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `Enhanced-VIA-${clientName ?? "client"}.pdf`;
+        document.body.appendChild(a); a.click(); document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        toast.success("Enhanced VIA Report downloaded.");
+      } catch { window.open(result.url, "_blank"); }
+    },
+    onError: (err) => toast.error("Could not generate Enhanced VIA: " + err.message),
+  });
+
+  const printEnhancedOceanMutation = trpc.counselor.generateCounsellorOceanPdf.useMutation({
+    onSuccess: async (result) => {
+      try {
+        const res = await fetch(result.url);
+        const blob = await res.blob();
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `Enhanced-OCEAN-${clientName ?? "client"}.pdf`;
+        document.body.appendChild(a); a.click(); document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        toast.success("Enhanced OCEAN Report downloaded.");
+      } catch { window.open(result.url, "_blank"); }
+    },
+    onError: (err) => toast.error("Could not generate Enhanced OCEAN: " + err.message),
+  });
+
   const printCounsellorReportMutation = trpc.counselor.generateCounsellorReportPdf.useMutation({
     onSuccess: async (result) => {
       try {
@@ -477,6 +511,36 @@ export default function WowReportTab({ clientId, clientName }: WowReportTabProps
                         <FileText className="w-3 h-3 mr-1" />
                       )}
                       {printCounsellorReportMutation.isPending ? "Building…" : "Print Counsellor Report"}
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="border-emerald-600/60 text-emerald-700 hover:bg-emerald-50 text-xs"
+                      onClick={() => printEnhancedViaMutation.mutate({ clientId })}
+                      disabled={printEnhancedViaMutation.isPending}
+                      title="Generate and download the Enhanced VIA Character Strengths PDF"
+                    >
+                      {printEnhancedViaMutation.isPending ? (
+                        <Loader2 className="w-3 h-3 mr-1 animate-spin" />
+                      ) : (
+                        <FileText className="w-3 h-3 mr-1" />
+                      )}
+                      {printEnhancedViaMutation.isPending ? "Building…" : "Print Enhanced VIA"}
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="border-blue-600/60 text-blue-700 hover:bg-blue-50 text-xs"
+                      onClick={() => printEnhancedOceanMutation.mutate({ clientId })}
+                      disabled={printEnhancedOceanMutation.isPending}
+                      title="Generate and download the Enhanced OCEAN Personality Analysis PDF"
+                    >
+                      {printEnhancedOceanMutation.isPending ? (
+                        <Loader2 className="w-3 h-3 mr-1 animate-spin" />
+                      ) : (
+                        <FileText className="w-3 h-3 mr-1" />
+                      )}
+                      {printEnhancedOceanMutation.isPending ? "Building…" : "Print Enhanced OCEAN"}
                     </Button>
                     <Button
                       size="sm"
