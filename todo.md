@@ -1022,3 +1022,7 @@
 ## VIA Tab — Full Profile Table
 
 - [x] Add full VIA profile (all 24 strengths ranked 1-24) as opening data section above the generated analysis
+
+## VIA Tab — Button Behaviour
+
+- [x] Remove Regenerate button from VIA tab; show single Generate button that greys out permanently after analysis is generated
