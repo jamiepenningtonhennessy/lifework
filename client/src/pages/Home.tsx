@@ -5,7 +5,7 @@ import { useLocation } from "wouter";
 import { ArrowRight, CheckCircle, X, Lock, Download } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 
-const GOOGLE_DRIVE_VIDEO_ID = "1Bg426lfU_SRdwvDQ6CbCvMjz9p608SSo";
+const LIFEWORK_VIDEO_URL = "https://d2xsxph8kpxj0f.cloudfront.net/107696804/kFbbE6kqNApXGDFpQJUGV7/lifework-overview_10b2a812.mp4";
 
 export default function Home() {
   const { user, isAuthenticated } = useAuth();
@@ -157,13 +157,13 @@ export default function Home() {
               Rooted in positive psychology, anchored in your own life story.
             </p>
           </div>
-          {/* 16:9 Google Drive embed */}
-          <div style={{ position: "relative", paddingBottom: "56.25%", height: 0, overflow: "hidden", border: "2px solid rgba(201,151,58,0.4)", borderRadius: "2px" }}>
-            <iframe
-              src={`https://drive.google.com/file/d/${GOOGLE_DRIVE_VIDEO_ID}/preview`}
-              style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", border: "none" }}
-              allow="autoplay"
-              allowFullScreen
+          {/* Native video player */}
+          <div style={{ border: "2px solid rgba(201,151,58,0.4)", borderRadius: "2px", overflow: "hidden" }}>
+            <video
+              src={LIFEWORK_VIDEO_URL}
+              controls
+              playsInline
+              style={{ width: "100%", display: "block" }}
               title="Lifework Overview"
             />
           </div>
