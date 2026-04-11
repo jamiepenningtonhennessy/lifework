@@ -1587,11 +1587,18 @@ function CounsellorAnalysisTab({
         </div>
       )}
 
-      {/* Full VIA profile — always shown when analysis exists */}
-      {type === "via" && displayAnalysis && viaData && strengthsMap && (
+      {/* Analysis content */}
+      {displayAnalysis && !showRaw && (
+        <div className="prose-report">
+          <Streamdown>{displayAnalysis}</Streamdown>
+        </div>
+      )}
+
+      {/* Raw survey data (toggle) */}
+      {displayAnalysis && showRaw && type === "via" && viaData && strengthsMap && (
         <div className="rounded-xl border border-border bg-card overflow-hidden">
           <div className="px-4 py-3 bg-[var(--lw-navy)] border-b border-border">
-            <h3 className="text-sm font-semibold text-white tracking-wide">VIA Character Strengths — Full Profile (24 strengths)</h3>
+            <h3 className="text-sm font-semibold text-white tracking-wide">VIA Character Strengths — Full Profile (all 24 strengths)</h3>
           </div>
           <div className="divide-y divide-border">
             {(viaData.rankedStrengths as any[]).map((s: any, i: number) => {
@@ -1614,39 +1621,6 @@ function CounsellorAnalysisTab({
         </div>
       )}
 
-      {/* Analysis content */}
-      {displayAnalysis && !showRaw && (
-        <div className="prose-report">
-          <Streamdown>{displayAnalysis}</Streamdown>
-        </div>
-      )}
-
-      {/* Raw survey data (toggle) */}
-      {displayAnalysis && showRaw && type === "via" && viaData && strengthsMap && (
-        <div className="space-y-3">
-          <p className="text-sm text-muted-foreground mb-2">Full VIA profile (all 24 strengths, ranked):</p>
-          {(viaData.rankedStrengths as any[]).map((s: any, i: number) => {
-            const strength = strengthsMap.get(s.strengthId);
-            const pct = Math.round((s.score / 25) * 100);
-            return (
-              <div key={s.strengthId} className={`p-3 rounded-xl border ${i < 5 ? "border-[var(--lw-gold)]/30 bg-[var(--lw-gold-light)]/20" : "border-border"}`}>
-                <div className="flex items-center justify-between mb-1.5">
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm font-bold text-[var(--lw-gold)] w-6">{i + 1}</span>
-                    <span className="text-sm font-semibold text-foreground">{strength?.name ?? s.strengthId}</span>
-                    {strength?.virtue && <span className="text-xs text-muted-foreground capitalize">({strength.virtue})</span>}
-                  </div>
-                  <span className="text-sm font-bold text-[var(--lw-gold)]">{s.score}/25</span>
-                </div>
-                <div className="h-1.5 bg-muted rounded-full overflow-hidden">
-                  <div className="h-full bg-[var(--lw-gold)] rounded-full" style={{ width: `${pct}%` }} />
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      )}
-
       {displayAnalysis && showRaw && type === "ocean" && ipipData && (
         <IpipTab ipip={ipipData} />
       )}
@@ -1662,26 +1636,28 @@ function CounsellorAnalysisTab({
             </p>
           </div>
           {type === "via" && viaData && strengthsMap && (
-            <div className="space-y-3">
-              <p className="text-sm text-muted-foreground">Survey data (top 10):</p>
-              {(viaData.rankedStrengths as any[]).slice(0, 10).map((s: any, i: number) => {
-                const strength = strengthsMap.get(s.strengthId);
-                const pct = Math.round((s.score / 25) * 100);
-                return (
-                  <div key={s.strengthId} className={`p-3 rounded-xl border ${i < 5 ? "border-[var(--lw-gold)]/30 bg-[var(--lw-gold-light)]/20" : "border-border"}`}>
-                    <div className="flex items-center justify-between mb-1.5">
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm font-bold text-[var(--lw-gold)] w-6">{i + 1}</span>
-                        <span className="text-sm font-semibold text-foreground">{strength?.name ?? s.strengthId}</span>
+            <div className="rounded-xl border border-border bg-card overflow-hidden">
+              <div className="px-4 py-3 bg-[var(--lw-navy)] border-b border-border">
+                <h3 className="text-sm font-semibold text-white tracking-wide">VIA Character Strengths — Full Profile (all 24 strengths)</h3>
+              </div>
+              <div className="divide-y divide-border">
+                {(viaData.rankedStrengths as any[]).map((s: any, i: number) => {
+                  const strength = strengthsMap.get(s.strengthId);
+                  const pct = Math.round((s.score / 25) * 100);
+                  const isTop5 = i < 5;
+                  return (
+                    <div key={s.strengthId} className={`flex items-center gap-3 px-4 py-2.5 ${isTop5 ? "bg-[var(--lw-gold-light)]/15" : ""}`}>
+                      <span className={`text-sm font-bold w-6 text-right flex-shrink-0 ${isTop5 ? "text-[var(--lw-gold)]" : "text-muted-foreground"}`}>{i + 1}</span>
+                      <span className={`text-sm font-medium flex-1 ${isTop5 ? "text-foreground font-semibold" : "text-foreground"}`}>{strength?.name ?? s.strengthId}</span>
+                      {strength?.virtue && <span className="text-xs text-muted-foreground capitalize hidden sm:inline">{strength.virtue}</span>}
+                      <div className="w-24 h-1.5 bg-muted rounded-full overflow-hidden flex-shrink-0">
+                        <div className={`h-full rounded-full ${isTop5 ? "bg-[var(--lw-gold)]" : "bg-muted-foreground/40"}`} style={{ width: `${pct}%` }} />
                       </div>
-                      <span className="text-sm font-bold text-[var(--lw-gold)]">{s.score}/25</span>
+                      <span className={`text-sm font-bold w-10 text-right flex-shrink-0 ${isTop5 ? "text-[var(--lw-gold)]" : "text-muted-foreground"}`}>{s.score}/25</span>
                     </div>
-                    <div className="h-1.5 bg-muted rounded-full overflow-hidden">
-                      <div className="h-full bg-[var(--lw-gold)] rounded-full" style={{ width: `${pct}%` }} />
-                    </div>
-                  </div>
-                );
-              })}
+                  );
+                })}
+              </div>
             </div>
           )}
           {type === "ocean" && ipipData && <IpipTab ipip={ipipData} />}
