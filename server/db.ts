@@ -502,10 +502,11 @@ export async function getOrCreateChatSession(
     section,
     messages: "[]",
   });
+  const insertedId = (result as any)[0]?.insertId ?? (result as any).insertId;
   const [newSession] = await db
     .select()
     .from(chatSessions)
-    .where(eq(chatSessions.id, (result as any).insertId))
+    .where(eq(chatSessions.id, insertedId))
     .limit(1);
   return newSession;
 }
@@ -593,10 +594,11 @@ export async function resetChatSession(
     section,
     messages: "[]",
   });
+  const resetInsertedId = (result as any)[0]?.insertId ?? (result as any).insertId;
   const [newSession] = await db
     .select()
     .from(chatSessions)
-    .where(eq(chatSessions.id, (result as any).insertId))
+    .where(eq(chatSessions.id, resetInsertedId))
     .limit(1);
   return newSession;
 }
@@ -628,10 +630,11 @@ export async function getOrCreateCareerExplorerSession(
     clientId,
     messages: "[]", // always initialise to empty array string
   });
+  const ceInsertedId = (result as any)[0]?.insertId ?? (result as any).insertId;
   const [newSession] = await db
     .select()
     .from(careerExplorerSessions)
-    .where(eq(careerExplorerSessions.id, (result as any).insertId))
+    .where(eq(careerExplorerSessions.id, ceInsertedId))
     .limit(1);
   return newSession;
 }
