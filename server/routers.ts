@@ -1753,6 +1753,145 @@ ${lifeBlock}` }] });
       await upsertAnalysisReport({ clientId: input.clientId, counsellorOceanAnalysis: combined, counsellorOceanGeneratedAt: Date.now(), generatedAt: new Date() } as any);
       return { analysis: combined, cached: false };
     }),
+
+  // ── Generate Counsellor Career Analysis Brief PDF ──────────────────────────
+  generateCounsellorReportPdf: counselorProcedure
+    .input(z.object({ clientId: z.number() }))
+    .mutation(async ({ input }) => {
+      const { createRequire } = await import("module");
+      const _req = createRequire(import.meta.url);
+      const pdfmake = _req("pdfmake") as any;
+      const RobotoFonts = _req("pdfmake/fonts/Roboto") as any;
+      pdfmake.addFonts(RobotoFonts);
+
+      const report = await getAnalysisReport(input.clientId);
+      if (!report?.fullReportMarkdown) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "No analysis report found for this client. Please generate the Analysis first." });
+      }
+
+      const profile = await getClientProfileById(input.clientId);
+      const clientName = profile ? `${profile.firstName ?? ""} ${profile.lastName ?? ""}`.trim() : "Client";
+
+      const NAVY = "#0a1628";
+      const GOLD = "#c9973a";
+      const CREAM = "#f5f0e8";
+      const LIGHT_GOLD = "#f0e6cc";
+      const DARK_GREY = "#2c2c2c";
+
+      const para = (text: string, opts: Record<string, unknown> = {}) => ({
+        text, font: "Roboto", fontSize: 10.5, color: DARK_GREY, lineHeight: 1.5,
+        margin: [0, 0, 0, 8] as [number, number, number, number], ...opts,
+      });
+      const heading = (text: string) => ({
+        text, font: "Roboto", fontSize: 14, bold: true, color: NAVY,
+        margin: [0, 20, 0, 6] as [number, number, number, number],
+      });
+      const subheading = (text: string) => ({
+        text, font: "Roboto", fontSize: 11, bold: true, color: GOLD,
+        margin: [0, 10, 0, 4] as [number, number, number, number],
+      });
+      const divider = () => ({
+        table: { widths: ["*"], body: [[{ text: "", border: [false, true, false, false], borderColor: [LIGHT_GOLD, LIGHT_GOLD, LIGHT_GOLD, LIGHT_GOLD] }]] },
+        layout: "noBorders", margin: [0, 8, 0, 8] as [number, number, number, number],
+      });
+
+      const parseBoldInline = (text: string): unknown => {
+        if (!text.includes("**")) return text;
+        const parts: unknown[] = [];
+        const segments = text.split(/(\*\*[^*]+\*\*)/);
+        for (const seg of segments) {
+          if (seg.startsWith("**") && seg.endsWith("**")) parts.push({ text: seg.slice(2, -2), bold: true });
+          else if (seg) parts.push(seg);
+        }
+        return { text: parts };
+      };
+
+      const mdToContent = (markdown: string): unknown[] => {
+        const lines = markdown.split("\n");
+        const result: unknown[] = [];
+        let listBuffer: unknown[] = [];
+        let listType: "bullet" | "ordered" | null = null;
+        let paraBuffer: string[] = [];
+        const flushList = () => {
+          if (!listBuffer.length) return;
+          result.push(listType === "bullet"
+            ? { ul: listBuffer, font: "Roboto", fontSize: 10.5, color: DARK_GREY, lineHeight: 1.4, margin: [0, 4, 0, 8] }
+            : { ol: listBuffer, font: "Roboto", fontSize: 10.5, color: DARK_GREY, lineHeight: 1.4, margin: [0, 4, 0, 8] });
+          listBuffer = []; listType = null;
+        };
+        const flushPara = () => {
+          if (!paraBuffer.length) return;
+          const text = paraBuffer.join(" ").trim();
+          if (!text) { paraBuffer = []; return; }
+          result.push(text.includes("**") ? { ...para(""), text: parseBoldInline(text) } : para(text));
+          paraBuffer = [];
+        };
+        for (const rawLine of lines) {
+          const line = rawLine.trimEnd();
+          if (/^##\s/.test(line)) {
+            flushPara(); flushList();
+            result.push(heading(line.replace(/^##\s+/, "")));
+          } else if (/^###\s/.test(line)) {
+            flushPara(); flushList();
+            result.push(subheading(line.replace(/^###\s+/, "")));
+          } else if (/^####\s/.test(line)) {
+            flushPara(); flushList();
+            result.push(para(line.replace(/^####\s+/, ""), { bold: true, color: NAVY, fontSize: 10.5, margin: [0, 8, 0, 3] }));
+          } else if (/^[\*\-]\s/.test(line)) {
+            flushPara();
+            if (listType !== "bullet") { flushList(); listType = "bullet"; }
+            const item = line.replace(/^[\*\-]\s+/, "");
+            listBuffer.push(item.includes("**") ? parseBoldInline(item) : item);
+          } else if (/^\d+\.\s/.test(line)) {
+            flushPara();
+            if (listType !== "ordered") { flushList(); listType = "ordered"; }
+            listBuffer.push(line.replace(/^\d+\.\s+/, ""));
+          } else if (line.trim() === "") {
+            flushPara(); flushList();
+          } else {
+            paraBuffer.push(line);
+          }
+        }
+        flushPara(); flushList();
+        return result;
+      };
+
+      const content: unknown[] = [
+        // Cover
+        { text: "PENNINGTON HENNESSY", font: "Roboto", fontSize: 9, bold: true, color: GOLD, letterSpacing: 2, margin: [0, 0, 0, 40] },
+        { text: clientName, font: "Roboto", fontSize: 28, bold: true, color: "#ffffff", margin: [0, 0, 0, 8] },
+        { text: "Career Analysis Brief", font: "Roboto", fontSize: 16, color: GOLD, margin: [0, 0, 0, 8] },
+        { text: "LIFEWORK ANALYSIS", font: "Roboto", fontSize: 9, color: "#ffffff", opacity: 0.5, letterSpacing: 2, margin: [0, 0, 0, 4] },
+        { text: "Counsellor Reference Only — Not for Client Distribution", font: "Roboto", fontSize: 8, color: "#ff9999", margin: [0, 0, 0, 60] },
+        { text: `Generated: ${new Date().toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })}`, font: "Roboto", fontSize: 9, color: "#ffffff", opacity: 0.4 },
+        { text: "", pageBreak: "after" },
+        ...mdToContent(report.fullReportMarkdown),
+      ];
+
+      const docDefinition = {
+        pageSize: "A4",
+        pageMargins: [50, 60, 50, 60] as [number, number, number, number],
+        background: (currentPage: number) => currentPage === 1
+          ? [{ canvas: [{ type: "rect", x: 0, y: 0, w: 595.28, h: 841.89, color: NAVY }] }]
+          : [{ canvas: [{ type: "rect", x: 0, y: 0, w: 595.28, h: 841.89, color: CREAM }] }],
+        content,
+        defaultStyle: { font: "Roboto", fontSize: 10.5, color: DARK_GREY },
+        footer: (currentPage: number, pageCount: number) => currentPage === 1 ? {} : ({
+          columns: [
+            { text: `${clientName} | Career Analysis Brief`, font: "Roboto", fontSize: 7.5, color: NAVY, opacity: 0.5, margin: [50, 0, 0, 0] },
+            { text: `Page ${currentPage} of ${pageCount}`, font: "Roboto", fontSize: 7.5, color: NAVY, opacity: 0.5, alignment: "right", margin: [0, 0, 50, 0] },
+          ],
+          margin: [0, 10, 0, 0],
+        }),
+      };
+
+      const pdfDoc = pdfmake.createPdf(docDefinition as any);
+      const pdfBuffer: Buffer = await pdfDoc.getBuffer();
+
+      const fileKey = `counsellor-reports/client-${input.clientId}-${Date.now()}.pdf`;
+      const { url: pdfUrl } = await storagePut(fileKey, pdfBuffer, "application/pdf");
+      return { url: pdfUrl };
+    }),
 });
 // ─── Virtual Peter Router ────────────────────────────────────────────────────
 // The core matching logic: given a client's analysis report, find the most

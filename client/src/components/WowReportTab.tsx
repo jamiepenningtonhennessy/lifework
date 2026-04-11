@@ -297,6 +297,27 @@ export default function WowReportTab({ clientId, clientName }: WowReportTabProps
     onError: (err) => toast.error("Could not update lock: " + err.message),
   });
 
+  const printCounsellorReportMutation = trpc.counselor.generateCounsellorReportPdf.useMutation({
+    onSuccess: async (result) => {
+      try {
+        const res = await fetch(result.url);
+        const blob = await res.blob();
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `Counsellor-Analysis-${clientName ?? "client"}.pdf`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        toast.success("Counsellor Report downloaded.");
+      } catch {
+        window.open(result.url, "_blank");
+      }
+    },
+    onError: (err) => toast.error("Could not generate Counsellor Report: " + err.message),
+  });
+
   const rebuildPdfMutation = trpc.wowReport.rebuildPdf.useMutation({
     onSuccess: (result) => {
       utils.wowReport.get.invalidate({ clientId });
@@ -442,6 +463,21 @@ export default function WowReportTab({ clientId, clientName }: WowReportTabProps
                     </Badge>
                   )}
                   <div className="flex gap-2 flex-wrap justify-end">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="border-[var(--lw-gold)]/60 text-[var(--lw-gold)] hover:bg-[var(--lw-gold)]/10 text-xs"
+                      onClick={() => printCounsellorReportMutation.mutate({ clientId })}
+                      disabled={printCounsellorReportMutation.isPending}
+                      title="Generate and download the Counsellor Career Analysis Brief PDF"
+                    >
+                      {printCounsellorReportMutation.isPending ? (
+                        <Loader2 className="w-3 h-3 mr-1 animate-spin" />
+                      ) : (
+                        <FileText className="w-3 h-3 mr-1" />
+                      )}
+                      {printCounsellorReportMutation.isPending ? "Building…" : "Print Counsellor Report"}
+                    </Button>
                     <Button
                       size="sm"
                       className="bg-[var(--lw-gold)] hover:bg-[var(--lw-gold)]/90 text-[var(--lw-navy)] font-semibold"

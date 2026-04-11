@@ -1034,3 +1034,7 @@
 ## OCEAN Tab — Facet Definitions
 
 - [x] Add short plain-language definitions for all 30 OCEAN sub-scale facets, displayed inline beneath each facet name in the raw survey data section
+
+## WOW Report — Print Counsellor Report Button
+
+- [x] Add "Print Counsellor Report" button to WOW report page that generates and downloads the Career Analysis Brief PDF
