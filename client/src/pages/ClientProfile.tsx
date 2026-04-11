@@ -37,7 +37,7 @@ import CoachingSessionTab from "@/components/CoachingSessionTab";
 import { InsightsMapping } from "@/components/InsightsMapping";
 import WowReportTab from "@/components/WowReportTab";
 
-type Tab = "overview" | "interview" | "background" | "via" | "ipip" | "report" | "virtual-peter" | "coaching-annex" | "coaching-session" | "wow-report";
+type Tab = "overview" | "interview" | "background" | "via" | "ocean" | "insights" | "report" | "virtual-peter" | "coaching-annex" | "coaching-session" | "wow-report";
 
 export default function ClientProfile() {
   const { isAuthenticated, loading, user } = useAuth();
@@ -192,7 +192,8 @@ export default function ClientProfile() {
     { id: "interview", label: "Interview", icon: <MessageSquare className="w-4 h-4" /> },
     { id: "background", label: "Background", icon: <Briefcase className="w-4 h-4" /> },
     { id: "via", label: "VIA Strengths", icon: <Star className="w-4 h-4" /> },
-    { id: "ipip", label: "Personality", icon: <Users className="w-4 h-4" /> },
+    { id: "ocean", label: "OCEAN", icon: <Brain className="w-4 h-4" /> },
+    { id: "insights", label: "Insights", icon: <Compass className="w-4 h-4" /> },
     { id: "report", label: "Analysis Report", icon: <Brain className="w-4 h-4" /> },
     { id: "virtual-peter", label: "Parallel Clients", icon: <GitCompare className="w-4 h-4" /> },
   { id: "coaching-annex", label: "Coaching Annex", icon: <FileText className="w-4 h-4" /> },
@@ -789,39 +790,30 @@ export default function ClientProfile() {
           )}
 
           {activeTab === "via" && (
-            <div className="max-w-3xl">
-              {!data.via ? (
-                <p className="text-muted-foreground text-sm">VIA survey not yet completed.</p>
-              ) : (
-                <div className="space-y-3">
-                  <p className="text-sm text-muted-foreground mb-4">Top 10 character strengths:</p>
-                  {(data.via.rankedStrengths as any[]).slice(0, 10).map((s: any, i: number) => {
-                    const strength = strengthsMap.get(s.strengthId);
-                    const pct = Math.round((s.score / 25) * 100);
-                    return (
-                      <div key={s.strengthId} className={`p-4 rounded-xl border ${i < 5 ? "border-[var(--lw-gold)]/30 bg-[var(--lw-gold-light)]/20" : "border-border"}`}>
-                        <div className="flex items-center justify-between mb-2">
-                          <div className="flex items-center gap-2">
-                            <span className="text-sm font-bold text-[var(--lw-gold)] w-5">{i + 1}</span>
-                            <span className="text-sm font-semibold text-foreground">{strength?.name ?? s.strengthId}</span>
-                            {strength?.virtue && <span className="text-xs text-muted-foreground capitalize">({strength.virtue})</span>}
-                          </div>
-                          <span className="text-sm font-bold text-[var(--lw-gold)]">{s.score}/25</span>
-                        </div>
-                        <div className="h-1.5 bg-muted rounded-full overflow-hidden">
-                          <div className="h-full bg-[var(--lw-gold)] rounded-full" style={{ width: `${pct}%` }} />
-                        </div>
-                        {strength?.description && <p className="text-xs text-muted-foreground mt-2">{strength.description}</p>}
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
-            </div>
+            <CounsellorAnalysisTab
+              clientId={clientId}
+              type="via"
+              storedAnalysis={(data.report as any)?.counsellorViaAnalysis ?? null}
+              hasData={!!data.via}
+              notReadyMessage="VIA survey not yet completed."
+              viaData={data.via}
+              strengthsMap={strengthsMap}
+            />
           )}
 
-          {activeTab === "ipip" && (
-            <IpipTab ipip={data.ipip} />
+          {activeTab === "ocean" && (
+            <CounsellorAnalysisTab
+              clientId={clientId}
+              type="ocean"
+              storedAnalysis={(data.report as any)?.counsellorOceanAnalysis ?? null}
+              hasData={!!data.ipip}
+              notReadyMessage="OCEAN assessment not yet completed."
+              ipipData={data.ipip}
+            />
+          )}
+
+          {activeTab === "insights" && (
+            <InsightsTab ipip={data.ipip} />
           )}
 
 
@@ -1474,3 +1466,230 @@ function IpipTab({ ipip }: { ipip: any }) {
   );
 }
 
+
+// ─── Counsellor Analysis Tab ──────────────────────────────────────────────────
+// Generic tab that shows stored counsellor-layer analysis (VIA or OCEAN).
+// If no analysis exists yet, shows the raw survey data + a "Generate Analysis" button.
+// Once generated, the markdown is rendered inline (no PDF).
+
+function CounsellorAnalysisTab({
+  clientId,
+  type,
+  storedAnalysis,
+  hasData,
+  notReadyMessage,
+  viaData,
+  strengthsMap,
+  ipipData,
+}: {
+  clientId: number;
+  type: "via" | "ocean";
+  storedAnalysis: string | null;
+  hasData: boolean;
+  notReadyMessage: string;
+  viaData?: any;
+  strengthsMap?: Map<string, any>;
+  ipipData?: any;
+}) {
+  const utils = trpc.useUtils();
+  const [showRaw, setShowRaw] = useState(false);
+
+  const generateVia = trpc.counselor.generateCounsellorVia.useMutation({
+    onSuccess: () => {
+      toast.success("VIA analysis generated.");
+      utils.counselor.getClientProfile.invalidate({ clientId });
+    },
+    onError: (e) => toast.error(e.message ?? "Failed to generate VIA analysis."),
+  });
+
+  const generateOcean = trpc.counselor.generateCounsellorOcean.useMutation({
+    onSuccess: () => {
+      toast.success("OCEAN analysis generated.");
+      utils.counselor.getClientProfile.invalidate({ clientId });
+    },
+    onError: (e) => toast.error(e.message ?? "Failed to generate OCEAN analysis."),
+  });
+
+  const isPending = type === "via" ? generateVia.isPending : generateOcean.isPending;
+
+  function handleGenerate(force = false) {
+    if (type === "via") generateVia.mutate({ clientId, forceRegenerate: force });
+    else generateOcean.mutate({ clientId, forceRegenerate: force });
+  }
+
+  if (!hasData) {
+    return (
+      <div className="max-w-3xl text-center py-12 border-2 border-dashed border-border rounded-xl">
+        <Brain className="w-10 h-10 text-muted-foreground mx-auto mb-3" />
+        <p className="text-muted-foreground">{notReadyMessage}</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="max-w-4xl space-y-6">
+      {/* Action bar */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          {storedAnalysis && (
+            <button
+              className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+              onClick={() => setShowRaw(!showRaw)}
+            >
+              {showRaw ? "Show analysis" : "Show raw survey data"}
+            </button>
+          )}
+        </div>
+        <div className="flex gap-2">
+          {storedAnalysis && (
+            <Button
+              size="sm"
+              variant="outline"
+              disabled={isPending}
+              onClick={() => handleGenerate(true)}
+              className="gap-1.5 text-xs"
+            >
+              {isPending ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <RefreshCw className="w-3.5 h-3.5" />}
+              Regenerate
+            </Button>
+          )}
+          {!storedAnalysis && (
+            <Button
+              size="sm"
+              disabled={isPending}
+              onClick={() => handleGenerate(false)}
+              className="gap-1.5 bg-[var(--lw-gold)] hover:bg-[oklch(0.60_0.13_72)] text-white"
+            >
+              {isPending ? (
+                <><Loader2 className="w-3.5 h-3.5 animate-spin" /> Generating analysis… (1–2 min)</>
+              ) : (
+                <><Sparkles className="w-3.5 h-3.5" /> Generate {type === "via" ? "VIA" : "OCEAN"} Analysis</>
+              )}
+            </Button>
+          )}
+        </div>
+      </div>
+
+      {/* Generating state */}
+      {isPending && (
+        <div className="flex items-center gap-3 p-5 rounded-xl border border-[var(--lw-gold)]/30 bg-[var(--lw-gold-light)]/10">
+          <Loader2 className="w-5 h-5 animate-spin text-[var(--lw-gold)] flex-shrink-0" />
+          <div>
+            <p className="text-sm font-medium text-foreground">Generating analysis…</p>
+            <p className="text-xs text-muted-foreground mt-0.5">This runs 3 LLM calls and takes 1–2 minutes. Please wait.</p>
+          </div>
+        </div>
+      )}
+
+      {/* Analysis content */}
+      {storedAnalysis && !showRaw && (
+        <div className="prose-report">
+          <Streamdown>{storedAnalysis}</Streamdown>
+        </div>
+      )}
+
+      {/* Raw survey data (toggle) */}
+      {showRaw && type === "via" && viaData && strengthsMap && (
+        <div className="space-y-3">
+          <p className="text-sm text-muted-foreground mb-2">Full VIA profile (all 24 strengths, ranked):</p>
+          {(viaData.rankedStrengths as any[]).map((s: any, i: number) => {
+            const strength = strengthsMap.get(s.strengthId);
+            const pct = Math.round((s.score / 25) * 100);
+            return (
+              <div key={s.strengthId} className={`p-3 rounded-xl border ${i < 5 ? "border-[var(--lw-gold)]/30 bg-[var(--lw-gold-light)]/20" : "border-border"}`}>
+                <div className="flex items-center justify-between mb-1.5">
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-bold text-[var(--lw-gold)] w-6">{i + 1}</span>
+                    <span className="text-sm font-semibold text-foreground">{strength?.name ?? s.strengthId}</span>
+                    {strength?.virtue && <span className="text-xs text-muted-foreground capitalize">({strength.virtue})</span>}
+                  </div>
+                  <span className="text-sm font-bold text-[var(--lw-gold)]">{s.score}/25</span>
+                </div>
+                <div className="h-1.5 bg-muted rounded-full overflow-hidden">
+                  <div className="h-full bg-[var(--lw-gold)] rounded-full" style={{ width: `${pct}%` }} />
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {showRaw && type === "ocean" && ipipData && (
+        <IpipTab ipip={ipipData} />
+      )}
+
+      {/* No analysis yet — show raw data with generate prompt */}
+      {!storedAnalysis && !isPending && (
+        <div className="space-y-4">
+          <div className="p-4 rounded-xl bg-[var(--lw-gold-light)]/10 border border-[var(--lw-gold)]/20">
+            <p className="text-sm text-muted-foreground">
+              No counsellor analysis generated yet. Click <strong>Generate {type === "via" ? "VIA" : "OCEAN"} Analysis</strong> above
+              to run the full {type === "via" ? "5-stage VIA framework" : "4-stage OCEAN lens"} against this client's data.
+              This is a one-time operation — the result is stored permanently and can be regenerated if needed.
+            </p>
+          </div>
+          {type === "via" && viaData && strengthsMap && (
+            <div className="space-y-3">
+              <p className="text-sm text-muted-foreground">Survey data (top 10):</p>
+              {(viaData.rankedStrengths as any[]).slice(0, 10).map((s: any, i: number) => {
+                const strength = strengthsMap.get(s.strengthId);
+                const pct = Math.round((s.score / 25) * 100);
+                return (
+                  <div key={s.strengthId} className={`p-3 rounded-xl border ${i < 5 ? "border-[var(--lw-gold)]/30 bg-[var(--lw-gold-light)]/20" : "border-border"}`}>
+                    <div className="flex items-center justify-between mb-1.5">
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-bold text-[var(--lw-gold)] w-6">{i + 1}</span>
+                        <span className="text-sm font-semibold text-foreground">{strength?.name ?? s.strengthId}</span>
+                      </div>
+                      <span className="text-sm font-bold text-[var(--lw-gold)]">{s.score}/25</span>
+                    </div>
+                    <div className="h-1.5 bg-muted rounded-full overflow-hidden">
+                      <div className="h-full bg-[var(--lw-gold)] rounded-full" style={{ width: `${pct}%` }} />
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+          {type === "ocean" && ipipData && <IpipTab ipip={ipipData} />}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── Insights Tab ─────────────────────────────────────────────────────────────
+// Dedicated tab for the Insights Discovery colour-energy mapping.
+// Extracted from IpipTab so it has its own space.
+
+function InsightsTab({ ipip }: { ipip: any }) {
+  if (!ipip) {
+    return (
+      <div className="max-w-3xl text-center py-12 border-2 border-dashed border-border rounded-xl">
+        <Compass className="w-10 h-10 text-muted-foreground mx-auto mb-3" />
+        <p className="text-muted-foreground">OCEAN assessment not yet completed — Insights mapping requires Big Five scores.</p>
+      </div>
+    );
+  }
+  const domainScores: Record<string, number> = (() => {
+    try { return typeof ipip.domainScores === "string" ? JSON.parse(ipip.domainScores) : (ipip.domainScores ?? {}); }
+    catch { return {}; }
+  })();
+
+  return (
+    <div className="max-w-3xl space-y-4">
+      <div className="p-4 rounded-xl bg-[var(--lw-gold-light)]/15 border border-[var(--lw-gold)]/20">
+        <p className="text-sm text-muted-foreground">
+          Insights Discovery colour-energy profile — inferred from the client's Big Five (IPIP-NEO) scores.
+          This is an approximation, not a validated Insights assessment.
+        </p>
+      </div>
+      <InsightsMapping
+        extraversion={domainScores["E"] ?? 50}
+        agreeableness={domainScores["A"] ?? 50}
+        openness={domainScores["O"] ?? 50}
+        conscientiousness={domainScores["C"] ?? 50}
+      />
+    </div>
+  );
+}

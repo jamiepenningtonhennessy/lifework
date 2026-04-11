@@ -993,3 +993,16 @@
 ## Coaching Slides — Tell Me About Yourself Third Person
 
 - [ ] Convert paragraph lines (non-bullet) on Slide 8 from second person to third person (You→first name, your→their, you→them/first name)
+
+## Counsellor Layer — VIA & OCEAN Analysis Tabs
+
+- [x] Add counsellor_via_analysis and counsellor_ocean_analysis columns to analysisReports schema
+- [x] Apply DB migration for new columns
+- [x] Add generateCounsellorVia tRPC procedure (5-stage VIA framework, stores markdown in DB)
+- [x] Add generateCounsellorOcean tRPC procedure (4-stage OCEAN lens, stores markdown in DB)
+- [x] Rename "Personality" tab to "OCEAN" in counsellor ClientProfile
+- [x] Replace VIA tab content with CounsellorAnalysisTab component (generate + display stored analysis)
+- [x] Replace OCEAN tab content with CounsellorAnalysisTab component
+- [x] Add new "Insights" tab with dedicated InsightsTab component (Insights Discovery colour-energy mapping)
+- [x] CounsellorAnalysisTab: generate-once, stored forever, regenerate button available
+- [x] CounsellorAnalysisTab: toggle between rendered analysis and raw survey data

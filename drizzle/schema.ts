@@ -256,6 +256,11 @@ export const analysisReports = mysqlTable("analysis_reports", {
   // ── Canonical Stage 1: single source of truth for life history analysis ──
   canonicalStage1: text("canonical_stage1"),           // Dependable Strengths analysis — shared by WoW and counsellor reports
   canonicalStage1GeneratedAt: int("canonical_stage1_generated_at"),  // Unix ms timestamp
+  // ── Counsellor-level analyses (generated once, stored forever, no versioning) ──
+  counsellorViaAnalysis: text("counsellor_via_analysis"),         // Full VIA analysis markdown (counsellor layer)
+  counsellorViaGeneratedAt: int("counsellor_via_generated_at"),   // Unix ms timestamp
+  counsellorOceanAnalysis: text("counsellor_ocean_analysis"),     // Full OCEAN analysis markdown (counsellor layer)
+  counsellorOceanGeneratedAt: int("counsellor_ocean_generated_at"), // Unix ms timestamp
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });

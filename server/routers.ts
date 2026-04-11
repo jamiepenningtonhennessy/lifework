@@ -1567,6 +1567,156 @@ Critical analytical principle: the earliest experiences carry the deepest imprin
       const stage1Text = await generateAndStoreCanonicalStage1(input.clientId);
       return { success: true, preview: stage1Text.slice(0, 300) };
     }),
+
+  // ── Counsellor-layer VIA analysis (generated once, stored forever) ──────────
+  generateCounsellorVia: counselorProcedure
+    .input(z.object({ clientId: z.number(), forceRegenerate: z.boolean().optional() }))
+    .mutation(async ({ input }) => {
+      const profile = await getClientProfileById(input.clientId);
+      if (!profile) throw new TRPCError({ code: "NOT_FOUND" });
+
+      const existing = await getAnalysisReport(input.clientId);
+      if ((existing as any)?.counsellorViaAnalysis && !input.forceRegenerate) {
+        return { analysis: (existing as any).counsellorViaAnalysis, cached: true };
+      }
+
+      const [achievementsList, family, education, career, via, ipip] = await Promise.all([
+        getAchievements(input.clientId),
+        getFamilyBackground(input.clientId),
+        getEducationHistory(input.clientId),
+        getCareerHistory(input.clientId),
+        getViaResults(input.clientId),
+        getIpipResults(input.clientId),
+      ]);
+
+      if (!via?.rankedStrengths) throw new TRPCError({ code: "PRECONDITION_FAILED", message: "VIA survey not completed" });
+
+      const clientName = [profile.firstName, profile.lastName].filter(Boolean).join(" ") || "the client";
+
+      // Build life history block
+      const DECADE_ORDER = ["childhood","teens","twenties","thirties","forties","fifties","sixties_plus"];
+      const DECADE_LABELS: Record<string,string> = { childhood:"Childhood (0-12)",teens:"Teens (13-19)",twenties:"Twenties",thirties:"Thirties",forties:"Forties",fifties:"Fifties",sixties_plus:"Sixties+" };
+      const byDecade: Record<string, typeof achievementsList> = {};
+      for (const a of achievementsList) { const d = a.decade ?? "unknown"; (byDecade[d] = byDecade[d] ?? []).push(a); }
+      let lifeBlock = "LIFE HISTORY — ALL EPISODES\n\n";
+      for (const decade of DECADE_ORDER) {
+        const evs = byDecade[decade] ?? [];
+        if (!evs.length) continue;
+        lifeBlock += `--- ${DECADE_LABELS[decade] ?? decade.toUpperCase()} ---\n`;
+        for (const e of evs.sort((a,b) => (a.age??99)-(b.age??99))) {
+          lifeBlock += `[${(e.esf??"").charAt(0).toUpperCase()+(e.esf??"").slice(1)}] ${e.title ?? ""} ${e.age ? `Age ${e.age}` : ""}\n`;
+          if (e.description) lifeBlock += `  ${e.description.replace(/\n/g," ")}\n`;
+          if (e.othersObservations) lifeBlock += `  Others observed: ${e.othersObservations.replace(/\n/g," ")}\n`;
+        }
+        lifeBlock += "\n";
+      }
+
+      const viaRanked: Array<{name:string;score:number;rank:number}> = (() => { try { const r = via.rankedStrengths; return typeof r==="string" ? JSON.parse(r) : (r as any[]); } catch { return []; } })();
+      let viaBlock = "VIA CHARACTER STRENGTHS — FULL PROFILE (all 24, ranked)\n";
+      viaRanked.forEach(s => { viaBlock += `  ${s.rank}. ${s.name} — ${s.score}/25\n`; });
+      const top5 = viaRanked.slice(0,5).map(s=>s.name);
+      const top5Str = top5.join(", ");
+
+      const OVERUSE_UNDERUSE: Record<string,[string,string]> = {
+        "Humor":             ["Clowning, deflecting serious moments, using humour to avoid depth or difficulty","Excessive seriousness, missing opportunities to lighten the mood or connect"],
+        "Gratitude":         ["Sycophancy, over-expressing thanks in ways that feel hollow or manipulative","Taking things for granted, failing to acknowledge what others have contributed"],
+        "Spirituality":      ["Moralising, imposing beliefs, using spiritual frameworks to avoid practical engagement","Disconnection from meaning, purely transactional engagement with work and relationships"],
+        "Social Intelligence":["People-pleasing, over-reading the room, adjusting too much to perceived expectations","Missing social cues, failing to read the emotional temperature of situations"],
+        "Hope":              ["Unrealistic optimism, dismissing legitimate concerns, refusing to plan for failure","Pessimism, risk-aversion, failure to mobilise others around a positive vision"],
+        "Creativity":        ["Impracticality, generating ideas without follow-through, novelty for its own sake","Rigid thinking, defaulting to conventional solutions when innovation is needed"],
+        "Love of Learning":  ["Intellectualising, collecting knowledge without applying it, analysis paralysis","Incuriosity, reluctance to develop new skills or engage with unfamiliar domains"],
+        "Perspective":       ["Detachment, offering wisdom when emotional presence is what is needed","Narrow thinking, inability to see beyond immediate concerns or personal perspective"],
+        "Leadership":        ["Domineering, micromanaging, taking over when others need space to lead","Abdication, failing to step up when direction and structure are genuinely needed"],
+        "Perseverance":      ["Stubbornness, staying in failing situations too long, refusing to pivot","Giving up too easily, abandoning projects at the first sign of difficulty"],
+      };
+      let overuseBlock = "OVERUSE/UNDERUSE REFERENCE (Niemiec framework):\n";
+      for (const [strength, [over, under]] of Object.entries(OVERUSE_UNDERUSE)) {
+        overuseBlock += `  ${strength}:\n    Overuse: ${over}\n    Underuse: ${under}\n`;
+      }
+
+      const SYS_VIA = `You are a senior career analyst at Pennington Hennessy preparing a Lifework counsellor analysis for ${clientName}. Write directly to the client using "you" and "your" throughout. Be warm, direct, intellectually confident. Short paragraphs (4-5 lines max). Evidence-led. Active voice. No hedging. No theatrical flourishes. NEVER open with a greeting or preamble. Begin immediately with the first heading.`;
+
+      const S1 = await invokeLLM({ messages: [{ role:"system",content:SYS_VIA },{ role:"user",content:`Apply the 5-stage VIA structured analysis framework to the life history below.\n\nSTAGE 1 & 2 — Code each episode by the VIA strength most active in the client's moments of greatest satisfaction. Ask: what is the client bringing that is distinctively theirs? What would have been lost if they had not been there? What suggests pleasure in the activity itself rather than relief at the outcome?\n\nSTAGE 3 — Identify the empirical signature cluster: which strengths appear most repeatedly as primary codes across episodes?\n\nThen produce the Evidence Table.\n\n## The Evidence Table\n\nProduce a markdown table with EXACTLY these six columns:\n| Strength | VIA Definition | Survey Rank | Freq (of N) | Identity Salience | Achievements with evidence |\n|---|---|---|---|---|---|\n\nRules:\n- Include ALL top 7 VIA strengths (not just top 5)\n- Strength: the strength name\n- VIA Definition: a plain-language definition — 1 concise sentence, not clinical wording\n- Survey Rank: its rank in the VIA results (1 = highest)\n- Freq (of N): count of fulfilling life history episodes showing clear evidence of this strength as a PRIMARY code\n- Identity Salience: LOW / MEDIUM / HIGH / VERY HIGH — how central is this strength to how the client understands themselves?\n- Achievements with evidence: specific episode titles where the evidence is clearest, comma-separated\n\nNo prose before or after the table in this section.\n\n## The Key Findings\n\nWrite 3 short paragraphs (4-5 lines each). Each paragraph that names a divergence MUST begin with a bold lead sentence: **[Strength] (rank N) is doing more work than [Strength] (rank N).**\n\nThe paragraphs must:\n- Name the most analytically significant divergence: which strength has the highest frequency in fulfilling moments but a lower survey rank?\n- Identify any strength where frequency and identity salience diverge: high frequency + low salience = trained behaviour. Low frequency but pivotal moments + high salience = deepest organising value.\n- Where the evidence warrants it, quote the specific life history detail that proves the point (use italics: *"exact words"*).\n\nClose with: "From what you have told us, we can see:" followed by 4-5 tight bullets naming the key strength findings.\n\nFinal line: one sentence that captures the most important insight this analysis reveals — something the survey rank alone would not have shown.\n\n${viaBlock}\n\n${lifeBlock}` }] });
+
+      const S2 = await invokeLLM({ messages: [{ role:"system",content:SYS_VIA },{ role:"user",content:`Write the Signature Strengths section for the top 5 VIA strengths: ${top5Str}.\n\nIMPORTANT INSTRUCTION: Do NOT reference the client's life history in this section at all. The client was asked only to record successes, so the life history contains no overuse or underuse evidence. Instead, draw entirely on VIA source material and the Niemiec overuse/underuse framework to write two standard, universally applicable paragraphs per strength.\n\n## Your Signature Strengths — In Full\n\nFor EACH of the top 5 strengths, write a section using EXACTLY this structure:\n\n### [Strength Name] — Rank [N], Score [X]/25\n\nA single opening sentence (2 lines max) that states what this strength looks like at its best — drawn from the VIA definition and research on signature strengths. Do not reference the life history.\n\n#### [Strength Name] if Overplayed\n\nOne paragraph of exactly 3 sentences:\n- Sentence 1: Define what overuse of this strength looks like in general, using Niemiec's framework.\n- Sentence 2: Describe the interpersonal or professional consequences that typically follow.\n- Sentence 3: Give a concrete, vivid illustrative example — a generic scenario that shows what this looks like in practice.\n\n#### [Strength Name] if Underplayed\n\nOne paragraph of exactly 3 sentences:\n- Sentence 1: Define what underuse of this strength looks like.\n- Sentence 2: Describe the personal or relational cost that typically follows.\n- Sentence 3: Give a concrete, vivid illustrative example.\n\nDraw on the following VIA/Niemiec source definitions for accuracy:\n${overuseBlock}\n\nClient VIA profile for reference (scores only — do NOT use life history):\n${viaBlock}` }] });
+
+      const S3 = await invokeLLM({ messages: [{ role:"system",content:SYS_VIA },{ role:"user",content:`Apply Stage 5 of the VIA structured analysis framework: move from description to hypothesis.\n\nA well-formed coaching hypothesis has three components: the strength, the conditions in which it is most alive, and the question it opens.\n\n## Questions to Ponder\n\nWrite exactly 5 coaching hypotheses, one for each of the top 5 strengths (${top5Str}).\n\nEach hypothesis MUST:\n1. Open with a 2-3 sentence observation grounded in specific life history evidence — name episodes, quote language where possible\n2. Name the specific CONDITIONS in which this strength is most alive (not just 'you use this strength', but when, with whom, at what scale, in what kind of challenge)\n3. Close with a single, open, genuinely curious question — not a leading question, not a rhetorical question.\n\nFormat each as:\n**[Strength Name]**\n[The hypothesis paragraph and question]\n\n${viaBlock}\n\n${lifeBlock}` }] });
+
+      const combined = (S1?.choices?.[0]?.message?.content ?? "") + "\n\n" + (S2?.choices?.[0]?.message?.content ?? "") + "\n\n" + (S3?.choices?.[0]?.message?.content ?? "");
+
+      await upsertAnalysisReport({ clientId: input.clientId, counsellorViaAnalysis: combined, counsellorViaGeneratedAt: Date.now(), generatedAt: new Date() } as any);
+      return { analysis: combined, cached: false };
+    }),
+
+  // ── Counsellor-layer OCEAN analysis (generated once, stored forever) ─────────
+  generateCounsellorOcean: counselorProcedure
+    .input(z.object({ clientId: z.number(), forceRegenerate: z.boolean().optional() }))
+    .mutation(async ({ input }) => {
+      const profile = await getClientProfileById(input.clientId);
+      if (!profile) throw new TRPCError({ code: "NOT_FOUND" });
+
+      const existing = await getAnalysisReport(input.clientId);
+      if ((existing as any)?.counsellorOceanAnalysis && !input.forceRegenerate) {
+        return { analysis: (existing as any).counsellorOceanAnalysis, cached: true };
+      }
+
+      const [achievementsList, ipip] = await Promise.all([
+        getAchievements(input.clientId),
+        getIpipResults(input.clientId),
+      ]);
+
+      if (!ipip?.domainScores) throw new TRPCError({ code: "PRECONDITION_FAILED", message: "OCEAN assessment not completed" });
+
+      const clientName = [profile.firstName, profile.lastName].filter(Boolean).join(" ") || "the client";
+
+      const domainScores: Record<string,number> = (() => { try { const d=ipip.domainScores; return typeof d==="string"?JSON.parse(d):(d as any); } catch { return {}; } })();
+      const facetScores: Record<string,number> = (() => { try { const f=ipip.facetScores; return typeof f==="string"?JSON.parse(f):(f as any); } catch { return {}; } })();
+
+      const DOMAIN_LABELS: Record<string,string> = { O:"Openness to Experience",C:"Conscientiousness",E:"Extraversion",A:"Agreeableness",N:"Emotional Stability (low Neuroticism)" };
+      const FACET_LABELS: Record<string,string> = { O1:"Imagination",O2:"Artistic Interests",O3:"Emotionality",O4:"Adventurousness",O5:"Intellect",O6:"Liberalism",C1:"Self-Efficacy",C2:"Orderliness",C3:"Dutifulness",C4:"Achievement Striving",C5:"Self-Discipline",C6:"Cautiousness",E1:"Friendliness",E2:"Gregariousness",E3:"Assertiveness",E4:"Activity Level",E5:"Excitement-Seeking",E6:"Positive Emotions",A1:"Trust",A2:"Morality",A3:"Altruism",A4:"Cooperation",A5:"Modesty",A6:"Sympathy",N1:"Anxiety",N2:"Anger",N3:"Depression",N4:"Self-Consciousness",N5:"Immoderation",N6:"Vulnerability" };
+
+      let oceanBlock = "BIG FIVE PERSONALITY PROFILE (IPIP-NEO, percentile 0–100)\n\n";
+      for (const d of ["O","C","E","A","N"]) {
+        oceanBlock += `${DOMAIN_LABELS[d]}: ${domainScores[d]??"?"}\n`;
+        for (let i=1;i<=6;i++) { const fk=`${d}${i}`; oceanBlock += `  ${FACET_LABELS[fk]} (${fk}): ${facetScores[fk]??"?"}\n`; }
+        oceanBlock += "\n";
+      }
+
+      const DECADE_ORDER = ["childhood","teens","twenties","thirties","forties","fifties","sixties_plus"];
+      const DECADE_LABELS2: Record<string,string> = { childhood:"Childhood (0–12)",teens:"Teens (13–19)",twenties:"Twenties",thirties:"Thirties",forties:"Forties",fifties:"Fifties",sixties_plus:"Sixties+" };
+      const byDecade2: Record<string, typeof achievementsList> = {};
+      for (const a of achievementsList) { const d=a.decade??"unknown"; (byDecade2[d]=byDecade2[d]??[]).push(a); }
+      let lifeBlock2 = "LIFE HISTORY — RAW EVENTS\nESF = Enjoyable / Satisfying / Fulfilling\n\n";
+      for (const decade of DECADE_ORDER) {
+        const evs = byDecade2[decade]??[];
+        if (!evs.length) continue;
+        lifeBlock2 += `--- ${DECADE_LABELS2[decade]??decade.toUpperCase()} ---\n`;
+        for (const e of evs.sort((a,b)=>(a.age??99)-(b.age??99))) {
+          lifeBlock2 += `[${(e.esf??"").charAt(0).toUpperCase()+(e.esf??"").slice(1)}] ${e.title??""} ${e.age?`Age ${e.age}`:""}\n`;
+          if (e.description) lifeBlock2 += `  ${e.description.replace(/\n/g," ")}\n`;
+        }
+        lifeBlock2 += "\n";
+      }
+
+      const domainBlock = (dk: string) => {
+        let s = `${DOMAIN_LABELS[dk]}: ${domainScores[dk]??"?"}\n`;
+        for (let i=1;i<=6;i++) { const fk=`${dk}${i}`; s+=`  ${FACET_LABELS[fk]} (${fk}): ${facetScores[fk]??"?"}\n`; }
+        return s;
+      };
+
+      const SYS_OCEAN = `You are a senior career analyst at Pennington Hennessy preparing a Lifework counsellor analysis for ${clientName}. Write directly to the client using "you" and "your" throughout. Short paragraphs (4–5 lines maximum). Evidence-led. Active voice. No hedging. No theatrical flourishes. NEVER open with a greeting or preamble. Begin immediately with the first heading.`;
+
+      const O1 = await invokeLLM({ messages: [{ role:"system",content:SYS_OCEAN },{ role:"user",content:`You are a senior career analyst writing the Personality Profile chapter for ${clientName}.\n\nWrite directly to the client using "you" and "your" throughout.\nDo NOT write any introductory paragraph before the first heading.\nBegin immediately with ## What the Psychometrics Show.\n\n## What the Psychometrics Show\nA PURE psychometric portrait. Interpret the Big Five scores on their own terms — as if you had not read the life history. Use the full 30-facet profile below to go beyond the domain scores and identify the specific facets that most sharply define this person's profile.\n\nFor each of the five domains (Openness, Conscientiousness, Extraversion, Agreeableness, Emotional Stability), write 2–3 sentences that:\n- State what the domain score and its most distinctive facets mean in plain language\n- Name what this combination predicts about working style, stress responses, and environments where you thrive or struggle\n\nPay particular attention to within-domain facet variation — where facets within the same domain diverge sharply, name the tension this creates.\n\nDo NOT reference the life history in this section.\n\nClose with: "From what you have told us, we can see:" followed by 4–5 tight bullets summarising the psychometric portrait.\n\n${oceanBlock}` }] });
+
+      const O2 = await invokeLLM({ messages: [{ role:"system",content:SYS_OCEAN },{ role:"user",content:`You are a senior career analyst writing the second part of the Personality Profile chapter for ${clientName}.\n\nYou have already written the pure psychometric portrait (Section 1). Now apply the following analytical framework to examine the life history through the OCEAN lens.\n\nWrite directly to the client using "you" and "your" throughout.\nBegin immediately with ## Where the Two Pictures Meet — no introductory paragraph.\n\nTHE ANALYTICAL FRAMEWORK TO APPLY:\n\nStage 1 — Code each life history episode by dominant OCEAN signal:\n- Openness signal: satisfaction from novelty, creativity, discovery, complexity, intellectual/aesthetic engagement.\n- Conscientiousness signal: satisfaction from achievement, completion, organisation, sustained effort.\n- Extraversion signal: satisfaction from interaction, influence, collaboration, performance, leadership.\n- Agreeableness signal: satisfaction from connection, helping, harmony, being trusted with another's difficulty.\n- Emotional Stability signal: satisfaction from remaining effective under pressure, managing complexity without overwhelm.\n\nStage 2 — Examine the pattern across episodes: which domains appear most/least frequently?\n\nStage 3 — Test the profile against the pattern (THREE DIVERGENCE TYPES):\n- Profile HIGH, history LOW: trait expressed in unrewarding contexts, or under duress\n- Profile LOW, history HIGH: self-report may understate functional strength\n- Profile and history ALIGNED: speak with confidence\n\nStage 4 — Examine the CONDITIONS: scale/complexity, autonomy, working alone vs team vs leading, time horizon, relational texture, novelty vs routine.\n\n## Where the Two Pictures Meet\n\nExamine each OCEAN domain in order: O, C, E, A, N.\n\nFor EACH domain, structure your response as follows:\n\n### [Domain Name] — [domain score]/100\n[List all 6 sub-scales with their scores on a single line, pipe-separated, e.g.: Imagination (O1): 94 | Artistic Interests (O2): 75 | ...]\n\nThen write 1–2 short paragraphs (4–5 lines each) applying the framework:\n- Name the divergence type explicitly\n- Reference specific life history episodes by name\n- State plainly what it means in career terms\n- Where facets within the domain diverge sharply, name that internal tension\n\nAfter all five domains, write: "From what you have told us, we can see:" followed by 4–5 tight bullets naming the key findings across all domains.\n\n## The Conditions That Enable You\nBased on Stage 4 analysis: write 3–4 sentences describing the specific environmental conditions under which this person functions at their best. Be precise: name scale, autonomy, relational texture, time horizon, novelty level.\n\nSCORES FOR REFERENCE:\n${domainBlock("O")}\n${domainBlock("C")}\n${domainBlock("E")}\n${domainBlock("A")}\n${domainBlock("N")}\n\n${lifeBlock2}` }] });
+
+      const O3 = await invokeLLM({ messages: [{ role:"system",content:SYS_OCEAN },{ role:"user",content:`You are a senior career analyst completing the Personality Profile chapter for ${clientName}.\n\nYou have already written:\n- Section 1: The pure psychometric portrait\n- Section 2: Where the two pictures meet\n\nNow write Section 3.\n\nWrite directly to the client using "you" and "your" throughout.\nBegin immediately with ## What This Means — no introductory paragraph.\n\n## What This Means\nOne short paragraph (4–5 lines): the single most important insight that emerges from comparing the two pictures. What does the client now know about themselves that neither source alone could have revealed?\n\nThen write: "If this is true, these things will also be true:" followed by 3–4 tight bullets that name the downstream implications — for career choices, working environment, development, or relationships at work.\n\n${oceanBlock}\n\nLIFE HISTORY SUMMARY (for reference):\n${lifeBlock2.slice(0,3000)}` }] });
+
+      const combined = (O1?.choices?.[0]?.message?.content ?? "") + "\n\n" + (O2?.choices?.[0]?.message?.content ?? "") + "\n\n" + (O3?.choices?.[0]?.message?.content ?? "");
+
+      await upsertAnalysisReport({ clientId: input.clientId, counsellorOceanAnalysis: combined, counsellorOceanGeneratedAt: Date.now(), generatedAt: new Date() } as any);
+      return { analysis: combined, cached: false };
+    }),
 });
 // ─── Virtual Peter Router ────────────────────────────────────────────────────
 // The core matching logic: given a client's analysis report, find the most
