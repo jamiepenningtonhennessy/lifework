@@ -270,7 +270,7 @@ export default function LifeworkStorybrand() {
                 style={{ borderTop: "1px solid rgba(201,151,58,0.2)", paddingTop: "2rem" }}
               >
                 <div className="grid grid-cols-3 gap-6">
-                  <Stat number="965" label="Individual analyses" />
+                  <Stat number="984" label="Individual analyses" />
                   <Stat number="30+" label="Years of practice" />
                   <Stat number="3" label="Validated instruments" />
                 </div>
@@ -287,7 +287,7 @@ export default function LifeworkStorybrand() {
       >
         <div className="container max-w-6xl">
           <div className="grid grid-cols-3 gap-4">
-            <Stat number="965" label="Analyses" />
+            <Stat number="984" label="Analyses" />
             <Stat number="30+" label="Years" />
             <Stat number="3" label="Instruments" />
           </div>
@@ -359,7 +359,7 @@ export default function LifeworkStorybrand() {
           <div className="grid lg:grid-cols-2 gap-16 items-center">
             {/* Left: empathy + authority copy */}
             <div>
-              <Eyebrow label="Thirty years. 965 clients." />
+              <Eyebrow label="Thirty years. 984 clients." />
               <h2
                 className="font-serif font-bold mb-6"
                 style={{ fontSize: "clamp(1.8rem, 3.5vw, 2.6rem)", color: NAVY, lineHeight: 1.2 }}
@@ -378,7 +378,7 @@ export default function LifeworkStorybrand() {
                 {[
                   "Methodology rooted in Bernard Haldane's Dependable Strengths framework",
                   "Three validated psychometric instruments: VIA, OCEAN, Insights",
-                  "965 individual career analyses since 1994",
+                  "984 individual career analyses since 1994",
                   "Thirty years working with lawyers and professional services professionals",
                 ].map((item) => (
                   <div key={item} className="flex items-start gap-3">
