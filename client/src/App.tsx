@@ -52,6 +52,7 @@ function Router() {
       <Route path="/about" component={PHAbout} />
       <Route path="/data-security" component={DataSecurity} />
       <Route path="/lifework-storybrand" component={LifeworkStorybrand} />
+      <Route path="/lifework/storybrand" component={LifeworkStorybrand} />
       <Route path="/ai-coaching" component={AICoaching} />
 
       {/* Results held — shown after completing VIA or IPIP (withheld until Wow Report session) ── */}
