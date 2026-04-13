@@ -216,6 +216,7 @@ interface WowReportSections {
   coachingQuestions: string;
   viaRanked: Array<{ name: string; score: number; rank: number; strengthId?: string }>;
   domainScores: Record<string, number>;
+  facetScores: Record<string, number>;
   reportType: WowReportType;
 }
 
@@ -388,7 +389,7 @@ function getVariantPrompts(type: WowReportType, ctx: string, sys: string): {
 }
 
 async function generateWowSections(clientId: number, reportType: WowReportType = "standard", writingStyle: WritingStyle = "house"): Promise<WowReportSections> {
-  const { clientName, clientFullName, pronouns, contextText, viaRanked, domainScores } = await buildClientContext(clientId);
+  const { clientName, clientFullName, pronouns, contextText, viaRanked, domainScores, facetScores } = await buildClientContext(clientId);
   // pronouns is a string like "they/them/their" or "he/him/his" or "she/her/her"
   const pronounParts = pronouns.split("/");
   const subj = pronounParts[0] ?? "they";
@@ -566,6 +567,7 @@ Write directly to the client using "you" and "your" throughout. Do NOT include a
     coachingQuestions,
     viaRanked,
     domainScores,
+    facetScores,
     reportType,
   };
 }
@@ -1426,6 +1428,272 @@ async function renderWowPdf(sections: WowReportSections, writingStyle: WritingSt
   return pdfDoc.getBuffer() as Promise<Buffer>;
 }
 
+// ─── Annex PDF ──────────────────────────────────────────────────────────────
+// Renders a "Your Data" annex PDF (A1 Life History, A2 VIA, A3 OCEAN) using
+// pdfmake and returns a Buffer. Called by runGenerationJob and merged with the
+// main WOW Report PDF via pdf-lib.
+
+const DECADE_LABELS: Record<string, string> = {
+  childhood: "Childhood",
+  early_childhood: "Early Childhood (0–5)",
+  mid_childhood: "Mid Childhood (6–11)",
+  late_childhood: "Late Childhood (12–18)",
+  twenties: "Twenties",
+  thirties: "Thirties",
+  forties: "Forties",
+  fifties: "Fifties",
+  sixties_plus: "Sixties and Beyond",
+};
+
+const FACET_NAMES: Record<string, { name: string; domain: string }> = {
+  N1: { name: "Anxiety", domain: "N" }, N2: { name: "Anger", domain: "N" }, N3: { name: "Depression", domain: "N" },
+  N4: { name: "Self-Consciousness", domain: "N" }, N5: { name: "Immoderation", domain: "N" }, N6: { name: "Vulnerability", domain: "N" },
+  E1: { name: "Friendliness", domain: "E" }, E2: { name: "Gregariousness", domain: "E" }, E3: { name: "Assertiveness", domain: "E" },
+  E4: { name: "Activity Level", domain: "E" }, E5: { name: "Excitement-Seeking", domain: "E" }, E6: { name: "Cheerfulness", domain: "E" },
+  O1: { name: "Imagination", domain: "O" }, O2: { name: "Artistic Interests", domain: "O" }, O3: { name: "Emotionality", domain: "O" },
+  O4: { name: "Adventurousness", domain: "O" }, O5: { name: "Intellect", domain: "O" }, O6: { name: "Liberalism", domain: "O" },
+  A1: { name: "Trust", domain: "A" }, A2: { name: "Morality", domain: "A" }, A3: { name: "Altruism", domain: "A" },
+  A4: { name: "Cooperation", domain: "A" }, A5: { name: "Modesty", domain: "A" }, A6: { name: "Sympathy", domain: "A" },
+  C1: { name: "Self-Efficacy", domain: "C" }, C2: { name: "Orderliness", domain: "C" }, C3: { name: "Dutifulness", domain: "C" },
+  C4: { name: "Achievement-Striving", domain: "C" }, C5: { name: "Self-Discipline", domain: "C" }, C6: { name: "Cautiousness", domain: "C" },
+};
+
+const DOMAIN_COLORS: Record<string, string> = {
+  N: "#7C3AED", E: "#D97706", O: "#059669", A: "#DB2777", C: "#2563EB",
+};
+
+const VIA_VIRTUE_MAP: Record<string, string> = {
+  Creativity: "Wisdom", Curiosity: "Wisdom", Judgment: "Wisdom", "Love of Learning": "Wisdom", Perspective: "Wisdom",
+  Bravery: "Courage", Perseverance: "Courage", Honesty: "Courage", Zest: "Courage",
+  Love: "Humanity", Kindness: "Humanity", "Social Intelligence": "Humanity",
+  Teamwork: "Justice", Fairness: "Justice", Leadership: "Justice",
+  Forgiveness: "Temperance", Humility: "Temperance", Prudence: "Temperance", "Self-Regulation": "Temperance",
+  "Appreciation of Beauty": "Transcendence", Gratitude: "Transcendence", Hope: "Transcendence", Humor: "Transcendence", Spirituality: "Transcendence",
+};
+
+async function renderAnnexPdf(
+  clientId: number,
+  clientFullName: string,
+  viaRanked: Array<{ name: string; score: number; rank: number }>,
+  domainScores: Record<string, number>,
+  facetScores: Record<string, number>,
+): Promise<Buffer> {
+  const pdfmake = _require("pdfmake") as any;
+  const RobotoFonts = _require("pdfmake/fonts/Roboto") as any;
+  pdfmake.addFonts(RobotoFonts);
+
+  const NAVY = "#0a1628";
+  const GOLD = "#c9973a";
+  const CREAM = "#f5f0e8";
+  const DARK_GREY = "#2c2c2c";
+  const MID_GREY = "#666666";
+  const LIGHT_GREY = "#aaaaaa";
+
+  const para = (text: string, opts: Record<string, unknown> = {}) => ({
+    text, font: "Roboto", fontSize: 10, color: DARK_GREY, lineHeight: 1.45,
+    margin: [0, 0, 0, 6] as [number,number,number,number], ...opts,
+  });
+
+  const sectionHeading = (text: string) => ({
+    text, font: "Roboto", fontSize: 16, bold: true, color: NAVY,
+    margin: [0, 24, 0, 4] as [number,number,number,number],
+  });
+
+  const goldRule = () => ({
+    canvas: [{ type: "line", x1: 0, y1: 0, x2: 483, y2: 0, lineWidth: 1.5, lineColor: GOLD }],
+    margin: [0, 0, 0, 12] as [number,number,number,number],
+  });
+
+  // Fetch achievements
+  const achievementsList = await getAchievements(clientId);
+
+  // ── COVER PAGE ──
+  const coverContent: any[] = [
+    {
+      canvas: [{ type: "rect", x: 0, y: 0, w: 595, h: 841, color: NAVY }],
+      absolutePosition: { x: 0, y: 0 },
+    },
+    // Gold top bar
+    { canvas: [{ type: "rect", x: 0, y: 0, w: 595, h: 4, color: GOLD }], absolutePosition: { x: 0, y: 0 } },
+    // Gold left bar
+    { canvas: [{ type: "rect", x: 0, y: 0, w: 5, h: 841, color: GOLD }], absolutePosition: { x: 0, y: 0 } },
+    { text: "PENNINGTON HENNESSY", font: "Roboto", bold: true, fontSize: 10, color: GOLD, characterSpacing: 2, absolutePosition: { x: 56, y: 36 } },
+    { canvas: [{ type: "line", x1: 0, y1: 0, x2: 483, y2: 0, lineWidth: 0.5, lineColor: "#555555" }], absolutePosition: { x: 56, y: 54 } },
+    { text: "Your Data", font: "Roboto", bold: true, fontSize: 44, color: "#ffffff", absolutePosition: { x: 56, y: 100 } },
+    { canvas: [{ type: "rect", x: 0, y: 0, w: 60, h: 2.5, color: GOLD }], absolutePosition: { x: 56, y: 158 } },
+    { text: "WOW Report — Annex", font: "Roboto", fontSize: 13, color: "#cccccc", absolutePosition: { x: 56, y: 170 } },
+    // Client block
+    { canvas: [{ type: "rect", x: 0, y: 0, w: 483, h: 60, color: "#1a2e48", r: 4 }], absolutePosition: { x: 56, y: 230 } },
+    { text: "PREPARED FOR", font: "Roboto", bold: true, fontSize: 8, color: GOLD, characterSpacing: 1.5, absolutePosition: { x: 72, y: 244 } },
+    { text: clientFullName, font: "Roboto", bold: true, fontSize: 18, color: "#ffffff", absolutePosition: { x: 72, y: 260 } },
+    // Contents
+    { text: "CONTENTS", font: "Roboto", bold: true, fontSize: 9, color: LIGHT_GREY, characterSpacing: 1.5, absolutePosition: { x: 56, y: 320 } },
+    { canvas: [{ type: "line", x1: 0, y1: 0, x2: 483, y2: 0, lineWidth: 0.5, lineColor: GOLD }], absolutePosition: { x: 56, y: 334 } },
+    { text: "A1", font: "Roboto", bold: true, fontSize: 11, color: GOLD, absolutePosition: { x: 56, y: 348 } },
+    { text: "Life History Data", font: "Roboto", fontSize: 11, color: "#ffffff", absolutePosition: { x: 80, y: 348 } },
+    { text: "A2", font: "Roboto", bold: true, fontSize: 11, color: GOLD, absolutePosition: { x: 56, y: 372 } },
+    { text: "VIA Character Strengths", font: "Roboto", fontSize: 11, color: "#ffffff", absolutePosition: { x: 80, y: 372 } },
+    { text: "A3", font: "Roboto", bold: true, fontSize: 11, color: GOLD, absolutePosition: { x: 56, y: 396 } },
+    { text: "OCEAN Personality Profile", font: "Roboto", fontSize: 11, color: "#ffffff", absolutePosition: { x: 80, y: 396 } },
+    // Footer
+    { text: "Confidential — prepared by Pennington Hennessy for the named client only.", font: "Roboto", italics: true, fontSize: 8, color: "#666666", absolutePosition: { x: 56, y: 800 } },
+    // Force page break after cover
+    { text: "", pageBreak: "after" },
+  ];
+
+  // ── A1: LIFE HISTORY ──
+  const a1Content: any[] = [
+    sectionHeading("A1 — Life History"),
+    goldRule(),
+    para("The following achievements were recorded during the Sage life history interview. Where Sage asked a follow-up question, the enrichment note is shown in italics beneath the entry."),
+    { text: "", margin: [0, 4, 0, 0] as [number,number,number,number] },
+  ];
+
+  // Group by decade
+  const decadeOrder = ["early_childhood","mid_childhood","late_childhood","childhood","twenties","thirties","forties","fifties","sixties_plus"];
+  const byDecade: Record<string, typeof achievementsList> = {};
+  for (const a of achievementsList) {
+    const dk = a.decade ?? "unknown";
+    if (!byDecade[dk]) byDecade[dk] = [];
+    byDecade[dk].push(a);
+  }
+  const allDecadeKeys = [...decadeOrder, ...Object.keys(byDecade)];
+  const seen = new Set<string>();
+  const sortedDecades = allDecadeKeys.filter(d => { if (seen.has(d)) return false; seen.add(d); return byDecade[d]?.length; });
+
+  for (const dk of sortedDecades) {
+    const label = DECADE_LABELS[dk] ?? dk;
+    a1Content.push({
+      text: label.toUpperCase(), font: "Roboto", bold: true, fontSize: 8,
+      color: GOLD, characterSpacing: 1.2,
+      margin: [0, 12, 0, 4] as [number,number,number,number],
+    });
+    a1Content.push({ canvas: [{ type: "line", x1: 0, y1: 0, x2: 483, y2: 0, lineWidth: 0.5, lineColor: "#dddddd" }], margin: [0, 0, 0, 6] as [number,number,number,number] });
+    for (const a of byDecade[dk]) {
+      const esfColor = a.esf === "enjoyable" ? "#2563EB" : a.esf === "satisfying" ? "#059669" : a.esf === "fulfilling" ? GOLD : MID_GREY;
+      a1Content.push({
+        columns: [
+          { text: a.title ?? "Untitled", font: "Roboto", bold: true, fontSize: 10, color: NAVY, width: "*" },
+          { text: `Age ${a.age ?? "?"}`, font: "Roboto", fontSize: 9, color: MID_GREY, width: 40, alignment: "right" },
+          { text: (a.esf ?? "").toUpperCase(), font: "Roboto", bold: true, fontSize: 8, color: esfColor, width: 60, alignment: "right" },
+        ],
+        margin: [0, 4, 0, 2] as [number,number,number,number],
+      });
+      if (a.description) a1Content.push(para(a.description, { margin: [0, 0, 0, 3] as [number,number,number,number] }));
+      if (a.sageEnrichment) a1Content.push(para(a.sageEnrichment, { italics: true, color: MID_GREY, fontSize: 9, margin: [0, 0, 0, 6] as [number,number,number,number] }));
+      a1Content.push({ canvas: [{ type: "line", x1: 0, y1: 0, x2: 483, y2: 0, lineWidth: 0.3, lineColor: "#eeeeee" }], margin: [0, 2, 0, 4] as [number,number,number,number] });
+    }
+  }
+  a1Content.push({ text: "", pageBreak: "after" });
+
+  // ── A2: VIA CHARACTER STRENGTHS ──
+  const a2Content: any[] = [
+    sectionHeading("A2 — VIA Character Strengths"),
+    goldRule(),
+    para("All 24 character strengths ranked in order of score. Scores are out of 25. Top 5 are highlighted in gold; bottom 5 in grey."),
+    { text: "", margin: [0, 4, 0, 0] as [number,number,number,number] },
+  ];
+
+  const sortedVia = [...viaRanked].sort((a, b) => (a.rank ?? 99) - (b.rank ?? 99));
+  for (const s of sortedVia) {
+    const rank = s.rank ?? 0;
+    const isTop = rank <= 5;
+    const isBottom = rank >= 20;
+    const nameColor = isTop ? GOLD : isBottom ? LIGHT_GREY : NAVY;
+    const barColor = isTop ? GOLD : isBottom ? LIGHT_GREY : "#4A90D9";
+    const pct = Math.round(((s.score ?? 0) / 25) * 100);
+    const virtue = VIA_VIRTUE_MAP[s.name] ?? "";
+    a2Content.push({
+      columns: [
+        { text: `${rank}.`, font: "Roboto", bold: true, fontSize: 9, color: MID_GREY, width: 20 },
+        { text: s.name, font: "Roboto", bold: isTop, fontSize: 10, color: nameColor, width: 160 },
+        { text: virtue, font: "Roboto", fontSize: 9, color: MID_GREY, width: 90, italics: true },
+        {
+          stack: [
+            { canvas: [{ type: "rect", x: 0, y: 2, w: 180, h: 10, color: "#eeeeee", r: 2 }] },
+            { canvas: [{ type: "rect", x: 0, y: 2, w: Math.round(pct * 1.8), h: 10, color: barColor, r: 2 }], relativePosition: { x: 0, y: -12 } },
+          ],
+          width: 185,
+        },
+        { text: `${s.score ?? 0}/25`, font: "Roboto", fontSize: 9, color: MID_GREY, width: 35, alignment: "right" },
+      ],
+      margin: [0, 3, 0, 3] as [number,number,number,number],
+    });
+  }
+  a2Content.push({ text: "", pageBreak: "after" });
+
+  // ── A3: OCEAN PERSONALITY PROFILE ──
+  const a3Content: any[] = [
+    sectionHeading("A3 — OCEAN Personality Profile"),
+    goldRule(),
+    para("Domain scores and all 30 sub-scale facets. Scores are percentiles (0–100). Scores above 70 are high; below 30 are low."),
+    { text: "", margin: [0, 4, 0, 0] as [number,number,number,number] },
+  ];
+
+  const domainOrder = ["N", "E", "O", "A", "C"];
+  for (const dk of domainOrder) {
+    const domainScore = domainScores[dk] ?? null;
+    const domainLabel = BIG5_LABELS[dk]?.name ?? dk;
+    const domainColor = DOMAIN_COLORS[dk] ?? NAVY;
+    if (domainScore === null) continue;
+    // Domain header
+    a3Content.push({
+      columns: [
+        { text: domainLabel.toUpperCase(), font: "Roboto", bold: true, fontSize: 11, color: domainColor, width: "*" },
+        { text: `${domainScore}th percentile`, font: "Roboto", fontSize: 10, color: MID_GREY, width: 110, alignment: "right" },
+      ],
+      margin: [0, 14, 0, 2] as [number,number,number,number],
+    });
+    // Domain bar
+    a3Content.push({
+      stack: [
+        { canvas: [{ type: "rect", x: 0, y: 0, w: 483, h: 8, color: "#eeeeee", r: 2 }] },
+        { canvas: [{ type: "rect", x: 0, y: 0, w: Math.round(domainScore * 4.83), h: 8, color: domainColor, r: 2 }], relativePosition: { x: 0, y: -8 } },
+      ],
+      margin: [0, 0, 0, 8] as [number,number,number,number],
+    });
+    // Facets
+    const facetKeys = ["1","2","3","4","5","6"].map(n => `${dk}${n}`);
+    for (const fk of facetKeys) {
+      const fScore = facetScores[fk] ?? null;
+      if (fScore === null) continue;
+      const facetName = FACET_NAMES[fk]?.name ?? fk;
+      const fColor = fScore >= 70 ? domainColor : fScore <= 30 ? "#cc3333" : MID_GREY;
+      a3Content.push({
+        columns: [
+          { text: facetName, font: "Roboto", fontSize: 9, color: DARK_GREY, width: 160 },
+          {
+            stack: [
+              { canvas: [{ type: "rect", x: 0, y: 2, w: 280, h: 7, color: "#eeeeee", r: 2 }] },
+              { canvas: [{ type: "rect", x: 0, y: 2, w: Math.round(fScore * 2.8), h: 7, color: fColor, r: 2 }], relativePosition: { x: 0, y: -9 } },
+            ],
+            width: 285,
+          },
+          { text: `${fScore}`, font: "Roboto", fontSize: 9, color: fColor, bold: fScore >= 70 || fScore <= 30, width: 35, alignment: "right" },
+        ],
+        margin: [0, 2, 0, 2] as [number,number,number,number],
+      });
+    }
+    a3Content.push({ canvas: [{ type: "line", x1: 0, y1: 0, x2: 483, y2: 0, lineWidth: 0.3, lineColor: "#dddddd" }], margin: [0, 6, 0, 0] as [number,number,number,number] });
+  }
+
+  const docDefinition = {
+    pageSize: "A4",
+    pageMargins: [56, 56, 56, 56] as [number,number,number,number],
+    defaultStyle: { font: "Roboto" },
+    content: [...coverContent, ...a1Content, ...a2Content, ...a3Content],
+    footer: (currentPage: number, pageCount: number) => currentPage === 1 ? {} : ({
+      columns: [
+        { text: "Your Data — WOW Report Annex", font: "Roboto", fontSize: 7, color: LIGHT_GREY, margin: [56, 8, 0, 0] as [number,number,number,number] },
+        { text: `${currentPage}`, font: "Roboto", fontSize: 7, color: LIGHT_GREY, alignment: "right", margin: [0, 8, 56, 0] as [number,number,number,number] },
+      ],
+    }),
+  };
+
+  const pdfDoc = pdfmake.createPdf(docDefinition as any);
+  return pdfDoc.getBuffer() as Promise<Buffer>;
+}
+
 // ─── Background Job ─────────────────────────────────────────────────────────
 // v2: retirement variant prompts active — section titles and content are now variant-aware
 
@@ -1476,13 +1744,36 @@ async function runGenerationJob(clientId: number, reportType: WowReportType = "s
     const sections = writingStyle === "mark"
       ? await rewriteSectionsForMark(houseSections, houseSections.clientName)
       : houseSections;
-    // Render PDF
+    // Render main WOW Report PDF
     console.log(`[WOW Report] Rendering PDF for client ${clientId}`);
     const pdfBuffer = await renderWowPdf(sections, writingStyle);
     console.log(`[WOW Report] PDF rendered, size: ${pdfBuffer.length} bytes`);
+    // Render Annex PDF and merge
+    let combinedBuffer = pdfBuffer;
+    try {
+      const { PDFDocument } = await import("pdf-lib");
+      const annexBuffer = await renderAnnexPdf(
+        clientId,
+        sections.clientFullName ?? sections.clientName,
+        sections.viaRanked ?? [],
+        sections.domainScores ?? {},
+        sections.facetScores ?? {},
+      );
+      console.log(`[WOW Report] Annex rendered, size: ${annexBuffer.length} bytes`);
+      const mainDoc = await PDFDocument.load(pdfBuffer);
+      const annexDoc = await PDFDocument.load(annexBuffer);
+      const annexPageIndices = annexDoc.getPageIndices();
+      const copiedPages = await mainDoc.copyPages(annexDoc, annexPageIndices);
+      for (const page of copiedPages) mainDoc.addPage(page);
+      const mergedBytes = await mainDoc.save();
+      combinedBuffer = Buffer.from(mergedBytes);
+      console.log(`[WOW Report] Merged PDF size: ${combinedBuffer.length} bytes`);
+    } catch (annexErr) {
+      console.warn(`[WOW Report] Annex generation failed (using main report only):`, annexErr);
+    }
     // Upload to S3
     const fileKey = `wow-reports/client-${clientId}-${Date.now()}.pdf`;
-    const { url: pdfUrl } = await storagePut(fileKey, pdfBuffer, "application/pdf");
+    const { url: pdfUrl } = await storagePut(fileKey, combinedBuffer, "application/pdf");
     console.log(`[WOW Report] Uploaded to S3: ${pdfUrl}`);
     // Persist result
     const existing2 = await getAnalysisReport(clientId);
