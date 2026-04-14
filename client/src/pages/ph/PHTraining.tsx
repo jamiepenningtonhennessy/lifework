@@ -135,7 +135,7 @@ export default function PHTraining() {
                 Scenarios can be bespoke -- built around your firm's specific situations -- or drawn from a menu of pre-created modules covering feedback, delegation, client conversations, and more.
               </p>
               <a
-                href="https://legalscenar-crucial.manus.space"
+                href="https://scenarios.penningtonhennessy.com"
                 className="inline-flex items-center gap-2 text-sm font-medium tracking-widest uppercase no-underline transition-opacity hover:opacity-80"
                 style={{ color: "var(--lw-gold)", letterSpacing: "0.1em" }}
               >
