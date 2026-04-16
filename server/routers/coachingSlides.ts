@@ -219,6 +219,7 @@ export interface SlideSections {
   viaRanked: Array<{ name: string; score: number; rank: number }>;
   personalitySection: string;
   domainScores: Record<string, number>;
+  facetScores?: Record<string, number>;
   behaviouralStyle: string;
   primaryColour: string;
   secondaryColour: string;
@@ -328,16 +329,16 @@ export async function generateCoachingSlides(data: SlideSections): Promise<Buffe
 
     summaryBulletsWithEx.forEach((item, i) => {
       const y = startY + i * bulletSpacing;
-      // Main bullet at 32pt
+      // Main bullet at 28pt, centred
       slide.addText([{
         text: item.bullet ?? "—",
-        options: { bullet: { code: "25CF", color: GOLD }, color: WHITE, fontSize: 22, fontFace: "Georgia", bold: true, paraSpaceAfter: 2 },
-      }], { x: 0.55, y, w: W - 1.1, h: 0.55 });
+        options: { bullet: { code: "25CF", color: GOLD }, color: WHITE, fontSize: 28, fontFace: "Georgia", bold: true, paraSpaceAfter: 2 },
+      }], { x: 0.55, y, w: W - 1.1, h: 0.65, align: "center" });
       // Two examples at 13pt in muted colour
       const exampleText = (item.examples ?? ["—", "—"]).map((ex: string, j: number) => `${j === 0 ? "e.g." : "or"} ${ex}`).join("   ·   ");
       slide.addText(exampleText, {
-        x: 0.75, y: y + 0.52, w: W - 1.3, h: 0.3,
-        fontSize: 11, color: MUTED, fontFace: "Calibri", italic: true,
+        x: 0.75, y: y + 0.62, w: W - 1.3, h: 0.3,
+        fontSize: 11, color: MUTED, fontFace: "Calibri", italic: true, align: "center",
       });
     });
 
@@ -362,12 +363,12 @@ export async function generateCoachingSlides(data: SlideSections): Promise<Buffe
       const y = startY + i * bulletSpacing;
       slide.addText([{
         text: item.bullet ?? "—",
-        options: { bullet: { code: "25CF", color: GOLD }, color: WHITE, fontSize: 22, fontFace: "Georgia", bold: true, paraSpaceAfter: 2 },
-      }], { x: 0.55, y, w: W - 1.1, h: 0.55 });
+        options: { bullet: { code: "25CF", color: GOLD }, color: WHITE, fontSize: 28, fontFace: "Georgia", bold: true, paraSpaceAfter: 2 },
+      }], { x: 0.55, y, w: W - 1.1, h: 0.65, align: "center" });
       const exampleText = (item.examples ?? ["—", "—"]).map((ex: string, j: number) => `${j === 0 ? "e.g." : "or"} ${ex}`).join("   ·   ");
       slide.addText(exampleText, {
-        x: 0.75, y: y + 0.52, w: W - 1.3, h: 0.3,
-        fontSize: 11, color: MUTED, fontFace: "Calibri", italic: true,
+        x: 0.75, y: y + 0.62, w: W - 1.3, h: 0.3,
+        fontSize: 11, color: MUTED, fontFace: "Calibri", italic: true, align: "center",
       });
     });
 
@@ -475,25 +476,50 @@ export async function generateCoachingSlides(data: SlideSections): Promise<Buffe
 
     const domains = ["O", "C", "E", "A", "N"];
     const scores = data.domainScores ?? {};
+    const facets = data.facetScores ?? {};
     const BAR_MAX_W = W - 5.5;
-    // Top half: bars (compressed into rows of 0.55 each)
+    // OCEAN facet key map — 6 facets per domain
+    const DOMAIN_FACET_KEYS: Record<string, string[]> = {
+      O: ["O1","O2","O3","O4","O5","O6"],
+      C: ["C1","C2","C3","C4","C5","C6"],
+      E: ["E1","E2","E3","E4","E5","E6"],
+      A: ["A1","A2","A3","A4","A5","A6"],
+      N: ["N1","N2","N3","N4","N5","N6"],
+    };
+    const FACET_LABEL: Record<string, string> = {
+      O1:"Imagination", O2:"Artistic Interests", O3:"Emotionality", O4:"Adventurousness", O5:"Intellect", O6:"Liberalism",
+      C1:"Self-Efficacy", C2:"Orderliness", C3:"Dutifulness", C4:"Achievement-Striving", C5:"Self-Discipline", C6:"Cautiousness",
+      E1:"Friendliness", E2:"Gregariousness", E3:"Assertiveness", E4:"Activity Level", E5:"Excitement-Seeking", E6:"Cheerfulness",
+      A1:"Trust", A2:"Morality", A3:"Altruism", A4:"Cooperation", A5:"Modesty", A6:"Sympathy",
+      N1:"Anxiety", N2:"Anger", N3:"Depression", N4:"Self-Consciousness", N5:"Immoderation", N6:"Vulnerability",
+    };
+    // Each domain row = bar (0.25h) + facet line (0.28h) + gap (0.18h) = 0.71 per domain
+    const ROW_H = 0.71;
     domains.forEach((key, i) => {
       const score = scores[key] ?? 50;
-      const y = 1.42 + i * 0.55;
+      const y = 1.42 + i * ROW_H;
       const barW = (score / 100) * BAR_MAX_W;
       const label = OCEAN_LABELS[key] ?? key;
 
       slide.addText(label, { x: 0.55, y, w: 2.8, h: 0.3, fontSize: 11, color: WHITE, fontFace: "Calibri", bold: true });
       slide.addShape("rect", { x: 3.5, y: y + 0.04, w: BAR_MAX_W, h: 0.22, fill: { color: LIGHT_NAVY }, line: { color: LIGHT_NAVY } });
       if (barW > 0) {
-        const barColour = score >= 60 ? GOLD : score <= 40 ? "4a6fa5" : "6b8cba";
-        slide.addShape("rect", { x: 3.5, y: y + 0.04, w: barW, h: 0.22, fill: { color: barColour }, line: { color: barColour } });
+        slide.addShape("rect", { x: 3.5, y: y + 0.04, w: barW, h: 0.22, fill: { color: GOLD }, line: { color: GOLD } });
       }
       slide.addText(`${Math.round(score)}`, { x: 3.5 + BAR_MAX_W + 0.1, y, w: 0.6, h: 0.3, fontSize: 10, color: MUTED, fontFace: "Calibri" });
+      // Facet scores line underneath the bar
+      const facetKeys = DOMAIN_FACET_KEYS[key] ?? [];
+      const facetLine = facetKeys
+        .map(fk => `${FACET_LABEL[fk] ?? fk}: ${facets[fk] !== undefined ? Math.round(facets[fk]) : "—"}`)
+        .join("  ·  ");
+      slide.addText(facetLine, {
+        x: 0.55, y: y + 0.3, w: W - 1.1, h: 0.28,
+        fontSize: 7.5, color: MUTED, fontFace: "Calibri", italic: true,
+      });
     });
 
-    // Divider between halves
-    const divY = 4.2;
+    // Divider between halves — pushed down to accommodate facet lines
+    const divY = 1.42 + 5 * ROW_H + 0.1;
     slide.addShape("rect", { x: 0.55, y: divY, w: W - 1.1, h: 0.02, fill: { color: GOLD }, line: { color: GOLD } });
 
     // Bottom half: conclusions
@@ -588,9 +614,9 @@ export async function generateCoachingSlides(data: SlideSections): Promise<Buffe
 
     const devItems7 = devEdgeBullets.map((b) => ({
       text: b,
-      options: { bullet: { code: "25CF", color: GOLD }, color: WHITE, fontSize: 15, fontFace: "Calibri", paraSpaceAfter: 10 },
+      options: { bullet: { code: "25CF", color: GOLD }, color: WHITE, fontSize: 28, fontFace: "Calibri", paraSpaceAfter: 10 },
     }));
-    slide.addText(devItems7, { x: 0.55, y: 1.72, w: W - 1.1, h: 4.5, valign: "top" });
+    slide.addText(devItems7, { x: 0.55, y: 1.72, w: W - 1.1, h: 4.5, valign: "top", align: "center" });
     addFooter(slide, name, 7, TOTAL);
   }
 
@@ -683,9 +709,9 @@ export async function generateCoachingSlides(data: SlideSections): Promise<Buffe
     });
     const items10 = soWhatBullets.map((b) => ({
       text: b,
-      options: { bullet: { code: "25CF", color: GOLD }, color: NAVY, fontSize: 18, fontFace: "Georgia", bold: true, paraSpaceAfter: 10 },
+      options: { bullet: { code: "25CF", color: GOLD }, color: NAVY, fontSize: 28, fontFace: "Georgia", bold: true, paraSpaceAfter: 10 },
     }));
-    slide.addText(items10, { x: 0.55, y: 2.75, w: W - 1.1, h: 3.5, valign: "top" });
+    slide.addText(items10, { x: 0.55, y: 2.75, w: W - 1.1, h: 3.5, valign: "top", align: "center" });
     addFooter(slide, name, 9, TOTAL);
   }
 
