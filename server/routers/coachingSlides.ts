@@ -333,12 +333,12 @@ export async function generateCoachingSlides(data: SlideSections): Promise<Buffe
       slide.addText([{
         text: item.bullet ?? "—",
         options: { bullet: { code: "25CF", color: GOLD }, color: WHITE, fontSize: 28, fontFace: "Georgia", bold: true, paraSpaceAfter: 2 },
-      }], { x: 0.55, y, w: W - 1.1, h: 0.65, align: "center" });
+      }], { x: 0.55, y, w: W - 1.1, h: 0.65, align: "left" });
       // Two examples at 13pt in muted colour
       const exampleText = (item.examples ?? ["—", "—"]).map((ex: string, j: number) => `${j === 0 ? "e.g." : "or"} ${ex}`).join("   ·   ");
       slide.addText(exampleText, {
         x: 0.75, y: y + 0.62, w: W - 1.3, h: 0.3,
-        fontSize: 11, color: MUTED, fontFace: "Calibri", italic: true, align: "center",
+        fontSize: 11, color: MUTED, fontFace: "Calibri", italic: true, align: "left",
       });
     });
 
@@ -364,11 +364,11 @@ export async function generateCoachingSlides(data: SlideSections): Promise<Buffe
       slide.addText([{
         text: item.bullet ?? "—",
         options: { bullet: { code: "25CF", color: GOLD }, color: WHITE, fontSize: 28, fontFace: "Georgia", bold: true, paraSpaceAfter: 2 },
-      }], { x: 0.55, y, w: W - 1.1, h: 0.65, align: "center" });
+      }], { x: 0.55, y, w: W - 1.1, h: 0.65, align: "left" });
       const exampleText = (item.examples ?? ["—", "—"]).map((ex: string, j: number) => `${j === 0 ? "e.g." : "or"} ${ex}`).join("   ·   ");
       slide.addText(exampleText, {
         x: 0.75, y: y + 0.62, w: W - 1.3, h: 0.3,
-        fontSize: 11, color: MUTED, fontFace: "Calibri", italic: true, align: "center",
+        fontSize: 11, color: MUTED, fontFace: "Calibri", italic: true, align: "left",
       });
     });
 
@@ -446,18 +446,18 @@ export async function generateCoachingSlides(data: SlideSections): Promise<Buffe
         const bg = rowColors[i % 2];
         slide.addShape("rect", { x: 0.55, y, w: W - 0.85, h: rowH - 0.04, fill: { color: bg }, line: { color: bg } });
         // Strength name (bold navy)
-        slide.addText(row.strength, { x: xs[0] + 0.06, y: y + 0.04, w: COL_W[0] - 0.08, h: rowH - 0.1, fontSize: 10, color: NAVY, bold: true, fontFace: "Calibri", valign: "top" });
+        slide.addText(row.strength, { x: xs[0] + 0.06, y: y + 0.04, w: COL_W[0] - 0.08, h: rowH - 0.1, fontSize: 12, color: NAVY, bold: true, fontFace: "Calibri", valign: "top" });
         // VIA Definition
-        slide.addText(row.definition, { x: xs[1] + 0.06, y: y + 0.04, w: COL_W[1] - 0.08, h: rowH - 0.1, fontSize: 9, color: "333333", fontFace: "Calibri", valign: "top" });
+        slide.addText(row.definition, { x: xs[1] + 0.06, y: y + 0.04, w: COL_W[1] - 0.08, h: rowH - 0.1, fontSize: 12, color: "333333", fontFace: "Calibri", valign: "top" });
         // Survey Rank (centred)
-        slide.addText(row.rank, { x: xs[2] + 0.06, y: y + 0.04, w: COL_W[2] - 0.08, h: rowH - 0.1, fontSize: 10, color: NAVY, fontFace: "Calibri", align: "center", valign: "middle" });
+        slide.addText(row.rank, { x: xs[2] + 0.06, y: y + 0.04, w: COL_W[2] - 0.08, h: rowH - 0.1, fontSize: 12, color: NAVY, fontFace: "Calibri", align: "center", valign: "middle" });
         // Freq (centred)
-        slide.addText(row.freq, { x: xs[3] + 0.06, y: y + 0.04, w: COL_W[3] - 0.08, h: rowH - 0.1, fontSize: 10, color: NAVY, fontFace: "Calibri", align: "center", valign: "middle" });
+        slide.addText(row.freq, { x: xs[3] + 0.06, y: y + 0.04, w: COL_W[3] - 0.08, h: rowH - 0.1, fontSize: 12, color: NAVY, fontFace: "Calibri", align: "center", valign: "middle" });
         // Identity Salience — colour-coded
         const salCol = row.salience.includes("VERY") ? "7b2d00" : row.salience === "HIGH" ? "1a5c2a" : row.salience === "MEDIUM" ? "7a5c00" : "555555";
-        slide.addText(row.salience, { x: xs[4] + 0.06, y: y + 0.04, w: COL_W[4] - 0.08, h: rowH - 0.1, fontSize: 9, color: salCol, bold: true, fontFace: "Calibri", valign: "middle" });
+        slide.addText(row.salience, { x: xs[4] + 0.06, y: y + 0.04, w: COL_W[4] - 0.08, h: rowH - 0.1, fontSize: 12, color: salCol, bold: true, fontFace: "Calibri", valign: "middle" });
         // Achievements
-        slide.addText(row.achievements, { x: xs[5] + 0.06, y: y + 0.04, w: COL_W[5] - 0.1, h: rowH - 0.1, fontSize: 9, color: "333333", fontFace: "Calibri", valign: "top" });
+        slide.addText(row.achievements, { x: xs[5] + 0.06, y: y + 0.04, w: COL_W[5] - 0.1, h: rowH - 0.1, fontSize: 12, color: "333333", fontFace: "Calibri", valign: "top" });
       });
     }
     addFooter(slide, name, 4, TOTAL);
@@ -612,11 +612,22 @@ export async function generateCoachingSlides(data: SlideSections): Promise<Buffe
       fontSize: 14, color: MUTED, fontFace: "Calibri", italic: true,
     });
 
-    const devItems7 = devEdgeBullets.map((b) => ({
+    // Split any single long bullet into sentence-per-bullet
+    const splitSentences = (bullets: string[]): string[] => {
+      const result: string[] = [];
+      for (const b of bullets) {
+        const sentences = b.split(/(?<=[.!?])\s+(?=[A-Z])/).map(s => s.trim()).filter(s => s.length > 4);
+        if (sentences.length > 1) result.push(...sentences);
+        else result.push(b);
+      }
+      return result;
+    };
+    const devBulletsExpanded = splitSentences(devEdgeBullets);
+    const devItems7 = devBulletsExpanded.map((b) => ({
       text: b,
       options: { bullet: { code: "25CF", color: GOLD }, color: WHITE, fontSize: 28, fontFace: "Calibri", paraSpaceAfter: 10 },
     }));
-    slide.addText(devItems7, { x: 0.55, y: 1.72, w: W - 1.1, h: 4.5, valign: "top", align: "center" });
+    slide.addText(devItems7, { x: 0.55, y: 1.72, w: W - 1.1, h: 4.5, valign: "top", align: "left" });
     addFooter(slide, name, 7, TOTAL);
   }
 
@@ -645,7 +656,7 @@ export async function generateCoachingSlides(data: SlideSections): Promise<Buffe
         runs.push({
           text: (isBullet ? '\u2022  ' : '') + display + '\n',
           options: {
-            fontSize: isBullet ? 14 : 12,
+            fontSize: isBullet ? 18 : 18,
             bold: isBullet,
             color: NAVY,
             fontFace: "Georgia",
@@ -707,11 +718,16 @@ export async function generateCoachingSlides(data: SlideSections): Promise<Buffe
       x: 0.55, y: 2.28, w: W - 1.1, h: 0.38,
       fontSize: 14, color: NAVY, fontFace: "Calibri", italic: true, bold: false,
     });
-    const items10 = soWhatBullets.map((b) => ({
+    // Split any single long bullet into sentence-per-bullet
+    const soWhatExpanded = soWhatBullets.flatMap((b) => {
+      const sentences = b.split(/(?<=[.!?])\s+(?=[A-Z])/).map(s => s.trim()).filter(s => s.length > 4);
+      return sentences.length > 1 ? sentences : [b];
+    });
+    const items10 = soWhatExpanded.map((b) => ({
       text: b,
       options: { bullet: { code: "25CF", color: GOLD }, color: NAVY, fontSize: 28, fontFace: "Georgia", bold: true, paraSpaceAfter: 10 },
     }));
-    slide.addText(items10, { x: 0.55, y: 2.75, w: W - 1.1, h: 3.5, valign: "top", align: "center" });
+    slide.addText(items10, { x: 0.55, y: 2.75, w: W - 1.1, h: 3.5, valign: "top", align: "left" });
     addFooter(slide, name, 9, TOTAL);
   }
 
@@ -744,6 +760,19 @@ export const coachingSlidesRouter = router({
         sections = JSON.parse(report.wowReportJson) as SlideSections;
       } catch {
         throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Stored report sections are corrupted." });
+      }
+
+      // Fetch facetScores fresh from DB if not present in stored JSON (older reports)
+      if (!sections.facetScores || Object.keys(sections.facetScores).length === 0) {
+        try {
+          const { getIpipResults } = await import("../db.js");
+          const ipip = await getIpipResults(input.clientId);
+          if (ipip?.facetScores) {
+            sections.facetScores = typeof ipip.facetScores === "string"
+              ? JSON.parse(ipip.facetScores)
+              : ipip.facetScores;
+          }
+        } catch { /* best-effort */ }
       }
 
       const pptxBuffer = await generateCoachingSlides(sections);
