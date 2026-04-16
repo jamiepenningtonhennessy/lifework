@@ -52,7 +52,7 @@ coachingSlidesDownloadRouter.post(
         return;
       }
 
-      const pptxBuffer = await generateCoachingSlides(sections);
+      const pptxBuffer = await generateCoachingSlides(sections, clientId);
 
       res.setHeader(
         "Content-Type",

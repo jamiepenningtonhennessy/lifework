@@ -20,7 +20,7 @@ import { LIFEWORK_LOGO_BASE64 } from "./lifeworkLogoBase64.js";
 import { z } from "zod";
 import { router, protectedProcedure } from "../_core/trpc.js";
 import { TRPCError } from "@trpc/server";
-import { getAnalysisReport } from "../db.js";
+import { getAnalysisReport, getIpipResults } from "../db.js";
 
 // ─── Brand colours ────────────────────────────────────────────────────────────
 const NAVY       = "1a2744";
@@ -230,7 +230,16 @@ export interface SlideSections {
   reportType: string;
 }
 
-export async function generateCoachingSlides(data: SlideSections): Promise<Buffer> {
+export async function generateCoachingSlides(data: SlideSections, clientId?: number): Promise<Buffer> {
+  // Fetch facetScores from DB if not present in stored JSON (older reports)
+  if (clientId && (!data.facetScores || Object.keys(data.facetScores).length === 0)) {
+    try {
+      const ipip = await getIpipResults(clientId);
+      if (ipip?.facetScores) {
+        data = { ...data, facetScores: typeof ipip.facetScores === "string" ? JSON.parse(ipip.facetScores) : ipip.facetScores };
+      }
+    } catch { /* best-effort */ }
+  }
   const pptx = new PptxGenJS();
   pptx.layout = "LAYOUT_WIDE";
 
@@ -762,20 +771,7 @@ export const coachingSlidesRouter = router({
         throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Stored report sections are corrupted." });
       }
 
-      // Fetch facetScores fresh from DB if not present in stored JSON (older reports)
-      if (!sections.facetScores || Object.keys(sections.facetScores).length === 0) {
-        try {
-          const { getIpipResults } = await import("../db.js");
-          const ipip = await getIpipResults(input.clientId);
-          if (ipip?.facetScores) {
-            sections.facetScores = typeof ipip.facetScores === "string"
-              ? JSON.parse(ipip.facetScores)
-              : ipip.facetScores;
-          }
-        } catch { /* best-effort */ }
-      }
-
-      const pptxBuffer = await generateCoachingSlides(sections);
+      const pptxBuffer = await generateCoachingSlides(sections, input.clientId);
       const fileKey = `coaching-slides/client-${input.clientId}-${Date.now()}.pptx`;
       const { url } = await storagePut(
         fileKey,
