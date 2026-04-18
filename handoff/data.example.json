@@ -1,0 +1,255 @@
+{
+  "BRAND": {
+    "COMPANY": "Pennington Hennessy"
+  },
+  "CLIENT": {
+    "NAME": "Neil Denny",
+    "FIRST_NAME": "Neil"
+  },
+  "REPORT": {
+    "DATE": "16 April 2026",
+    "EDITION_LABEL": "Career Analysis · Standard Edition",
+    "COVER_TITLE_LINE1": "A portrait of",
+    "COVER_TITLE_LINE2": "how you work.",
+    "ANALYST": "Jamie Pennington, with Sage"
+  },
+  "COVER_LETTER": {
+    "PARAGRAPHS": [
+      "It's me — Jamie — the creator of the Lifework process — writing this cover note, not the very clever AI Sage.",
+      "You've put a lot of work into giving me the information necessary to do what we set out to achieve — to understand yourself, and what makes you, <em>you</em>. So your report is a big read.",
+      "If you're naturally impatient, it's OK to start with <strong>Chapter 7 — Conclusions</strong>.",
+      "One really important thing. Your report is the basis for reflecting, thinking and discussing. It's OK to disagree with anything we've written."
+    ],
+    "SIGN_OFF": "With warmth,",
+    "AUTHOR_NAME": "Jamie Pennington",
+    "AUTHOR_EMAIL": "jamie@penningtonhennessy.com"
+  },
+  "CH1": {
+    "HERO": "You are a builder of worlds and a master of their rules...",
+    "PARAGRAPHS": [
+      "This drive to build, to master, and to reinvent defines you.",
+      "You consistently seek out complexity..."
+    ]
+  },
+  "CH2": {
+    "LEDE": "The pattern starts early...",
+    "PAGE1_PARAGRAPHS": ["...", "..."],
+    "PAGE1_SECTION_H": "The Architect and the Explorer",
+    "PAGE1_SECTION_PARAS": ["...", "..."],
+    "PAGE2_SECTION_H": "The Deep Connector",
+    "PAGE2_PARAGRAPHS": ["...", "..."],
+    "KEYFIND": {
+      "TITLE": "Your ESF distribution",
+      "PARAGRAPHS": ["...", "..."]
+    }
+  },
+  "CH3": {
+    "LEDE": "The VIA framework identifies 24 character strengths...",
+    "KEY_FINDINGS": ["...", "..."],
+    "PULLQUOTE": "Your creativity and applied perspective are more central..."
+  },
+  "VIA": {
+    "TOP10": [
+      { "name": "Spirituality", "score": 25 },
+      { "name": "Appreciation of Beauty", "score": 24 },
+      { "name": "Creativity", "score": 23 },
+      { "name": "Love of Learning", "score": 22 },
+      { "name": "Perspective", "score": 22 },
+      { "name": "Hope", "score": 22 },
+      { "name": "Honesty", "score": 21 },
+      { "name": "Humor", "score": 21 },
+      { "name": "Gratitude", "score": 20 },
+      { "name": "Curiosity", "score": 19 }
+    ],
+    "EVIDENCE": [
+      {
+        "name": "Spirituality",
+        "definition": "Strong beliefs about the meaning of life...",
+        "rank": "01",
+        "freq": 3,
+        "salience": "High",
+        "salienceClass": "",
+        "achievements": "<em>Touchdown; Sydney</em> · <em>Let's take you home</em>"
+      }
+    ],
+    "ALL24": [
+      { "name": "Spirituality",        "score": 25, "cssClass": "top5" },
+      { "name": "Appreciation of Beauty", "score": 24, "cssClass": "top5" },
+      { "name": "Creativity",          "score": 23, "cssClass": "top5" },
+      { "name": "Love of Learning",    "score": 22, "cssClass": "top5" },
+      { "name": "Perspective",         "score": 22, "cssClass": "top5" },
+      { "name": "Hope",                "score": 22, "cssClass": "" },
+      { "name": "Honesty",             "score": 21, "cssClass": "" },
+      { "name": "Humor",               "score": 21, "cssClass": "" },
+      { "name": "Gratitude",           "score": 20, "cssClass": "" },
+      { "name": "Curiosity",           "score": 19, "cssClass": "" },
+      { "name": "Love",                "score": 19, "cssClass": "" },
+      { "name": "Humility",            "score": 19, "cssClass": "" },
+      { "name": "Fairness",            "score": 18, "cssClass": "" },
+      { "name": "Leadership",          "score": 17, "cssClass": "" },
+      { "name": "Social Intelligence", "score": 16, "cssClass": "" },
+      { "name": "Forgiveness",         "score": 16, "cssClass": "" },
+      { "name": "Kindness",            "score": 15, "cssClass": "" },
+      { "name": "Judgment",            "score": 14, "cssClass": "" },
+      { "name": "Teamwork",            "score": 13, "cssClass": "" },
+      { "name": "Self-Regulation",     "score": 13, "cssClass": "bot5" },
+      { "name": "Bravery",             "score": 12, "cssClass": "bot5" },
+      { "name": "Prudence",            "score": 12, "cssClass": "bot5" },
+      { "name": "Zest",                "score": 11, "cssClass": "bot5" },
+      { "name": "Perseverance",        "score":  8, "cssClass": "bot5" }
+    ],
+    "VIRTUES_NOTE": "VIA virtues: Wisdom · Courage · Humanity · Justice · Temperance · Transcendence."
+  },
+  "CH4": {
+    "LEDE": "The Big Five identifies five core personality dimensions...",
+    "PSYCHOMETRICS_PARAS": ["...", "..."],
+    "SYNTHESIS_PARAS": ["...", "..."],
+    "KEYFIND": {
+      "TITLE": "What this means",
+      "BODY": "Your high Openness fuels everything..."
+    }
+  },
+  "OCEAN": {
+    "DOMAINS": [
+      { "name": "Openness",          "pct": 85 },
+      { "name": "Conscientiousness", "pct": 47 },
+      { "name": "Extraversion",      "pct": 41 },
+      { "name": "Agreeableness",     "pct": 54 },
+      { "name": "Neuroticism",       "pct": 47 }
+    ],
+    "PAGE1_DOMAINS": [
+      {
+        "name": "Openness", "pct": 85,
+        "facets": [
+          { "name": "Imagination",       "pct": 88 },
+          { "name": "Artistic Interests","pct": 81 },
+          { "name": "Emotionality",      "pct": 75 },
+          { "name": "Adventurousness",   "pct": 88 },
+          { "name": "Intellect",         "pct": 94 },
+          { "name": "Liberalism",        "pct": 81 }
+        ]
+      },
+      {
+        "name": "Conscientiousness", "pct": 47,
+        "facets": [
+          { "name": "Self-Efficacy",        "pct": 75 },
+          { "name": "Orderliness",          "pct": 25 },
+          { "name": "Dutifulness",          "pct": 75 },
+          { "name": "Achievement-Striving", "pct": 56 },
+          { "name": "Self-Discipline",      "pct":  6 },
+          { "name": "Cautiousness",         "pct": 44 }
+        ]
+      },
+      {
+        "name": "Extraversion", "pct": 41,
+        "facets": [
+          { "name": "Friendliness",       "pct": 44 },
+          { "name": "Gregariousness",     "pct": 31 },
+          { "name": "Assertiveness",      "pct": 63 },
+          { "name": "Activity Level",     "pct": 25 },
+          { "name": "Excitement-Seeking", "pct": 25 },
+          { "name": "Cheerfulness",       "pct": 56 }
+        ]
+      }
+    ],
+    "PAGE2_DOMAINS": [
+      {
+        "name": "Agreeableness", "pct": 54, "first": true,
+        "facets": [
+          { "name": "Trust",       "pct": 56 },
+          { "name": "Morality",    "pct": 56 },
+          { "name": "Altruism",    "pct": 81 },
+          { "name": "Cooperation", "pct": 38 },
+          { "name": "Modesty",     "pct": 13 },
+          { "name": "Sympathy",    "pct": 81 }
+        ]
+      },
+      {
+        "name": "Neuroticism", "pct": 47,
+        "facets": [
+          { "name": "Anxiety",            "pct": 56 },
+          { "name": "Anger",              "pct": 63 },
+          { "name": "Depression",         "pct": 44 },
+          { "name": "Self-Consciousness", "pct": 19 },
+          { "name": "Immoderation",       "pct": 63 },
+          { "name": "Vulnerability",      "pct": 38 }
+        ]
+      }
+    ],
+    "FACET_NOTE": "Facet scores help explain paradoxes in the domain score..."
+  },
+  "CH5": {
+    "LEDE": "This style is extrapolated from your Big Five profile...",
+    "PRIMARY":   { "name": "Earth<br/>Green", "traits": "Empathetic · patient · reliable · supportive · values-driven", "cssClass": "green" },
+    "SECONDARY": { "name": "Cool<br/>Blue",   "traits": "Considered · precise · cautious · deliberate · analytical",   "cssClass": "blue"  },
+    "JUNGIAN": { "code": "INFP", "spelt": "Introversion · Intuition · Feeling · Perceiving" },
+    "AXES": [
+      { "label": "E / I axis", "value": "Moderately Introverted", "note": "Extraversion 41" },
+      { "label": "T / F axis", "value": "Moderately Feeling",     "note": "Agreeableness 54" },
+      { "label": "S / N · J / P", "value": "Intuiting · Perceiving", "note": "Openness & Conscientiousness" }
+    ],
+    "STRENGTHS": ["Empathetic", "Patient", "Reliable", "Supportive", "Values-driven"],
+    "WATCHOUTS": ["Can avoid necessary conflict", "May be indecisive", "Dislikes rapid change"],
+    "FIT": "Roles requiring empathy, support, and long-term relationship management..."
+  },
+  "CH6": {
+    "SECTIONS": [
+      { "heading": "The unseen value", "paragraphs": ["...", "..."] },
+      { "heading": "Blind spots",      "paragraphs": ["...", "..."] }
+    ],
+    "PULLQUOTE": "You consistently undervalue your unique contributions..."
+  },
+  "CH7": {
+    "PAST":    ["...", "..."],
+    "PRESENT": ["...", "..."],
+    "PRESENT_PULLQUOTE": "At your best, you are an <em>open-minded architect of meaning</em>...",
+    "FUTURE":  ["...", "..."],
+    "DRIVES":  ["Mastering complex systems", "Forging an independent path", "Infusing purpose and beauty into your work"],
+    "TMAY_PARAS": ["\"My career has been shaped by...\"", "\"Looking ahead, I am seeking roles that...\""]
+  },
+  "CH8": {
+    "DIRECTIONS": [
+      { "heading": "The Independent Creator", "paragraphs": ["...", "..."] },
+      { "heading": "Architect of Belonging",  "paragraphs": ["...", "..."] },
+      { "heading": "Strategic Advisor",       "paragraphs": ["...", "..."] }
+    ],
+    "CLOSING": "You build · you nurture · you clarify."
+  },
+  "APPENDIX": {
+    "LEDE": "This report is the Standard Edition...",
+    "VARIANTS": [
+      { "name": "First Career",         "for": "First career seekers",                           "question": "\"Who am I, and where do I start?\"" },
+      { "name": "Career Change",        "for": "Dissatisfied or confidence-depleted professionals", "question": "\"What is wrong with where I am, and what would be right?\"" },
+      { "name": "Returning to Work",    "for": "People re-entering after a career break",          "question": "\"What do I still have, and how do I re-establish it?\"" },
+      { "name": "Retirement & Legacy",  "for": "People actively planning their post-career chapter","question": "\"What do I do with everything I am and everything I know?\"" }
+    ]
+  },
+  "LIFE_HISTORY": {
+    "PAGES": [
+      {
+        "pageNum": "17",
+        "showKicker": true,
+        "stages": [
+          {
+            "title": "Childhood · 0–11",
+            "ages": "Ages 5–11",
+            "entries": [
+              {
+                "title": "Landslide!",
+                "age": "5",
+                "esf": "Satisfying",
+                "esfClass": "sat",
+                "body": "On long journeys, if we passed a \"Landslide\" road sign...",
+                "note": "The satisfaction came from a sense of shared purpose..."
+              }
+            ]
+          }
+        ]
+      },
+      { "pageNum": "18", "showKicker": false, "stages": [] },
+      { "pageNum": "19", "showKicker": false, "stages": [] },
+      { "pageNum": "20", "showKicker": false, "stages": [] },
+      { "pageNum": "21", "showKicker": false, "stages": [] }
+    ]
+  }
+}
