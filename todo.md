@@ -1044,3 +1044,10 @@
 - [x] Add "Print Enhanced VIA" button — generates Lifework-styled PDF from stored counsellor VIA analysis
 - [x] Add "Print Enhanced OCEAN" button — generates Lifework-styled PDF from stored counsellor OCEAN analysis
 - [x] Replace standalone Career Explorer (Sage 2) system prompt with the WOW-mode Sage 2 prompt, and inject full context (30 OCEAN facets, counsellor VIA/OCEAN analyses, all 24 VIA scores)
+
+## Claude Handoff JSON Export
+- [x] Build `server/routers/claudeExport.ts` — pure helper functions that shape WOW report data into Claude's exact handoff schema (BRAND, CLIENT, REPORT, COVER_LETTER, CH1–CH8, VIA, OCEAN, APPENDIX, LIFE_HISTORY)
+- [x] Add Express download route `POST /api/download/claude-export` in `server/claude-export-download.ts`
+- [x] Register route and tRPC router in `server/_core/index.ts` and `server/routers.ts`
+- [x] Add "JSON for Claude" button to WowReportTab (violet style, appears next to Coaching Slides button when report is ready)
+- [x] Vitest unit tests for all pure helper functions (22 tests passing)

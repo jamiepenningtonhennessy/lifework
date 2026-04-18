@@ -1,5 +1,6 @@
 import { COOKIE_NAME } from "@shared/const";
 import { wowReportRouter } from "./routers/wowReport";
+import { claudeExportRouter } from "./routers/claudeExport";
 import { getOrGenerateCanonicalStage1, generateAndStoreCanonicalStage1 } from "./routers/canonicalStage1";
 import bcrypt from "bcryptjs";
 import { eq } from "drizzle-orm";
@@ -3066,6 +3067,7 @@ export const appRouter = router({
   wowReport: wowReportRouter,
   counsellorSage: counsellorSageRouter,
   coachingSlides: coachingSlidesRouter,
+  claudeExport: claudeExportRouter,
   pin: pinRouter,
 });
 

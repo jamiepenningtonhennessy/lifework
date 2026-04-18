@@ -289,6 +289,41 @@ export default function WowReportTab({ clientId, clientName }: WowReportTabProps
   // Keep a stub so the button reference below still compiles
   const generateSlidesMutation = { isPending: slidesBuilding };
 
+  const [claudeExportBuilding, setClaudeExportBuilding] = useState(false);
+  const handleDownloadClaudeJson = async () => {
+    setClaudeExportBuilding(true);
+    try {
+      const res = await fetch("/api/download/claude-export", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ clientId }),
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({ error: "Unknown error" }));
+        toast.error("Could not build Claude export: " + (err.error ?? res.statusText));
+        return;
+      }
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      // Try to get filename from Content-Disposition header
+      const cd = res.headers.get("Content-Disposition") ?? "";
+      const match = cd.match(/filename="([^"]+)"/);
+      a.download = match?.[1] ?? `Lifework-${clientName ?? "client"}-Claude.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      toast.success("Claude handoff JSON downloaded.");
+    } catch (err: any) {
+      toast.error("Could not build Claude export: " + (err?.message ?? "Unknown error"));
+    } finally {
+      setClaudeExportBuilding(false);
+    }
+  };
+
   const setLockMutation = trpc.wowReport.setLock.useMutation({
     onSuccess: (result) => {
       utils.wowReport.get.invalidate({ clientId });
@@ -566,6 +601,21 @@ export default function WowReportTab({ clientId, clientName }: WowReportTabProps
                         <Presentation className="w-3 h-3 mr-1" />
                       )}
                       {generateSlidesMutation.isPending ? "Building slides…" : "Coaching Slides"}
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="border-violet-500/60 text-violet-400 hover:bg-violet-500/10 text-xs"
+                      onClick={handleDownloadClaudeJson}
+                      disabled={claudeExportBuilding}
+                      title="Download the Claude handoff JSON — upload to Claude to generate the formatted report"
+                    >
+                      {claudeExportBuilding ? (
+                        <Loader2 className="w-3 h-3 mr-1 animate-spin" />
+                      ) : (
+                        <Download className="w-3 h-3 mr-1" />
+                      )}
+                      {claudeExportBuilding ? "Building JSON…" : "JSON for Claude"}
                     </Button>
                     <Button
                       size="sm"

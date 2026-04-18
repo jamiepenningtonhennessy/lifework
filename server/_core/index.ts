@@ -11,6 +11,7 @@ import { pdfRouter } from "../pdf-export";
 import { pdfExtractRouter } from "../pdf-extract";
 import { lifeworkPdfRouter } from "../lifework-pdf-download";
 import { coachingSlidesDownloadRouter } from "../coaching-slides-download";
+import { claudeExportDownloadRouter } from "../claude-export-download";
 import { getDb } from "../db";
 import { analysisReports } from "../../drizzle/schema";
 import { eq } from "drizzle-orm";
@@ -68,6 +69,8 @@ async function startServer() {
   app.use(lifeworkPdfRouter);
   // Coaching slides PPTX download (counsellor)
   app.use(coachingSlidesDownloadRouter);
+  // Claude handoff JSON export (counsellor)
+  app.use(claudeExportDownloadRouter);
   // tRPC API
   app.use(
     "/api/trpc",
