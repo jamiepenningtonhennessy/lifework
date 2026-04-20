@@ -739,7 +739,10 @@ export async function buildClaudeExportJson(clientId: number): Promise<Record<st
       PAGE2_PARAGRAPHS: ch2Page2Paras,
       KEYFIND: {
         TITLE: "Your ESF distribution",
-        PARAGRAPHS: ch2KeyFindings.length > 0 ? ch2KeyFindings : ["Your life history reveals a clear pattern of recurring themes."],
+        // All paragraphs of the "What the Pattern Reveals" section
+        PARAGRAPHS: ch2KeyFindings.length > 0 ? ch2KeyFindings.slice(0, -1) : ["Your life history reveals a clear pattern of recurring themes."],
+        // Last paragraph is the ESF distribution sentence
+        ESF_PARA: ch2KeyFindings.length > 1 ? ch2KeyFindings[ch2KeyFindings.length - 1] : (ch2KeyFindings[0] ?? "Your life history reveals a clear pattern of recurring themes."),
       },
     },
     CH3: {

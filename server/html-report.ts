@@ -545,7 +545,7 @@ const TEMPLATE = `<!doctype html>
     {{#EACH CH2.PAGE1_PARAGRAPHS}}
     <p>{{.}}</p>
     {{/EACH}}
-    {{#IF CH2.PAGE1_SECTION_H}}<h3 class="section-h">{{CH2.PAGE1_SECTION_H}}</h3>{{/IF}}
+    {{#IF CH2.PAGE1_SECTION_H}}<h3 class="section-h">Recurring themes</h3>{{/IF}}
     {{#EACH CH2.PAGE1_SECTION_PARAS}}
     <p>{{.}}</p>
     {{/EACH}}
@@ -563,16 +563,12 @@ const TEMPLATE = `<!doctype html>
     <span>Chapter 2 · Life History Pattern</span>
   </header>
   <div class="ph-body">
-    <h3 class="section-h" style="margin-top:0;">{{CH2.PAGE2_SECTION_H}}</h3>
-    {{#EACH CH2.PAGE2_PARAGRAPHS}}
+    <h3 class="section-h" style="margin-top:0;">What the pattern reveals</h3>
+    {{#EACH CH2.KEYFIND.PARAGRAPHS}}
     <p>{{.}}</p>
     {{/EACH}}
-    <div class="keyfind">
-      <h3 class="section-h" style="margin:0 0 8px;">{{CH2.KEYFIND.TITLE}}</h3>
-      {{#EACH CH2.KEYFIND.PARAGRAPHS}}
-      <p style="margin:0 0 10px;">{{.}}</p>
-      {{/EACH}}
-    </div>
+    <h3 class="section-h" style="margin-top:24px;">Your ESF distribution</h3>
+    <p>{{CH2.KEYFIND.ESF_PARA}}</p>
   </div>
   <footer class="ph-bot">
     <span class="who">{{CLIENT.NAME}}</span>

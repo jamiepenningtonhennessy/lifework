@@ -1085,3 +1085,10 @@
 - [x] This fixes CH6/CH8 paragraphs not rendering when outer EACH and inner EACH share the same tag name (e.g. {{#EACH CH8.DIRECTIONS}} outer + {{#EACH .paragraphs}} inner both use {{/EACH}})
 - [x] Apply same fix to test file inline renderer
 - [x] Add 4 new nested EACH regression tests (122 tests total passing)
+
+## HTML Report — CH2 Layout Fixes
+- [x] Remove duplicate "Recurring themes" section on CH2 page 2 (was PAGE2_SECTION_H + PAGE2_PARAGRAPHS duplicating KEYFIND)
+- [x] Rename "Recurring motifs" to "Recurring themes" on CH2 page 1 (static label in template)
+- [x] Promote both headings to clear section-h styled headings
+- [x] Add "Your ESF Distribution" heading above the ESF_PARA on CH2 page 2
+- [x] Add ESF_PARA field to CH2.KEYFIND in claudeExport builder (last paragraph of key findings)
