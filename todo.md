@@ -1067,3 +1067,9 @@
 ## HTML Report — CH6/CH8 Fix & Print Quality
 - [x] Fix nested EACH dot-path bug in renderTemplate ({{#EACH .paragraphs}} not resolving inside outer EACH — CH6 Development Edge and CH8 Career Directions showing raw template tags)
 - [x] Improve print CSS: @page A4 portrait with 0 margins, print-color-adjust: exact, pt-based font sizes, sharper text rendering
+
+## HTML Report — CH6/CH8 EACH1 Fix & Puppeteer PDF
+- [x] Fix EACH1/EACH2 tag handling in renderTemplate — CH6 and CH8 used {{#EACH1 ...}}/{{/EACH1}} which the old regex did not match; replaced with generalised multi-tag parser
+- [x] Install Puppeteer (headless Chromium) and build GET /api/report/pdf/:clientId route
+- [x] Add "Download Report PDF" button to WowReportTab (gold, triggers server-side Puppeteer render)
+- [x] All 118 tests pass

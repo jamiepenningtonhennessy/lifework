@@ -125,45 +125,49 @@ export function renderTemplate(template: string, data: Record<string, unknown>):
   }
 
   function processEach(tmpl: string, ctx: Record<string, unknown>): string {
-    return tmpl.replace(
-      /\{\{#EACH ([^}]+)\}\}([\s\S]*?)\{\{\/EACH\}\}/g,
-      (_match, arrayPath: string, block: string) => {
-        // Resolve the array — dot-prefixed paths like ".paragraphs" resolve against ctx
-        const arr = resolvePath(ctx, arrayPath.trim());
-        if (!Array.isArray(arr)) return "";
-        return arr
+    // Match {{#EACH ...}}, {{#EACH1 ...}}, {{#EACH2 ...}} etc. with matching close tag
+    // We do a single-pass replacement by finding each opening tag and its matching close
+    let result = tmpl;
+    // Process all EACH variants: EACH, EACH1, EACH2, EACH3 ...
+    const eachOpenRe = /\{\{#(EACH\d*) ([^}]+)\}\}/g;
+    let match: RegExpExecArray | null;
+    // Collect all opening tags first, then process from last to first to avoid offset issues
+    const openings: Array<{ index: number; fullTag: string; tagName: string; arrayPath: string }> = [];
+    while ((match = eachOpenRe.exec(result)) !== null) {
+      openings.push({ index: match.index, fullTag: match[0], tagName: match[1], arrayPath: match[2] });
+    }
+    // Process from last to first so earlier indices stay valid
+    for (let i = openings.length - 1; i >= 0; i--) {
+      const { index, fullTag, tagName, arrayPath } = openings[i];
+      const closeTag = `{{/${tagName}}}`;
+      const afterOpen = index + fullTag.length;
+      const closeIdx = result.indexOf(closeTag, afterOpen);
+      if (closeIdx === -1) continue;
+      const block = result.slice(afterOpen, closeIdx);
+      const arr = resolvePath(ctx, arrayPath.trim());
+      let replacement = "";
+      if (Array.isArray(arr)) {
+        replacement = arr
           .map((item, idx) => {
-            // Build item context: spread item fields at top level so nested EACH
-            // can access them via dot-prefixed paths like ".paragraphs"
             const itemCtx: Record<string, unknown> =
               item !== null && typeof item === "object"
                 ? { ...(item as Record<string, unknown>), INDEX: idx + 1 }
                 : { ".": item, INDEX: idx + 1 };
-            // Merged context: item fields override outer context
             const mergedCtx = { ...ctx, ...itemCtx };
             let rendered = block;
-            // Handle nested EACH — pass mergedCtx so ".paragraphs" resolves on item
             rendered = processEach(rendered, mergedCtx);
-            // Handle nested IF
             rendered = processIf(rendered, mergedCtx);
-            // Replace {{.field}} tokens (dot-prefixed field access on current item)
             rendered = rendered.replace(/\{\{\.([^}]*)\}\}/g, (_m, field: string) => {
               const f = field.trim();
-              if (f === "") {
-                return item != null ? stripMd(String(item)) : "";
-              }
+              if (f === "") return item != null ? stripMd(String(item)) : "";
               const v = (itemCtx as Record<string, unknown>)[f];
               if (v == null) return "";
               if (Array.isArray(v)) return v.join(", ");
-              // Don't strip markdown from HTML-safe fields like cssClass, esfClass
               const noStrip = ["cssClass", "esfClass", "salienceClass"].includes(f);
               return noStrip ? String(v) : stripMd(String(v));
             });
-            // Replace {{INDEX}}
             rendered = rendered.replace(/\{\{INDEX\}\}/g, String(idx + 1));
-            // Replace remaining {{PATH}} tokens — check item context first, then outer
             rendered = rendered.replace(/\{\{([^#/][^}]*)\}\}/g, (_m, path: string) => {
-              // Try item context first (for non-dot-prefixed field names)
               const itemVal = (itemCtx as Record<string, unknown>)[path.trim()];
               if (itemVal !== undefined && itemVal !== null) {
                 return Array.isArray(itemVal) ? itemVal.join(", ") : stripMd(String(itemVal));
@@ -174,7 +178,9 @@ export function renderTemplate(template: string, data: Record<string, unknown>):
           })
           .join("");
       }
-    );
+      result = result.slice(0, index) + replacement + result.slice(closeIdx + closeTag.length);
+    }
+    return result;
   }
 
   let out = template;
@@ -393,6 +399,15 @@ table.variants tbody td.q { font-family: var(--serif); font-style: italic; font-
   #lw-print-bar { display: none !important; }
 }
 `;
+
+// ─── Public render helper ───────────────────────────────────────────────────
+/**
+ * Render the full HTML report from a Claude export JSON payload.
+ * Exported so Puppeteer PDF route can reuse the same logic.
+ */
+export function renderHtmlReport(payload: Record<string, unknown>): string {
+  return renderTemplate(TEMPLATE, payload);
+}
 
 // ─── HTML template (embedded) ─────────────────────────────────────────────────
 

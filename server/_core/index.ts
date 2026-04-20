@@ -13,6 +13,7 @@ import { lifeworkPdfRouter } from "../lifework-pdf-download";
 import { coachingSlidesDownloadRouter } from "../coaching-slides-download";
 import { claudeExportDownloadRouter } from "../claude-export-download";
 import { htmlReportHandler } from "../html-report";
+import { handlePuppeteerPdfDownload } from "../puppeteer-pdf";
 import { getDb } from "../db";
 import { analysisReports } from "../../drizzle/schema";
 import { eq } from "drizzle-orm";
@@ -74,6 +75,7 @@ async function startServer() {
   app.use(claudeExportDownloadRouter);
   // HTML report renderer (counsellor)
   app.get("/api/report/html/:clientId", htmlReportHandler);
+  app.get("/api/report/pdf/:clientId", handlePuppeteerPdfDownload);
   // tRPC API
   app.use(
     "/api/trpc",

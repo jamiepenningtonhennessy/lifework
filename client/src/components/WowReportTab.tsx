@@ -610,6 +610,19 @@ export default function WowReportTab({ clientId, clientName }: WowReportTabProps
                     </Button>
                     <Button
                       size="sm"
+                      className="bg-[var(--lw-gold)] hover:bg-[var(--lw-gold)]/90 text-[var(--lw-navy)] font-semibold text-xs"
+                      onClick={() => {
+                        const a = document.createElement('a');
+                        a.href = `/api/report/pdf/${clientId}`;
+                        a.click();
+                      }}
+                      title="Download a pixel-perfect PDF rendered by the server — sharper than browser print"
+                    >
+                      <Download className="w-3 h-3 mr-1" />
+                      Download Report PDF
+                    </Button>
+                    <Button
+                      size="sm"
                       variant="outline"
                       className="border-[var(--lw-gold)]/60 text-[var(--lw-gold)] hover:bg-[var(--lw-gold)]/10 text-xs"
                       onClick={handleGenerateSlides}
