@@ -293,3 +293,80 @@ describe("deriveInsightsAxes", () => {
     expect(axes[0].value).toBe("Ambivert");
   });
 });
+
+// ─── Import buildLifeHistoryPages directly (now exported) ────────────────────
+import { buildLifeHistoryPages } from "./routers/claudeExport.js";
+
+describe("buildLifeHistoryPages", () => {
+  const makeAchievement = (decade: string, id = 1) => ({
+    id,
+    decade,
+    title: `Achievement ${id}`,
+    age: 25,
+    description: "Did something great.",
+    sageEnrichment: null,
+    esf: "satisfying",
+  });
+
+  it("returns empty array when there are no achievements", () => {
+    const pages = buildLifeHistoryPages([]);
+    expect(pages).toHaveLength(0);
+  });
+
+  it("returns exactly one page for a single decade with one entry", () => {
+    const pages = buildLifeHistoryPages([makeAchievement("twenties")]);
+    expect(pages).toHaveLength(1);
+    expect(pages[0].showKicker).toBe(true);
+    expect(pages[0].stages).toHaveLength(1);
+    expect(pages[0].stages[0].title).toBe("Twenties");
+  });
+
+  it("does NOT emit blank pages for decades with no entries", () => {
+    // Only childhood and thirties have entries; twenties is empty
+    const achievements = [
+      makeAchievement("childhood", 1),
+      makeAchievement("thirties", 2),
+    ];
+    const pages = buildLifeHistoryPages(achievements);
+    // Should be 1 page (2 stages fit on one page with the ≥2 threshold)
+    expect(pages).toHaveLength(1);
+    const allTitles = pages.flatMap(p => p.stages.map(s => s.title));
+    expect(allTitles).toContain("Childhood · 0–11");
+    expect(allTitles).toContain("Thirties");
+    expect(allTitles).not.toContain("Twenties");
+  });
+
+  it("spills to a second page when more than 2 stages are present", () => {
+    const achievements = [
+      makeAchievement("childhood", 1),
+      makeAchievement("teens", 2),
+      makeAchievement("twenties", 3),
+    ];
+    const pages = buildLifeHistoryPages(achievements);
+    expect(pages).toHaveLength(2);
+    expect(pages[0].stages).toHaveLength(2);
+    expect(pages[1].stages).toHaveLength(1);
+  });
+
+  it("first page always has showKicker:true, subsequent pages have false", () => {
+    const achievements = [
+      makeAchievement("childhood", 1),
+      makeAchievement("teens", 2),
+      makeAchievement("twenties", 3),
+    ];
+    const pages = buildLifeHistoryPages(achievements);
+    expect(pages[0].showKicker).toBe(true);
+    expect(pages[1].showKicker).toBe(false);
+  });
+
+  it("assigns sequential page numbers starting at 17", () => {
+    const achievements = [
+      makeAchievement("childhood", 1),
+      makeAchievement("teens", 2),
+      makeAchievement("twenties", 3),
+    ];
+    const pages = buildLifeHistoryPages(achievements);
+    expect(pages[0].pageNum).toBe("17");
+    expect(pages[1].pageNum).toBe("18");
+  });
+});

@@ -1114,3 +1114,6 @@
 
 ## Cover Letter — Paragraph Spacing
 - [x] Move cover letter body paragraphs down 10mm to give them more breathing room
+
+## Annex A1 — Blank Page Fix
+- [x] Remove blank pages in Annex A1 life history: buildLifeHistoryPages now only emits pages that have content (no more empty pages for unused decades)

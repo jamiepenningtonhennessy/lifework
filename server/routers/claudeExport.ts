@@ -341,7 +341,7 @@ type Achievement = {
   [key: string]: unknown;
 };
 
-function buildLifeHistoryPages(achievementsList: Achievement[]): Array<{
+export function buildLifeHistoryPages(achievementsList: Achievement[]): Array<{
   pageNum: string;
   showKicker: boolean;
   stages: Array<{
@@ -397,28 +397,35 @@ function buildLifeHistoryPages(achievementsList: Achievement[]): Array<{
     });
   }
 
-  // Distribute stages across exactly 5 pages (pages 17–21)
-  // Page 17 gets showKicker: true; the rest get false
+  // Distribute stages across pages dynamically — only emit pages that have content.
+  // Page 1 (page 17) gets showKicker: true; the rest get false.
+  // Aim for ~2 stages per page; overflow spills to the next page.
+  if (stages.length === 0) return [];
+
   const pages: Array<{
     pageNum: string;
     showKicker: boolean;
     stages: typeof stages;
-  }> = [
-    { pageNum: "17", showKicker: true,  stages: [] },
-    { pageNum: "18", showKicker: false, stages: [] },
-    { pageNum: "19", showKicker: false, stages: [] },
-    { pageNum: "20", showKicker: false, stages: [] },
-    { pageNum: "21", showKicker: false, stages: [] },
-  ];
+  }> = [];
 
-  if (stages.length === 0) return pages;
-
-  // Simple distribution: spread stages across pages
-  // Aim for ~2 stages per page; overflow to next page
   let pageIdx = 0;
   for (const stage of stages) {
-    if (pageIdx < 4 && pages[pageIdx].stages.length >= 2) pageIdx++;
-    pages[Math.min(pageIdx, 4)].stages.push(stage);
+    if (pages[pageIdx] === undefined) {
+      pages.push({
+        pageNum: String(17 + pageIdx),
+        showKicker: pageIdx === 0,
+        stages: [],
+      });
+    }
+    if (pages[pageIdx].stages.length >= 2) {
+      pageIdx++;
+      pages.push({
+        pageNum: String(17 + pageIdx),
+        showKicker: false,
+        stages: [],
+      });
+    }
+    pages[pageIdx].stages.push(stage);
   }
 
   return pages;
