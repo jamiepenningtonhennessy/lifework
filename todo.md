@@ -1108,3 +1108,6 @@
 - [x] Cover page: title changed to "A portrait of / who you are."
 - [x] Cover page: analyst credit changed to "Jamie Pennington" (removed "with Sage")
 - [x] Cover page: padding-top reduced from 96px to 60px; t-main margin-bottom 28px to shift content block up ~1cm
+
+## HTML Report — PDF Generation Fix
+- [x] Fix "Failed to generate PDF" error in deployed environment (Puppeteer launch config)

@@ -19,6 +19,19 @@ import { buildClaudeExportJson } from "./routers/claudeExport.js";
 import { renderHtmlReport } from "./html-report.js";
 import { sdk } from "./_core/sdk.js";
 
+/**
+ * Resolve the Chromium executable path.
+ * Priority:
+ *  1. PUPPETEER_EXECUTABLE_PATH env var (explicit override)
+ *  2. Puppeteer's own bundled Chrome (downloaded via postinstall)
+ */
+function resolveChromiumPath(): string | undefined {
+  if (process.env.PUPPETEER_EXECUTABLE_PATH) {
+    return process.env.PUPPETEER_EXECUTABLE_PATH;
+  }
+  return undefined;
+}
+
 export async function handlePuppeteerPdfDownload(req: Request, res: Response) {
   try {
     // ── Auth ──────────────────────────────────────────────────────────────────
@@ -43,13 +56,19 @@ export async function handlePuppeteerPdfDownload(req: Request, res: Response) {
     const clientName = clientData?.NAME ?? `Client-${clientId}`;
 
     // ── Puppeteer: render to PDF ──────────────────────────────────────────────
+    const executablePath = resolveChromiumPath();
+    console.log(`[puppeteer-pdf] Launching Chromium${executablePath ? ` at ${executablePath}` : " (auto-detect)"}`);
+
     const browser = await puppeteer.launch({
       headless: true,
+      ...(executablePath ? { executablePath } : {}),
       args: [
         "--no-sandbox",
         "--disable-setuid-sandbox",
         "--disable-dev-shm-usage",
         "--disable-gpu",
+        "--single-process",
+        "--no-zygote",
         "--font-render-hinting=none",
       ],
     });
@@ -84,7 +103,9 @@ export async function handlePuppeteerPdfDownload(req: Request, res: Response) {
       throw err;
     }
   } catch (err) {
-    console.error("[puppeteer-pdf] Error:", err);
-    res.status(500).json({ error: "Failed to generate PDF" });
+    const errorMessage = err instanceof Error ? err.message : String(err);
+    const errorStack = err instanceof Error ? err.stack : String(err);
+    console.error("[puppeteer-pdf] Error:", errorStack);
+    res.status(500).json({ error: "Failed to generate PDF", detail: errorMessage });
   }
 }
