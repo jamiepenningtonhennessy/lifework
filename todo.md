@@ -1056,3 +1056,10 @@
 - [x] Add `claudeExport.getJson` tRPC procedure that returns the JSON payload as an object (already existed)
 - [x] Build `ClaudeJsonPreviewModal` component with collapsible top-level keys, syntax highlighting, and copy-to-clipboard
 - [x] Add "Preview JSON" button to WowReportTab (opens modal, violet style, next to JSON for Claude download button)
+
+## In-App HTML Report (lifework-template.html design system)
+- [x] Upload ph-tangram.jpg, lifework.css to CDN; store URLs as server constants
+- [x] Build server/html-report.ts — template renderer ({{X}}, {{#EACH}}, {{#IF}} directives)
+- [x] Add Express route GET /api/report/html/:clientId — streams rendered HTML
+- [x] Add "View Report" button to WowReportTab (gold button, opens rendered report in new tab)
+- [x] 118 tests passing (including 13 new html-report renderer tests)

@@ -601,6 +601,15 @@ export default function WowReportTab({ clientId, clientName }: WowReportTabProps
                     </Button>
                     <Button
                       size="sm"
+                      className="bg-[var(--lw-gold)] hover:bg-[var(--lw-gold)]/90 text-[var(--lw-navy)] font-semibold text-xs"
+                      onClick={() => window.open(`/api/report/html/${clientId}`, '_blank')}
+                      title="View the full Lifework WOW Report in the brand template — printable to PDF"
+                    >
+                      <BookOpen className="w-3 h-3 mr-1" />
+                      View Report
+                    </Button>
+                    <Button
+                      size="sm"
                       variant="outline"
                       className="border-[var(--lw-gold)]/60 text-[var(--lw-gold)] hover:bg-[var(--lw-gold)]/10 text-xs"
                       onClick={handleGenerateSlides}
