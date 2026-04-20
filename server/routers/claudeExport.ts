@@ -107,13 +107,33 @@ const COLOUR_CSS: Record<string, string> = {
 
 // ─── Markdown paragraph splitter ─────────────────────────────────────────────
 /**
+ * Strip markdown syntax from a paragraph string.
+ */
+function stripMarkdownInline(text: string): string {
+  if (!text) return "";
+  return text
+    .replace(/\*\*\*(.+?)\*\*\*/g, "$1")
+    .replace(/\*\*(.+?)\*\*/g, "$1")
+    .replace(/\*(.+?)\*/g, "$1")
+    .replace(/___(.+?)___/g, "$1")
+    .replace(/__(.+?)__/g, "$1")
+    .replace(/_(.+?)_/g, "$1")
+    .replace(/`(.+?)`/g, "$1")
+    .replace(/^#{1,6}\s+/, "")
+    .replace(/^[-*•]\s+/, "")
+    .trim();
+}
+
+/**
  * Splits a markdown section into an array of paragraph strings.
- * Strips leading ## headings and blank lines.
+ * Strips leading ## headings, blank lines, and markdown table lines.
  * Returns at least one paragraph.
  */
 function splitParagraphs(text: string): string[] {
   if (!text) return [""];
-  const lines = text.split("\n");
+  // Remove markdown table lines (lines starting with |)
+  const filtered = text.split("\n").filter(l => !l.trim().startsWith("|")).join("\n");
+  const lines = filtered.split("\n");
   const paras: string[] = [];
   let current: string[] = [];
 
@@ -136,7 +156,7 @@ function splitParagraphs(text: string): string[] {
   }
   if (current.length > 0) paras.push(current.join(" ").trim());
 
-  return paras.filter(p => p.length > 0);
+  return paras.filter(p => p.length > 0).map(p => stripMarkdownInline(p));
 }
 
 /**
@@ -447,21 +467,29 @@ function buildViaEvidence(
     }
   }
 
-  // Build evidence for top 10 strengths
-  const top10 = viaRanked.slice(0, 10);
-  return top10.map((s, i) => {
+  // Build evidence for top 5 strengths only (table fits 5 rows on the page)
+  const top5 = viaRanked.slice(0, 5);
+  return top5.map((s, i) => {
     const row = tableRows[s.name];
-    const freq = row?.freq ?? fulfillingTitles.length > 0 ? Math.max(1, Math.floor(fulfillingTitles.length * (10 - i) / 10)) : 0;
-    const salience = row?.salience ?? (i < 3 ? "High" : i < 6 ? "Medium" : "Low");
+    const rawFreq = row?.freq ?? (fulfillingTitles.length > 0 ? Math.max(1, Math.floor(fulfillingTitles.length * (5 - i) / 5)) : 0);
+    const freq = typeof rawFreq === "number" ? rawFreq : 0;
+    const salience = row?.salience ?? (i < 2 ? "High" : i < 4 ? "Medium" : "Low");
     const salienceClass = salience.toLowerCase().includes("high") ? "" : "med";
-    const achievsText = row?.achievements ?? fulfillingTitles.slice(0, 3).map(t => `<em>${t}</em>`).join(" · ");
+    // Format achievements as readable prose, not raw caps titles
+    const achievsRaw = row?.achievements ?? "";
+    const achievsText = achievsRaw
+      ? achievsRaw
+      : fulfillingTitles.slice(0, 3).map(t => {
+          // Convert ALL-CAPS titles to title case
+          return t.split(" ").map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(" ");
+        }).join("; ");
 
     return {
       name: s.name,
       definition: VIA_DEFINITIONS[s.name] ?? "",
       rank: String(s.rank ?? i + 1).padStart(2, "0"),
-      freq: typeof freq === "number" ? freq : 0,
-      salience: salience.includes("HIGH") || salience.includes("High") ? "High" : salience.includes("MEDIUM") || salience.includes("Medium") ? "Medium" : "Low",
+      freq,
+      salience: salience.toUpperCase().includes("HIGH") ? "High" : salience.toUpperCase().includes("MEDIUM") ? "Medium" : "Low",
       salienceClass,
       achievements: achievsText,
     };
@@ -591,16 +619,24 @@ export async function buildClaudeExportJson(clientId: number): Promise<Record<st
 
   // CH2 — Life History Pattern
   const lhSections = extractAllSections(sections.lifeHistoryPattern ?? "");
+  // Page 1: first two sections (intro paragraphs + first named section)
   const ch2Page1Paras = lhSections[0]?.paragraphs ?? splitParagraphs(sections.lifeHistoryPattern ?? "").slice(0, 2);
   const ch2Page1SectionH = lhSections[1]?.heading ?? "";
   const ch2Page1SectionParas = lhSections[1]?.paragraphs ?? [];
-  const ch2Page2SectionH = lhSections[2]?.heading ?? "";
-  const ch2Page2Paras = lhSections[2]?.paragraphs ?? lhSections[3]?.paragraphs ?? [];
+  // Page 2: third section heading + paragraphs; fall back to fourth section or raw paragraphs 3–6
+  const ch2Page2SectionH = lhSections[2]?.heading ?? lhSections[1]?.heading ?? "Recurring themes";
+  const ch2Page2Paras = (
+    lhSections[2]?.paragraphs?.length ? lhSections[2].paragraphs :
+    lhSections[3]?.paragraphs?.length ? lhSections[3].paragraphs :
+    splitParagraphs(sections.lifeHistoryPattern ?? "").slice(3, 7)
+  );
   const ch2KeyFindings = extractKeyFindings(sections.lifeHistoryPattern ?? "");
 
   // CH3 — VIA
   const viaAllSections = extractAllSections(sections.viaSection ?? "");
-  const ch3KeyFindings = extractKeyFindings(sections.viaSection ?? "");
+  // CH3 key findings — filter out any raw markdown table lines
+  const ch3KeyFindingsRaw = extractKeyFindings(sections.viaSection ?? "");
+  const ch3KeyFindings = ch3KeyFindingsRaw.filter(f => !f.includes("|") && !f.startsWith("---"));
   const ch3Lede = "The VIA framework identifies 24 character strengths organised under six virtues. Central to its application is the idea of signature strengths — those you are most drawn to use and that give you energy.";
   const ch3Pullquote = extractPullquote(sections.viaSection ?? "");
 
