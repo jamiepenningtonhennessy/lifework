@@ -1051,3 +1051,8 @@
 - [x] Register route and tRPC router in `server/_core/index.ts` and `server/routers.ts`
 - [x] Add "JSON for Claude" button to WowReportTab (violet style, appears next to Coaching Slides button when report is ready)
 - [x] Vitest unit tests for all pure helper functions (22 tests passing)
+
+## Claude JSON Preview Modal
+- [x] Add `claudeExport.getJson` tRPC procedure that returns the JSON payload as an object (already existed)
+- [x] Build `ClaudeJsonPreviewModal` component with collapsible top-level keys, syntax highlighting, and copy-to-clipboard
+- [x] Add "Preview JSON" button to WowReportTab (opens modal, violet style, next to JSON for Claude download button)

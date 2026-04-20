@@ -45,6 +45,7 @@ import {
 import { toast } from "sonner";
 import { Streamdown } from "streamdown";
 import { InsightsMapping } from "@/components/InsightsMapping";
+import ClaudeJsonPreviewModal from "@/components/ClaudeJsonPreviewModal";
 import { VIA_STRENGTHS } from "@shared/via-data";
 
 type WowReportType = "standard" | "student" | "career_changer" | "job_returner" | "retirement";
@@ -289,6 +290,7 @@ export default function WowReportTab({ clientId, clientName }: WowReportTabProps
   // Keep a stub so the button reference below still compiles
   const generateSlidesMutation = { isPending: slidesBuilding };
 
+  const [claudeJsonPreviewOpen, setClaudeJsonPreviewOpen] = useState(false);
   const [claudeExportBuilding, setClaudeExportBuilding] = useState(false);
   const handleDownloadClaudeJson = async () => {
     setClaudeExportBuilding(true);
@@ -447,6 +449,16 @@ export default function WowReportTab({ clientId, clientName }: WowReportTabProps
 
   return (
     <div className="space-y-6">
+      {/* Claude JSON preview modal */}
+      <ClaudeJsonPreviewModal
+        open={claudeJsonPreviewOpen}
+        onClose={() => setClaudeJsonPreviewOpen(false)}
+        clientId={clientId}
+        clientName={clientName}
+        onDownload={handleDownloadClaudeJson}
+        downloadBuilding={claudeExportBuilding}
+      />
+
       {/* Sage counsellor panel */}
       <SageCounsellorPanel
         clientId={clientId}
@@ -601,6 +613,16 @@ export default function WowReportTab({ clientId, clientName }: WowReportTabProps
                         <Presentation className="w-3 h-3 mr-1" />
                       )}
                       {generateSlidesMutation.isPending ? "Building slides…" : "Coaching Slides"}
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="border-violet-500/60 text-violet-400 hover:bg-violet-500/10 text-xs"
+                      onClick={() => setClaudeJsonPreviewOpen(true)}
+                      title="Preview the Claude handoff JSON payload before downloading"
+                    >
+                      <FileText className="w-3 h-3 mr-1" />
+                      Preview JSON
                     </Button>
                     <Button
                       size="sm"
