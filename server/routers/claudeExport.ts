@@ -138,7 +138,7 @@ function splitParagraphs(text: string): string[] {
   let current: string[] = [];
 
   for (const line of lines) {
-    if (line.startsWith("## ") || line.startsWith("# ")) {
+    if (line.startsWith("### ") || line.startsWith("## ") || line.startsWith("# ")) {
       if (current.length > 0) {
         paras.push(current.join(" ").trim());
         current = [];
@@ -186,7 +186,7 @@ function extractSection(text: string, heading: string): string[] {
   const sectionLines: string[] = [];
 
   for (const line of lines) {
-    if (line.startsWith("## ") || line.startsWith("# ")) {
+    if (line.startsWith("### ") || line.startsWith("## ") || line.startsWith("# ")) {
       const h = line.replace(/^#+\s*/, "").trim().toLowerCase();
       if (h === heading.toLowerCase()) {
         inSection = true;
@@ -212,7 +212,7 @@ function extractAllSections(text: string): Array<{ heading: string; paragraphs: 
   let currentLines: string[] = [];
 
   for (const line of lines) {
-    if (line.startsWith("## ") || line.startsWith("# ")) {
+    if (line.startsWith("### ") || line.startsWith("## ") || line.startsWith("# ")) {
       if (currentHeading) {
         const paras = splitParagraphs(currentLines.join("\n"));
         if (paras.length > 0) sections.push({ heading: currentHeading, paragraphs: paras });
@@ -630,15 +630,17 @@ export async function buildClaudeExportJson(clientId: number): Promise<Record<st
     lhSections[3]?.paragraphs?.length ? lhSections[3].paragraphs :
     splitParagraphs(sections.lifeHistoryPattern ?? "").slice(3, 7)
   );
-  const ch2KeyFindings = extractKeyFindings(sections.lifeHistoryPattern ?? "");
+  // Use the "What the Pattern Reveals" section paragraphs directly
+  const ch2WhatRevealsSec = lhSections.find(s => s.heading.toLowerCase().includes("pattern reveals") || s.heading.toLowerCase().includes("what the pattern"));
+  const ch2KeyFindings = ch2WhatRevealsSec?.paragraphs ?? extractKeyFindings(sections.lifeHistoryPattern ?? "");
 
   // CH3 — VIA
   const viaAllSections = extractAllSections(sections.viaSection ?? "");
-  // CH3 key findings — filter out any raw markdown table lines
-  const ch3KeyFindingsRaw = extractKeyFindings(sections.viaSection ?? "");
-  const ch3KeyFindings = ch3KeyFindingsRaw.filter(f => !f.includes("|") && !f.startsWith("---"));
+  // CH3 key findings — use the "Key Findings" section paragraphs directly
+  const ch3KeyFindingsSec = viaAllSections.find(s => s.heading.toLowerCase().includes("key finding") || s.heading.toLowerCase().includes("findings"));
+  const ch3KeyFindings = ch3KeyFindingsSec?.paragraphs
+    ?? extractKeyFindings(sections.viaSection ?? "").filter(f => !f.includes("|") && !f.startsWith("---"));
   const ch3Lede = "The VIA framework identifies 24 character strengths organised under six virtues. Central to its application is the idea of signature strengths — those you are most drawn to use and that give you energy.";
-  const ch3Pullquote = extractPullquote(sections.viaSection ?? "");
 
   // VIA evidence
   const viaEvidence = buildViaEvidence(sortedVia, achievementsList as Achievement[], sections.viaSection ?? "");
@@ -739,19 +741,18 @@ export async function buildClaudeExportJson(clientId: number): Promise<Record<st
       PAGE2_PARAGRAPHS: ch2Page2Paras,
       KEYFIND: {
         TITLE: "Your ESF distribution",
-        // All paragraphs of the "What the Pattern Reveals" section
-        PARAGRAPHS: ch2KeyFindings.length > 0 ? ch2KeyFindings.slice(0, -1) : ["Your life history reveals a clear pattern of recurring themes."],
+        // All paragraphs of the "What the Pattern Reveals" section except the last
+        PARAGRAPHS: ch2KeyFindings.length > 1 ? ch2KeyFindings.slice(0, -1) : ch2KeyFindings,
         // Last paragraph is the ESF distribution sentence
-        ESF_PARA: ch2KeyFindings.length > 1 ? ch2KeyFindings[ch2KeyFindings.length - 1] : (ch2KeyFindings[0] ?? "Your life history reveals a clear pattern of recurring themes."),
+        ESF_PARA: ch2KeyFindings.length > 1 ? ch2KeyFindings[ch2KeyFindings.length - 1] : (ch2KeyFindings[0] ?? ""),
       },
     },
     CH3: {
       LEDE: ch3Lede,
-      // KEY_FINDINGS = all paragraphs except the last one, which becomes the PULLQUOTE
-      KEY_FINDINGS: ch3KeyFindings.length > 1
-        ? ch3KeyFindings.slice(0, -1)
-        : (ch3KeyFindings.length > 0 ? ch3KeyFindings : viaAllSections.slice(0, 2).map(s => s.paragraphs[0] ?? "")),
-      PULLQUOTE: ch3Pullquote,
+      // KEY_FINDINGS = all paragraphs (pull-quote removed from template)
+      KEY_FINDINGS: ch3KeyFindings.length > 0
+        ? ch3KeyFindings
+        : viaAllSections.slice(0, 2).map(s => s.paragraphs[0] ?? ""),
     },
     VIA: {
       TOP10: top10.map(s => ({ name: s.name, score: s.score ?? 0 })),

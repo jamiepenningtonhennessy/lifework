@@ -650,9 +650,6 @@ const TEMPLATE = `<!doctype html>
     {{#EACH CH3.KEY_FINDINGS}}
     <p>{{.}}</p>
     {{/EACH}}
-    <div class="keyfind">
-      <p style="margin:0;font-family:var(--serif);font-style:italic;font-size:18px;line-height:1.4;color:var(--navy);">{{CH3.PULLQUOTE}}</p>
-    </div>
   </div>
   <footer class="ph-bot">
     <span class="who">{{CLIENT.NAME}}</span>
@@ -783,9 +780,6 @@ const TEMPLATE = `<!doctype html>
     <p>{{.}}</p>
     {{/EACH}}
     {{/EACH}}
-    <div class="keyfind">
-      <p style="margin:0;font-family:var(--serif);font-style:italic;font-size:18px;line-height:1.4;color:var(--navy);">{{CH6.PULLQUOTE}}</p>
-    </div>
   </div>
   <footer class="ph-bot">
     <span class="who">{{CLIENT.NAME}}</span>

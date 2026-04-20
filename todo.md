@@ -1095,3 +1095,10 @@
 
 ## HTML Report — CH3 Key Findings Fix
 - [x] Fix CH3 Key Findings: KEY_FINDINGS now excludes the last paragraph (which becomes PULLQUOTE), so all 3 body paragraphs render correctly without duplication
+
+## HTML Report — v6 Fixes
+- [x] CH2 page 1: fixed extractAllSections to handle ### headings (LLM uses 3 hashes)
+- [x] CH2 page 2: KEYFIND.PARAGRAPHS now uses "What the Pattern Reveals" section paragraphs directly
+- [x] CH3: key findings now uses "Key Findings" section paragraphs directly (all paragraphs shown)
+- [x] CH3: pull-quote box removed from template
+- [x] CH6: pull-quote box removed from template
