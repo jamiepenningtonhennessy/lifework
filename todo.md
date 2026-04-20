@@ -1092,3 +1092,6 @@
 - [x] Promote both headings to clear section-h styled headings
 - [x] Add "Your ESF Distribution" heading above the ESF_PARA on CH2 page 2
 - [x] Add ESF_PARA field to CH2.KEYFIND in claudeExport builder (last paragraph of key findings)
+
+## HTML Report — CH3 Key Findings Fix
+- [x] Fix CH3 Key Findings: KEY_FINDINGS now excludes the last paragraph (which becomes PULLQUOTE), so all 3 body paragraphs render correctly without duplication

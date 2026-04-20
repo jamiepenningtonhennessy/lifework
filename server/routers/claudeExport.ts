@@ -747,7 +747,10 @@ export async function buildClaudeExportJson(clientId: number): Promise<Record<st
     },
     CH3: {
       LEDE: ch3Lede,
-      KEY_FINDINGS: ch3KeyFindings.length > 0 ? ch3KeyFindings : viaAllSections.slice(0, 2).map(s => s.paragraphs[0] ?? ""),
+      // KEY_FINDINGS = all paragraphs except the last one, which becomes the PULLQUOTE
+      KEY_FINDINGS: ch3KeyFindings.length > 1
+        ? ch3KeyFindings.slice(0, -1)
+        : (ch3KeyFindings.length > 0 ? ch3KeyFindings : viaAllSections.slice(0, 2).map(s => s.paragraphs[0] ?? "")),
       PULLQUOTE: ch3Pullquote,
     },
     VIA: {
