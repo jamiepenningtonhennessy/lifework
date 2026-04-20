@@ -72,10 +72,19 @@ function stripMd(text: string): string {
 
 /**
  * Resolve a dotted path like "CLIENT.FIRST_NAME" against a data object.
+ * Handles dot-prefixed paths like ".paragraphs" (used inside EACH blocks)
+ * by treating them as top-level keys on the data object.
  * Returns "" for missing paths.
  */
 function resolvePath(data: Record<string, unknown>, path: string): unknown {
-  const parts = path.split(".");
+  const trimmed = path.trim();
+  // Dot-prefixed path like ".paragraphs" — resolve directly on data
+  if (trimmed.startsWith(".")) {
+    const key = trimmed.slice(1);
+    if (key === "") return data;
+    return (data as Record<string, unknown>)[key] ?? "";
+  }
+  const parts = trimmed.split(".");
   let cur: unknown = data;
   for (const p of parts) {
     if (cur == null || typeof cur !== "object") return "";
@@ -119,20 +128,25 @@ export function renderTemplate(template: string, data: Record<string, unknown>):
     return tmpl.replace(
       /\{\{#EACH ([^}]+)\}\}([\s\S]*?)\{\{\/EACH\}\}/g,
       (_match, arrayPath: string, block: string) => {
+        // Resolve the array — dot-prefixed paths like ".paragraphs" resolve against ctx
         const arr = resolvePath(ctx, arrayPath.trim());
         if (!Array.isArray(arr)) return "";
         return arr
           .map((item, idx) => {
+            // Build item context: spread item fields at top level so nested EACH
+            // can access them via dot-prefixed paths like ".paragraphs"
             const itemCtx: Record<string, unknown> =
               item !== null && typeof item === "object"
                 ? { ...(item as Record<string, unknown>), INDEX: idx + 1 }
                 : { ".": item, INDEX: idx + 1 };
+            // Merged context: item fields override outer context
+            const mergedCtx = { ...ctx, ...itemCtx };
             let rendered = block;
-            // Handle nested EACH (one level deep)
-            rendered = processEach(rendered, { ...ctx, ...itemCtx });
+            // Handle nested EACH — pass mergedCtx so ".paragraphs" resolves on item
+            rendered = processEach(rendered, mergedCtx);
             // Handle nested IF
-            rendered = processIf(rendered, { ...ctx, ...itemCtx });
-            // Replace {{.field}} tokens
+            rendered = processIf(rendered, mergedCtx);
+            // Replace {{.field}} tokens (dot-prefixed field access on current item)
             rendered = rendered.replace(/\{\{\.([^}]*)\}\}/g, (_m, field: string) => {
               const f = field.trim();
               if (f === "") {
@@ -147,8 +161,13 @@ export function renderTemplate(template: string, data: Record<string, unknown>):
             });
             // Replace {{INDEX}}
             rendered = rendered.replace(/\{\{INDEX\}\}/g, String(idx + 1));
-            // Replace remaining {{PATH}} tokens with outer context
+            // Replace remaining {{PATH}} tokens — check item context first, then outer
             rendered = rendered.replace(/\{\{([^#/][^}]*)\}\}/g, (_m, path: string) => {
+              // Try item context first (for non-dot-prefixed field names)
+              const itemVal = (itemCtx as Record<string, unknown>)[path.trim()];
+              if (itemVal !== undefined && itemVal !== null) {
+                return Array.isArray(itemVal) ? itemVal.join(", ") : stripMd(String(itemVal));
+              }
               return renderToken(ctx, path);
             });
             return rendered;
@@ -338,9 +357,39 @@ table.variants tbody td.q { font-family: var(--serif); font-style: italic; font-
 @media print {
   html, body { background: #fff; padding: 0; margin: 0; }
   body { display: block; padding: 0; }
-  .page { box-shadow: none; margin: 0; height: var(--page-h); min-height: var(--page-h); page-break-after: always; break-after: page; }
+  .page {
+    box-shadow: none;
+    margin: 0;
+    width: 210mm;
+    min-height: 297mm;
+    height: 297mm;
+    padding: 18mm 22mm;
+    page-break-after: always;
+    break-after: page;
+    overflow: hidden;
+  }
   .page:last-child { page-break-after: auto; break-after: auto; }
-  @page { size: A4; margin: 0; }
+  @page {
+    size: A4 portrait;
+    margin: 0;
+  }
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    color-adjust: exact !important;
+  }
+  /* Sharper font rendering for print */
+  body {
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    font-size: 10pt;
+  }
+  p { font-size: 10pt; line-height: 1.55; }
+  p.lede { font-size: 13pt; }
+  h1.display { font-size: 36pt; }
+  h2.chap-title { font-size: 26pt; }
+  h1.cover-title { font-size: 42pt; }
+  .summary-hero { font-size: 19pt; }
   #lw-print-bar { display: none !important; }
 }
 `;

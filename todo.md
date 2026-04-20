@@ -1063,3 +1063,7 @@
 - [x] Add Express route GET /api/report/html/:clientId — streams rendered HTML
 - [x] Add "View Report" button to WowReportTab (gold button, opens rendered report in new tab)
 - [x] 118 tests passing (including 13 new html-report renderer tests)
+
+## HTML Report — CH6/CH8 Fix & Print Quality
+- [x] Fix nested EACH dot-path bug in renderTemplate ({{#EACH .paragraphs}} not resolving inside outer EACH — CH6 Development Edge and CH8 Career Directions showing raw template tags)
+- [x] Improve print CSS: @page A4 portrait with 0 margins, print-color-adjust: exact, pt-based font sizes, sharper text rendering
