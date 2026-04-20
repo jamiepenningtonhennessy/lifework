@@ -1111,3 +1111,6 @@
 
 ## HTML Report — PDF Generation Fix
 - [x] Fix "Failed to generate PDF" error in deployed environment (Puppeteer launch config)
+
+## Cover Letter — Paragraph Spacing
+- [x] Move cover letter body paragraphs down 10mm to give them more breathing room

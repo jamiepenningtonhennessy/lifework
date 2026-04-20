@@ -478,9 +478,11 @@ const TEMPLATE = `<!doctype html>
     <span class="kicker">A personal note</span>
     <h1 class="display">Hi {{CLIENT.FIRST_NAME}} — here's<br/>your <em>Lifework</em> report.</h1>
 
-    {{#EACH COVER_LETTER.PARAGRAPHS}}
-    <p>{{.}}</p>
-    {{/EACH}}
+    <div style="margin-top:10mm;">
+      {{#EACH COVER_LETTER.PARAGRAPHS}}
+      <p>{{.}}</p>
+      {{/EACH}}
+    </div>
 
     <div class="sig">
       {{COVER_LETTER.SIGN_OFF}}
