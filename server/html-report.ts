@@ -266,18 +266,18 @@ p.lede { font-family: var(--serif); font-style: italic; font-size: 20px; line-he
 .ph-bot .pageno { font-variant-numeric: tabular-nums; }
 .ph-bot .pageno .cur { color: var(--gold); font-weight: 600; }
 .ph-body { flex: 1; min-height: 0; overflow: hidden; }
-.page.letter .ph-body { display: flex; flex-direction: column; }
+.page.letter .ph-body { display: flex; flex-direction: column; padding-top: 28px; }
 .letter h1.display { font-size: 44px; }
 .letter .sig { margin-top: 28px; font-family: var(--serif); font-style: italic; font-size: 18px; color: var(--navy); }
 .letter .sig .name { font-style: normal; font-weight: 600; display: block; margin-top: 8px; }
 .letter .sig .mail { font-family: var(--sans); font-style: normal; font-size: 12px; color: var(--ink-muted); letter-spacing: 0.04em; }
-.page.title-page { justify-content: space-between; padding-top: 96px; padding-bottom: 88px; position: relative; overflow: hidden; }
+.page.title-page { justify-content: space-between; padding-top: 60px; padding-bottom: 88px; position: relative; overflow: hidden; }
 .page.title-page::after { content: ""; position: absolute; right: -180px; top: -180px; width: 620px; height: 620px; border: 1px solid var(--gold); border-radius: 50%; opacity: 0.35; }
 .page.title-page::before { content: ""; position: absolute; left: 60px; bottom: -220px; width: 360px; height: 360px; border: 1px solid var(--gold); border-radius: 50%; opacity: 0.22; }
 .title-page .brand { display: flex; align-items: center; gap: 14px; font-family: var(--serif); font-weight: 600; font-size: 28px; color: var(--navy); letter-spacing: 0.005em; position: relative; z-index: 1; }
 .title-page .brand .mark { width: 44px; height: 44px; flex-shrink: 0; }
 .title-page .series { font-family: var(--sans); font-size: 11px; letter-spacing: 0.48em; text-transform: uppercase; color: var(--gold); margin-top: 14px; position: relative; z-index: 1; }
-.title-page .t-main { position: relative; z-index: 1; margin-top: auto; }
+.title-page .t-main { position: relative; z-index: 1; margin-top: auto; margin-bottom: 28px; }
 .title-page h1.cover-title { font-family: var(--serif); font-weight: 500; font-size: 64px; line-height: 0.98; margin: 0; color: var(--navy); letter-spacing: -0.01em; }
 .title-page h1.cover-title em { color: var(--gold); font-style: italic; }
 .title-page .t-meta { margin-top: 40px; display: grid; grid-template-columns: auto 1fr; row-gap: 16px; column-gap: 32px; align-items: baseline; position: relative; z-index: 1; }

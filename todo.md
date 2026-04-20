@@ -1102,3 +1102,9 @@
 - [x] CH3: key findings now uses "Key Findings" section paragraphs directly (all paragraphs shown)
 - [x] CH3: pull-quote box removed from template
 - [x] CH6: pull-quote box removed from template
+
+## HTML Report — Layout Tweaks (v7)
+- [x] Cover letter: body text moved down ~1cm (padding-top: 28px on .page.letter .ph-body)
+- [x] Cover page: title changed to "A portrait of / who you are."
+- [x] Cover page: analyst credit changed to "Jamie Pennington" (removed "with Sage")
+- [x] Cover page: padding-top reduced from 96px to 60px; t-main margin-bottom 28px to shift content block up ~1cm

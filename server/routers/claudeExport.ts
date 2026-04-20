@@ -714,8 +714,8 @@ export async function buildClaudeExportJson(clientId: number): Promise<Record<st
       DATE: sections.generatedAt ?? new Date().toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" }),
       EDITION_LABEL: editionLabel,
       COVER_TITLE_LINE1: "A portrait of",
-      COVER_TITLE_LINE2: "how you work.",
-      ANALYST: "Jamie Pennington, with Sage",
+      COVER_TITLE_LINE2: "who you are.",
+      ANALYST: "Jamie Pennington",
     },
     COVER_LETTER: {
       PARAGRAPHS: [
