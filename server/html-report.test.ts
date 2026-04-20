@@ -18,7 +18,14 @@ import { describe, it, expect } from "vitest";
 // ─── Inline mirror of the renderer (same logic, no Express dependency) ────────
 
 function resolvePath(data: Record<string, unknown>, path: string): unknown {
-  const parts = path.split(".");
+  const trimmed = path.trim();
+  // Dot-prefixed path like ".paragraphs" — resolve directly on data (used inside EACH blocks)
+  if (trimmed.startsWith(".")) {
+    const key = trimmed.slice(1);
+    if (key === "") return data;
+    return (data as Record<string, unknown>)[key] ?? "";
+  }
+  const parts = trimmed.split(".");
   let cur: unknown = data;
   for (const p of parts) {
     if (cur == null || typeof cur !== "object") return "";
@@ -36,19 +43,54 @@ function renderToken(data: Record<string, unknown>, token: string): string {
 
 function renderTemplate(template: string, data: Record<string, unknown>): string {
   function processEach(tmpl: string, ctx: Record<string, unknown>): string {
-    return tmpl.replace(
-      /\{\{#EACH ([^}]+)\}\}([\s\S]*?)\{\{\/EACH\}\}/g,
-      (_match, arrayPath: string, block: string) => {
-        const arr = resolvePath(ctx, arrayPath.trim());
-        if (!Array.isArray(arr)) return "";
-        return arr.map((item, idx) => {
+    // Depth-tracking parser: finds only top-level EACH/EACH1/EACH2 tags
+    const openTagRe = /\{\{#(EACH\d*) ([^}]+)\}\}/;
+    let result = tmpl;
+    let safety = 0;
+    while (safety++ < 200) {
+      const openMatch = openTagRe.exec(result);
+      if (!openMatch) break;
+      const tagName = openMatch[1];
+      const arrayPath = openMatch[2];
+      const openTag = openMatch[0];
+      const closeTag = `{{/${tagName}}}`;
+      const openStart = openMatch.index;
+      const afterOpen = openStart + openTag.length;
+      // Find matching close tag accounting for nesting.
+      // Count ANY open tag with the same tag-name so nested same-name EACH blocks work.
+      const anyOpenRe = new RegExp(`\\{\\{#${tagName}\\s[^}]+\\}\\}`, "g");
+      let depth = 1;
+      let searchFrom = afterOpen;
+      let closeIdx = -1;
+      while (depth > 0) {
+        anyOpenRe.lastIndex = searchFrom;
+        const anyOpenMatch = anyOpenRe.exec(result);
+        const nextOpen = anyOpenMatch ? anyOpenMatch.index : -1;
+        const nextClose = result.indexOf(closeTag, searchFrom);
+        if (nextClose === -1) break;
+        if (nextOpen !== -1 && nextOpen < nextClose) {
+          depth++;
+          searchFrom = nextOpen + anyOpenMatch!.length;
+        } else {
+          depth--;
+          if (depth === 0) { closeIdx = nextClose; break; }
+          searchFrom = nextClose + closeTag.length;
+        }
+      }
+      if (closeIdx === -1) break;
+      const block = result.slice(afterOpen, closeIdx);
+      const arr = resolvePath(ctx, arrayPath.trim());
+      let replacement = "";
+      if (Array.isArray(arr)) {
+        replacement = arr.map((item, idx) => {
           const itemCtx: Record<string, unknown> =
             item !== null && typeof item === "object"
               ? { ...(item as Record<string, unknown>), INDEX: idx + 1 }
               : { ".": item, INDEX: idx + 1 };
+          const mergedCtx = { ...ctx, ...itemCtx };
           let rendered = block;
-          rendered = processEach(rendered, { ...ctx, ...itemCtx });
-          rendered = processIf(rendered, { ...ctx, ...itemCtx });
+          rendered = processEach(rendered, mergedCtx);
+          rendered = processIf(rendered, mergedCtx);
           rendered = rendered.replace(/\{\{\.([^}]*)\}\}/g, (_m, field: string) => {
             const f = field.trim();
             if (f === "") return item != null ? String(item) : "";
@@ -58,11 +100,19 @@ function renderTemplate(template: string, data: Record<string, unknown>): string
             return String(v);
           });
           rendered = rendered.replace(/\{\{INDEX\}\}/g, String(idx + 1));
-          rendered = rendered.replace(/\{\{([^#/][^}]*)\}\}/g, (_m, path: string) => renderToken(ctx, path));
+          rendered = rendered.replace(/\{\{([^#/][^}]*)\}\}/g, (_m, path: string) => {
+            const itemVal = (itemCtx as Record<string, unknown>)[path.trim()];
+            if (itemVal !== undefined && itemVal !== null) {
+              return Array.isArray(itemVal) ? itemVal.join(", ") : String(itemVal);
+            }
+            return renderToken(ctx, path);
+          });
           return rendered;
         }).join("");
       }
-    );
+      result = result.slice(0, openStart) + replacement + result.slice(closeIdx + closeTag.length);
+    }
+    return result;
   }
 
   function processIf(tmpl: string, ctx: Record<string, unknown>): string {
@@ -214,5 +264,50 @@ describe("renderTemplate — real report fields", () => {
   it("renders brand company in footer", () => {
     const out = renderTemplate("{{BRAND.COMPANY}} · <span class=\"cur\">03</span>", data);
     expect(out).toContain("Pennington Hennessy");
+  });
+});
+
+describe("renderTemplate — nested EACH (CH6/CH8 pattern)", () => {
+  const sections = {
+    CH6: {
+      SECTIONS: [
+        { heading: "The Architect in the Shadows", paragraphs: ["You build foundations.", "Yet you stay hidden."] },
+        { heading: "The Relational Anchor",        paragraphs: ["Deep commitment to others."] },
+      ],
+    },
+    CH8: {
+      DIRECTIONS: [
+        { heading: "Architect of Human Systems", paragraphs: ["You dissect systems.", "Think org development."] },
+      ],
+    },
+  };
+
+  it("renders CH6 outer headings via EACH1", () => {
+    const tmpl = "{{#EACH1 CH6.SECTIONS}}<h3>{{.heading}}</h3>{{/EACH1}}";
+    const out = renderTemplate(tmpl, sections);
+    expect(out).toContain("The Architect in the Shadows");
+    expect(out).toContain("The Relational Anchor");
+  });
+
+  it("renders CH6 inner paragraphs via nested EACH .paragraphs", () => {
+    const tmpl = "{{#EACH1 CH6.SECTIONS}}<h3>{{.heading}}</h3>{{#EACH .paragraphs}}<p>{{.}}</p>{{/EACH}}{{/EACH1}}";
+    const out = renderTemplate(tmpl, sections);
+    expect(out).toContain("<p>You build foundations.</p>");
+    expect(out).toContain("<p>Yet you stay hidden.</p>");
+    expect(out).toContain("<p>Deep commitment to others.</p>");
+  });
+
+  it("renders CH8 inner paragraphs via nested EACH .paragraphs", () => {
+    const tmpl = "{{#EACH CH8.DIRECTIONS}}<h3>{{.heading}}</h3>{{#EACH .paragraphs}}<p>{{.}}</p>{{/EACH}}{{/EACH}}";
+    const out = renderTemplate(tmpl, sections);
+    expect(out).toContain("<p>You dissect systems.</p>");
+    expect(out).toContain("<p>Think org development.</p>");
+  });
+
+  it("does not leave unrendered EACH tags in output", () => {
+    const tmpl = "{{#EACH1 CH6.SECTIONS}}<h3>{{.heading}}</h3>{{#EACH .paragraphs}}<p>{{.}}</p>{{/EACH}}{{/EACH1}}";
+    const out = renderTemplate(tmpl, sections);
+    expect(out).not.toContain("{{#EACH");
+    expect(out).not.toContain("{{/EACH");
   });
 });

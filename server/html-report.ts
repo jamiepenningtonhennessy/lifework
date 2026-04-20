@@ -125,24 +125,48 @@ export function renderTemplate(template: string, data: Record<string, unknown>):
   }
 
   function processEach(tmpl: string, ctx: Record<string, unknown>): string {
-    // Match {{#EACH ...}}, {{#EACH1 ...}}, {{#EACH2 ...}} etc. with matching close tag
-    // We do a single-pass replacement by finding each opening tag and its matching close
+    // Find only TOP-LEVEL EACH tags by scanning character by character and tracking depth.
+    // This prevents inner {{#EACH .paragraphs}} blocks from being consumed before the outer
+    // {{#EACH1 CH6.SECTIONS}} loop has had a chance to run.
+    const openTagRe = /\{\{#(EACH\d*) ([^}]+)\}\}/;
     let result = tmpl;
-    // Process all EACH variants: EACH, EACH1, EACH2, EACH3 ...
-    const eachOpenRe = /\{\{#(EACH\d*) ([^}]+)\}\}/g;
-    let match: RegExpExecArray | null;
-    // Collect all opening tags first, then process from last to first to avoid offset issues
-    const openings: Array<{ index: number; fullTag: string; tagName: string; arrayPath: string }> = [];
-    while ((match = eachOpenRe.exec(result)) !== null) {
-      openings.push({ index: match.index, fullTag: match[0], tagName: match[1], arrayPath: match[2] });
-    }
-    // Process from last to first so earlier indices stay valid
-    for (let i = openings.length - 1; i >= 0; i--) {
-      const { index, fullTag, tagName, arrayPath } = openings[i];
+    let safety = 0;
+    while (safety++ < 200) {
+      // Find the first opening EACH tag
+      const openMatch = openTagRe.exec(result);
+      if (!openMatch) break;
+      const tagName = openMatch[1];
+      const arrayPath = openMatch[2];
+      const openTag = openMatch[0];
       const closeTag = `{{/${tagName}}}`;
-      const afterOpen = index + fullTag.length;
-      const closeIdx = result.indexOf(closeTag, afterOpen);
-      if (closeIdx === -1) continue;
+      const openStart = openMatch.index;
+      const afterOpen = openStart + openTag.length;
+
+      // Find the matching close tag accounting for nesting.
+      // We must count ANY open tag with the same tag-name (e.g. {{#EACH ...}} matches {{/EACH}})
+      // because inner loops may use the same tag name with a different array path.
+      const anyOpenRe = new RegExp(`\\{\\{#${tagName}\\s[^}]+\\}\\}`, "g");
+      let depth = 1;
+      let searchFrom = afterOpen;
+      let closeIdx = -1;
+      while (depth > 0) {
+        // Find next open of same tag-name (any array path)
+        anyOpenRe.lastIndex = searchFrom;
+        const anyOpenMatch = anyOpenRe.exec(result);
+        const nextOpen = anyOpenMatch ? anyOpenMatch.index : -1;
+        const nextClose = result.indexOf(closeTag, searchFrom);
+        if (nextClose === -1) break;
+        if (nextOpen !== -1 && nextOpen < nextClose) {
+          depth++;
+          searchFrom = nextOpen + anyOpenMatch!.length;
+        } else {
+          depth--;
+          if (depth === 0) { closeIdx = nextClose; break; }
+          searchFrom = nextClose + closeTag.length;
+        }
+      }
+      if (closeIdx === -1) break;
+
       const block = result.slice(afterOpen, closeIdx);
       const arr = resolvePath(ctx, arrayPath.trim());
       let replacement = "";
@@ -155,8 +179,10 @@ export function renderTemplate(template: string, data: Record<string, unknown>):
                 : { ".": item, INDEX: idx + 1 };
             const mergedCtx = { ...ctx, ...itemCtx };
             let rendered = block;
+            // Recursively process nested EACH/IF blocks with the merged context
             rendered = processEach(rendered, mergedCtx);
             rendered = processIf(rendered, mergedCtx);
+            // Handle {{.field}} and {{.}} tokens
             rendered = rendered.replace(/\{\{\.([^}]*)\}\}/g, (_m, field: string) => {
               const f = field.trim();
               if (f === "") return item != null ? stripMd(String(item)) : "";
@@ -167,6 +193,7 @@ export function renderTemplate(template: string, data: Record<string, unknown>):
               return noStrip ? String(v) : stripMd(String(v));
             });
             rendered = rendered.replace(/\{\{INDEX\}\}/g, String(idx + 1));
+            // Handle {{TOKEN}} — check item context first, then fall back to outer ctx
             rendered = rendered.replace(/\{\{([^#/][^}]*)\}\}/g, (_m, path: string) => {
               const itemVal = (itemCtx as Record<string, unknown>)[path.trim()];
               if (itemVal !== undefined && itemVal !== null) {
@@ -178,7 +205,7 @@ export function renderTemplate(template: string, data: Record<string, unknown>):
           })
           .join("");
       }
-      result = result.slice(0, index) + replacement + result.slice(closeIdx + closeTag.length);
+      result = result.slice(0, openStart) + replacement + result.slice(closeIdx + closeTag.length);
     }
     return result;
   }

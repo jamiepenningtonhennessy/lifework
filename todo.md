@@ -1073,3 +1073,15 @@
 - [x] Install Puppeteer (headless Chromium) and build GET /api/report/pdf/:clientId route
 - [x] Add "Download Report PDF" button to WowReportTab (gold, triggers server-side Puppeteer render)
 - [x] All 118 tests pass
+
+## HTML Report — Content Gaps (Round 4)
+- [ ] CH8: each career direction shows title only — paragraphs missing ({{#EACH .paragraphs}} not resolving)
+- [ ] CH6: each development edge shows title only — paragraphs missing (same pattern as CH8)
+- [ ] CH5: ESF distribution box shows heading + one line only — full paragraph list missing
+- [ ] CH3: Key Findings page shows intro paragraph + one pull-quote only — additional paragraphs missing
+
+## HTML Report — Nested EACH Depth Fix
+- [x] Fix processEach depth-tracking to count any EACH open tag with same tag-name (not just exact same string)
+- [x] This fixes CH6/CH8 paragraphs not rendering when outer EACH and inner EACH share the same tag name (e.g. {{#EACH CH8.DIRECTIONS}} outer + {{#EACH .paragraphs}} inner both use {{/EACH}})
+- [x] Apply same fix to test file inline renderer
+- [x] Add 4 new nested EACH regression tests (122 tests total passing)
