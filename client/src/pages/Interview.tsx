@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -105,6 +105,9 @@ export default function Interview() {
   const [showExample, setShowExample] = useState(false);
   const [saving, setSaving] = useState(false);
   const [savingProgress, setSavingProgress] = useState(false);
+  const [autoSaving, setAutoSaving] = useState(false);
+  const [lastSavedAt, setLastSavedAt] = useState<Date | null>(null);
+  const isDirtyRef = useRef(false);
   const [hasResumed, setHasResumed] = useState(false);
 
   // Name & pronouns collection
@@ -245,6 +248,7 @@ export default function Interview() {
   const actions = phaseActions[currentPhase.id];
 
   const updateAction = (idx: number, field: keyof Action, value: string) => {
+    isDirtyRef.current = true;
     setPhaseActions((prev) => {
       const updated = [...prev[currentPhase.id]];
       updated[idx] = { ...updated[idx], [field]: value };
@@ -311,16 +315,30 @@ export default function Interview() {
   const resumePhase = firstIncompleteIdx === -1 ? ACTIVE_PHASES[ACTIVE_PHASES.length - 1] : ACTIVE_PHASES[firstIncompleteIdx];
   const resumeIdx = firstIncompleteIdx === -1 ? ACTIVE_PHASES.length - 1 : firstIncompleteIdx;
 
-  // Save current phase without advancing
-  const handleSaveProgress = async () => {
-    setSavingProgress(true);
+  // Core save logic — captures current phase/actions via closure over refs
+  // We use a ref-based snapshot so the 30s interval always sees fresh state
+  const phaseIndexRef = useRef(phaseIndex);
+  const phaseActionsRef = useRef(phaseActions);
+  const phaseOthersRef = useRef(phaseOthers);
+  const activePhasesRef = useRef(ACTIVE_PHASES);
+  useEffect(() => { phaseIndexRef.current = phaseIndex; }, [phaseIndex]);
+  useEffect(() => { phaseActionsRef.current = phaseActions; }, [phaseActions]);
+  useEffect(() => { phaseOthersRef.current = phaseOthers; }, [phaseOthers]);
+  useEffect(() => { activePhasesRef.current = ACTIVE_PHASES; }, [ACTIVE_PHASES]);
+
+  const performSave = useCallback(async (opts?: { silent?: boolean; isAuto?: boolean }) => {
+    const { silent = false, isAuto = false } = opts ?? {};
+    if (isAuto) setAutoSaving(true); else setSavingProgress(true);
     try {
-      const updatedActions = [...actions];
-      for (let i = 0; i < actions.length; i++) {
-        const a = actions[i];
+      const snap = activePhasesRef.current[phaseIndexRef.current];
+      if (!snap) return;
+      const actionsSnap = phaseActionsRef.current[snap.id];
+      const updatedActions = [...actionsSnap];
+      for (let i = 0; i < actionsSnap.length; i++) {
+        const a = actionsSnap[i];
         if (!a.title.trim() && !a.description.trim()) continue;
-        const titleWithPrefix = currentPhase.subPhase
-          ? `[${currentPhase.subPhase}] ${a.title.trim()}`
+        const titleWithPrefix = snap.subPhase
+          ? `[${snap.subPhase}] ${a.title.trim()}`
           : a.title.trim();
         const result = await saveAchievement.mutateAsync({
           id: a.id,
@@ -328,19 +346,36 @@ export default function Interview() {
           age: a.age ? parseInt(a.age) : undefined,
           description: a.description.trim() || undefined,
           esf: (a.esf as "enjoyable" | "satisfying" | "fulfilling") || undefined,
-          othersObservations: i === 0 ? (phaseOthers[currentPhase.id] ?? "").trim() || undefined : undefined,
-          decade: currentPhase.decade,
+          othersObservations: i === 0 ? (phaseOthersRef.current[snap.id] ?? "").trim() || undefined : undefined,
+          decade: snap.decade,
           sortOrder: i,
         });
         if (result?.id && !a.id) updatedActions[i] = { ...a, id: result.id };
       }
-      setPhaseActions((prev) => ({ ...prev, [currentPhase.id]: updatedActions }));
-      toast.success("Progress saved — you can safely close the browser and return later.");
+      setPhaseActions((prev) => ({ ...prev, [snap.id]: updatedActions }));
+      isDirtyRef.current = false;
+      setLastSavedAt(new Date());
+      if (!silent) toast.success("Progress saved — you can safely close the browser and return later.");
     } catch {
-      toast.error("Failed to save. Please try again.");
+      if (!silent) toast.error("Failed to save. Please try again.");
     } finally {
-      setSavingProgress(false);
+      if (isAuto) setAutoSaving(false); else setSavingProgress(false);
     }
+  }, [saveAchievement]);
+
+  // Auto-save every 30 seconds when there are unsaved changes
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (isDirtyRef.current) {
+        performSave({ silent: true, isAuto: true });
+      }
+    }, 30_000);
+    return () => clearInterval(interval);
+  }, [performSave]);
+
+  // Save current phase without advancing
+  const handleSaveProgress = async () => {
+    await performSave({ silent: false, isAuto: false });
   };
 
   // ── Name & pronouns screen ─────────────────────────────────────────────────
@@ -836,14 +871,16 @@ export default function Interview() {
               variant="outline"
               size="sm"
               onClick={handleSaveProgress}
-              disabled={savingProgress}
+              disabled={savingProgress || autoSaving}
               className="text-xs border-[var(--lw-gold)]/50 text-[var(--lw-gold)] hover:bg-[var(--lw-gold)]/10 gap-1"
             >
-              {savingProgress ? <Loader2 className="w-3 h-3 animate-spin" /> : null}
-              Save progress
+              {(savingProgress || autoSaving) ? <Loader2 className="w-3 h-3 animate-spin" /> : null}
+              {autoSaving ? "Auto-saving…" : "Save progress"}
             </Button>
             <p className="text-xs text-muted-foreground">
-              {completedPhases} of {PHASES.length} phases started
+              {lastSavedAt
+                ? `Saved ${lastSavedAt.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`
+                : `${completedPhases} of ${ACTIVE_PHASES.length} phases started`}
             </p>
           </div>
 

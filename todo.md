@@ -1122,6 +1122,9 @@
 ## Life History Interview — Summary Section Bug
 - [x] Fix: summary section at bottom of each life history page reverts to page 1 content — phaseOthers loader now applies the same subPhase filter as phaseActions so each phase reads its own othersObservations row
 
+## Life History Interview — Auto-Save
+- [x] Add auto-save: saves every 30 seconds when dirty (ref-based snapshot so timer always sees fresh state), "Auto-saving…" spinner on button, "Saved HH:MM" status indicator below button
+
 ## PDF Generation — Production Container Fix
 - [x] Fix: deployed container has no Chrome — added postinstall script (npx puppeteer browsers install chrome) + .puppeteerrc.cjs to store Chrome in project-relative .cache/puppeteer + updated resolveChromiumPath to check project cache first
 
