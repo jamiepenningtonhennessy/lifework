@@ -195,10 +195,20 @@ export default function Interview() {
       });
     });
     setPhaseActions(loaded);
-    // Load phase-level Others from action[0].othersObservations
+    // Load phase-level Others from action[0].othersObservations.
+    // IMPORTANT: apply the same subPhase filter used for phaseActions so that
+    // phases sharing a decade (e.g. early_childhood / mid_childhood both use
+    // decade "childhood") each load their own value rather than always picking
+    // items[0] from the combined decade bucket.
     const loadedOthers: Record<string, string> = Object.fromEntries(PHASES.map((p) => [p.id, ""]));
     PHASES.forEach((phase) => {
-      const items = (existing as any[]).filter((a: any) => a.decade === phase.decade);
+      const items = (existing as any[]).filter((a: any) => {
+        if (a.decade !== phase.decade) return false;
+        if (phase.subPhase) {
+          return a.title?.startsWith(`[${phase.subPhase}] `);
+        }
+        return !a.title?.match(/^\[.+\] /);
+      });
       if (items.length > 0) {
         loadedOthers[phase.id] = items[0]?.othersObservations ?? "";
       }

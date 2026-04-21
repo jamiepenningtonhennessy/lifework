@@ -1117,3 +1117,6 @@
 
 ## Annex A1 — Blank Page Fix
 - [x] Remove blank pages in Annex A1 life history: buildLifeHistoryPages now only emits pages that have content (no more empty pages for unused decades)
+
+## Life History Interview — Summary Section Bug
+- [x] Fix: summary section at bottom of each life history page reverts to page 1 content — phaseOthers loader now applies the same subPhase filter as phaseActions so each phase reads its own othersObservations row
