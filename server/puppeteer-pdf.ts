@@ -13,7 +13,8 @@
  *  - Consistent pagination regardless of OS / browser version
  */
 
-import { existsSync } from "fs";
+import { existsSync, readdirSync } from "fs";
+import { join } from "path";
 import { Request, Response } from "express";
 import puppeteer from "puppeteer";
 import { buildClaudeExportJson } from "./routers/claudeExport.js";
@@ -34,16 +35,41 @@ const SYSTEM_CHROME_CANDIDATES = [
 ];
 
 /**
+ * Walk the project-relative .cache/puppeteer/chrome directory (installed by
+ * .puppeteerrc.cjs + postinstall) to find the Chrome executable.
+ * Structure: .cache/puppeteer/chrome/<platform>-<ver>/chrome-<platform>/chrome
+ */
+function findProjectCacheChrome(): string | undefined {
+  try {
+    const cacheDir = join(process.cwd(), ".cache", "puppeteer", "chrome");
+    if (!existsSync(cacheDir)) return undefined;
+    for (const platformVer of readdirSync(cacheDir)) {
+      const platformVerDir = join(cacheDir, platformVer);
+      for (const sub of readdirSync(platformVerDir)) {
+        const candidate = join(platformVerDir, sub, "chrome");
+        if (existsSync(candidate)) return candidate;
+      }
+    }
+  } catch {
+    // ignore — directory may not exist yet
+  }
+  return undefined;
+}
+
+/**
  * Resolve the Chromium executable path.
  * Priority:
  *  1. PUPPETEER_EXECUTABLE_PATH env var (explicit override)
- *  2. Known system Chromium paths (checked with existsSync)
- *  3. undefined → Puppeteer falls back to its own bundled Chrome
+ *  2. Project-relative .cache/puppeteer Chrome (installed by postinstall)
+ *  3. Known system Chromium paths (checked with existsSync)
+ *  4. undefined → Puppeteer falls back to its own bundled Chrome
  */
 function resolveChromiumPath(): string | undefined {
   if (process.env.PUPPETEER_EXECUTABLE_PATH) {
     return process.env.PUPPETEER_EXECUTABLE_PATH;
   }
+  const projectCache = findProjectCacheChrome();
+  if (projectCache) return projectCache;
   for (const candidate of SYSTEM_CHROME_CANDIDATES) {
     if (existsSync(candidate)) {
       return candidate;

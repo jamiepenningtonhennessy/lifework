@@ -1122,5 +1122,8 @@
 ## Life History Interview — Summary Section Bug
 - [x] Fix: summary section at bottom of each life history page reverts to page 1 content — phaseOthers loader now applies the same subPhase filter as phaseActions so each phase reads its own othersObservations row
 
+## PDF Generation — Production Container Fix
+- [x] Fix: deployed container has no Chrome — added postinstall script (npx puppeteer browsers install chrome) + .puppeteerrc.cjs to store Chrome in project-relative .cache/puppeteer + updated resolveChromiumPath to check project cache first
+
 ## Report Page 5 — Chapter 2 Missing Content
 - [x] Fix: Page 5 (Chapter 2 — Life History Pattern) blank when AI omits "What the Pattern Reveals" section — added 5-level fallback chain in ch2KeyFindings extraction (last named section → bullet list → last 3 paragraphs)
