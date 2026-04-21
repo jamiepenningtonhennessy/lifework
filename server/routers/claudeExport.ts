@@ -637,9 +637,23 @@ export async function buildClaudeExportJson(clientId: number): Promise<Record<st
     lhSections[3]?.paragraphs?.length ? lhSections[3].paragraphs :
     splitParagraphs(sections.lifeHistoryPattern ?? "").slice(3, 7)
   );
-  // Use the "What the Pattern Reveals" section paragraphs directly
-  const ch2WhatRevealsSec = lhSections.find(s => s.heading.toLowerCase().includes("pattern reveals") || s.heading.toLowerCase().includes("what the pattern"));
-  const ch2KeyFindings = ch2WhatRevealsSec?.paragraphs ?? extractKeyFindings(sections.lifeHistoryPattern ?? "");
+  // Use the "What the Pattern Reveals" section paragraphs directly.
+  // Fallback chain (most specific → most general):
+  //  1. A section whose heading contains "pattern reveals" or "what the pattern"
+  //  2. A section whose heading contains "reveals", "findings", or "key"
+  //  3. The last named section in the document (whatever the AI called it)
+  //  4. extractKeyFindings (bullet list after "From what you have told us")
+  //  5. The last 3 paragraphs of the raw text
+  const ch2WhatRevealsSec =
+    lhSections.find(s => s.heading.toLowerCase().includes("pattern reveals") || s.heading.toLowerCase().includes("what the pattern")) ??
+    lhSections.find(s => s.heading.toLowerCase().includes("reveals") || s.heading.toLowerCase().includes("findings") || s.heading.toLowerCase().includes("key"));
+  const ch2KeyFindingsFromBullets = extractKeyFindings(sections.lifeHistoryPattern ?? "");
+  const ch2AllParas = splitParagraphs(sections.lifeHistoryPattern ?? "");
+  const ch2KeyFindings =
+    ch2WhatRevealsSec?.paragraphs?.length ? ch2WhatRevealsSec.paragraphs :
+    ch2KeyFindingsFromBullets.length > 0 ? ch2KeyFindingsFromBullets :
+    lhSections.length > 0 ? (lhSections[lhSections.length - 1].paragraphs ?? []) :
+    ch2AllParas.slice(-3);
 
   // CH3 — VIA
   const viaAllSections = extractAllSections(sections.viaSection ?? "");
