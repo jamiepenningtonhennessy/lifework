@@ -13,6 +13,7 @@
  *  - Consistent pagination regardless of OS / browser version
  */
 
+import { existsSync } from "fs";
 import { Request, Response } from "express";
 import puppeteer from "puppeteer";
 import { buildClaudeExportJson } from "./routers/claudeExport.js";
@@ -20,14 +21,33 @@ import { renderHtmlReport } from "./html-report.js";
 import { sdk } from "./_core/sdk.js";
 
 /**
+ * Known system Chromium paths on Debian/Ubuntu-based containers.
+ * Checked in order; first one that exists on disk wins.
+ */
+const SYSTEM_CHROME_CANDIDATES = [
+  "/usr/bin/chromium-browser",
+  "/usr/bin/chromium",
+  "/usr/bin/google-chrome",
+  "/usr/bin/google-chrome-stable",
+  "/usr/local/bin/chromium-browser",
+  "/usr/local/bin/chromium",
+];
+
+/**
  * Resolve the Chromium executable path.
  * Priority:
  *  1. PUPPETEER_EXECUTABLE_PATH env var (explicit override)
- *  2. Puppeteer's own bundled Chrome (downloaded via postinstall)
+ *  2. Known system Chromium paths (checked with existsSync)
+ *  3. undefined → Puppeteer falls back to its own bundled Chrome
  */
 function resolveChromiumPath(): string | undefined {
   if (process.env.PUPPETEER_EXECUTABLE_PATH) {
     return process.env.PUPPETEER_EXECUTABLE_PATH;
+  }
+  for (const candidate of SYSTEM_CHROME_CANDIDATES) {
+    if (existsSync(candidate)) {
+      return candidate;
+    }
   }
   return undefined;
 }
@@ -61,7 +81,7 @@ export async function handlePuppeteerPdfDownload(req: Request, res: Response) {
 
     const browser = await puppeteer.launch({
       headless: true,
-      ...(executablePath ? { executablePath } : {}),
+      executablePath,
       args: [
         "--no-sandbox",
         "--disable-setuid-sandbox",
