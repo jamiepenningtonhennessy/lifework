@@ -1133,3 +1133,6 @@
 
 ## Sage Chat Panel — Completion UX
 - [x] Add prominent "Close & continue →" button to the Sage "Conversation complete" state so users know what to do next
+
+## Lifework Dashboard — Step 4 Unlock Bug
+- [x] Fix: Step 4 (Psychometrics/VIA) not unlocking after completing Sage conversation — added sageStatus column to DB, set on generateSummary for life_history section, backfilled 10 existing clients

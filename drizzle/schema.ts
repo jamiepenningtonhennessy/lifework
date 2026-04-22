@@ -64,6 +64,9 @@ export const clientProfiles = mysqlTable("client_profiles", {
   backgroundStatus: mysqlEnum("backgroundStatus", ["not_started", "in_progress", "completed"])
     .default("not_started")
     .notNull(),
+  sageStatus: mysqlEnum("sageStatus", ["not_started", "completed"])
+    .default("not_started")
+    .notNull(),
   cognitiveStatus: mysqlEnum("cognitiveStatus", ["not_started", "completed"])
     .default("not_started")
     .notNull(),

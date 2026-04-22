@@ -57,7 +57,7 @@ const STEPS = [
     description:
       "Sage will read what you have written and add depth by asking you some reflective questions.",
     path: null,
-    statusKey: null, // completion tracked via chat session, not a DB status field
+    statusKey: "sageStatus", // set to "completed" when Sage insights are saved
     cta: null,
     ctaInProgress: null,
   },

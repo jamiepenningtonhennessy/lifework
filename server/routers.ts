@@ -2542,6 +2542,12 @@ const chatPeterRouter = router({
       const summary = summaryResponse.choices[0]?.message?.content as string;
       await saveChatSummary(input.sessionId, summary);
 
+      // Mark sageStatus as completed when the life_history Sage conversation
+      // summary is saved — this unlocks Step 4 (Psychometrics) on the dashboard.
+      if (session.section === "life_history") {
+        await updateClientProfile(profile.id, { sageStatus: "completed" });
+      }
+
       // Automatically re-run Sage enrichment so achievement records pick up
       // the new conversation content without requiring a manual counsellor action.
       runSageEnrichment(profile.id).catch(() => {
