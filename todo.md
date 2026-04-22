@@ -1139,3 +1139,6 @@
 
 ## Life History Interview — Auto-Save Not Working
 - [x] Fix: auto-save not triggering when user only edits the "Others" summary textarea — isDirtyRef.current = true now set on that onChange handler too
+
+## WOW Report — Text Overflow Fix
+- [x] Fix: text runs off the page on Chapter 2 (page 4) and Chapter 4 (page 9) — added paragraph caps: CH2 page 1 max 3 body + 3 section paras; CH4 page 9 max 3 psychometrics + 3 synthesis paras

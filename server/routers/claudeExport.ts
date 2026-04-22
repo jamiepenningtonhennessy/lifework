@@ -755,9 +755,9 @@ export async function buildClaudeExportJson(clientId: number): Promise<Record<st
     },
     CH2: {
       LEDE: ch2Page1Paras[0] ?? "",
-      PAGE1_PARAGRAPHS: ch2Page1Paras.slice(1),
+      PAGE1_PARAGRAPHS: ch2Page1Paras.slice(1, 4),
       PAGE1_SECTION_H: ch2Page1SectionH,
-      PAGE1_SECTION_PARAS: ch2Page1SectionParas,
+      PAGE1_SECTION_PARAS: ch2Page1SectionParas.slice(0, 3),
       PAGE2_SECTION_H: ch2Page2SectionH,
       PAGE2_PARAGRAPHS: ch2Page2Paras,
       KEYFIND: {
@@ -783,8 +783,8 @@ export async function buildClaudeExportJson(clientId: number): Promise<Record<st
     },
     CH4: {
       LEDE: "The Big Five identifies five core personality dimensions: Openness, Conscientiousness, Extraversion, Agreeableness, and Emotional Stability. Unlike type-based assessments, it measures traits as continuous spectrums \u2014 there are no good or bad scores.",
-      PSYCHOMETRICS_PARAS: psychometricsSectionParas.length > 0 ? psychometricsSectionParas : splitParagraphs(sections.personalitySection ?? "").slice(0, 3),
-      SYNTHESIS_PARAS: synthesisSectionParas.length > 0 ? synthesisSectionParas : splitParagraphs(sections.personalitySection ?? "").slice(3, 6),
+      PSYCHOMETRICS_PARAS: (psychometricsSectionParas.length > 0 ? psychometricsSectionParas : splitParagraphs(sections.personalitySection ?? "").slice(0, 3)).slice(0, 3),
+      SYNTHESIS_PARAS: (synthesisSectionParas.length > 0 ? synthesisSectionParas : splitParagraphs(sections.personalitySection ?? "").slice(3, 6)).slice(0, 3),
       KEYFIND: {
         TITLE: ch4KeyFindTitle,
         BODY: ch4KeyFindBody,
