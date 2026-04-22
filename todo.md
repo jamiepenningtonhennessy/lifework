@@ -1136,3 +1136,6 @@
 
 ## Lifework Dashboard — Step 4 Unlock Bug
 - [x] Fix: Step 4 (Psychometrics/VIA) not unlocking after completing Sage conversation — added sageStatus column to DB, set on generateSummary for life_history section, backfilled 10 existing clients
+
+## Life History Interview — Auto-Save Not Working
+- [x] Fix: auto-save not triggering when user only edits the "Others" summary textarea — isDirtyRef.current = true now set on that onChange handler too

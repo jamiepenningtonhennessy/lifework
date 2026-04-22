@@ -849,7 +849,7 @@ export default function Interview() {
           </label>
           <Textarea
             value={phaseOthers[currentPhase.id] ?? ""}
-            onChange={(e) => setPhaseOthers((prev) => ({ ...prev, [currentPhase.id]: e.target.value }))}
+            onChange={(e) => { isDirtyRef.current = true; setPhaseOthers((prev) => ({ ...prev, [currentPhase.id]: e.target.value })); }}
             placeholder='e.g. "My teacher said I was always organising the other children" or "My manager said I was the one who always found a way through"'
             rows={2}
             className="text-sm resize-none"
