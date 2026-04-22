@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { MessageCircle, X, Send, Loader2, CheckCircle2, BookmarkCheck, Paperclip, FileText, RotateCcw } from "lucide-react";
+import { MessageCircle, X, Send, Loader2, CheckCircle2, BookmarkCheck, Paperclip, FileText, RotateCcw, ArrowRight } from "lucide-react";
 import { toast } from "sonner";
 
 type Section = "life_history" | "career_education";
@@ -400,7 +400,7 @@ export function ChatToPeter({
             <div className="px-4 pb-4 pt-2 border-t border-border/50">
               {isSummarised ? (
                 /* Locked state — conversation is complete */
-                <div className="flex flex-col items-center gap-2 py-2">
+                <div className="flex flex-col items-center gap-3 py-3">
                   <div className="flex items-center gap-2 text-sm text-emerald-600">
                     <CheckCircle2 className="w-4 h-4" />
                     <span>Conversation complete</span>
@@ -408,6 +408,14 @@ export function ChatToPeter({
                   <p className="text-xs text-muted-foreground text-center">
                     Your insights have been saved and will be included in your analysis.
                   </p>
+                  <Button
+                    size="sm"
+                    onClick={() => setIsOpen(false)}
+                    className="gap-1.5 text-sm px-5 mt-1"
+                    style={{ background: "var(--lw-gold)", color: "#fff" }}
+                  >
+                    Close &amp; continue <ArrowRight className="w-3.5 h-3.5" />
+                  </Button>
                 </div>
               ) : (
                 <>
