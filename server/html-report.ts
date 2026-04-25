@@ -854,7 +854,29 @@ const TEMPLATE = `<!doctype html>
     <span class="kicker">Chapter 08</span>
     <h2 class="chap-title">Career <em>directions.</em></h2>
     {{#EACH CH8.DIRECTIONS}}
-    <h3 class="section-h">{{.heading}}</h3>
+    {{#IF .heading}}<h3 class="section-h">{{.heading}}</h3>{{/IF}}
+    {{#EACH .paragraphs}}
+    <p>{{.}}</p>
+    {{/EACH}}
+    {{/EACH}}
+    {{#IF CH8.NO_OVERFLOW}}<p class="lede" style="margin-top:22px;text-align:center;">{{CH8.CLOSING}}</p>{{/IF}}
+  </div>
+  <footer class="ph-bot">
+    <span class="who">{{CLIENT.NAME}}</span>
+    <span class="pageno">{{BRAND.COMPANY}} · <span class="cur">15</span></span>
+  </footer>
+</section>
+
+<!-- ════════ PAGE 15b · CH 8 CAREER DIRECTIONS (OVERFLOW) ════════ -->
+{{#IF CH8.HAS_OVERFLOW}}
+<section class="page">
+  <header class="ph-top">
+    <span class="lockup"><span class="mark"></span>Lifework</span>
+    <span>Chapter 8 · Career Directions (continued)</span>
+  </header>
+  <div class="ph-body">
+    {{#EACH CH8.OVERFLOW_DIRECTIONS}}
+    {{#IF .heading}}<h3 class="section-h">{{.heading}}</h3>{{/IF}}
     {{#EACH .paragraphs}}
     <p>{{.}}</p>
     {{/EACH}}
@@ -863,9 +885,10 @@ const TEMPLATE = `<!doctype html>
   </div>
   <footer class="ph-bot">
     <span class="who">{{CLIENT.NAME}}</span>
-    <span class="pageno">{{BRAND.COMPANY}} · <span class="cur">15</span></span>
+    <span class="pageno">{{BRAND.COMPANY}} · <span class="cur">15b</span></span>
   </footer>
 </section>
+{{/IF}}
 
 <!-- ════════ PAGE 16 · APPENDIX — FOUR VARIANTS ════════ -->
 <section class="page warm">

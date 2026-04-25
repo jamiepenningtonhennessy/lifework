@@ -1142,3 +1142,7 @@
 
 ## WOW Report — Text Overflow Fix
 - [x] Fix: text runs off the page on Chapter 2 (page 4) and Chapter 4 (page 9) — added paragraph caps: CH2 page 1 max 3 body + 3 section paras; CH4 page 9 max 3 psychometrics + 3 synthesis paras
+
+## WOW Report — Career Direction Overflow Fix
+
+- [x] Extend Career Direction section to a second page instead of cutting content short (first career edition)

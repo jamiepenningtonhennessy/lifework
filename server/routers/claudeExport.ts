@@ -707,8 +707,20 @@ export async function buildClaudeExportJson(clientId: number): Promise<Record<st
   })();
 
   // CH8 — Career Directions
-  const ch8Sections = extractAllSections(sections.careerDirections ?? "");
+  // Split into page-1 (first 2 sections) and overflow page-2 (remaining sections).
+  // This ensures the section is never truncated — it simply spills onto a second page.
+  const ch8AllSections = extractAllSections(sections.careerDirections ?? "");
   const ch8Closing = extractPullquote(sections.careerDirections ?? "");
+  const CH8_PAGE1_MAX_SECTIONS = 2; // max named sections on the first Career Directions page
+  const CH8_PAGE1_MAX_PARAS = 5;    // max paragraphs on page 1 when no named sections exist
+  // Named-section path
+  const ch8Sections = ch8AllSections.length > 0 ? ch8AllSections.slice(0, CH8_PAGE1_MAX_SECTIONS) : [];
+  const ch8OverflowSections = ch8AllSections.length > CH8_PAGE1_MAX_SECTIONS ? ch8AllSections.slice(CH8_PAGE1_MAX_SECTIONS) : [];
+  // Flat-paragraph fallback path (no headings in AI output)
+  const ch8AllParas = ch8AllSections.length === 0 ? splitParagraphs(sections.careerDirections ?? "") : [];
+  const ch8FallbackPage1 = ch8AllParas.slice(0, CH8_PAGE1_MAX_PARAS);
+  const ch8FallbackOverflow = ch8AllParas.slice(CH8_PAGE1_MAX_PARAS);
+  const ch8HasOverflow = ch8OverflowSections.length > 0 || ch8FallbackOverflow.length > 0;
 
   // ── Report metadata ───────────────────────────────────────────────────────
 
@@ -832,9 +844,18 @@ export async function buildClaudeExportJson(clientId: number): Promise<Record<st
       TMAY_PARAS: ch7TmayParas.length > 0 ? ch7TmayParas : [],
     },
     CH8: {
+      // Page 1: named sections (up to 2) OR flat paragraphs (up to 5)
       DIRECTIONS: ch8Sections.length > 0
         ? ch8Sections.map(s => ({ heading: s.heading, paragraphs: s.paragraphs }))
-        : [{ heading: "Career Direction", paragraphs: splitParagraphs(sections.careerDirections ?? "") }],
+        : [{ heading: "", paragraphs: ch8FallbackPage1 }],
+      // Page 2 (overflow): remaining named sections OR remaining flat paragraphs
+      OVERFLOW_DIRECTIONS: ch8OverflowSections.length > 0
+        ? ch8OverflowSections.map(s => ({ heading: s.heading, paragraphs: s.paragraphs }))
+        : ch8FallbackOverflow.length > 0
+          ? [{ heading: "", paragraphs: ch8FallbackOverflow }]
+          : [],
+      HAS_OVERFLOW: ch8HasOverflow,
+      NO_OVERFLOW: !ch8HasOverflow,
       CLOSING: ch8Closing,
     },
     APPENDIX: {
