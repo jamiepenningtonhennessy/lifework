@@ -14,6 +14,7 @@
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { router, protectedProcedure } from "../_core/trpc.js";
+import { invokeLLM } from "../_core/llm.js";
 import {
   getClientProfileById,
   getAchievements,
@@ -686,7 +687,42 @@ export async function buildClaudeExportJson(clientId: number): Promise<Record<st
   const ch7Present = extractSection(sections.coachingQuestions ?? "", "Present");
   const ch7Future  = extractSection(sections.coachingQuestions ?? "", "Future");
   const ch7TmayParas = extractSection(sections.coachingQuestions ?? "", "Tell Me About Yourself");
-  const ch7PresentPullquote = ch7Present[0] ?? "";
+  // Generate a punchy pull quote from the Conclusions section using the LLM.
+  // The old approach (ch7Present[0]) just repeated the first Present paragraph verbatim.
+  const ch7PresentPullquote = await (async () => {
+    const pastText  = ch7Past.join(" ");
+    const presText  = ch7Present.join(" ");
+    if (!pastText && !presText) return "";
+    try {
+      const resp = await invokeLLM({
+        messages: [
+          {
+            role: "system",
+            content:
+              "You are a gifted editor for a premium career analysis report. " +
+              "Your task is to write a single pull-quote sentence (max 25 words) that distils the " +
+              "essence of the client's Past and Present narrative into something punchy, personal, " +
+              "and memorable — the kind of line that makes the reader pause and think 'yes, that's exactly me.' " +
+              "Write in second person (\"You\"). Do NOT repeat any sentence from the source text verbatim. " +
+              "Return ONLY the sentence, with no quotation marks, no prefix, no explanation.",
+          },
+          {
+            role: "user",
+            content: `Past:\n${pastText}\n\nPresent:\n${presText}`,
+          },
+        ],
+      });
+      const content = resp.choices?.[0]?.message?.content;
+      const raw = (typeof content === "string" ? content : "").trim();
+      // Strip any accidental surrounding quotes
+      return raw.replace(/^"|"$/g, "").trim();
+    } catch {
+      // Fallback: last sentence of the last Present paragraph
+      const lastPara = ch7Present[ch7Present.length - 1] ?? "";
+      const sentences = lastPara.split(/(?<=[.!?])\s+/);
+      return sentences[sentences.length - 1] ?? lastPara;
+    }
+  })();
 
   // Drives — from the Tell Me About Yourself section
   const ch7Drives: string[] = (() => {

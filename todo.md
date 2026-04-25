@@ -1146,3 +1146,7 @@
 ## WOW Report — Career Direction Overflow Fix
 
 - [x] Extend Career Direction section to a second page instead of cutting content short (first career edition)
+
+## WOW Report — Page 13 Pull Quote Fix
+
+- [x] Page 13 (Chapter 7 Conclusions) pull quote duplicates the first "Present" paragraph verbatim — replaced with an AI-generated punchy distillation (max 25 words, second person, never verbatim)
