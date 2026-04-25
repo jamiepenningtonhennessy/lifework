@@ -401,15 +401,6 @@ export default function ClientDashboard() {
                         {/* CTA button (right side) — not for sage step */}
                         {step.id !== "sage" && (
                           <div className="flex-shrink-0 flex flex-col items-end gap-2">
-                            {/* Career Explorer: show Chat to Sage button */}
-                            {step.id === "career_explorer" && (
-                              <ChatToPeter
-                                section="career_education"
-                                buttonLabel="Chat to Sage"
-                                sectionDescription="Sage has read your education and career history. She'd like to explore the relationship between your formal career path and what you've actually found most rewarding."
-                              />
-                            )}
-
                             {step.path && !isLocked && (() => {
                               // For psychometrics: if VIA is done but IPIP not yet started,
                               // send client directly to the IPIP survey instead of back to VIA.

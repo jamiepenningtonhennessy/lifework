@@ -1150,3 +1150,7 @@
 ## WOW Report — Page 13 Pull Quote Fix
 
 - [x] Page 13 (Chapter 7 Conclusions) pull quote duplicates the first "Present" paragraph verbatim — replaced with an AI-generated punchy distillation (max 25 words, second person, never verbatim)
+
+## Bug — Post-Counsellor "Ask Sage" Uses Sage 1 Instead of Sage 2
+
+- [x] The "Ask Sage" offered to users after the counsellor chat was opening in Sage 1 mode — removed the ChatToPeter (Sage 1) block from the Career Explorer step; the "Open Career Explorer" button now correctly leads to Sage 2
