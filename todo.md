@@ -1154,3 +1154,7 @@
 ## Bug — Post-Counsellor "Ask Sage" Uses Sage 1 Instead of Sage 2
 
 - [x] The "Ask Sage" offered to users after the counsellor chat was opening in Sage 1 mode — removed the ChatToPeter (Sage 1) block from the Career Explorer step; the "Open Career Explorer" button now correctly leads to Sage 2
+
+## Bug — Career Explorer (Step 6) Locked with "Complete previous step first"
+
+- [x] Career Explorer step shows "Complete previous step first" — fixed: locking logic now skips informational steps with no statusKey (Step 5) and looks back to the nearest real blocker (Step 4 Psychometrics)

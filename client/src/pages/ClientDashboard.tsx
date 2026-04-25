@@ -315,11 +315,18 @@ export default function ClientDashboard() {
                 const isInProgress = status === "in_progress";
 
                 // For the Sage step: show as active once background is done (no hard lock)
-                const prevStep = STEPS[idx - 1];
-                const prevStatus = prevStep ? getStatus(prevStep.statusKey, prevStep.id) : "completed";
+                // Walk backwards to find the nearest preceding step that has a real statusKey
+                // (steps with statusKey: null are informational-only and cannot block)
+                let prevBlockerStatus = "completed";
+                for (let pi = idx - 1; pi >= 0; pi--) {
+                  if (STEPS[pi].statusKey) {
+                    prevBlockerStatus = getStatus(STEPS[pi].statusKey, STEPS[pi].id);
+                    break;
+                  }
+                }
                 const isLocked =
                   idx > 0 &&
-                  prevStatus === "not_started" &&
+                  prevBlockerStatus === "not_started" &&
                   step.id !== "sage"; // Sage is never hard-locked
 
                 return (
