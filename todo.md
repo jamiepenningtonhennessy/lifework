@@ -1195,3 +1195,7 @@
 ## Sage 1 — Message 4 (first achievement question)
 
 - [x] Message 4: one reflective paragraph ending with a varied confirmation question. Accept-and-move-on rule added to system prompt for corrections/pushback throughout the conversation.
+
+## Sage 1 — Summary-Confirm-Then-Next Rhythm
+
+- [x] Every Sage response is EITHER a standalone summary+confirmation question OR a transition to the next question — never both. System prompt rewritten with explicit SUMMARY MODE / NEXT QUESTION MODE distinction and the key rule: "NEVER ask the next question in the same message as the summary."
