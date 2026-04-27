@@ -642,18 +642,26 @@ export async function buildClaudeExportJson(clientId: number): Promise<Record<st
   // Fallback chain (most specific → most general):
   //  1. A section whose heading contains "pattern reveals" or "what the pattern"
   //  2. A section whose heading contains "reveals", "findings", or "key"
-  //  3. The last named section in the document (whatever the AI called it)
-  //  4. extractKeyFindings (bullet list after "From what you have told us")
-  //  5. The last 3 paragraphs of the raw text
+  //  3. extractKeyFindings (bullet list after "From what you have told us")
+  //  4. The last named section — BUT only if its paragraphs differ from ch2Page1SectionParas
+  //     (deduplication guard: prevents repeating Recurring Motifs verbatim on page 5)
+  //  5. The last 3 raw paragraphs of the text
   const ch2WhatRevealsSec =
     lhSections.find(s => s.heading.toLowerCase().includes("pattern reveals") || s.heading.toLowerCase().includes("what the pattern")) ??
     lhSections.find(s => s.heading.toLowerCase().includes("reveals") || s.heading.toLowerCase().includes("findings") || s.heading.toLowerCase().includes("key"));
   const ch2KeyFindingsFromBullets = extractKeyFindings(sections.lifeHistoryPattern ?? "");
   const ch2AllParas = splitParagraphs(sections.lifeHistoryPattern ?? "");
+  // Deduplication guard: check if the last section is the same as what's already on page 1
+  const lastSection = lhSections.length > 0 ? lhSections[lhSections.length - 1] : null;
+  const lastSectionIsDuplicate =
+    lastSection !== null &&
+    lastSection.paragraphs.length > 0 &&
+    ch2Page1SectionParas.length > 0 &&
+    lastSection.paragraphs[0] === ch2Page1SectionParas[0];
   const ch2KeyFindings =
     ch2WhatRevealsSec?.paragraphs?.length ? ch2WhatRevealsSec.paragraphs :
     ch2KeyFindingsFromBullets.length > 0 ? ch2KeyFindingsFromBullets :
-    lhSections.length > 0 ? (lhSections[lhSections.length - 1].paragraphs ?? []) :
+    (lastSection && !lastSectionIsDuplicate) ? (lastSection.paragraphs ?? []) :
     ch2AllParas.slice(-3);
 
   // CH3 — VIA

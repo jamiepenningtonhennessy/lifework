@@ -66,11 +66,13 @@ This is the heart of the analysis. For EACH of the 2-3 seed themes:
   - Name what others have consistently observed about you in relation to this theme
 
 ## What the Pattern Reveals
-Close with 2 short paragraphs that:
-- Name the single most consistent thread running from earliest experiences to today
-- State what the ESF distribution tells us about deepest motivational drivers
+CRITICAL: This section MUST always be present with the exact heading "## What the Pattern Reveals". It MUST be a separate, distinct section from "## Recurring Motifs" — do NOT merge them or omit this heading.
 
-Close with: "From what you have told us, we can see:" followed by 3-5 bullets that name the core motivational findings.
+Write 2 short paragraphs that:
+- Name the single most consistent thread running from earliest experiences to today — what does the whole pattern add up to?
+- State what the ESF distribution tells us about deepest motivational drivers — what does the balance of Enjoyment, Strength, and Fulfilment reveal about what truly drives this person?
+
+Close with: "From what you have told us, we can see:" followed by 3-5 bullets that name the core motivational findings — insights that could only emerge from seeing the whole pattern together, not from any single achievement.
 
 Throughout: write directly to the client using "you" and "your", reference actual achievements from the data by name and decade. Keep every paragraph to 4-5 lines maximum.`;
 

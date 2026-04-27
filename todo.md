@@ -1162,3 +1162,7 @@
 ## Step 5 — Lifework Coaching mailto CTA
 
 - [x] Updated Step 5 description text and added mailto button pre-filled with coaching request to jamie@penningtonhennessy.com
+
+## Bug — Page 5 "What the Pattern Reveals" duplicates Recurring Themes verbatim
+
+- [x] AI sometimes omits the ## What the Pattern Reveals heading — fixed with deduplication guard in claudeExport.ts (detects when fallback would repeat page 4 content and falls through to raw paragraphs instead) and strengthened CRITICAL instruction in canonicalStage1.ts prompt.
