@@ -2502,6 +2502,11 @@ const chatPeterRouter = router({
         input.section === "life_history" &&
         existingMessages.length === 1 &&
         existingMessages[0].role === "peter";
+      // isThirdMessage: client has replied to the second scripted message
+      // existingMessages = [scripted-opening, client-reply-1, second-scripted] = length 3
+      const isThirdMessage =
+        input.section === "life_history" &&
+        existingMessages.length === 3;
 
       // Save the user's message
       const userMsg: ChatMessage = {
@@ -2547,6 +2552,16 @@ const chatPeterRouter = router({
           sessionId: session.id,
           peterResponse: secondScripted,
           messageCount: existingMessages.length + 2,
+        };
+      }
+
+      // Third message: client has confirmed they are ready to begin.
+      // Skip any reflection preamble — start directly with "Good. Let's start..."
+      // then ask the ONE question about the first recorded achievement.
+      if (isThirdMessage) {
+        llmMessages[llmMessages.length - 1] = {
+          role: "user",
+          content: `[The client has confirmed they are ready to begin. Start your response with exactly the words "Good. Let's start" then continue naturally to identify the FIRST activity recorded before age 20 and ask your ONE question about it. Do NOT include any reflection paragraph, preamble, or summary of what you have read — go straight to the question. One question only.]`,
         };
       }
 

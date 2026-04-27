@@ -1187,3 +1187,7 @@
 ## Sage 1 — Second Scripted Message
 
 - [x] After client's first reply, Sage sends a second scripted message: "Thank you. The easiest way for me to work is to go through your life achievements methodically..." — fires when existingMessages.length === 1 (exactly the scripted opening saved), returns immediately without an LLM call
+
+## Sage 1 — Third Message (first LLM response)
+
+- [x] Third message (first LLM response) now instructed to start with "Good. Let's start" and go straight to the first achievement question — no reflection paragraph, no preamble
