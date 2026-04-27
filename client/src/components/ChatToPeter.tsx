@@ -5,6 +5,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { MessageCircle, X, Send, Loader2, CheckCircle2, BookmarkCheck, Paperclip, FileText, RotateCcw, ArrowRight } from "lucide-react";
 import { toast } from "sonner";
 
+const SAGE_AVATAR_URL = "https://d2xsxph8kpxj0f.cloudfront.net/107696804/kFbbE6kqNApXGDFpQJUGV7/sage-avatar_b146c149.jpg";
+
 type Section = "life_history" | "career_education";
 
 type Message = {
@@ -260,9 +262,11 @@ export function ChatToPeter({
 
             {/* Header */}
             <div className="flex items-center gap-3 px-4 py-3 border-b border-border bg-[var(--lw-gold-light)]/10 rounded-t-2xl">
-              <div className="w-9 h-9 rounded-full bg-[var(--lw-gold)] flex items-center justify-center text-white font-serif font-bold text-sm flex-shrink-0">
-                S
-              </div>
+              <img
+                src={SAGE_AVATAR_URL}
+                alt="Sage"
+                className="w-9 h-9 rounded-full object-cover flex-shrink-0 ring-2 ring-[var(--lw-gold)]/30"
+              />
               <div className="flex-1 min-w-0">
                 <p className="font-semibold text-foreground text-sm">Sage</p>
                 <p className="text-xs text-muted-foreground">Your Lifework Coach</p>
@@ -365,9 +369,11 @@ export function ChatToPeter({
                   className={`flex gap-2.5 ${msg.role === "client" ? "flex-row-reverse" : "flex-row"}`}
                 >
                   {msg.role === "peter" && (
-                    <div className="w-7 h-7 rounded-full bg-[var(--lw-gold)] flex items-center justify-center text-white font-serif font-bold text-xs flex-shrink-0 mt-0.5">
-                      S
-                    </div>
+                    <img
+                      src={SAGE_AVATAR_URL}
+                      alt="Sage"
+                      className="w-7 h-7 rounded-full object-cover flex-shrink-0 mt-0.5 ring-1 ring-[var(--lw-gold)]/30"
+                    />
                   )}
                   {msg.role === "peter" ? (
                     <SageMessageBubble content={msg.content} />
@@ -382,9 +388,11 @@ export function ChatToPeter({
               {/* Typing indicator */}
               {sendMessage.isPending && (
                 <div className="flex gap-2.5">
-                  <div className="w-7 h-7 rounded-full bg-[var(--lw-gold)] flex items-center justify-center text-white font-serif font-bold text-xs flex-shrink-0 mt-0.5">
-                    S
-                  </div>
+                  <img
+                    src={SAGE_AVATAR_URL}
+                    alt="Sage"
+                    className="w-7 h-7 rounded-full object-cover flex-shrink-0 mt-0.5 ring-1 ring-[var(--lw-gold)]/30"
+                  />
                   <div className="bg-muted rounded-2xl rounded-tl-sm px-4 py-3 flex items-center gap-1">
                     <span className="w-1.5 h-1.5 rounded-full bg-muted-foreground/60 animate-bounce" style={{ animationDelay: "0ms" }} />
                     <span className="w-1.5 h-1.5 rounded-full bg-muted-foreground/60 animate-bounce" style={{ animationDelay: "150ms" }} />

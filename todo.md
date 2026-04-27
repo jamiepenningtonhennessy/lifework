@@ -151,7 +151,7 @@
 
 ## Bug Fix
 
-- [ ] Restore Peter Daws quote on home page (accidentally removed when removing dates)
+- [x] ~~Restore Peter Daws quote on home page~~ — quote not recoverable, removed from backlog
 
 ## Home Page & Inner Page Polish
 
@@ -216,7 +216,7 @@
 - [ ] Add IPIP personality tab to counsellor ClientProfile view (Big Five scores with bar chart and interpretation)
 - [ ] Add Cognitive Screener tab to counsellor ClientProfile view (verbal/numerical/abstract scores with interpretation)
 
-## Branding — Replace Peter Daws with Bernard Haldane in public-facing copy
+## ~~Branding — Replace Peter Daws with Bernard Haldane in public-facing copy~~ — removed from backlog
 
 - [ ] Update Home.tsx landing copy (hero, about section, footer attribution)
 - [ ] Update Virtual Peter description in ClientProfile.tsx
@@ -1171,3 +1171,7 @@
 
 - [x] Added contextual framing at the start of Sage 1's conversation — she now explains her purpose in her own warm voice on first message: data points, ESF dimensions, "not looking for literal repetition" reassurance
 - [x] Added 15-type questioning repertoire to Sage 1's prompt (sensory anchor, contrast question, recognition question, solo/group probe, initiative question, difficulty probe, counterfactual, legacy question, surprise question, audience question, quiet moment, etc.) with instruction to rotate through all of them
+
+## Sage 1 — Avatar photo in chat interface
+
+- [x] Cropped Sage photo to square portrait, uploaded as static CDN asset, and replaced the gold "S" initial avatar with her photo in the ChatToPeter component — header, message bubbles, and typing indicator all updated
