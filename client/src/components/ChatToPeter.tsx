@@ -21,6 +21,8 @@ interface ChatToPeterProps {
   buttonLabel?: string;
   /** Short description shown at the top of the chat panel */
   sectionDescription?: string;
+  /** If true, the chat panel opens automatically on mount */
+  autoOpen?: boolean;
 }
 
 /**
@@ -63,8 +65,9 @@ export function ChatToPeter({
   section,
   buttonLabel = "Chat to Sage",
   sectionDescription,
+  autoOpen = false,
 }: ChatToPeterProps) {
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(autoOpen);
   const [sessionId, setSessionId] = useState<number | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState("");

@@ -1175,3 +1175,7 @@
 ## Sage 1 — Avatar photo in chat interface
 
 - [x] Cropped Sage photo to square portrait, uploaded as static CDN asset, and replaced the gold "S" initial avatar with her photo in the ChatToPeter component — header, message bubbles, and typing indicator all updated
+
+## Counsellor Hub — Sage 1 Preview Tab
+
+- [x] Replaced static mock on /preview/sage with a live interactive Sage 1 chat using Jamie's own life history data — autoOpen prop added to ChatToPeter so the panel opens immediately on page load

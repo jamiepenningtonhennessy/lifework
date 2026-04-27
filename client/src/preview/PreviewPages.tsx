@@ -36,6 +36,7 @@ import {
 import { Streamdown } from "streamdown";
 import { IPIP_DOMAINS, IPIP_FACETS, type IpipDomainKey, type IpipFacetKey } from "../../../shared/ipip-data";
 import { PREVIEW_IPIP_RESULTS, PREVIEW_VIA_RESULTS } from "./previewData";
+import { ChatToPeter } from "@/components/ChatToPeter";
 
 // ─── Video embed helper ───────────────────────────────────────────────────────
 function VideoEmbed({ fileId, title }: { fileId: string; title: string }) {
@@ -1027,15 +1028,6 @@ What brings you here today — what's the question you most want to answer?`;
 export function PreviewSage() {
   const [, navigate] = useLocation();
 
-  // Sage's opening message — matches the life_history system prompt opening move
-  const openingMessage = `[Sage leans forward slightly, her notebook open but her pen still.]
-
-Hello. I'm Sage — I've spent the last twenty years working with professionals who are trying to understand what they are really for. I've read your life history carefully before this conversation.
-
-I want to start with something that caught my attention straight away. You've described a number of moments where you were working on something genuinely difficult — and what stands out is not that you solved the problem, but that you seem to have *enjoyed* the difficulty itself.
-
-I'd like to explore that. Can you take me back to the earliest time you can remember feeling that way — not the most impressive example, but the first one?`;
-
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <PreviewNav current="/preview/sage" />
@@ -1049,61 +1041,30 @@ I'd like to explore that. Can you take me back to the earliest time you can reme
           <div className="w-px h-5 bg-border" />
           <Sparkles className="h-5 w-5 text-primary" />
           <span className="font-semibold text-foreground">Sage — Life History Coach</span>
+          <span className="ml-auto text-xs text-muted-foreground bg-muted px-2 py-1 rounded-full">Live preview — chatting as yourself</span>
         </div>
       </div>
 
-      {/* Context banner */}
-      <div className="max-w-3xl w-full mx-auto px-4 pt-6 pb-2">
-        <div className="rounded-xl border border-[var(--lw-gold)]/25 bg-[var(--lw-gold)]/5 px-4 py-3">
+      {/* Live chat — uses your own (Jamie's) life history data */}
+      <div className="flex-1 flex flex-col max-w-3xl w-full mx-auto px-4 py-6">
+        <div className="mb-4 rounded-xl border border-[var(--lw-gold)]/25 bg-[var(--lw-gold)]/5 px-4 py-3">
           <p className="text-sm text-foreground leading-relaxed">
-            <strong>Sage has read your Life History and Background.</strong> She would like to explore what you have written and ask some reflective questions to deepen your self-understanding.
+            <strong>This is a live Sage 1 session using your own life history data.</strong> Sage has read your recorded achievements and will ask you reflective questions to draw out depth and detail. This is exactly what your clients experience at Step 3.
           </p>
           <p className="text-xs text-muted-foreground italic mt-1">
-            Start by saying hello, or ask Sage what she noticed.
+            Your conversation will be saved to your profile. You can reset it at any time using the reset button inside the chat.
           </p>
         </div>
-      </div>
 
-      {/* Messages */}
-      <div className="flex-1 max-w-3xl w-full mx-auto px-4 py-4 space-y-4">
-        <div className="flex justify-start gap-2.5">
-          {/* Sage avatar */}
-          <div
-            className="w-7 h-7 rounded-full flex items-center justify-center text-white font-serif font-bold text-xs flex-shrink-0 mt-0.5"
-            style={{ background: "var(--lw-gold)" }}
-          >
-            S
-          </div>
-          <div className="max-w-[82%] space-y-1.5">
-            {/* Stage direction */}
-            <p className="text-xs italic text-muted-foreground px-1 leading-relaxed">
-              Sage leans forward slightly, her notebook open but her pen still.
-            </p>
-            {/* Speech bubble */}
-            <div className="bg-muted text-foreground rounded-2xl rounded-tl-sm px-3.5 py-2.5 text-sm leading-relaxed whitespace-pre-wrap">
-              {`Hello. I'm Sage — I've spent the last twenty years working with professionals who are trying to understand what they are really for. I've read your life history carefully before this conversation.
-
-I want to start with something that caught my attention straight away. You've described a number of moments where you were working on something genuinely difficult — and what stands out is not that you solved the problem, but that you seem to have enjoyed the difficulty itself.
-
-I'd like to explore that. Can you take me back to the earliest time you can remember feeling that way — not the most impressive example, but the first one?`}
-            </div>
-          </div>
+        {/* The real ChatToPeter widget, opened inline */}
+        <div className="flex justify-start">
+          <ChatToPeter
+            section="life_history"
+            buttonLabel="Open Sage 1 Chat"
+            autoOpen
+            sectionDescription="Sage has read your life history and would like to explore what you have written. She will ask reflective questions to draw out the depth and detail beneath each experience."
+          />
         </div>
-      </div>
-
-      {/* Input */}
-      <div className="border-t border-border bg-card">
-        <div className="max-w-3xl mx-auto px-4 py-4 flex gap-3 items-end">
-          <div className="flex-1 rounded-lg border border-border bg-background px-4 py-2.5 text-sm text-muted-foreground min-h-[60px] flex items-center">
-            Type your response… (Enter to send, Shift+Enter for new line)
-          </div>
-          <Button className="h-[60px] w-10 p-0 flex-shrink-0" style={{ background: "var(--lw-gold)", color: "var(--lw-navy)" }}>
-            <ArrowRight className="w-4 h-4" />
-          </Button>
-        </div>
-        <p className="text-xs text-muted-foreground text-center pb-3">
-          Your conversation is private and will only be used to inform your career analysis.
-        </p>
       </div>
     </div>
   );
