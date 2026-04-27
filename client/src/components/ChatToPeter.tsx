@@ -108,6 +108,37 @@ export function ChatToPeter({
     }
   }, [messages.length, isSummarised]);
 
+  const getOpeningMessage = trpc.chatPeter.getOpeningMessage.useMutation({
+    onSuccess: (data) => {
+      if (data) {
+        const openingMsg: Message = {
+          role: "peter",
+          content: data.message.content,
+          timestamp: data.message.timestamp,
+        };
+        setMessages([openingMsg]);
+        setSessionId(data.sessionId);
+      }
+    },
+  });
+
+  // Fire the scripted opening message once sessions have loaded and the session is empty.
+  // We track whether we've already fired to prevent double-calls.
+  const openingFiredRef = useRef(false);
+  useEffect(() => {
+    if (
+      isOpen &&
+      section === "life_history" &&
+      sessions !== undefined && // sessions have loaded
+      messages.length === 0 &&  // no messages yet
+      !openingFiredRef.current  // haven't fired already
+    ) {
+      openingFiredRef.current = true;
+      getOpeningMessage.mutate({ section });
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen, sessions, messages.length]);
+
   const sendMessage = trpc.chatPeter.sendMessage.useMutation({
     onSuccess: (data) => {
       const sageMsg: Message = {

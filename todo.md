@@ -1179,3 +1179,7 @@
 ## Counsellor Hub — Sage 1 Preview Tab
 
 - [x] Replaced static mock on /preview/sage with a live interactive Sage 1 chat using Jamie's own life history data — autoOpen prop added to ChatToPeter so the panel opens immediately on page load
+
+## Sage 1 — Opening Message Update
+
+- [x] Replaced Sage 1's opening message with Jamie's scripted intro — injected via new getOpeningMessage procedure on session start, before the client types anything. Fires only once for new sessions; existing sessions show their saved history.

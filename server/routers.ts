@@ -2414,6 +2414,32 @@ const chatPeterRouter = router({
       return sessions;
     }),
 
+  // Return Sage's scripted opening message for a new life_history session.
+  // Called by the client when the chat panel first opens (before the user types).
+  // If the session already has messages, returns null (opening already shown).
+  getOpeningMessage: protectedProcedure
+    .input(z.object({
+      section: z.enum(["life_history", "career_education"]),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      const profile = await getOrCreateClientProfile(ctx.user.id);
+      const session = await getOrCreateChatSession(profile.id, input.section);
+      const existing: ChatMessage[] = JSON.parse(session.messages || "[]");
+      // Only inject the opening if the session is brand new
+      if (existing.length > 0) return null;
+      const openingText = input.section === "life_history"
+        ? "Hi. I'm Sage, and I'm a research assistant here at Lifework. My role is simple, but it relies on you being willing to work with me: being willing to reflect on your life history and allow me to dig for more detail. The more detail we have, the better the analysis. Is that OK?"
+        : null; // career_education uses the LLM-generated opener
+      if (!openingText) return null;
+      const openingMsg: ChatMessage = {
+        role: "peter",
+        content: openingText,
+        timestamp: Date.now(),
+      };
+      await appendChatMessage(session.id, openingMsg);
+      return { sessionId: session.id, message: openingMsg };
+    }),
+
   // Send a message and get Peter's response
   sendMessage: protectedProcedure
     .input(z.object({
