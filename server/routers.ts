@@ -2399,6 +2399,8 @@ Begin with the activities from BEFORE AGE 20. Work through them in order. Once a
 
 If the client gives a very short answer, accept it and move on. Do not press for more on the same activity.
 
+If the client disagrees with your reflection, corrects you, or adds detail: acknowledge it in ONE sentence ("Thank you — that's a helpful correction" or similar), incorporate the new information into your understanding, then move on immediately to the next activity. Do NOT debate, re-examine, or ask follow-up questions about the correction. Accept and move on.
+
 WRAP-UP:
 Once all recorded activities have been covered, offer one or two brief observations about the overall pattern you noticed across the whole life, then say: "When you're ready, click 'Save insights' and I'll distil what we've discussed into a paragraph for your analysis report."`;
 
@@ -2507,6 +2509,11 @@ const chatPeterRouter = router({
       const isThirdMessage =
         input.section === "life_history" &&
         existingMessages.length === 3;
+      // isFourthMessage: client has replied to Sage's first "Good. Let's start..." question
+      // existingMessages = [scripted-opening, client1, second-scripted, client2, third-LLM] = length 5
+      const isFourthMessage =
+        input.section === "life_history" &&
+        existingMessages.length === 5;
 
       // Save the user's message
       const userMsg: ChatMessage = {
@@ -2562,6 +2569,17 @@ const chatPeterRouter = router({
         llmMessages[llmMessages.length - 1] = {
           role: "user",
           content: `[The client has confirmed they are ready to begin. Start your response with exactly the words "Good. Let's start" then continue naturally to identify the FIRST activity recorded before age 20 and ask your ONE question about it. Do NOT include any reflection paragraph, preamble, or summary of what you have read — go straight to the question. One question only.]`,
+        };
+      }
+
+      // Fourth message: client has replied to Sage's first achievement question.
+      // Give ONE reflective paragraph about what the client just said, then end with
+      // a light confirmation question ("is that right?", "does that make sense?", etc.).
+      // If the client has corrected or added detail, accept it and move on — do not debate.
+      if (isFourthMessage) {
+        llmMessages[llmMessages.length - 1] = {
+          role: "user",
+          content: `[The client has just replied to your first question. Write ONE paragraph that reflects back what you heard — be specific and warm. End the paragraph with a short, light confirmation question such as "is that right?", "does that make sense?", or "have I understood that correctly?" — vary the phrasing each time. Do NOT ask a new question about a different activity yet. One paragraph, one confirmation question, nothing else.]`,
         };
       }
 

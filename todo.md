@@ -1191,3 +1191,7 @@
 ## Sage 1 — Third Message (first LLM response)
 
 - [x] Third message (first LLM response) now instructed to start with "Good. Let's start" and go straight to the first achievement question — no reflection paragraph, no preamble
+
+## Sage 1 — Message 4 (first achievement question)
+
+- [x] Message 4: one reflective paragraph ending with a varied confirmation question. Accept-and-move-on rule added to system prompt for corrections/pushback throughout the conversation.
