@@ -1158,3 +1158,7 @@
 ## Bug — Career Explorer (Step 6) Locked with "Complete previous step first"
 
 - [x] Career Explorer step shows "Complete previous step first" — fixed: locking logic now skips informational steps with no statusKey (Step 5) and looks back to the nearest real blocker (Step 4 Psychometrics)
+
+## Step 5 — Lifework Coaching mailto CTA
+
+- [x] Updated Step 5 description text and added mailto button pre-filled with coaching request to jamie@penningtonhennessy.com

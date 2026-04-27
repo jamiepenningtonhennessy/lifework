@@ -76,11 +76,11 @@ const STEPS = [
     id: "lifework_coaching",
     icon: <Brain className="w-5 h-5" />,
     title: "5. Lifework Coaching",
-    description: "An exploration of your Lifework report with a career coach.",
+    description: "Set up an exploration of your Lifework report with a Lifework Coach.",
     path: null,
     statusKey: null,
-    cta: null,
-    ctaInProgress: null,
+    cta: "Request a Coaching Date",
+    ctaInProgress: "Request a Coaching Date",
   },
   {
     id: "career_explorer",
@@ -408,6 +408,21 @@ export default function ClientDashboard() {
                         {/* CTA button (right side) — not for sage step */}
                         {step.id !== "sage" && (
                           <div className="flex-shrink-0 flex flex-col items-end gap-2">
+                            {/* Lifework Coaching: mailto button */}
+                            {step.id === "lifework_coaching" && !isLocked && (
+                              <a
+                                href={`mailto:jamie@penningtonhennessy.com?subject=${encodeURIComponent("I'm ready for coaching")}&body=${encodeURIComponent("Hi Jamie,\n\nI have finished my data input and want to set up a coaching date. Could you send me some possible timeslots?")}`}
+                              >
+                                <Button
+                                  size="sm"
+                                  className="bg-[var(--lw-gold)] hover:bg-[oklch(0.60_0.13_72)] text-white gap-1"
+                                >
+                                  {step.cta}
+                                  <ArrowRight className="w-3.5 h-3.5" />
+                                </Button>
+                              </a>
+                            )}
+
                             {step.path && !isLocked && (() => {
                               // For psychometrics: if VIA is done but IPIP not yet started,
                               // send client directly to the IPIP survey instead of back to VIA.
