@@ -1183,3 +1183,7 @@
 ## Sage 1 — Opening Message Update
 
 - [x] Replaced Sage 1's opening message with Jamie's scripted intro — injected via new getOpeningMessage procedure on session start, before the client types anything. Fires only once for new sessions; existing sessions show their saved history.
+
+## Sage 1 — Second Scripted Message
+
+- [x] After client's first reply, Sage sends a second scripted message: "Thank you. The easiest way for me to work is to go through your life achievements methodically..." — fires when existingMessages.length === 1 (exactly the scripted opening saved), returns immediately without an LLM call

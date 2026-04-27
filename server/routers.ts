@@ -2497,6 +2497,11 @@ const chatPeterRouter = router({
       // Build conversation history for the LLM
       const existingMessages: ChatMessage[] = JSON.parse(session.messages || "[]");
       const isFirstMessage = existingMessages.length === 0;
+      // isSecondMessage: client has replied to the scripted opening (exactly 1 Sage message saved)
+      const isSecondScriptedMessage =
+        input.section === "life_history" &&
+        existingMessages.length === 1 &&
+        existingMessages[0].role === "peter";
 
       // Save the user's message
       const userMsg: ChatMessage = {
@@ -2529,12 +2534,25 @@ const chatPeterRouter = router({
         { role: "user", content: input.userMessage },
       ];
 
-      // If this is the first message, Peter should open the conversation
+      // Second scripted message: fires after the client's first reply to the opening
+      if (isSecondScriptedMessage) {
+        const secondScripted = "Thank you. The easiest way for me to work is to go through your life achievements methodically — the earliest ones are the most seminal. It can seem a bit \"samey\", but every life experience is an important data point. Does this make sense?";
+        const peterMsg2: ChatMessage = {
+          role: "peter",
+          content: secondScripted,
+          timestamp: Date.now(),
+        };
+        await appendChatMessage(session.id, peterMsg2);
+        return {
+          sessionId: session.id,
+          peterResponse: secondScripted,
+          messageCount: existingMessages.length + 2,
+        };
+      }
+
+      // If this is the first message (no scripted opening was used), Peter should open
       // by reflecting back what he has read before responding to the user's opener
       if (isFirstMessage) {
-        const sectionLabel = input.section === "life_history"
-          ? "life history"
-          : "career and education history";
         llmMessages[llmMessages.length - 1] = {
           role: "user",
           content: `[The client has just opened the chat. Their first message is: "${input.userMessage}". Begin with a brief, warm one-sentence reflection on what you noticed reading their recorded activities — mention something specific. Then move immediately to the FIRST activity recorded before age 20 and ask your ONE question about it. Remember: your job is to work through each activity one at a time — one question, one summary, then move on. Start with the pre-20 activities.]`,
