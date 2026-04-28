@@ -1199,3 +1199,8 @@
 ## Sage 1 — Summary-Confirm-Then-Next Rhythm
 
 - [x] Every Sage response is EITHER a standalone summary+confirmation question OR a transition to the next question — never both. System prompt rewritten with explicit SUMMARY MODE / NEXT QUESTION MODE distinction and the key rule: "NEVER ask the next question in the same message as the summary."
+
+## Sage 1 — Milestone Messages
+
+- [x] After ~5 activities explored: scripted milestone message fires (range-based detection, deduplication guard). "We've explored the first few achievements..."
+- [x] After ~20 activities explored: scripted milestone message fires. "We now have done 20 — doing a few more would help establish patterns. Shall we continue?"

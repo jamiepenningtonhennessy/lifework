@@ -2583,6 +2583,36 @@ const chatPeterRouter = router({
         };
       }
 
+      // MILESTONE at ~5 activities explored (approx message index 21 = existingMessages.length === 21)
+      // Each activity cycle = ~4 messages: question, client answer, summary, client confirms
+      // 3 scripted + 5*4 = 23 messages. Fire when existingMessages.length === 21 (before saving user msg)
+      // Use a range to avoid missing it due to short/long replies
+      const isFiveActivityMilestone =
+        input.section === "life_history" &&
+        existingMessages.length >= 19 && existingMessages.length <= 23 &&
+        !existingMessages.some(m => m.role === "peter" && m.content.includes("We need to discuss about 20"));
+
+      // MILESTONE at ~20 activities explored (approx message index 83 = existingMessages.length === 83)
+      // 3 scripted + 20*4 = 83 messages.
+      const isTwentyActivityMilestone =
+        input.section === "life_history" &&
+        existingMessages.length >= 79 && existingMessages.length <= 87 &&
+        !existingMessages.some(m => m.role === "peter" && m.content.includes("We now have done 20"));
+
+      if (isFiveActivityMilestone) {
+        const milestone5 = "We've explored the first few achievements, and I have been able to enrich them so that we can see more about you in them. We need to discuss about 20 in total to build a solid dataset. Is that OK?";
+        const milestoneMsg: ChatMessage = { role: "peter", content: milestone5, timestamp: Date.now() };
+        await appendChatMessage(session.id, milestoneMsg);
+        return { sessionId: session.id, peterResponse: milestone5, messageCount: existingMessages.length + 2 };
+      }
+
+      if (isTwentyActivityMilestone) {
+        const milestone20 = "We now have done 20 — doing a few more would help establish patterns. Shall we continue?";
+        const milestoneMsg: ChatMessage = { role: "peter", content: milestone20, timestamp: Date.now() };
+        await appendChatMessage(session.id, milestoneMsg);
+        return { sessionId: session.id, peterResponse: milestone20, messageCount: existingMessages.length + 2 };
+      }
+
       // If this is the first message (no scripted opening was used), Peter should open
       // by reflecting back what he has read before responding to the user's opener
       if (isFirstMessage) {
