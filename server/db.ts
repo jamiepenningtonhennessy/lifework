@@ -686,6 +686,18 @@ export async function clearCareerExplorerSession(
     .where(eq(careerExplorerSessions.clientId, clientId));
 }
 
+export async function updateCareerExplorerPreferredName(
+  sessionId: number,
+  preferredName: string
+): Promise<void> {
+  const db = await getDb();
+  if (!db) throw new Error("DB not available");
+  await db
+    .update(careerExplorerSessions)
+    .set({ preferredName })
+    .where(eq(careerExplorerSessions.id, sessionId));
+}
+
 // ─── Coaching Annex ───────────────────────────────────────────────────────────
 
 export async function getCoachingAnnex(clientId: number): Promise<CoachingAnnex | null> {

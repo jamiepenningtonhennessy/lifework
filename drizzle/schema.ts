@@ -373,6 +373,7 @@ export const careerExplorerSessions = mysqlTable("career_explorer_sessions", {
   id: int("id").autoincrement().primaryKey(),
   clientId: int("clientId").notNull(),
   messages: text("messages").notNull(), // JSON array — set to '[]' on insert
+  preferredName: varchar("preferredName", { length: 128 }), // client's preferred first name, extracted from first reply
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });

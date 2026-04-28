@@ -1210,3 +1210,10 @@
 - [x] Crop Alistair's photo to square portrait and upload as static CDN asset
 - [x] Update Career Explorer system prompt: rename Sage to Alistair, change all pronouns to male
 - [x] Add Alistair's avatar photo to the Career Explorer chat UI (header, message bubbles, typing indicator)
+
+## Alistair — Scripted Opening Messages
+
+- [x] Message 1 (on session open): "Hello. Good to meet you. I'm Alistair..." — ask for preferred name
+- [x] Message 2 (after client's first reply — use given name): "OK [name]. So although I have read and pondered everything..." — ask what they'd like to clarify or add
+- [x] Message 3 (after client's second reply — LLM responds to clarification then transitions): respond to clarification then "So now that you know who you are..." — open the career exploration
+- [x] Extract preferred name from client's first reply (server-side, stored in session or passed via context)

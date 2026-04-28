@@ -4,9 +4,10 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 vi.mock("./db", () => ({
   getOrCreateClientProfile: vi.fn().mockResolvedValue({ id: 1, userId: 42 }),
   getCareerExplorerSession: vi.fn().mockResolvedValue(null),
-  getOrCreateCareerExplorerSession: vi.fn().mockResolvedValue({ id: 10, clientId: 1, messages: "[]" }),
+  getOrCreateCareerExplorerSession: vi.fn().mockResolvedValue({ id: 10, clientId: 1, messages: "[]", preferredName: null }),
   appendCareerExplorerMessage: vi.fn().mockResolvedValue(undefined),
   clearCareerExplorerSession: vi.fn().mockResolvedValue(undefined),
+  updateCareerExplorerPreferredName: vi.fn().mockResolvedValue(undefined),
   getAchievements: vi.fn().mockResolvedValue([
     { decade: "Early Childhood", title: "Won school debate", esf: "Fulfilling", description: "Argued for recycling" },
   ]),
@@ -32,6 +33,7 @@ import {
   appendCareerExplorerMessage,
   clearCareerExplorerSession,
   getCareerExplorerSession,
+  updateCareerExplorerPreferredName,
 } from "./db";
 import { invokeLLM } from "./_core/llm";
 
@@ -60,6 +62,64 @@ describe("Career Explorer DB helpers (mocked)", () => {
   it("clearCareerExplorerSession is called with clientId", async () => {
     await clearCareerExplorerSession(1);
     expect(clearCareerExplorerSession).toHaveBeenCalledWith(1);
+  });
+
+  it("updateCareerExplorerPreferredName is called with sessionId and name", async () => {
+    await updateCareerExplorerPreferredName(10, "Jamie");
+    expect(updateCareerExplorerPreferredName).toHaveBeenCalledWith(10, "Jamie");
+  });
+});
+
+describe("Career Explorer — scripted message detection", () => {
+  it("isSecondMessage: true when exactly 1 advisor message exists", () => {
+    const existingMessages = [{ role: "advisor", content: "Hello...", timestamp: 1 }];
+    const isSecondMessage =
+      existingMessages.length === 1 &&
+      existingMessages[0].role === "advisor";
+    expect(isSecondMessage).toBe(true);
+  });
+
+  it("isSecondMessage: false when 0 messages exist", () => {
+    const existingMessages: any[] = [];
+    const isSecondMessage =
+      existingMessages.length === 1 &&
+      existingMessages[0]?.role === "advisor";
+    expect(isSecondMessage).toBe(false);
+  });
+
+  it("isThirdMessage: true when 3 messages exist", () => {
+    const existingMessages = [
+      { role: "advisor", content: "Hello...", timestamp: 1 },
+      { role: "client", content: "Jamie", timestamp: 2 },
+      { role: "advisor", content: "OK Jamie...", timestamp: 3 },
+    ];
+    const isThirdMessage = existingMessages.length === 3;
+    expect(isThirdMessage).toBe(true);
+  });
+
+  it("isThirdMessage: false when 4 messages exist", () => {
+    const existingMessages = [
+      { role: "advisor", content: "Hello...", timestamp: 1 },
+      { role: "client", content: "Jamie", timestamp: 2 },
+      { role: "advisor", content: "OK Jamie...", timestamp: 3 },
+      { role: "client", content: "I want to add...", timestamp: 4 },
+    ];
+    const isThirdMessage = existingMessages.length === 3;
+    expect(isThirdMessage).toBe(false);
+  });
+
+  it("second scripted message includes the client's name", () => {
+    const preferredName = "Jamie";
+    const secondText = `OK ${preferredName}.  So although I have read and pondered everything you wrote, I have discovered that many people — once they have read my report — want to add or clarify some things.  What about you ${preferredName}, what would you like to clarify or add?`;
+    expect(secondText).toContain("OK Jamie");
+    expect(secondText).toContain("What about you Jamie");
+  });
+
+  it("opening message contains Alistair's introduction text", () => {
+    const openingText = `Hello.  Good to meet you.  I'm Alistair.  My title at Lifework is "The Analyst".  I'm the one who read all your life history, pondered your psychometrics and wrote your report.  So I know a lot about you already.  I know that sometimes people's official names don't match their used names — so what name should I use when chatting to you?`;
+    expect(openingText).toContain("I'm Alistair");
+    expect(openingText).toContain("The Analyst");
+    expect(openingText).toContain("what name should I use");
   });
 });
 

@@ -69,6 +69,7 @@ export default function CareerExplorer() {
   const [localMessages, setLocalMessages] = useState<Message[]>([]);
   const [sessionId, setSessionId] = useState<number | null>(null);
   const [initialised, setInitialised] = useState(false);
+  const [openingInjected, setOpeningInjected] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
@@ -84,13 +85,42 @@ export default function CareerExplorer() {
     { enabled: isAuthenticated && !!profile?.careerExplorerUnlocked }
   );
 
+  // Inject Alistair's opening message for new sessions
+  const getOpeningMessage = trpc.careerExplorer.getOpeningMessage.useMutation({
+    onSuccess: (data) => {
+      if (data) {
+        setSessionId(data.sessionId);
+        setLocalMessages([{ role: "advisor", content: data.message.content, timestamp: data.message.timestamp }]);
+      }
+    },
+  });
+
   useEffect(() => {
     if (sessionData && !initialised) {
       setLocalMessages(sessionData.messages as Message[]);
       setSessionId(sessionData.sessionId);
       setInitialised(true);
+      // If session is brand new (no messages), inject the opening
+      if ((sessionData.messages as Message[]).length === 0 && !openingInjected) {
+        setOpeningInjected(true);
+        getOpeningMessage.mutate();
+      }
     }
   }, [sessionData, initialised]);
+
+  // Also inject opening if session was just created (sessionData not yet loaded but profile is unlocked)
+  useEffect(() => {
+    if (
+      isAuthenticated &&
+      profile?.careerExplorerUnlocked &&
+      !loadingSession &&
+      sessionData === undefined &&
+      !openingInjected &&
+      !initialised
+    ) {
+      // No session exists yet — will be created on first mutation
+    }
+  }, [isAuthenticated, profile, loadingSession, sessionData, openingInjected, initialised]);
 
   // Scroll to bottom on new messages
   useEffect(() => {
@@ -116,6 +146,8 @@ export default function CareerExplorer() {
     onSuccess: () => {
       setLocalMessages([]);
       setSessionId(null);
+      setInitialised(false);
+      setOpeningInjected(false);
       toast.success("Conversation cleared");
     },
   });
@@ -175,7 +207,8 @@ export default function CareerExplorer() {
     );
   }
 
-  const isEmpty = localMessages.length === 0 && !loadingSession;
+  // Show empty state only when session is truly empty and opening hasn't been injected yet
+  const isEmpty = localMessages.length === 0 && !loadingSession && !getOpeningMessage.isPending;
 
   return (
     <div className="min-h-screen flex flex-col" style={{ background: "var(--lw-cream)" }}>
@@ -221,7 +254,7 @@ export default function CareerExplorer() {
       <div className="flex-1 overflow-y-auto">
         <div className="container max-w-3xl py-6 space-y-5">
 
-          {/* Empty state */}
+          {/* Empty state — only shown when session is truly empty and opening hasn't fired */}
           {isEmpty && (
             <div className="text-center py-12">
               <div className="w-16 h-16 rounded-full overflow-hidden mx-auto mb-5 border-2" style={{ borderColor: "rgba(201,151,58,0.4)" }}>
@@ -250,7 +283,7 @@ export default function CareerExplorer() {
           )}
 
           {/* Loading skeleton */}
-          {loadingSession && (
+          {(loadingSession || getOpeningMessage.isPending) && (
             <div className="flex justify-center py-8">
               <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
             </div>

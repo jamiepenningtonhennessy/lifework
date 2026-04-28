@@ -1,0 +1,1 @@
+ALTER TABLE `career_explorer_sessions` ADD `preferredName` varchar(128);

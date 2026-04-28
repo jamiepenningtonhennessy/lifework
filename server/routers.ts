@@ -54,6 +54,7 @@ import {
   appendCareerExplorerMessage,
   getCareerExplorerSession,
   clearCareerExplorerSession,
+  updateCareerExplorerPreferredName,
   type CareerExplorerMessage,
   getCoachingAnnex,
   upsertCoachingAnnex,
@@ -2814,9 +2815,26 @@ const careerExplorerRouter = router({
   getSession: protectedProcedure.query(async ({ ctx }) => {
     const profile = await getOrCreateClientProfile(ctx.user.id);
     const session = await getCareerExplorerSession(profile.id);
-    if (!session) return { messages: [] as CareerExplorerMessage[], sessionId: null };
+    if (!session) return { messages: [] as CareerExplorerMessage[], sessionId: null, preferredName: null };
     const messages: CareerExplorerMessage[] = JSON.parse(session.messages ?? "[]");
-    return { messages, sessionId: session.id };
+    return { messages, sessionId: session.id, preferredName: session.preferredName ?? null };
+  }),
+
+  // Inject Alistair's scripted opening message into a new session
+  getOpeningMessage: protectedProcedure.mutation(async ({ ctx }) => {
+    const profile = await getOrCreateClientProfile(ctx.user.id);
+    const session = await getOrCreateCareerExplorerSession(profile.id);
+    const existing: CareerExplorerMessage[] = JSON.parse(session.messages ?? "[]");
+    // Only inject if the session is brand new
+    if (existing.length > 0) return null;
+    const openingText = `Hello.  Good to meet you.  I'm Alistair.  My title at Lifework is "The Analyst".  I'm the one who read all your life history, pondered your psychometrics and wrote your report.  So I know a lot about you already.  I know that sometimes people's official names don't match their used names — so what name should I use when chatting to you?`;
+    const openingMsg: CareerExplorerMessage = {
+      role: "advisor",
+      content: openingText,
+      timestamp: Date.now(),
+    };
+    await appendCareerExplorerMessage(session.id, openingMsg);
+    return { sessionId: session.id, message: openingMsg };
   }),
 
   sendMessage: protectedProcedure
@@ -2956,6 +2974,20 @@ ${reportCtx}${counsellorViaCtx ? `\n\n---\n\n${counsellorViaCtx}` : ""}${counsel
       // Build conversation history
       const existingMessages: CareerExplorerMessage[] = JSON.parse(session.messages ?? "[]");
 
+      // ── Scripted message detection ──────────────────────────────────────────
+      // Message 1 (opening): injected by getOpeningMessage — existingMessages = [advisor-opening]
+      // Message 2: client replies with their name — existingMessages.length === 1
+      // Message 3: client responds to "what to clarify" question — existingMessages.length === 3
+
+      // isSecondMessage: client has replied to the scripted opening (exactly 1 advisor message saved)
+      const isSecondMessage =
+        existingMessages.length === 1 &&
+        existingMessages[0].role === "advisor";
+
+      // isThirdMessage: client has replied to the second scripted message
+      // existingMessages = [advisor-opening, client-name, advisor-second] = length 3
+      const isThirdMessage = existingMessages.length === 3;
+
       // Save user message
       const userMsg: CareerExplorerMessage = {
         role: "client",
@@ -2963,6 +2995,43 @@ ${reportCtx}${counsellorViaCtx ? `\n\n---\n\n${counsellorViaCtx}` : ""}${counsel
         timestamp: Date.now(),
       };
       await appendCareerExplorerMessage(session.id, userMsg);
+
+      // ── Second scripted message: extract name and reply ─────────────────────
+      if (isSecondMessage) {
+        // Extract the preferred name from the client's reply using a simple LLM call
+        let preferredName = input.userMessage.trim().split(/[\s,!.]+/)[0] ?? input.userMessage.trim();
+        try {
+          const nameExtract = await invokeLLM({
+            messages: [
+              { role: "system", content: "Extract only the person's preferred first name from their message. Reply with just the name, nothing else. If unclear, return the first word." },
+              { role: "user", content: input.userMessage },
+            ] as any,
+            max_tokens: 20,
+          });
+          const extracted = (nameExtract.choices[0]?.message?.content as string ?? "").trim();
+          if (extracted && extracted.length > 0 && extracted.length < 50) {
+            preferredName = extracted;
+          }
+        } catch { /* fall back to first word */ }
+        // Store the preferred name in the session
+        await updateCareerExplorerPreferredName(session.id, preferredName);
+        const secondText = `OK ${preferredName}.  So although I have read and pondered everything you wrote, I have discovered that many people — once they have read my report — want to add or clarify some things.  What about you ${preferredName}, what would you like to clarify or add?`;
+        const secondMsg: CareerExplorerMessage = {
+          role: "advisor",
+          content: secondText,
+          timestamp: Date.now(),
+        };
+        await appendCareerExplorerMessage(session.id, secondMsg);
+        return {
+          sessionId: session.id,
+          advisorResponse: secondText,
+          messageCount: existingMessages.length + 2,
+        };
+      }
+
+      // ── Third message: LLM responds to clarification, then transitions ──────
+      // Retrieve preferred name from session (may have been set in message 2)
+      const storedName = session.preferredName ?? null;
 
       // Build LLM messages
       const llmMessages: Array<{ role: string; content: string }> = [
@@ -2976,6 +3045,16 @@ ${reportCtx}${counsellorViaCtx ? `\n\n---\n\n${counsellorViaCtx}` : ""}${counsel
         })),
         { role: "user", content: input.userMessage },
       ];
+
+      // For the third message, override the user turn to guide the LLM to
+      // acknowledge the clarification then transition to the career exploration opening
+      if (isThirdMessage) {
+        const nameClause = storedName ? ` ${storedName}` : "";
+        llmMessages[llmMessages.length - 1] = {
+          role: "user",
+          content: `[The client has just shared what they want to clarify or add. Respond in one short paragraph that acknowledges what they said specifically and warmly. Then — in the same response — say: "So now that you know who you are${nameClause} — your character strengths and the sort of role that would allow them to flourish — how can I help you? I have access to almost everything written about any career, plus a long experience of providing guidance. What questions should we explore together?" Do not add anything else after that question.]`,
+        };
+      }
 
       const response = await invokeLLM({
         messages: llmMessages as any,
