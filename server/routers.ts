@@ -3015,7 +3015,7 @@ ${reportCtx}${counsellorViaCtx ? `\n\n---\n\n${counsellorViaCtx}` : ""}${counsel
         } catch { /* fall back to first word */ }
         // Store the preferred name in the session
         await updateCareerExplorerPreferredName(session.id, preferredName);
-        const secondText = `OK ${preferredName}.  So although I have read and pondered everything you wrote, I have discovered that many people — once they have read my report — want to add or clarify some things.  What about you ${preferredName}, what would you like to clarify or add?`;
+        const secondText = `OK ${preferredName}.  So although I have read and pondered everything you wrote, I have discovered that many people — once they have read my report — want to add or clarify some things.  What about you ${preferredName}?  What would you like to clarify or add?`;
         const secondMsg: CareerExplorerMessage = {
           role: "advisor",
           content: secondText,

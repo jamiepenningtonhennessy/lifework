@@ -110,9 +110,10 @@ describe("Career Explorer — scripted message detection", () => {
 
   it("second scripted message includes the client's name", () => {
     const preferredName = "Jamie";
-    const secondText = `OK ${preferredName}.  So although I have read and pondered everything you wrote, I have discovered that many people — once they have read my report — want to add or clarify some things.  What about you ${preferredName}, what would you like to clarify or add?`;
+    const secondText = `OK ${preferredName}.  So although I have read and pondered everything you wrote, I have discovered that many people — once they have read my report — want to add or clarify some things.  What about you ${preferredName}?  What would you like to clarify or add?`;
     expect(secondText).toContain("OK Jamie");
-    expect(secondText).toContain("What about you Jamie");
+    expect(secondText).toContain("What about you Jamie?");
+    expect(secondText).toContain("What would you like to clarify or add?");
   });
 
   it("opening message contains Alistair's introduction text", () => {
