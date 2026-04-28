@@ -1242,3 +1242,7 @@
 - [x] Add PIN-encrypted JSON download (Save conversation button → PIN dialog → download file)
 - [x] Add upload-to-resume flow (Upload transcript button in empty state → file picker → PIN dialog → restore session)
 - [x] Alistair sends welcome-back message after upload: "Ah yes, I remember now — welcome back [name]. Where were we?"
+
+## Alistair — Upload Summary on Resume
+
+- [x] On resumeFromSnapshot: instead of a static "Where were we?", use LLM to generate a personalised recap of the previous conversation, then invite the client to continue

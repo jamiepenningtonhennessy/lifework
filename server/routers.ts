@@ -3099,11 +3099,41 @@ ${reportCtx}${counsellorViaCtx ? `\n\n---\n\n${counsellorViaCtx}` : ""}${counsel
       await replaceCareerExplorerMessages(profile.id, input.messages as CareerExplorerMessage[], input.preferredName);
       // Re-fetch the new session to get its id
       const session = await getOrCreateCareerExplorerSession(profile.id);
-      // Alistair welcome-back message
       const name = input.preferredName ?? "there";
+
+      // Build a condensed transcript for the LLM to summarise
+      const transcriptLines = (input.messages as CareerExplorerMessage[])
+        .map((m) => `${m.role === "advisor" ? "Alistair" : name}: ${m.content}`)
+        .join("\n");
+
+      // Ask Alistair to summarise where the previous conversation got to
+      let welcomeBackContent: string;
+      try {
+        const llmResp = await invokeLLM({
+          messages: [
+            {
+              role: "system",
+              content:
+                `You are Alistair, a career analyst at Lifework. You are resuming a career guidance conversation with ${name} after they have uploaded a saved transcript of your previous session.\n` +
+                `Read the transcript below and write a warm, concise welcome-back message (2–4 sentences). Briefly summarise the most important ground you covered — the key themes, career directions discussed, or questions left open — then invite ${name} to continue. ` +
+                `Speak in the first person as Alistair. Do not repeat the full transcript; just capture the essence of where you got to. End with an open invitation to continue.`,
+            },
+            {
+              role: "user",
+              content: `Here is the transcript of our previous conversation:\n\n${transcriptLines}\n\nPlease write your welcome-back message now.`,
+            },
+          ],
+        });
+        const raw = llmResp.choices[0]?.message?.content;
+        welcomeBackContent = (typeof raw === "string" ? raw.trim() : "") ||
+          `Ah yes, I remember now — welcome back ${name}.  Where were we?`;
+      } catch {
+        welcomeBackContent = `Ah yes, I remember now — welcome back ${name}.  Where were we?`;
+      }
+
       const welcomeBack: CareerExplorerMessage = {
         role: "advisor",
-        content: `Ah yes, I remember now — welcome back ${name}.  Where were we?`,
+        content: welcomeBackContent,
         timestamp: Date.now(),
       };
       await appendCareerExplorerMessage(session.id, welcomeBack);
