@@ -1014,7 +1014,7 @@ async function renderWowPdf(sections: WowReportSections, writingStyle: WritingSt
         margin: [0, 0, 0, 14] as [number, number, number, number],
       },
       {
-        text: "It\u2019s me \u2013 Jamie \u2013 the creator of the Lifework process \u2013 writing this cover note, not the very clever AI Sage. (She would probably write it better than me. Not that I\u2019m jealous)",
+        text: "It’s me – Jamie – the creator of the Lifework process – writing this cover note, not the very clever AI Alistair – the Analyst. (He would probably write it better than me. Not that I’m jealous)",
         font: "Roboto",
         fontSize: 11,
         color: DARK_GREY,
@@ -1049,7 +1049,7 @@ async function renderWowPdf(sections: WowReportSections, writingStyle: WritingSt
         margin: [0, 0, 0, 14] as [number, number, number, number],
       },
       {
-        text: "One really important thing. Your report is the basis for reflecting, thinking and discussing. It\u2019s built on the information you told us and the psychometric instruments that you engaged with. It\u2019s therefore OK to disagree with anything we\u2019ve written. Sage may be able to help you unpack why we believe it to be true, but you remain the expert on you. If you \u2013 plus your friends and colleagues (always worth checking in with) \u2013 see something we\u2019ve missed, Great. The overall aim is to help you know you, in the context of \u201cwhat\u2019s next?\u201d",
+        text: "One really important thing. Your report is the basis for reflecting, thinking and discussing. It’s built on the information you told us and the psychometric instruments that you engaged with. It’s therefore OK to disagree with anything we’ve written. Alistair may be able to help you unpack why we believe it to be true, but you remain the expert on you. If you – plus your friends and colleagues (always worth checking in with) – see something we’ve missed, Great. The overall aim is to help you know you, in the context of “what’s next?”",
         font: "Roboto",
         fontSize: 11,
         color: DARK_GREY,

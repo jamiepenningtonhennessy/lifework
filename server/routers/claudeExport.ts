@@ -796,10 +796,10 @@ export async function buildClaudeExportJson(clientId: number): Promise<Record<st
     },
     COVER_LETTER: {
       PARAGRAPHS: [
-        "It\u2019s me \u2014 Jamie \u2014 the creator of the Lifework process \u2014 writing this cover note, not the very clever AI Sage.",
+        "It’s me — Jamie — the creator of the Lifework process — writing this cover note, not the very clever AI Alistair — the Analyst.",
         "You\u2019ve put a lot of work into giving me the information necessary to do what we set out to achieve \u2014 to understand yourself, and what makes you, <em>you</em>. So your report is a big read.",
         "If you\u2019re naturally impatient, it\u2019s OK to start with <strong>Chapter 7 \u2014 Conclusions</strong>. It\u2019s here we summarise what we believe to be true, and give you a suggested reply to that dreaded interview question \u201cSo, tell me about yourself\u201d.",
-        "One really important thing. Your report is the basis for reflecting, thinking and discussing. It\u2019s built on the information you told us and the psychometric instruments that you engaged with. It\u2019s therefore OK to disagree with anything we\u2019ve written. Sage may be able to help you unpack why we believe it to be true, but you remain the expert on you.",
+        "One really important thing. Your report is the basis for reflecting, thinking and discussing. It’s built on the information you told us and the psychometric instruments that you engaged with. It’s therefore OK to disagree with anything we’ve written. Alistair may be able to help you unpack why we believe it to be true, but you remain the expert on you.",
       ],
       SIGN_OFF: "With warmth,",
       AUTHOR_NAME: "Jamie Pennington",
