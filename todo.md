@@ -1233,3 +1233,12 @@
 - [x] PreviewPages.tsx NAV_PAGES: remove "Sage (Life History)" entry (retire Sage 2 preview nav item)
 - [x] PreviewPages.tsx: remove PreviewSage component export (or keep but remove from nav)
 - [x] App.tsx: remove /preview/sage route
+
+## Alistair — Snapshot Save/Upload & UX Polish
+
+- [x] Expand CareerExplorer textarea to 4 rows
+- [x] Update Alistair opening message to include upload invitation
+- [x] Add resumeFromSnapshot tRPC procedure (replaces session messages with uploaded ones, fires welcome-back message)
+- [x] Add PIN-encrypted JSON download (Save conversation button → PIN dialog → download file)
+- [x] Add upload-to-resume flow (Upload transcript button in empty state → file picker → PIN dialog → restore session)
+- [x] Alistair sends welcome-back message after upload: "Ah yes, I remember now — welcome back [name]. Where were we?"

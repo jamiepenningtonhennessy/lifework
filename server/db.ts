@@ -698,7 +698,23 @@ export async function updateCareerExplorerPreferredName(
     .where(eq(careerExplorerSessions.id, sessionId));
 }
 
-// ─── Coaching Annex ───────────────────────────────────────────────────────────
+export async function replaceCareerExplorerMessages(
+  clientId: number,
+  messages: CareerExplorerMessage[],
+  preferredName: string | null
+): Promise<void> {
+  const db = await getDb();
+  if (!db) throw new Error("DB not available");
+  // Delete any existing session and create a fresh one with the uploaded messages
+  await db.delete(careerExplorerSessions).where(eq(careerExplorerSessions.clientId, clientId));
+  await db.insert(careerExplorerSessions).values({
+    clientId,
+    messages: JSON.stringify(messages),
+    preferredName: preferredName ?? undefined,
+  });
+}
+
+// ─── Coaching Annex ─────────────────────────────────────────────────────────────
 
 export async function getCoachingAnnex(clientId: number): Promise<CoachingAnnex | null> {
   const db = await getDb();

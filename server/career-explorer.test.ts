@@ -8,6 +8,7 @@ vi.mock("./db", () => ({
   appendCareerExplorerMessage: vi.fn().mockResolvedValue(undefined),
   clearCareerExplorerSession: vi.fn().mockResolvedValue(undefined),
   updateCareerExplorerPreferredName: vi.fn().mockResolvedValue(undefined),
+  replaceCareerExplorerMessages: vi.fn().mockResolvedValue(undefined),
   getAchievements: vi.fn().mockResolvedValue([
     { decade: "Early Childhood", title: "Won school debate", esf: "Fulfilling", description: "Argued for recycling" },
   ]),
@@ -34,6 +35,7 @@ import {
   clearCareerExplorerSession,
   getCareerExplorerSession,
   updateCareerExplorerPreferredName,
+  replaceCareerExplorerMessages,
 } from "./db";
 import { invokeLLM } from "./_core/llm";
 
@@ -117,10 +119,27 @@ describe("Career Explorer — scripted message detection", () => {
   });
 
   it("opening message contains Alistair's introduction text", () => {
-    const openingText = `Hello.  Good to meet you.  I'm Alistair.  My title at Lifework is "The Analyst".  I'm the one who read all your life history, pondered your psychometrics and wrote your report.  So I know a lot about you already.  I know that sometimes people's official names don't match their used names — so what name should I use when chatting to you?`;
+    const openingText = `Hello.  Good to meet you.  I'm Alistair.  My title at Lifework is "The Analyst".  As I'm getting older I sometimes forget if I've met people before.  If I have — and you have the transcript of our conversation — please upload it.  Otherwise, welcome.  I'm the one who read all your life history, pondered your psychometrics and wrote your report.  So I know a lot about you already.  I know that sometimes people's official names don't match their used names — so what name should I use when chatting to you?`;
     expect(openingText).toContain("I'm Alistair");
     expect(openingText).toContain("The Analyst");
+    expect(openingText).toContain("please upload it");
     expect(openingText).toContain("what name should I use");
+  });
+
+  it("welcome-back message uses preferred name", () => {
+    const name = "Jamie";
+    const welcomeBack = `Ah yes, I remember now — welcome back ${name}.  Where were we?`;
+    expect(welcomeBack).toContain("welcome back Jamie");
+    expect(welcomeBack).toContain("Where were we?");
+  });
+
+  it("replaceCareerExplorerMessages is called with messages and preferredName", async () => {
+    const messages = [
+      { role: "advisor" as const, content: "Hello...", timestamp: 1 },
+      { role: "client" as const, content: "Jamie", timestamp: 2 },
+    ];
+    await replaceCareerExplorerMessages(1, messages, "Jamie");
+    expect(replaceCareerExplorerMessages).toHaveBeenCalledWith(1, messages, "Jamie");
   });
 });
 

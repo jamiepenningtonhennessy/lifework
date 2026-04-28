@@ -55,6 +55,7 @@ import {
   getCareerExplorerSession,
   clearCareerExplorerSession,
   updateCareerExplorerPreferredName,
+  replaceCareerExplorerMessages,
   type CareerExplorerMessage,
   getCoachingAnnex,
   upsertCoachingAnnex,
@@ -2827,7 +2828,7 @@ const careerExplorerRouter = router({
     const existing: CareerExplorerMessage[] = JSON.parse(session.messages ?? "[]");
     // Only inject if the session is brand new
     if (existing.length > 0) return null;
-    const openingText = `Hello.  Good to meet you.  I'm Alistair.  My title at Lifework is "The Analyst".  I'm the one who read all your life history, pondered your psychometrics and wrote your report.  So I know a lot about you already.  I know that sometimes people's official names don't match their used names — so what name should I use when chatting to you?`;
+    const openingText = `Hello.  Good to meet you.  I'm Alistair.  My title at Lifework is "The Analyst".  As I'm getting older I sometimes forget if I've met people before.  If I have — and you have the transcript of our conversation — please upload it.  Otherwise, welcome.  I'm the one who read all your life history, pondered your psychometrics and wrote your report.  So I know a lot about you already.  I know that sometimes people's official names don't match their used names — so what name should I use when chatting to you?`;
     const openingMsg: CareerExplorerMessage = {
       role: "advisor",
       content: openingText,
@@ -3082,6 +3083,32 @@ ${reportCtx}${counsellorViaCtx ? `\n\n---\n\n${counsellorViaCtx}` : ""}${counsel
     await clearCareerExplorerSession(profile.id);
     return { success: true };
   }),
+
+  // Resume from an uploaded snapshot (client-side PIN decryption already done)
+  resumeFromSnapshot: protectedProcedure
+    .input(z.object({
+      messages: z.array(z.object({
+        role: z.enum(["advisor", "client"]),
+        content: z.string(),
+        timestamp: z.number(),
+      })),
+      preferredName: z.string().nullable(),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      const profile = await getOrCreateClientProfile(ctx.user.id);
+      await replaceCareerExplorerMessages(profile.id, input.messages as CareerExplorerMessage[], input.preferredName);
+      // Re-fetch the new session to get its id
+      const session = await getOrCreateCareerExplorerSession(profile.id);
+      // Alistair welcome-back message
+      const name = input.preferredName ?? "there";
+      const welcomeBack: CareerExplorerMessage = {
+        role: "advisor",
+        content: `Ah yes, I remember now — welcome back ${name}.  Where were we?`,
+        timestamp: Date.now(),
+      };
+      await appendCareerExplorerMessage(session.id, welcomeBack);
+      return { success: true, preferredName: input.preferredName, messageCount: input.messages.length + 1 };
+    }),
 
   // Counsellor read-only view of a client's Career Explorer conversation
   getClientSession: counselorProcedure
