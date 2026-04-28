@@ -8,6 +8,8 @@ import { useAuth } from "@/_core/hooks/useAuth";
 import { Streamdown } from "streamdown";
 import { toast } from "sonner";
 
+const ALISTAIR_AVATAR = "https://d2xsxph8kpxj0f.cloudfront.net/107696804/kFbbE6kqNApXGDFpQJUGV7/alistair-avatar_24fddf8e.jpg";
+
 type Message = {
   role: "advisor" | "client";
   content: string;
@@ -23,16 +25,16 @@ const SUGGESTED_QUESTIONS = [
 ];
 
 /**
- * Parse a Sage message that may contain a [behaviour: ...] or [Sage ...] tag.
+ * Parse an Alistair message that may contain a [behaviour: ...] or [Alistair ...] tag.
  * Returns { behaviour: string | null, speech: string }
  */
-function parseSageMessage(content: string): { behaviour: string | null; speech: string } {
-  // Match [behaviour: ...] or [Sage ...] patterns at the start of the message
+function parseAdvisorMessage(content: string): { behaviour: string | null; speech: string } {
+  // Match [behaviour: ...] or [Alistair ...] or [Sage ...] patterns at the start of the message
   const match = content.match(/^\[([^\]]+)\]\s*/);
   if (match) {
     const tag = match[1].trim();
-    // Only treat as a behaviour tag if it starts with "behaviour:" or "Sage"
-    if (/^behaviour:/i.test(tag) || /^Sage\b/i.test(tag)) {
+    // Only treat as a behaviour tag if it starts with "behaviour:", "Sage", or "Alistair"
+    if (/^behaviour:/i.test(tag) || /^Sage\b/i.test(tag) || /^Alistair\b/i.test(tag)) {
       const behaviour = tag.replace(/^behaviour:\s*/i, "").trim();
       return {
         behaviour,
@@ -43,9 +45,9 @@ function parseSageMessage(content: string): { behaviour: string | null; speech: 
   return { behaviour: null, speech: content };
 }
 
-/** Renders a Sage message bubble, splitting out the behaviour tag if present */
-function SageMessageBubble({ content }: { content: string }) {
-  const { behaviour, speech } = parseSageMessage(content);
+/** Renders an Alistair message bubble, splitting out the behaviour tag if present */
+function AdvisorMessageBubble({ content }: { content: string }) {
+  const { behaviour, speech } = parseAdvisorMessage(content);
   return (
     <div className="max-w-[80%] space-y-1.5">
       {behaviour && (
@@ -158,7 +160,7 @@ export default function CareerExplorer() {
           <h2 className="font-serif text-2xl font-semibold" style={{ color: "var(--lw-navy)" }}>Career Explorer</h2>
           <p className="text-muted-foreground leading-relaxed">
             Your Career Explorer will be activated by your counsellor after your coaching conversation.
-            Once unlocked, Sage will have access to your full Lifework profile and can help you explore
+            Once unlocked, Alistair will have access to your full Lifework profile and can help you explore
             careers that are authentically yours.
           </p>
           <button
@@ -197,7 +199,7 @@ export default function CareerExplorer() {
                 className="font-serif font-semibold"
                 style={{ color: "white", fontSize: "1rem" }}
               >
-                Career Explorer — with Sage
+                Career Explorer — with Alistair
               </span>
             </div>
           </div>
@@ -222,23 +224,15 @@ export default function CareerExplorer() {
           {/* Empty state */}
           {isEmpty && (
             <div className="text-center py-12">
-              <div
-                className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-5"
-                style={{ background: "var(--lw-gold-light)", border: "1px solid rgba(201,151,58,0.3)" }}
-              >
-                <span
-                  className="text-2xl font-bold font-serif"
-                  style={{ color: "var(--lw-gold)" }}
-                >
-                  S
-                </span>
+              <div className="w-16 h-16 rounded-full overflow-hidden mx-auto mb-5 border-2" style={{ borderColor: "rgba(201,151,58,0.4)" }}>
+                <img src={ALISTAIR_AVATAR} alt="Alistair" className="w-full h-full object-cover" />
               </div>
               <h2 className="font-serif font-bold text-foreground text-xl mb-2">
-                Explore your career options with Sage
+                Explore your career options with Alistair
               </h2>
               <p className="text-muted-foreground text-sm max-w-md mx-auto mb-8 leading-relaxed">
-                Sage has read your full Lifework profile. Ask her about a specific career, or ask what
-                suits you — she'll draw on your actual achievements, strengths, and personality.
+                Alistair has read your full Lifework profile. Ask him about a specific career, or ask what
+                suits you — he'll draw on your actual achievements, strengths, and personality.
               </p>
               <div className="flex flex-col gap-2 max-w-lg mx-auto">
                 {SUGGESTED_QUESTIONS.map((q) => (
@@ -269,20 +263,12 @@ export default function CareerExplorer() {
               className={`flex ${msg.role === "client" ? "justify-end" : "justify-start"}`}
             >
               {msg.role === "advisor" && (
-                <div
-                  className="w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 mr-2.5 mt-0.5"
-                  style={{ background: "var(--lw-gold-light)", border: "1px solid rgba(201,151,58,0.4)" }}
-                >
-                  <span
-                    className="text-xs font-bold"
-                    style={{ color: "var(--lw-gold)", fontFamily: "'Playfair Display', serif" }}
-                  >
-                    S
-                  </span>
+                <div className="w-7 h-7 rounded-full overflow-hidden flex-shrink-0 mr-2.5 mt-0.5" style={{ border: "1px solid rgba(201,151,58,0.4)" }}>
+                  <img src={ALISTAIR_AVATAR} alt="Alistair" className="w-full h-full object-cover" />
                 </div>
               )}
               {msg.role === "advisor" ? (
-                <SageMessageBubble content={msg.content} />
+                <AdvisorMessageBubble content={msg.content} />
               ) : (
                 <div
                   className="max-w-[80%] rounded-2xl px-4 py-3 text-sm leading-relaxed text-white rounded-br-sm"
@@ -297,16 +283,8 @@ export default function CareerExplorer() {
           {/* Thinking indicator */}
           {sendMessage.isPending && (
             <div className="flex justify-start">
-              <div
-                className="w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 mr-2.5"
-                style={{ background: "var(--lw-gold-light)", border: "1px solid rgba(201,151,58,0.4)" }}
-              >
-                <span
-                  className="text-xs font-bold"
-                  style={{ color: "var(--lw-gold)", fontFamily: "'Playfair Display', serif" }}
-                >
-                  S
-                </span>
+              <div className="w-7 h-7 rounded-full overflow-hidden flex-shrink-0 mr-2.5" style={{ border: "1px solid rgba(201,151,58,0.4)" }}>
+                <img src={ALISTAIR_AVATAR} alt="Alistair" className="w-full h-full object-cover" />
               </div>
               <div className="bg-card border border-border rounded-2xl rounded-bl-sm px-4 py-3">
                 <div className="flex items-center gap-1.5">
@@ -334,7 +312,7 @@ export default function CareerExplorer() {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder="Ask Sage about a career, or ask what suits you…"
+              placeholder="Ask Alistair about a career, or ask what suits you…"
               rows={1}
               className="flex-1 resize-none bg-transparent text-sm text-foreground placeholder:text-muted-foreground focus:outline-none leading-relaxed"
               style={{ maxHeight: "120px", overflowY: "auto" }}
@@ -358,7 +336,7 @@ export default function CareerExplorer() {
             </Button>
           </div>
           <p className="text-xs text-muted-foreground text-center mt-2">
-            Sage has access to your full Lifework profile. Press Enter to send, Shift+Enter for a new line.
+            Alistair has access to your full Lifework profile. Press Enter to send, Shift+Enter for a new line.
           </p>
         </div>
       </div>

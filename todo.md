@@ -1204,3 +1204,9 @@
 
 - [x] After ~5 activities explored: scripted milestone message fires (range-based detection, deduplication guard). "We've explored the first few achievements..."
 - [x] After ~20 activities explored: scripted milestone message fires. "We now have done 20 — doing a few more would help establish patterns. Shall we continue?"
+
+## Sage 2 — Rebrand to Alistair
+
+- [x] Crop Alistair's photo to square portrait and upload as static CDN asset
+- [x] Update Career Explorer system prompt: rename Sage to Alistair, change all pronouns to male
+- [x] Add Alistair's avatar photo to the Career Explorer chat UI (header, message bubbles, typing indicator)
