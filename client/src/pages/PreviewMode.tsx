@@ -75,17 +75,10 @@ const PAGES = [
     status: "complete",
   },
   {
-    label: "Career Explorer (Sage 2)",
+    label: "Career Explorer (Alistair)",
     path: "/preview/career-explorer",
     icon: Compass,
-    description: "Sage 2 chat interface with sample conversation",
-    status: "complete",
-  },
-  {
-    label: "Sage — Life History Coach",
-    path: "/preview/sage",
-    icon: Sparkles,
-    description: "Sage 1 chat panel — first-visit state, opening message, input ready",
+    description: "Alistair chat interface — career exploration with full profile context",
     status: "complete",
   },
 ];

@@ -1217,3 +1217,19 @@
 - [x] Message 2 (after client's first reply — use given name): "OK [name]. So although I have read and pondered everything..." — ask what they'd like to clarify or add
 - [x] Message 3 (after client's second reply — LLM responds to clarification then transitions): respond to clarification then "So now that you know who you are..." — open the career exploration
 - [x] Extract preferred name from client's first reply (server-side, stored in session or passed via context)
+
+## Retire Sage 2 / Swap Ask Sage → Ask Alistair
+
+- [x] WowReportTab: rename "Ask Sage" button to "Ask Alistair", update tooltip
+- [x] WowReportTab: rename SageCounsellorPanel comment to Alistair
+- [x] ClientProfile: update "Unlocked — client has access to Sage" → "Unlocked — client has access to Alistair"
+- [x] ClientProfile: update unlock description text to mention Alistair
+- [x] ClientProfile: add "View Alistair conversation" link when Career Explorer is unlocked (links to counsellor read-only view)
+- [x] Add counsellor read-only career explorer procedure (getClientCareerExplorerSession) to routers.ts
+- [x] Add counsellor career explorer view page (CounsellorCareerExplorer.tsx)
+- [x] Add route /counselor/client/:id/career-explorer in App.tsx
+- [x] PreviewMode.tsx: rename "Career Explorer (Sage 2)" → "Career Explorer (Alistair)"
+- [x] PreviewMode.tsx: update description to mention Alistair
+- [x] PreviewPages.tsx NAV_PAGES: remove "Sage (Life History)" entry (retire Sage 2 preview nav item)
+- [x] PreviewPages.tsx: remove PreviewSage component export (or keep but remove from nav)
+- [x] App.tsx: remove /preview/sage route

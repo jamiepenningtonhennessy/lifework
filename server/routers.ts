@@ -3082,6 +3082,16 @@ ${reportCtx}${counsellorViaCtx ? `\n\n---\n\n${counsellorViaCtx}` : ""}${counsel
     await clearCareerExplorerSession(profile.id);
     return { success: true };
   }),
+
+  // Counsellor read-only view of a client's Career Explorer conversation
+  getClientSession: counselorProcedure
+    .input(z.object({ clientId: z.number() }))
+    .query(async ({ input }) => {
+      const session = await getCareerExplorerSession(input.clientId);
+      if (!session) return { messages: [] as CareerExplorerMessage[], sessionId: null, preferredName: null };
+      const messages: CareerExplorerMessage[] = JSON.parse(session.messages ?? "[]");
+      return { messages, sessionId: session.id, preferredName: session.preferredName ?? null };
+    }),
 });
 
 // ─── Coaching Annex Router ─────────────────────────────────────────────────

@@ -459,7 +459,7 @@ export default function WowReportTab({ clientId, clientName }: WowReportTabProps
         downloadBuilding={claudeExportBuilding}
       />
 
-      {/* Sage counsellor panel */}
+      {/* Alistair counsellor panel */}
       <SageCounsellorPanel
         clientId={clientId}
         clientName={clientName}
@@ -666,10 +666,10 @@ export default function WowReportTab({ clientId, clientName }: WowReportTabProps
                       variant="outline"
                       className="border-white/20 text-white hover:bg-white/10 text-xs"
                       onClick={() => setSageOpen(true)}
-                      title="Consult Sage about this client before your session"
+                      title="Consult Alistair about this client before your session"
                     >
                       <BrainCircuit className="w-3 h-3 mr-1" />
-                      Ask Sage
+                      Ask Alistair
                     </Button>
                     {isLocked ? (
                       <div className="flex items-center gap-1 text-xs px-2 py-1 rounded border border-amber-400/40 text-amber-300/80 bg-amber-900/20">

@@ -418,25 +418,35 @@ export default function ClientProfile() {
                     <div className="flex items-center justify-between">
                       <div>
                         <p className="text-sm text-emerald-700 font-medium flex items-center gap-1.5">
-                          <CheckCircle2 className="w-4 h-4" /> Unlocked — client has access to Sage
+                          <CheckCircle2 className="w-4 h-4" /> Unlocked — client has access to Alistair
                         </p>
-                        <p className="text-xs text-muted-foreground mt-1">The client can now use the Career Explorer to explore careers in the context of their full Lifework profile.</p>
+                        <p className="text-xs text-muted-foreground mt-1">The client can now use the Career Explorer to explore careers with Alistair in the context of their full Lifework profile.</p>
                       </div>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        disabled={lockCareerExplorer.isPending}
-                        onClick={() => lockCareerExplorer.mutate({ clientId })}
-                        className="text-xs ml-4 flex-shrink-0"
-                      >
-                        {lockCareerExplorer.isPending ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : "Lock"}
-                      </Button>
+                      <div className="flex items-center gap-2 ml-4 flex-shrink-0">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="text-xs"
+                          onClick={() => navigate(`/counselor/client/${clientId}/career-explorer`)}
+                        >
+                          <Compass className="w-3.5 h-3.5 mr-1" /> View conversation
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          disabled={lockCareerExplorer.isPending}
+                          onClick={() => lockCareerExplorer.mutate({ clientId })}
+                          className="text-xs"
+                        >
+                          {lockCareerExplorer.isPending ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : "Lock"}
+                        </Button>
+                      </div>
                     </div>
                   ) : (
                     <div className="flex items-center justify-between">
                       <div>
                         <p className="text-sm text-muted-foreground">Not yet unlocked.</p>
-                        <p className="text-xs text-muted-foreground mt-1">Unlock after the coaching call so the client can explore careers with Sage using their full Lifework profile as context.</p>
+                        <p className="text-xs text-muted-foreground mt-1">Unlock after the coaching call so the client can explore careers with Alistair using their full Lifework profile as context.</p>
                       </div>
                       <Button
                         size="sm"

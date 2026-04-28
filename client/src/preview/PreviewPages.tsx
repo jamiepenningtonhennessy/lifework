@@ -67,7 +67,6 @@ const NAV_PAGES = [
   { label: "IPIP Results", path: "/preview/results-held/ipip" },
   { label: "My Report", path: "/preview/my-report" },
   { label: "Career Explorer", path: "/preview/career-explorer" },
-  { label: "Sage (Life History)", path: "/preview/sage" },
 ];
 
 function PreviewNav({ current }: { current: string }) {

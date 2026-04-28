@@ -40,8 +40,8 @@ import {
   PreviewIpipResults,
   PreviewMyReport,
   PreviewCareerExplorer,
-  PreviewSage,
 } from "./preview/PreviewPages";
+import CounsellorCareerExplorer from "./pages/CounsellorCareerExplorer";
 
 function Router() {
   return (
@@ -87,6 +87,7 @@ function Router() {
       <Route path="/lifework/career-explorer"><Redirect to="/coaching/lifework/career-explorer" /></Route>
       <Route path="/dashboard">{() => <LifeworkLayout><ClientDashboard /></LifeworkLayout>}</Route>
       <Route path="/counselor">{() => <CounsellorPinGate><CounselorDashboard /></CounsellorPinGate>}</Route>
+      <Route path="/counselor/client/:id/career-explorer">{(params) => <CounsellorPinGate><CounsellorCareerExplorer /></CounsellorPinGate>}</Route>
       <Route path="/counselor/client/:id">{(params) => <CounsellorPinGate><ClientProfile /></CounsellorPinGate>}</Route>
 
       {/* Legacy /ph/* redirects kept for backward compatibility */}
@@ -120,7 +121,6 @@ function Router() {
       <Route path="/preview/results-held/ipip">{() => <ResultsHeld assessmentName="Personality Profile" />}</Route>
       <Route path="/preview/my-report" component={PreviewMyReport} />
       <Route path="/preview/career-explorer" component={PreviewCareerExplorer} />
-      <Route path="/preview/sage" component={PreviewSage} />
 
       <Route path="/404" component={NotFound} />
       <Route component={NotFound} />
