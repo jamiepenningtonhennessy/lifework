@@ -567,6 +567,13 @@ const viaRouter = router({
     .input(z.object({ answers: z.record(z.string(), z.number()) }))
     .mutation(async ({ ctx, input }) => {
       const profile = await getOrCreateClientProfile(ctx.user.id);
+      // Gate: Sage life history must be completed before psychometrics can be submitted
+      if (profile.sageStatus !== "completed") {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "Please complete the Sage life history conversation before submitting the VIA survey.",
+        });
+      }
       // Convert string keys to numbers
       const numericAnswers: Record<number, number> = {};
       for (const [k, v] of Object.entries(input.answers)) {
@@ -599,6 +606,13 @@ const ipipRouter = router({
     .input(z.object({ answers: z.record(z.string(), z.number()) }))
     .mutation(async ({ ctx, input }) => {
       const profile = await getOrCreateClientProfile(ctx.user.id);
+      // Gate: Sage life history must be completed before psychometrics can be submitted
+      if (profile.sageStatus !== "completed") {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "Please complete the Sage life history conversation before submitting the personality survey.",
+        });
+      }
       const numericAnswers: Record<number, number> = {};
       for (const [k, v] of Object.entries(input.answers)) {
         numericAnswers[parseInt(k)] = v;

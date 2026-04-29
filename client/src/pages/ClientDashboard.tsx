@@ -324,9 +324,14 @@ export default function ClientDashboard() {
                     break;
                   }
                 }
+                // Psychometrics (step 4) requires Sage to be fully *completed*.
+                // All other steps only require the previous step to have been started (not_started blocks).
+                const requiresCompletion = step.id === "psychometrics";
                 const isLocked =
                   idx > 0 &&
-                  prevBlockerStatus === "not_started" &&
+                  (requiresCompletion
+                    ? prevBlockerStatus !== "completed"
+                    : prevBlockerStatus === "not_started") &&
                   step.id !== "sage"; // Sage is never hard-locked
 
                 return (

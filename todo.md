@@ -1246,3 +1246,8 @@
 ## Alistair — Upload Summary on Resume
 
 - [x] On resumeFromSnapshot: instead of a static "Where were we?", use LLM to generate a personalised recap of the previous conversation, then invite the client to continue
+
+## Dashboard — Tighten Sage Gate for Psychometrics
+
+- [x] Change isLocked condition in ClientDashboard.tsx: psychometrics locked until prevBlockerStatus === "completed" (not just "not_started")
+- [x] Add server-side guard on VIA/IPIP save procedures: reject if sageStatus !== "completed"
