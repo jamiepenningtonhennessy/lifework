@@ -173,6 +173,19 @@ export async function deleteAchievement(id: number) {
   await db.delete(achievements).where(eq(achievements.id, id));
 }
 
+/** Returns total achievement count and how many have sageEnrichment populated. */
+export async function getEnrichmentCounts(clientId: number): Promise<{ total: number; enriched: number }> {
+  const db = await getDb();
+  if (!db) return { total: 0, enriched: 0 };
+  const rows = await db
+    .select({ sageEnrichment: achievements.sageEnrichment })
+    .from(achievements)
+    .where(eq(achievements.clientId, clientId));
+  const total = rows.length;
+  const enriched = rows.filter((r) => r.sageEnrichment && r.sageEnrichment.trim().length > 0).length;
+  return { total, enriched };
+}
+
 export async function updateAchievementSageEnrichment(
   id: number,
   sageEnrichment: string

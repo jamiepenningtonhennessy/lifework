@@ -1251,3 +1251,11 @@
 
 - [x] Change isLocked condition in ClientDashboard.tsx: psychometrics locked until prevBlockerStatus === "completed" (not just "not_started")
 - [x] Add server-side guard on VIA/IPIP save procedures: reject if sageStatus !== "completed"
+
+## Dashboard — Sage Enrichment Count Gate for Psychometrics
+
+- [x] Add getMyProfileWithEnrichmentCount query: return enrichedCount (achievements with sageEnrichment) and totalAchievements alongside profile
+- [x] Update VIA/IPIP server-side guard: block if enrichedCount < min(totalAchievements, 20)
+- [x] Update ClientDashboard.tsx: fetch enrichment counts, show progress message on psychometrics card ("Sage has explored X of your Y achievements. Complete Z to unlock Psychometrics.")
+- [x] Update isLocked condition for psychometrics: locked if enrichedCount < min(totalAchievements, 20)
+- [x] Show clearer lock icon/message on psychometrics card when locked

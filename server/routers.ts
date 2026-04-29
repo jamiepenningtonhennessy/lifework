@@ -61,6 +61,7 @@ import {
   upsertCoachingAnnex,
   updateAchievementSageEnrichment,
   updateAchievementCounsellor,
+  getEnrichmentCounts,
 } from "./db";
 import { invokeLLM } from "./_core/llm";
 import { storagePut } from "./storage";
@@ -169,6 +170,15 @@ const profileRouter = router({
       await updateClientProfile(profile.id, input);
       return { success: true };
     }),
+
+  /** Returns enrichment progress: how many achievements have been explored by Sage. */
+  getEnrichmentStatus: protectedProcedure.query(async ({ ctx }) => {
+    const profile = await getOrCreateClientProfile(ctx.user.id);
+    const { total, enriched } = await getEnrichmentCounts(profile.id);
+    const required = Math.min(total, 20);
+    const unlocked = enriched >= required;
+    return { total, enriched, required, unlocked };
+  }),
 });
 
 // ─── Interview Router ────────────────────────────────────────────────────────
@@ -567,11 +577,13 @@ const viaRouter = router({
     .input(z.object({ answers: z.record(z.string(), z.number()) }))
     .mutation(async ({ ctx, input }) => {
       const profile = await getOrCreateClientProfile(ctx.user.id);
-      // Gate: Sage life history must be completed before psychometrics can be submitted
-      if (profile.sageStatus !== "completed") {
+      // Gate: enough achievements must be Sage-enriched before psychometrics can be submitted
+      const { total: viaTotal, enriched: viaEnriched } = await getEnrichmentCounts(profile.id);
+      const viaRequired = Math.min(viaTotal, 20);
+      if (viaEnriched < viaRequired) {
         throw new TRPCError({
           code: "FORBIDDEN",
-          message: "Please complete the Sage life history conversation before submitting the VIA survey.",
+          message: `Please complete the Sage life history conversation. Sage has explored ${viaEnriched} of your ${viaTotal} achievements; ${viaRequired} must be explored before you can submit the VIA survey.`,
         });
       }
       // Convert string keys to numbers
@@ -606,11 +618,13 @@ const ipipRouter = router({
     .input(z.object({ answers: z.record(z.string(), z.number()) }))
     .mutation(async ({ ctx, input }) => {
       const profile = await getOrCreateClientProfile(ctx.user.id);
-      // Gate: Sage life history must be completed before psychometrics can be submitted
-      if (profile.sageStatus !== "completed") {
+      // Gate: enough achievements must be Sage-enriched before psychometrics can be submitted
+      const { total: ipipTotal, enriched: ipipEnriched } = await getEnrichmentCounts(profile.id);
+      const ipipRequired = Math.min(ipipTotal, 20);
+      if (ipipEnriched < ipipRequired) {
         throw new TRPCError({
           code: "FORBIDDEN",
-          message: "Please complete the Sage life history conversation before submitting the personality survey.",
+          message: `Please complete the Sage life history conversation. Sage has explored ${ipipEnriched} of your ${ipipTotal} achievements; ${ipipRequired} must be explored before you can submit the personality survey.`,
         });
       }
       const numericAnswers: Record<number, number> = {};

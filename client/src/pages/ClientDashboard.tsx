@@ -168,6 +168,11 @@ export default function ClientDashboard() {
     { enabled: isAuthenticated }
   );
 
+  const { data: enrichmentStatus } = trpc.profile.getEnrichmentStatus.useQuery(
+    undefined,
+    { enabled: isAuthenticated }
+  );
+
   if (!loading && !isAuthenticated) {
     window.location.href = getLoginUrl();
     return null;
@@ -324,13 +329,14 @@ export default function ClientDashboard() {
                     break;
                   }
                 }
-                // Psychometrics (step 4) requires Sage to be fully *completed*.
-                // All other steps only require the previous step to have been started (not_started blocks).
-                const requiresCompletion = step.id === "psychometrics";
+                // Psychometrics (step 4) requires enough Sage-enriched achievements.
+                // All other steps only require the previous step to have been started.
+                const isPsychometrics = step.id === "psychometrics";
+                const psychometricsUnlocked = enrichmentStatus?.unlocked ?? false;
                 const isLocked =
                   idx > 0 &&
-                  (requiresCompletion
-                    ? prevBlockerStatus !== "completed"
+                  (isPsychometrics
+                    ? !psychometricsUnlocked
                     : prevBlockerStatus === "not_started") &&
                   step.id !== "sage"; // Sage is never hard-locked
 
@@ -462,10 +468,28 @@ export default function ClientDashboard() {
                               );
                             })()}
 
-                            {isLocked && (
+                            {isLocked && step.id !== "psychometrics" && (
                               <span className="text-xs text-muted-foreground/50">
                                 Complete previous step first
                               </span>
+                            )}
+                            {isLocked && step.id === "psychometrics" && enrichmentStatus && (
+                              <div className="text-right">
+                                <div className="flex items-center gap-1.5 justify-end mb-1">
+                                  <div className="h-1.5 w-24 bg-muted rounded-full overflow-hidden">
+                                    <div
+                                      className="h-full bg-[var(--lw-gold)] rounded-full transition-all"
+                                      style={{ width: `${Math.round((enrichmentStatus.enriched / enrichmentStatus.required) * 100)}%` }}
+                                    />
+                                  </div>
+                                  <span className="text-xs font-medium" style={{ color: "var(--lw-gold)" }}>
+                                    {enrichmentStatus.enriched}/{enrichmentStatus.required}
+                                  </span>
+                                </div>
+                                <span className="text-xs text-muted-foreground/70 leading-tight block max-w-[180px] text-right">
+                                  Sage must explore {enrichmentStatus.required} of your {enrichmentStatus.total} achievements to unlock this step.
+                                </span>
+                              </div>
                             )}
                           </div>
                         )}
