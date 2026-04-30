@@ -108,7 +108,7 @@ async function startServer() {
   } catch {
     console.log("[pdf] WeasyPrint not found — installing via pip...");
     try {
-      execSync("pip3 install weasyprint --quiet --no-warn-script-location", { stdio: "pipe", timeout: 120_000 });
+      execSync("pip3 install weasyprint --quiet", { stdio: "pipe", timeout: 120_000 });
       console.log("[pdf] WeasyPrint installed successfully");
     } catch {
       console.warn("[pdf] WeasyPrint install failed — PDF generation will fall back to Puppeteer");
