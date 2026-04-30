@@ -1,4 +1,5 @@
 import "dotenv/config";
+import { execSync } from "child_process";
 import express from "express";
 import { createServer } from "http";
 import net from "net";
@@ -99,6 +100,21 @@ async function startServer() {
   }
 
   await recoverStuckReports();
+
+  // Ensure WeasyPrint is available for PDF generation
+  try {
+    execSync("weasyprint --version", { stdio: "pipe" });
+    console.log("[pdf] WeasyPrint is available");
+  } catch {
+    console.log("[pdf] WeasyPrint not found — installing via pip...");
+    try {
+      execSync("pip3 install weasyprint --quiet --no-warn-script-location", { stdio: "pipe", timeout: 120_000 });
+      console.log("[pdf] WeasyPrint installed successfully");
+    } catch {
+      console.warn("[pdf] WeasyPrint install failed — PDF generation will fall back to Puppeteer");
+    }
+  }
+
   server.listen(port, () => {
     console.log(`Server running on http://localhost:${port}/`);
   });
