@@ -190,7 +190,7 @@ export function PreviewHome() {
           <div className="mb-8 text-center">
             <div className="lw-eyebrow mb-3" style={{ color: "var(--lw-gold)", fontSize: "0.7rem", letterSpacing: "0.15em", textTransform: "uppercase" }}>Watch First</div>
             <h2 className="font-serif font-bold" style={{ fontSize: "1.8rem", color: "white" }}>
-              The story of Lifework — in four minutes
+              The story of Lifework — in five minutes
             </h2>
             <p className="mt-2" style={{ color: "rgba(255,255,255,0.6)", fontSize: "0.95rem" }}>
               Rooted in positive psychology, anchored in your own life story.

@@ -228,7 +228,7 @@ export default function Home() {
           <div className="mb-10 text-center">
             <div className="lw-eyebrow mb-4" style={{ color: "var(--lw-gold)" }}>How it works</div>
             <h2 className="font-serif font-bold" style={{ fontSize: "1.8rem", color: "white" }}>
-              The story of Lifework — in four minutes
+              The story of Lifework — in five minutes
             </h2>
             <p className="mt-3" style={{ color: "rgba(255,255,255,0.6)", fontSize: "0.95rem" }}>
               Rooted in positive psychology, anchored in your own life story.
