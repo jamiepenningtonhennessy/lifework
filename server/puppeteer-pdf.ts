@@ -3,28 +3,67 @@
  *
  * Express route: GET /api/report/pdf/:clientId
  *
- * Uses Puppeteer (headless Chromium) to render the HTML report to a
- * pixel-perfect A4 PDF and stream it back as a download.
+ * Renders the HTML report to an A4 PDF and streams it back as a download.
  *
- * This produces far sharper output than the browser print dialog because:
- *  - Fonts are fully loaded before rendering
- *  - print-color-adjust: exact is honoured
- *  - No browser chrome / headers / footers
- *  - Consistent pagination regardless of OS / browser version
+ * Strategy (in priority order):
+ *  1. WeasyPrint  — pure-Python HTML→PDF, no Chromium required, works in any
+ *                   container. Used when `weasyprint` is on PATH.
+ *  2. Puppeteer   — headless Chromium fallback for local dev environments that
+ *                   have the system libraries available.
  */
 
-import { existsSync, readdirSync } from "fs";
+import { existsSync, readdirSync, writeFileSync, readFileSync, unlinkSync } from "fs";
 import { join } from "path";
+import { tmpdir } from "os";
+import { execFileSync } from "child_process";
 import { Request, Response } from "express";
-import puppeteer from "puppeteer";
 import { buildClaudeExportJson } from "./routers/claudeExport.js";
 import { renderHtmlReport } from "./html-report.js";
 import { sdk } from "./_core/sdk.js";
 
-/**
- * Known system Chromium paths on Debian/Ubuntu-based containers.
- * Checked in order; first one that exists on disk wins.
- */
+// ─── WeasyPrint ───────────────────────────────────────────────────────────────
+
+function isWeasyPrintAvailable(): boolean {
+  try {
+    execFileSync("weasyprint", ["--version"], { stdio: "pipe" });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+async function generatePdfWithWeasyPrint(html: string): Promise<Buffer> {
+  const id = `wow-report-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+  const htmlPath = join(tmpdir(), `${id}.html`);
+  const pdfPath = join(tmpdir(), `${id}.pdf`);
+
+  try {
+    writeFileSync(htmlPath, html, "utf8");
+
+    execFileSync(
+      "weasyprint",
+      [
+        htmlPath,
+        pdfPath,
+        "--presentational-hints",
+        "--optimize-images",
+      ],
+      {
+        stdio: "pipe",
+        timeout: 120_000, // 2 minutes max
+      }
+    );
+
+    const pdfBuffer = readFileSync(pdfPath);
+    return pdfBuffer;
+  } finally {
+    try { unlinkSync(htmlPath); } catch { /* ignore */ }
+    try { unlinkSync(pdfPath); } catch { /* ignore */ }
+  }
+}
+
+// ─── Puppeteer (fallback) ─────────────────────────────────────────────────────
+
 const SYSTEM_CHROME_CANDIDATES = [
   "/usr/bin/chromium-browser",
   "/usr/bin/chromium",
@@ -34,11 +73,6 @@ const SYSTEM_CHROME_CANDIDATES = [
   "/usr/local/bin/chromium",
 ];
 
-/**
- * Walk the project-relative .cache/puppeteer/chrome directory (installed by
- * .puppeteerrc.cjs + postinstall) to find the Chrome executable.
- * Structure: .cache/puppeteer/chrome/<platform>-<ver>/chrome-<platform>/chrome
- */
 function findProjectCacheChrome(): string | undefined {
   try {
     const cacheDir = join(process.cwd(), ".cache", "puppeteer", "chrome");
@@ -51,19 +85,11 @@ function findProjectCacheChrome(): string | undefined {
       }
     }
   } catch {
-    // ignore — directory may not exist yet
+    // ignore
   }
   return undefined;
 }
 
-/**
- * Resolve the Chromium executable path.
- * Priority:
- *  1. PUPPETEER_EXECUTABLE_PATH env var (explicit override)
- *  2. Project-relative .cache/puppeteer Chrome (installed by postinstall)
- *  3. Known system Chromium paths (checked with existsSync)
- *  4. undefined → Puppeteer falls back to its own bundled Chrome
- */
 function resolveChromiumPath(): string | undefined {
   if (process.env.PUPPETEER_EXECUTABLE_PATH) {
     return process.env.PUPPETEER_EXECUTABLE_PATH;
@@ -71,12 +97,50 @@ function resolveChromiumPath(): string | undefined {
   const projectCache = findProjectCacheChrome();
   if (projectCache) return projectCache;
   for (const candidate of SYSTEM_CHROME_CANDIDATES) {
-    if (existsSync(candidate)) {
-      return candidate;
-    }
+    if (existsSync(candidate)) return candidate;
   }
   return undefined;
 }
+
+async function generatePdfWithPuppeteer(html: string): Promise<Buffer> {
+  // Dynamic import so the module load doesn't fail if puppeteer isn't installed
+  const puppeteer = (await import("puppeteer")).default;
+  const executablePath = resolveChromiumPath();
+  console.log(`[pdf] Puppeteer fallback — Chromium${executablePath ? ` at ${executablePath}` : " (auto-detect)"}`);
+
+  const browser = await puppeteer.launch({
+    headless: true,
+    executablePath,
+    args: [
+      "--no-sandbox",
+      "--disable-setuid-sandbox",
+      "--disable-dev-shm-usage",
+      "--disable-gpu",
+      "--single-process",
+      "--no-zygote",
+      "--font-render-hinting=none",
+    ],
+  });
+
+  try {
+    const page = await browser.newPage();
+    await page.setContent(html, { waitUntil: ["networkidle0", "domcontentloaded"] });
+    await page.evaluateHandle("document.fonts.ready");
+    const pdfBuffer = await page.pdf({
+      format: "A4",
+      printBackground: true,
+      margin: { top: 0, right: 0, bottom: 0, left: 0 },
+      preferCSSPageSize: true,
+    });
+    await browser.close();
+    return Buffer.from(pdfBuffer);
+  } catch (err) {
+    await browser.close();
+    throw err;
+  }
+}
+
+// ─── Route handler ────────────────────────────────────────────────────────────
 
 export async function handlePuppeteerPdfDownload(req: Request, res: Response) {
   try {
@@ -97,61 +161,31 @@ export async function handlePuppeteerPdfDownload(req: Request, res: Response) {
     const data = await buildClaudeExportJson(clientId);
     const html = renderHtmlReport(data as Record<string, unknown>);
 
-    // ── Get client name from payload for filename ─────────────────────────────
+    // ── Get client name for filename ──────────────────────────────────────────
     const clientData = (data as Record<string, unknown>).CLIENT as Record<string, string> | undefined;
     const clientName = clientData?.NAME ?? `Client-${clientId}`;
 
-    // ── Puppeteer: render to PDF ──────────────────────────────────────────────
-    const executablePath = resolveChromiumPath();
-    console.log(`[puppeteer-pdf] Launching Chromium${executablePath ? ` at ${executablePath}` : " (auto-detect)"}`);
+    // ── Generate PDF ──────────────────────────────────────────────────────────
+    let pdfBuffer: Buffer;
 
-    const browser = await puppeteer.launch({
-      headless: true,
-      executablePath,
-      args: [
-        "--no-sandbox",
-        "--disable-setuid-sandbox",
-        "--disable-dev-shm-usage",
-        "--disable-gpu",
-        "--single-process",
-        "--no-zygote",
-        "--font-render-hinting=none",
-      ],
-    });
-
-    try {
-      const page = await browser.newPage();
-
-      // Set content and wait for fonts + images to load
-      await page.setContent(html, { waitUntil: ["networkidle0", "domcontentloaded"] });
-
-      // Wait for Google Fonts to load (they are embedded in the HTML <head>)
-      await page.evaluateHandle("document.fonts.ready");
-
-      // Generate PDF
-      const pdfBuffer = await page.pdf({
-        format: "A4",
-        printBackground: true,
-        margin: { top: 0, right: 0, bottom: 0, left: 0 },
-        preferCSSPageSize: true,
-      });
-
-      await browser.close();
-
-      // ── Stream response ───────────────────────────────────────────────────────
-      const safeFilename = clientName.replace(/[^a-zA-Z0-9 _-]/g, "").replace(/\s+/g, "-");
-      res.setHeader("Content-Type", "application/pdf");
-      res.setHeader("Content-Disposition", `attachment; filename="Lifework-${safeFilename}.pdf"`);
-      res.setHeader("Content-Length", pdfBuffer.length);
-      res.end(pdfBuffer);
-    } catch (err) {
-      await browser.close();
-      throw err;
+    if (isWeasyPrintAvailable()) {
+      console.log("[pdf] Using WeasyPrint");
+      pdfBuffer = await generatePdfWithWeasyPrint(html);
+    } else {
+      console.log("[pdf] WeasyPrint not found — falling back to Puppeteer");
+      pdfBuffer = await generatePdfWithPuppeteer(html);
     }
+
+    // ── Stream response ───────────────────────────────────────────────────────
+    const safeFilename = clientName.replace(/[^a-zA-Z0-9 _-]/g, "").replace(/\s+/g, "-");
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader("Content-Disposition", `attachment; filename="Lifework-${safeFilename}.pdf"`);
+    res.setHeader("Content-Length", pdfBuffer.length);
+    res.end(pdfBuffer);
   } catch (err) {
     const errorMessage = err instanceof Error ? err.message : String(err);
     const errorStack = err instanceof Error ? err.stack : String(err);
-    console.error("[puppeteer-pdf] Error:", errorStack);
+    console.error("[pdf] Error:", errorStack);
     res.status(500).json({ error: "Failed to generate PDF", detail: errorMessage });
   }
 }

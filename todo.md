@@ -1259,3 +1259,7 @@
 - [x] Update ClientDashboard.tsx: fetch enrichment counts, show progress message on psychometrics card ("Sage has explored X of your Y achievements. Complete Z to unlock Psychometrics.")
 - [x] Update isLocked condition for psychometrics: locked if enrichedCount < min(totalAchievements, 20)
 - [x] Show clearer lock icon/message on psychometrics card when locked
+
+## PDF Generation — Fix Production Puppeteer Error
+
+- [x] Replace Puppeteer/Chromium PDF generation with WeasyPrint (browser-independent, no system Chrome needed) — postinstall installs weasyprint via pip; Puppeteer kept as local fallback
