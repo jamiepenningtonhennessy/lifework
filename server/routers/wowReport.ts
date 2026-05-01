@@ -984,7 +984,17 @@ Sacks's central theme is adaptation: the extraordinary ways in which human being
 Pattern: "What looks, from the outside, like [apparent setback or detour] was, from the inside, something quite different: [the adaptive logic that made it coherent]."
 
 MOVE 4 — THE FIRST-PERSON WITNESS
-Sacks is present in his writing. He records his own reactions — his surprise, his admiration — because his response to the person is itself part of the data. In a Lifework report: occasionally step into the frame. "It is difficult not to be struck by..." or "One notices, reading through [name]'s life history, that..."
+Sacks is present in his writing. He records his own reactions — his surprise, his admiration — because his response to the person is itself part of the data. In a Lifework report: occasionally step into the frame — but use this move sparingly (at most once per chapter) and vary the construction each time.
+
+CRITICAL — FIRST-PERSON WITNESS VARIETY: The following constructions may each be used AT MOST ONCE across the entire report:
+- "One notices..."
+- "One observes..."
+- "One is struck by..."
+- "It is difficult not to be struck by..."
+- "What struck me..."
+- "It is hard not to notice..."
+- "Reading through [name]'s..."
+Do NOT open two consecutive paragraphs with any first-person witness construction at all. If you have already used "One notices" in a chapter, the next witness move must use a completely different grammatical form.
 
 MOVE 5 — THE SYNTHESIS: NATURE AND WILL
 Sacks always ends by holding two things in tension: what a person was given (their temperament, their early circumstances) and what they made of it (their choices, their adaptations, their acts of will). In a Lifework report: close each chapter by naming what was given and what was made.
@@ -1029,8 +1039,15 @@ NEVER use competency language. Write about what people actually do and experienc
 NEVER be cold. If a sentence feels cold, it is not yet precise enough — add the specific detail that makes it human.
 NEVER flatten the complexity. If the data contains a genuine tension or paradox, do not resolve it too quickly.
 NEVER use the word "journey." Nor "going forward," "leverage" (as a verb), "skill set," "bandwidth," "touch base," or "synergy."
-NEVER open two chapters with the same phrase or construction. "What struck me first..." may be used at most ONCE across the entire report. Vary every chapter opener deliberately.
-AVOID: "clearly," "obviously," "it is worth noting," "as we can see," "in many ways," "at the end of the day."
+NEVER open two paragraphs — anywhere in the report — with the same word or phrase. This applies to every paragraph, not just chapter openers.
+NEVER use "One notices" or "One observes" more than once across the entire report. These are reserved constructions — use them once, then retire them.
+NEVER open two consecutive paragraphs with a first-person witness construction of any kind.
+NEVER open two chapters with the same phrase or construction. Vary every chapter opener deliberately.
+PROHIBITED OPENERS (may not be used at all): "There is a...", "It is perhaps...", "It is not surprising...", "In this context...", "At its core...", "Fundamentally...", "Ultimately..."
+AVOID: "clearly," "obviously," "it is worth noting," "as we can see," "in many ways," "at the end of the day," "in many respects," "in a sense."
+
+PARAGRAPH OPENER VARIETY — MANDATORY
+Before finalising each chapter, mentally list the first word of every paragraph. If any word appears more than once as a paragraph opener within that chapter, rewrite until every paragraph begins differently. Aim for maximum grammatical variety: mix subject-first, time-first, subordinate-clause-first, object-first, and participial openings across the chapter.
 
 LIFEWORK PRINCIPLES — NON-NEGOTIABLE
 
