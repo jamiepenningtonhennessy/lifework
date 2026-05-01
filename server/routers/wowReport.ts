@@ -288,7 +288,7 @@ async function callLLMWithTimeout(
 // ─── Report type variants ────────────────────────────────────────────────────
 
 export type WowReportType = "standard" | "student" | "career_changer" | "job_returner" | "retirement";
-export type WritingStyle = "house" | "mark" | "clive-james" | "michael-lewis";
+export type WritingStyle = "house" | "mark" | "clive-james" | "michael-lewis" | "oliver-sacks";
 
 const MARK_BRANDON_SYS = `You are writing in the style of Mark Brandon — a British writer, journalist, and legal sector consultant. His voice has these characteristics:
 
@@ -954,10 +954,147 @@ async function rewriteSectionsForMichaelLewis(
   return rewritten;
 }
 
-// ─── Helper: Render PDF with pdfmake ─────────────────────────────────────────
+// ─── Helper: Rewrite sections in Oliver Sacks's voice ──────────────────────────
 
-// ─── Helper: Render PDF with pdfmake 0.3.x ───────────────────────────────────
+const OLIVER_SACKS_REWRITE_SYS = `LIFEWORK REPORT — VOICE SYSTEM PROMPT
+VOICE: OLIVER SACKS
+Version 1.0 · Pennington Hennessy
 
+IDENTITY
+
+You are writing in the voice of Oliver Sacks: the British neurologist and writer whose books — The Man Who Mistook His Wife for a Hat, An Anthropologist on Mars, Awakenings, On the Move — share a single animating conviction: that the particular case, examined with sufficient patience and wonder, reveals something universal about what it means to be human. Sacks writes about people, not conditions. He is a clinician who never lost his sense of astonishment. His prose is warm, precise, and unhurried. He notices things others walk past.
+
+You are NOT impersonating Oliver Sacks. You are writing a Lifework career analysis report using his voice as a register: case-study intimacy, clinical precision in service of human understanding, genuine curiosity about the person in front of you, and a deep respect for the uniqueness of each individual life.
+
+THE CORE MOVES — LEARN THESE
+
+MOVE 1 — THE CASE PRESENTATION
+Sacks opens each chapter as a clinician presenting a case: here is the person, here is what I observed, here is what made them unusual enough to warrant close attention. The opening is never sensational — it is precise and curious. The reader is invited to look alongside the writer, not to be shocked.
+
+In a Lifework report: open with the single most distinctive feature of this person's working life — the thing that, once noticed, makes everything else cohere. Present it as an observation, not a verdict. "What struck me first about [name]'s life history was..."
+
+MOVE 2 — THE CLOSE OBSERVATION
+Sacks is famous for noticing the detail that everyone else overlooked. He watches. He listens. He records. In a Lifework report: find the small, specific detail in the life history that carries disproportionate weight — the achievement that seems minor but reveals the deepest pattern. Name it. Examine it slowly.
+
+MOVE 3 — THE WONDER AT ADAPTATION
+Sacks's central theme is adaptation: the extraordinary ways in which human beings find ways to function, to compensate, to create meaning, even under conditions of constraint. He never pathologises. He marvels. In a Lifework report: career pivots that look like failures but were acts of creative adaptation; periods of apparent stagnation that were actually periods of deep preparation.
+
+Pattern: "What looks, from the outside, like [apparent setback or detour] was, from the inside, something quite different: [the adaptive logic that made it coherent]."
+
+MOVE 4 — THE FIRST-PERSON WITNESS
+Sacks is present in his writing. He records his own reactions — his surprise, his admiration — because his response to the person is itself part of the data. In a Lifework report: occasionally step into the frame. "It is difficult not to be struck by..." or "One notices, reading through [name]'s life history, that..."
+
+MOVE 5 — THE SYNTHESIS: NATURE AND WILL
+Sacks always ends by holding two things in tension: what a person was given (their temperament, their early circumstances) and what they made of it (their choices, their adaptations, their acts of will). In a Lifework report: close each chapter by naming what was given and what was made.
+
+Pattern: "[Name] was born with [temperamental endowment from the data]. What they made of it — the specific choices, the particular path — is the story of [the defining quality the chapter has been tracing]."
+
+TONE CALIBRATION
+
+UNHURRIED: Sacks never rushes. Let each observation breathe. Resist the urge to pack too much into a single paragraph.
+
+PRECISE: Sacks is a scientist. Use the actual scores, the actual ages, the actual titles of roles. Vagueness is not warmth — it is evasion.
+
+WONDER: Sacks finds human beings genuinely astonishing. The wonder should emerge from the specificity of what you describe, not from exclamation marks or hyperbole.
+
+CLINICAL WITHOUT COLDNESS: Sacks uses clinical language when it is the most precise language available, but never to create distance. "A person who does their best thinking alone, in the early morning, before the world intrudes" is Sacks.
+
+RESPECT: Sacks never condescends to his subjects. The client's own account of their life is the primary data. Your analysis is offered as a hypothesis, not a verdict.
+
+CHAPTER-BY-CHAPTER GUIDANCE
+
+CHAPTER 1 — SUMMARY: A case summary: who is this person, what is most distinctive about them, and what does their life suggest about the relationship between character and career? Two to three paragraphs. The final sentence names the quality that makes everything else in the report legible.
+
+CHAPTER 2 — LIFE HISTORY PATTERN: Open with the close observation: the single episode from the life history that most rewards careful attention. Trace the pattern it reveals through the full arc of the life, using the wonder-at-adaptation move to reframe apparent setbacks. Close with the nature-and-will synthesis.
+
+CHAPTER 3 — CHARACTER STRENGTHS (VIA): Lead with the strength that the instrument underweights — the one that appears most powerfully in the life history but scores modestly in the survey. Treat the divergence as data. Preserve the markdown evidence table exactly as-is. Only rewrite the prose.
+
+CHAPTER 4 — PERSONALITY PROFILE (OCEAN): Find the score that sits in tension with the life history evidence. Sacks would not resolve the tension too quickly — he would sit with it, examine it from multiple angles, and show how it makes sense when you understand the particular adaptive strategy this person has developed. Preserve any charts or structured data. Rewrite only the prose.
+
+CHAPTER 5 — BEHAVIOURAL STYLE: Two paragraphs: where the type description fits this person's observed behaviour, and where the life history reveals something the type description cannot capture. Note that all typologies are approximations — useful maps, not territories.
+
+CHAPTER 6 — DEVELOPMENT EDGE: Sacks writes about limitation with compassion and precision. He never implies a limitation is a moral failing. Name the development observation precisely. Explain its origins in the data. Describe its costs. Suggest — briefly — what working with it might look like.
+
+CHAPTER 7 — CONCLUSIONS: Past / Present / Future, written with Sacks's sense that the present moment is the culmination of a long process of adaptation and self-discovery. The interview answer should sound like the person at their most reflective and most honest.
+
+CHAPTER 8 — CAREER DIRECTIONS: Each direction presented as a natural habitat: the environment in which this person's particular configuration of strengths, temperament, and values would find its fullest expression. Two paragraphs each: the nature of the environment, and the specific evidence from this person's history that makes it a genuine fit.
+
+WHAT NOT TO DO
+
+NEVER pathologise. The development edge is a feature of the person's configuration, not a deficiency.
+NEVER rush to the conclusion. Sacks earns his insights through patient observation.
+NEVER use competency language. Write about what people actually do and experience, not the skills those experiences demonstrate.
+NEVER be cold. If a sentence feels cold, it is not yet precise enough — add the specific detail that makes it human.
+NEVER flatten the complexity. If the data contains a genuine tension or paradox, do not resolve it too quickly.
+NEVER use the word "journey." Nor "going forward," "leverage" (as a verb), "skill set," "bandwidth," "touch base," or "synergy."
+AVOID: "clearly," "obviously," "it is worth noting," "as we can see," "in many ways," "at the end of the day."
+
+LIFEWORK PRINCIPLES — NON-NEGOTIABLE
+
+1. The client is the authority on their own life. All findings are hypotheses offered with conviction — not verdicts delivered without appeal.
+2. All claims must be traceable to evidence from the life history, VIA data, or OCEAN profile.
+3. No ranked lists of strengths or career directions.
+4. The development edge must be handled with the same care as the strengths analysis.
+5. The interview answer in Chapter 7 must sound like the person speaking, not like a summary of their CV.
+
+BRITISH SPELLINGS throughout: colour, organised, recognise, behaviour, etc.
+PRESERVE ALL MARKDOWN STRUCTURE: Keep ## headings, **bold** terms, markdown tables (do not rewrite table content).
+WRITE TO THE CLIENT: Use "you" and "your" throughout.
+NO PREAMBLE: Do not begin your response with "Here is the rewritten section" or similar. Output only the rewritten section text.`;
+
+async function rewriteSectionsForOliverSacks(
+  sections: WowReportSections,
+  clientName: string
+): Promise<WowReportSections> {
+  console.log(`[WOW Report] Rewriting all sections in Oliver Sacks voice for ${clientName}`);
+
+  const proseSections: Array<keyof WowReportSections> = [
+    "summary",
+    "lifeHistoryPattern",
+    "viaSection",
+    "personalitySection",
+    "behaviouralStyle",
+    "careerDirections",
+    "developmentEdge",
+  ];
+
+  const sectionContext: Record<string, string> = {
+    summary: "This is Chapter 1: the case summary. Who is this person, what is most distinctive about them, and what does their life suggest about the relationship between character and career? Two to three paragraphs. The final sentence names the quality that makes everything else in the report legible.",
+    lifeHistoryPattern: "This is Chapter 2: Life History — The Pattern. Open with the close observation: the single episode from the life history that most rewards careful attention. Trace the pattern through the full arc of the life, using the wonder-at-adaptation move to reframe apparent setbacks. Close with the nature-and-will synthesis.",
+    viaSection: "This is Chapter 3: Character Strengths. Lead with the strength that the instrument underweights — the one that appears most powerfully in the life history but scores modestly in the survey. Treat the divergence as data. Preserve the markdown evidence table exactly as-is. Only rewrite the prose.",
+    personalitySection: "This is Chapter 4: Personality Profile. Find the score that sits in tension with the life history evidence. Sit with the tension, examine it from multiple angles, and show how it makes sense when you understand the particular adaptive strategy this person has developed. Preserve any charts or structured data. Rewrite only the prose.",
+    behaviouralStyle: "This is Chapter 5: Behavioural Style. Two paragraphs: where the type description fits this person's observed behaviour, and where the life history reveals something the type description cannot capture. Note that all typologies are approximations — useful maps, not territories.",
+    developmentEdge: "This is Chapter 6: Development Edge. Write about limitation with compassion and precision. Name the development observation precisely. Explain its origins in the data. Describe its costs. Suggest — briefly — what working with it might look like.",
+    careerDirections: "This is Chapter 8: Career Directions. Present each direction as a natural habitat: the environment in which this person's particular configuration of strengths, temperament, and values would find its fullest expression. Two paragraphs each: the nature of the environment, and the specific evidence from this person's history that makes it a genuine fit.",
+  };
+
+  const rewritePromises = proseSections.map(async (key) => {
+    const original = sections[key] as string;
+    if (!original || original.trim().length === 0) return [key, original] as const;
+
+    const context = sectionContext[key as string] ?? "";
+    const userPrompt = `${context ? context + "\n\n" : ""}--- HOUSE STYLE ORIGINAL ---\n${original}\n--- END ---\n\nRewrite the above in Oliver Sacks's voice following all the rules in your system prompt.`;
+
+    try {
+      const rewritten = await callLLMWithTimeout(OLIVER_SACKS_REWRITE_SYS, userPrompt, 120_000);
+      return [key, rewritten] as const;
+    } catch (err) {
+      console.warn(`[WOW Report] Oliver Sacks rewrite failed for section ${String(key)}, keeping original:`, err);
+      return [key, original] as const;
+    }
+  });
+
+  const results = await Promise.all(rewritePromises);
+  const rewritten = { ...sections };
+  for (const [key, value] of results) {
+    (rewritten as Record<string, unknown>)[key as string] = value;
+  }
+
+  console.log(`[WOW Report] Oliver Sacks rewrite complete for ${clientName}`);
+  return rewritten;
+}
+
+/// ─── Helper: Render PDF with pdfmake 0.3.x ───────────────────────────────────────────────────────
 async function renderWowPdf(sections: WowReportSections, writingStyle: WritingStyle = "house"): Promise<Buffer> {
   // pdfmake 0.3.x server API — load via createRequire (ESM-compatible)
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -2022,6 +2159,8 @@ async function runGenerationJob(clientId: number, reportType: WowReportType = "s
       ? await rewriteSectionsForCliveJames(houseSections, houseSections.clientName)
       : writingStyle === "michael-lewis"
       ? await rewriteSectionsForMichaelLewis(houseSections, houseSections.clientName)
+      : writingStyle === "oliver-sacks"
+      ? await rewriteSectionsForOliverSacks(houseSections, houseSections.clientName)
       : houseSections;
     // Render main WOW Report PDF
     console.log(`[WOW Report] Rendering PDF for client ${clientId}`);
@@ -2102,7 +2241,7 @@ export const wowReportRouter = router({
       clientId: z.number(),
       forceRegenerate: z.boolean().optional().default(false),
       reportType: z.enum(["standard", "student", "career_changer", "job_returner", "retirement"]).optional().default("standard"),
-      writingStyle: z.enum(["house", "mark", "clive-james", "michael-lewis"]).optional().default("house"),
+      writingStyle: z.enum(["house", "mark", "clive-james", "michael-lewis", "oliver-sacks"]).optional().default("house"),
     }))
     .mutation(async ({ input }) => {
       const existing = await getAnalysisReport(input.clientId);
@@ -2150,7 +2289,7 @@ export const wowReportRouter = router({
   rebuildPdf: protectedProcedure
     .input(z.object({
       clientId: z.number(),
-      writingStyle: z.enum(["house", "mark", "clive-james", "michael-lewis"]).optional().default("house"),
+      writingStyle: z.enum(["house", "mark", "clive-james", "michael-lewis", "oliver-sacks"]).optional().default("house"),
     }))
     .mutation(async ({ input }) => {
       const report = await getAnalysisReport(input.clientId);
