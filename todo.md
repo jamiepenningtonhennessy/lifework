@@ -1291,3 +1291,9 @@
 ## Chapter 2 Prompt — Explicit Family & Career Context Instructions
 
 - [x] Update LIFE_HISTORY_PROMPT to instruct the AI to draw on family background and career trajectory explicitly, not just achievements
+
+## Tell Me About Yourself — Format Fix
+
+- [x] Remove the "You are fundamentally driven by:" bullet-point preamble from the Conclusions prompt (all 5 variants updated)
+- [x] Reformat the three drivers as bullet points within the paragraph rather than inline prose
+- [x] Standardise all 5 variants to use first-person "I am fundamentally driven by:" followed by 3 bullets
