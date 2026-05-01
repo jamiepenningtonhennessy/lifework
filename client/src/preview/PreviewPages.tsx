@@ -469,7 +469,7 @@ export function PreviewInterview() {
         </div>
 
         <button
-          onClick={() => navigate("/preview/background")}
+          onClick={() => navigate("/preview/interview-form")}
           className="w-full py-3 text-sm font-semibold uppercase tracking-widest cursor-pointer"
           style={{ background: "var(--lw-gold)", color: "var(--lw-navy)", letterSpacing: "0.1em" }}
         >
@@ -1109,6 +1109,254 @@ export function PreviewSage() {
             previewContext={ALEX_SAGE_CONTEXT}
           />
         </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── 11. Life History Form — interactive preview (no auth, no DB) ─────────────
+const PREVIEW_PHASES = [
+  { id: "early_childhood",  label: "Early Childhood",    phase: "1st Phase", ageRange: "Ages 0–5"   },
+  { id: "mid_childhood",    label: "Mid Childhood",      phase: "2nd Phase", ageRange: "Ages 6–11"  },
+  { id: "late_childhood",   label: "Late Childhood",     phase: "3rd Phase", ageRange: "Ages 12–18" },
+  { id: "twenties",         label: "Your 20s",           phase: "4th Phase", ageRange: "Ages 19–29" },
+  { id: "thirties",         label: "Your 30s",           phase: "5th Phase", ageRange: "Ages 30–39" },
+  { id: "forties",          label: "Your 40s",           phase: "6th Phase", ageRange: "Ages 40–49" },
+  { id: "fifties",          label: "Your 50s",           phase: "7th Phase", ageRange: "Ages 50–59" },
+  { id: "sixties_plus",     label: "Your 60s & beyond",  phase: "8th Phase", ageRange: "Ages 60+"   },
+];
+
+const PREVIEW_ESF = [
+  { value: "enjoyable",  label: "Enjoyable",  tagline: '"in the moment"',        selectedColor: "bg-blue-500 text-white border-blue-500",    badgeColor: "bg-blue-100 text-blue-700",    dot: "bg-blue-500"    },
+  { value: "satisfying", label: "Satisfying", tagline: '"rewarding"',            selectedColor: "bg-emerald-500 text-white border-emerald-500", badgeColor: "bg-emerald-100 text-emerald-700", dot: "bg-emerald-500" },
+  { value: "fulfilling", label: "Fulfilling", tagline: '"longer-term satisfying"', selectedColor: "bg-purple-500 text-white border-purple-500",  badgeColor: "bg-purple-100 text-purple-700",  dot: "bg-purple-500"  },
+];
+
+type PreviewAction = { title: string; age: string; description: string; esf: string };
+const emptyPreviewAction = (): PreviewAction => ({ title: "", age: "", description: "", esf: "" });
+
+export function PreviewInterviewForm() {
+  const [, navigate] = useLocation();
+  const [phaseIndex, setPhaseIndex] = useState(0);
+  const [phaseActions, setPhaseActions] = useState<Record<string, PreviewAction[]>>(() =>
+    Object.fromEntries(PREVIEW_PHASES.map(p => [p.id, [emptyPreviewAction(), emptyPreviewAction(), emptyPreviewAction(), emptyPreviewAction()]]))
+  );
+  const [phaseOthers, setPhaseOthers] = useState<Record<string, string>>(() =>
+    Object.fromEntries(PREVIEW_PHASES.map(p => [p.id, ""]))
+  );
+
+  const currentPhase = PREVIEW_PHASES[phaseIndex];
+  const actions = phaseActions[currentPhase.id];
+
+  const updateAction = (idx: number, field: keyof PreviewAction, value: string) => {
+    setPhaseActions(prev => {
+      const updated = [...prev[currentPhase.id]];
+      updated[idx] = { ...updated[idx], [field]: value };
+      return { ...prev, [currentPhase.id]: updated };
+    });
+  };
+
+  return (
+    <div className="min-h-screen" style={{ background: "var(--lw-cream)" }}>
+      <PreviewNav current="/preview/interview" />
+
+      {/* Sticky header */}
+      <div className="sticky top-10 z-10" style={{ background: "var(--lw-navy)", borderBottom: "2px solid var(--lw-gold)" }}>
+        <div className="container flex items-center justify-between h-12">
+          <button
+            onClick={() => phaseIndex === 0 ? navigate("/preview/interview") : setPhaseIndex(i => i - 1)}
+            className="flex items-center gap-1.5 text-sm cursor-pointer"
+            style={{ color: "rgba(255,255,255,0.6)" }}
+          >
+            <ArrowLeft className="w-4 h-4" />
+            {phaseIndex === 0 ? "Introduction" : PREVIEW_PHASES[phaseIndex - 1].label}
+          </button>
+          <div className="flex items-center gap-3">
+            <span className="text-xs hidden sm:block" style={{ color: "rgba(255,255,255,0.6)" }}>
+              Phase {phaseIndex + 1} of {PREVIEW_PHASES.length}
+            </span>
+            <div className="flex gap-1 items-center">
+              {PREVIEW_PHASES.map((p, i) => (
+                <div
+                  key={p.id}
+                  className={`h-1.5 rounded-full transition-all duration-300 ${
+                    i < phaseIndex ? "w-4 bg-green-500" : i === phaseIndex ? "w-6 bg-[var(--lw-gold)]" : "w-1.5 bg-muted"
+                  }`}
+                />
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="container max-w-2xl py-8">
+        {/* Preview banner */}
+        <div className="mb-5 rounded-lg border border-[var(--lw-gold)]/30 bg-[var(--lw-gold)]/8 px-4 py-2.5 text-xs text-foreground flex items-center gap-2">
+          <Eye className="w-3.5 h-3.5 flex-shrink-0" style={{ color: "var(--lw-gold)" }} />
+          <span><strong>Preview mode</strong> — this is what your client sees. Entries are not saved.</span>
+        </div>
+
+        {/* Phase header */}
+        <div className="mb-6">
+          <p className="text-xs uppercase tracking-widest font-semibold mb-1" style={{ color: "var(--lw-gold)" }}>
+            {currentPhase.phase}
+          </p>
+          <h1 className="text-2xl font-serif font-bold text-foreground mb-1">{currentPhase.label}</h1>
+          <p className="text-sm text-muted-foreground">{currentPhase.ageRange}</p>
+        </div>
+
+        {/* Reminder banner */}
+        <div className="p-4 rounded-lg mb-6 text-sm text-foreground leading-relaxed"
+          style={{ background: "rgba(201,151,58,0.08)", border: "1px solid rgba(201,151,58,0.15)" }}>
+          Think of things where <strong>some skill was indicated</strong> — where you were personally pleased with what you did.
+          Don't take any notice of what others thought. Record <strong>4 actions</strong> for this stage using several short phrases — the more detail the better.
+        </div>
+
+        {/* ESF pills */}
+        <div className="flex gap-2 mb-7 flex-wrap">
+          {PREVIEW_ESF.map(opt => (
+            <div key={opt.value} className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-full border bg-card">
+              <div className={`w-2 h-2 rounded-full ${opt.dot}`} />
+              <span className="font-semibold">{opt.label}</span>
+              <span className="text-muted-foreground">{opt.tagline}</span>
+            </div>
+          ))}
+        </div>
+
+        {/* 4 Action cards */}
+        <div className="space-y-5">
+          {actions.map((action, idx) => (
+            <div
+              key={idx}
+              className={`p-5 rounded-xl border-2 transition-colors ${
+                action.title || action.description ? "border-[var(--lw-gold)]/30 bg-card" : "border-border bg-card"
+              }`}
+            >
+              <div className="flex items-center gap-2 mb-4">
+                <div className={`w-7 h-7 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0 ${
+                  action.title || action.description ? "bg-[var(--lw-gold)] text-white" : "bg-muted text-muted-foreground"
+                }`}>
+                  {idx + 1}
+                </div>
+                <span className="text-sm font-medium text-muted-foreground">Action {idx + 1}</span>
+                {(action.title || action.description) && action.esf && (
+                  <span className={`ml-auto text-xs px-2.5 py-0.5 rounded-full font-semibold capitalize ${
+                    PREVIEW_ESF.find(o => o.value === action.esf)?.badgeColor ?? ""
+                  }`}>
+                    {action.esf}
+                  </span>
+                )}
+              </div>
+
+              <div className="grid grid-cols-[1fr_88px] gap-3 mb-3">
+                <div>
+                  <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide block mb-1.5">Action / Title</label>
+                  <input
+                    value={action.title}
+                    onChange={e => updateAction(idx, "title", e.target.value)}
+                    placeholder={idx === 0 && phaseIndex === 0 ? 'e.g. "Playing Teacher"' : "A short name for this action"}
+                    className="w-full text-sm border border-border rounded-md px-3 py-2 bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-[var(--lw-gold)]/40"
+                  />
+                </div>
+                <div>
+                  <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide block mb-1.5">Age</label>
+                  <input
+                    type="number"
+                    value={action.age}
+                    onChange={e => updateAction(idx, "age", e.target.value)}
+                    placeholder="e.g. 6"
+                    className="w-full text-sm border border-border rounded-md px-3 py-2 bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-[var(--lw-gold)]/40"
+                    min={0} max={99}
+                  />
+                </div>
+              </div>
+
+              <div className="mb-4">
+                <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide block mb-1.5">
+                  Description <span className="font-normal normal-case">— what you were doing and thinking (short phrases)</span>
+                </label>
+                <textarea
+                  value={action.description}
+                  onChange={e => updateAction(idx, "description", e.target.value)}
+                  placeholder={idx === 0 && phaseIndex === 0
+                    ? 'e.g. "Set up school for my stuffed animals — lined them up on chairs — took the lessons by writing on the board…"'
+                    : "Describe what you were doing and thinking. Short phrases are fine."}
+                  rows={3}
+                  className="w-full text-sm border border-border rounded-md px-3 py-2 bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-[var(--lw-gold)]/40 resize-none"
+                />
+              </div>
+
+              <div>
+                <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide block mb-2">Was this action…</label>
+                <div className="grid grid-cols-3 gap-2">
+                  {PREVIEW_ESF.map(opt => (
+                    <button
+                      key={opt.value}
+                      type="button"
+                      onClick={() => updateAction(idx, "esf", action.esf === opt.value ? "" : opt.value)}
+                      className={`p-3 rounded-lg border-2 text-left transition-all ${
+                        action.esf === opt.value ? opt.selectedColor : "border-border bg-background hover:border-[var(--lw-gold)]/40"
+                      }`}
+                    >
+                      <div className="font-semibold text-sm mb-0.5">{opt.label}</div>
+                      <div className={`text-xs leading-tight ${action.esf === opt.value ? "opacity-80" : "text-muted-foreground"}`}>
+                        {opt.tagline}
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Others box */}
+        <div className="mt-5 p-5 rounded-xl border-2 border-border bg-card">
+          <label className="text-sm text-muted-foreground block mb-1.5">
+            A final question — what did others say about you during this phase? (perhaps a teacher's comment, a colleague's observation, a manager's feedback)
+          </label>
+          <textarea
+            value={phaseOthers[currentPhase.id]}
+            onChange={e => setPhaseOthers(prev => ({ ...prev, [currentPhase.id]: e.target.value }))}
+            placeholder='e.g. "My teacher said I was always organising the other children"'
+            rows={2}
+            className="w-full text-sm border border-border rounded-md px-3 py-2 bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-[var(--lw-gold)]/40 resize-none"
+          />
+        </div>
+
+        {/* Navigation */}
+        <div className="mt-8 flex items-center justify-between gap-2">
+          <button
+            onClick={() => phaseIndex === 0 ? navigate("/preview/interview") : setPhaseIndex(i => i - 1)}
+            className="px-4 py-2 text-sm border border-border rounded-md text-foreground bg-background hover:bg-muted flex items-center gap-1.5 cursor-pointer"
+          >
+            <ArrowLeft className="w-4 h-4" /> Back
+          </button>
+          <button
+            onClick={() => {
+              if (phaseIndex < PREVIEW_PHASES.length - 1) {
+                setPhaseIndex(i => i + 1);
+                window.scrollTo({ top: 0, behavior: "smooth" });
+              } else {
+                navigate("/preview/dashboard");
+              }
+            }}
+            className="px-5 py-2 text-sm font-semibold rounded-md flex items-center gap-1.5 cursor-pointer"
+            style={{ background: "var(--lw-gold)", color: "var(--lw-navy)" }}
+          >
+            {phaseIndex < PREVIEW_PHASES.length - 1 ? (
+              <>Save & Continue <ArrowRight className="w-4 h-4" /></>
+            ) : (
+              <>Complete Life History <CheckCircle2 className="w-4 h-4" /></>
+            )}
+          </button>
+        </div>
+
+        {phaseIndex >= 3 && (
+          <p className="text-center text-xs text-muted-foreground mt-4">
+            If this decade doesn't apply to you yet, you can leave it blank and continue.
+          </p>
+        )}
       </div>
     </div>
   );

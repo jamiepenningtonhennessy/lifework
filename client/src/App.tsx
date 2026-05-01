@@ -32,6 +32,7 @@ import { CounsellorPinGate } from "./components/CounsellorPinGate";
 import {
   PreviewClientDashboard,
   PreviewInterview,
+  PreviewInterviewForm,
   PreviewBackground,
   PreviewVIASurvey,
   PreviewVIAResults,
@@ -112,6 +113,7 @@ function Router() {
       <Route path="/preview/home" component={PreviewHome} />
       <Route path="/preview/dashboard" component={PreviewClientDashboard} />
       <Route path="/preview/interview" component={PreviewInterview} />
+      <Route path="/preview/interview-form" component={PreviewInterviewForm} />
       <Route path="/preview/background" component={PreviewBackground} />
       <Route path="/preview/via" component={PreviewVIASurvey} />
       <Route path="/preview/via/results" component={PreviewVIAResults} />
