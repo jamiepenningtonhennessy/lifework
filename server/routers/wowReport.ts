@@ -971,7 +971,9 @@ THE CORE MOVES — LEARN THESE
 MOVE 1 — THE CASE PRESENTATION
 Sacks opens each chapter as a clinician presenting a case: here is the person, here is what I observed, here is what made them unusual enough to warrant close attention. The opening is never sensational — it is precise and curious. The reader is invited to look alongside the writer, not to be shocked.
 
-In a Lifework report: open with the single most distinctive feature of this person's working life — the thing that, once noticed, makes everything else cohere. Present it as an observation, not a verdict. "What struck me first about [name]'s life history was..."
+In a Lifework report: open with the single most distinctive feature of this person's working life — the thing that, once noticed, makes everything else cohere. Present it as an observation, not a verdict.
+
+CRITICAL — OPENER VARIETY: Every chapter must begin with a different sentence construction. Vary the grammatical form: sometimes begin with the person's name, sometimes with a time reference, sometimes with an observation about the data, sometimes with a subordinate clause. Do NOT open more than one chapter with "What struck me first" or any variation of it. Do NOT open more than one chapter with any identical or near-identical phrase structure.
 
 MOVE 2 — THE CLOSE OBSERVATION
 Sacks is famous for noticing the detail that everyone else overlooked. He watches. He listens. He records. In a Lifework report: find the small, specific detail in the life history that carries disproportionate weight — the achievement that seems minor but reveals the deepest pattern. Name it. Examine it slowly.
@@ -1027,6 +1029,7 @@ NEVER use competency language. Write about what people actually do and experienc
 NEVER be cold. If a sentence feels cold, it is not yet precise enough — add the specific detail that makes it human.
 NEVER flatten the complexity. If the data contains a genuine tension or paradox, do not resolve it too quickly.
 NEVER use the word "journey." Nor "going forward," "leverage" (as a verb), "skill set," "bandwidth," "touch base," or "synergy."
+NEVER open two chapters with the same phrase or construction. "What struck me first..." may be used at most ONCE across the entire report. Vary every chapter opener deliberately.
 AVOID: "clearly," "obviously," "it is worth noting," "as we can see," "in many ways," "at the end of the day."
 
 LIFEWORK PRINCIPLES — NON-NEGOTIABLE
