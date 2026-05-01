@@ -19,6 +19,7 @@ import { execFileSync } from "child_process";
 import { Request, Response } from "express";
 import { buildClaudeExportJson } from "./routers/claudeExport.js";
 import { renderHtmlReport } from "./html-report.js";
+import { generatePdfKitReport } from "./pdfkit-report.js";
 import { sdk } from "./_core/sdk.js";
 
 // ─── WeasyPrint ───────────────────────────────────────────────────────────────
@@ -157,9 +158,8 @@ export async function handlePuppeteerPdfDownload(req: Request, res: Response) {
       return;
     }
 
-    // ── Build data + render HTML ──────────────────────────────────────────────
+    // ── Build data ────────────────────────────────────────────────────────────
     const data = await buildClaudeExportJson(clientId);
-    const html = renderHtmlReport(data as Record<string, unknown>);
 
     // ── Get client name for filename ──────────────────────────────────────────
     const clientData = (data as Record<string, unknown>).CLIENT as Record<string, string> | undefined;
@@ -168,12 +168,23 @@ export async function handlePuppeteerPdfDownload(req: Request, res: Response) {
     // ── Generate PDF ──────────────────────────────────────────────────────────
     let pdfBuffer: Buffer;
 
-    if (isWeasyPrintAvailable()) {
-      console.log("[pdf] Using WeasyPrint");
-      pdfBuffer = await generatePdfWithWeasyPrint(html);
-    } else {
-      console.log("[pdf] WeasyPrint not found — falling back to Puppeteer");
-      pdfBuffer = await generatePdfWithPuppeteer(html);
+    // Strategy:
+    //  1. PDFKit — pure Node.js, zero system dependencies, works everywhere
+    //  2. WeasyPrint — HTML→PDF, used if available (local dev)
+    //  3. Puppeteer — last resort (requires Chromium system libs)
+    try {
+      console.log("[pdf] Using PDFKit (pure Node.js)");
+      pdfBuffer = await generatePdfKitReport(data as Record<string, unknown>);
+    } catch (pdfkitErr) {
+      console.warn("[pdf] PDFKit failed:", pdfkitErr instanceof Error ? pdfkitErr.message : String(pdfkitErr));
+      const html = renderHtmlReport(data as Record<string, unknown>);
+      if (isWeasyPrintAvailable()) {
+        console.log("[pdf] Falling back to WeasyPrint");
+        pdfBuffer = await generatePdfWithWeasyPrint(html);
+      } else {
+        console.log("[pdf] Falling back to Puppeteer");
+        pdfBuffer = await generatePdfWithPuppeteer(html);
+      }
     }
 
     // ── Stream response ───────────────────────────────────────────────────────

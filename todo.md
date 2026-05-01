@@ -1263,3 +1263,11 @@
 ## PDF Generation — Fix Production Puppeteer Error
 
 - [x] Replace Puppeteer/Chromium PDF generation with WeasyPrint (browser-independent, no system Chrome needed) — postinstall installs weasyprint via pip; Puppeteer kept as local fallback
+
+## PDF Generation — PDFKit Pure Node.js Renderer
+
+- [x] Replace WeasyPrint/Puppeteer with PDFKit as primary PDF renderer (pure Node.js, zero system dependencies)
+- [x] Build server/pdfkit-report.ts: full WOW report renderer (cover, covering letter, chapters 1–8, appendix, VIA bar charts, OCEAN bars, pull-quotes)
+- [x] Update puppeteer-pdf.ts: try PDFKit first, then WeasyPrint, then Puppeteer as fallbacks
+- [x] Verify 15-page PDF renders correctly (all chapters, charts, appendix)
+- [x] 138 tests passing
