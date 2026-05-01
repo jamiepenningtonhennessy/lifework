@@ -1307,3 +1307,10 @@
 ## Chapter 6 — Minimum 3 Development Edges
 
 - [x] Update Chapter 6 Development Edge prompt in all 5 report variants to always produce exactly 3 named development edges (strengthened to "MUST write EXACTLY 3" in all 5 variants)
+
+## Download Report PDF — Revert to HTML View
+
+- [x] Change "Download Report PDF" button to open the HTML report view (same as "View Report") rather than the PDFKit server-side renderer
+- [x] Renamed button to "Print / Save as PDF" (top toolbar) and "Open Report for Printing" (lower panel) with updated tooltip
+- [x] Updated lower panel description text to guide user to use File → Print → Save as PDF
+- [x] Server-side /api/report/pdf/:clientId route kept in code for future Puppeteer fix but no longer wired to any button

@@ -611,15 +611,11 @@ export default function WowReportTab({ clientId, clientName }: WowReportTabProps
                     <Button
                       size="sm"
                       className="bg-[var(--lw-gold)] hover:bg-[var(--lw-gold)]/90 text-[var(--lw-navy)] font-semibold text-xs"
-                      onClick={() => {
-                        const a = document.createElement('a');
-                        a.href = `/api/report/pdf/${clientId}`;
-                        a.click();
-                      }}
-                      title="Download a pixel-perfect PDF rendered by the server — sharper than browser print"
+                      onClick={() => window.open(`/api/report/html/${clientId}`, '_blank')}
+                      title="Open the report in a new tab — use File → Print → Save as PDF to download"
                     >
                       <Download className="w-3 h-3 mr-1" />
-                      Download Report PDF
+                      Print / Save as PDF
                     </Button>
                     <Button
                       size="sm"
@@ -1132,32 +1128,18 @@ export default function WowReportTab({ clientId, clientName }: WowReportTabProps
                     Ready to share with {clientName ?? "the client"}?
                   </p>
                   <p className="text-xs text-muted-foreground mt-0.5">
-                    {pdfUrl
-                      ? "Download the branded PDF — suitable for printing, binding, and posting."
-                      : "PDF not yet rendered — click Rebuild PDF to generate it from stored sections."}
+                    Open the report in a new tab, then use File → Print → Save as PDF to save a branded copy.
                   </p>
                 </div>
                 <div className="flex gap-2 flex-wrap">
-                  {pdfUrl ? (
-                    <Button
-                      className="bg-[var(--lw-navy)] hover:bg-[var(--lw-navy)]/90 text-white"
-                      onClick={handleDownloadPdf}
-                      disabled={rebuildPdfMutation.isPending}
-                      title={pdfStyleMismatch ? `PDF will be rebuilt in ${selectedWritingStyle === "mark" ? "Mark" : "House"} style before download` : "Download PDF"}
-                    >
-                      {rebuildPdfMutation.isPending ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Download className="w-4 h-4 mr-2" />}
-                      {pdfStyleMismatch ? "Rebuild & Download PDF" : "Download PDF"}
-                    </Button>
-                  ) : (
-                    <Button
-                      className="bg-[var(--lw-navy)] hover:bg-[var(--lw-navy)]/90 text-white"
-                      onClick={() => rebuildPdfMutation.mutate({ clientId, writingStyle: selectedWritingStyle })}
-                      disabled={rebuildPdfMutation.isPending}
-                    >
-                      {rebuildPdfMutation.isPending ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <RefreshCw className="w-4 h-4 mr-2" />}
-                      Rebuild PDF
-                    </Button>
-                  )}
+                  <Button
+                    className="bg-[var(--lw-navy)] hover:bg-[var(--lw-navy)]/90 text-white"
+                    onClick={() => window.open(`/api/report/html/${clientId}`, '_blank')}
+                    title="Open the report in a new tab — use File → Print → Save as PDF to download"
+                  >
+                    <Download className="w-4 h-4 mr-2" />
+                    Open Report for Printing
+                  </Button>
                   {!isLocked && (
                     <Button
                       variant="outline"
