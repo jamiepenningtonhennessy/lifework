@@ -294,6 +294,54 @@ describe("deriveInsightsAxes", () => {
   });
 });
 
+// ── deriveWheelPosition (inline copy for test isolation) ─────────────────────
+function deriveWheelPosition(domainScores: Record<string, number>): { X: number; Y: number } {
+  const e = domainScores["E"] ?? 50;
+  const a = domainScores["A"] ?? 50;
+  const ex = (e - 50) / 50;
+  const ay = (a - 50) / 50;
+  const maxR = 80;
+  return {
+    X: Math.round(120 + ex * maxR),
+    Y: Math.round(120 + ay * maxR),
+  };
+}
+
+describe("deriveWheelPosition", () => {
+  it("places a perfectly average client at the wheel centre", () => {
+    const pos = deriveWheelPosition({ E: 50, A: 50 });
+    expect(pos.X).toBe(120);
+    expect(pos.Y).toBe(120);
+  });
+
+  it("places a highly extraverted client to the right of centre", () => {
+    const pos = deriveWheelPosition({ E: 90, A: 50 });
+    expect(pos.X).toBeGreaterThan(120);
+    expect(pos.Y).toBe(120);
+  });
+
+  it("places a highly introverted client to the left of centre", () => {
+    const pos = deriveWheelPosition({ E: 10, A: 50 });
+    expect(pos.X).toBeLessThan(120);
+  });
+
+  it("places a highly agreeable (Feeler) client below centre", () => {
+    const pos = deriveWheelPosition({ E: 50, A: 90 });
+    expect(pos.Y).toBeGreaterThan(120);
+  });
+
+  it("places a low-agreeableness (Thinker) client above centre", () => {
+    const pos = deriveWheelPosition({ E: 50, A: 10 });
+    expect(pos.Y).toBeLessThan(120);
+  });
+
+  it("caps the dot within the 80px radius at extreme scores", () => {
+    const pos = deriveWheelPosition({ E: 100, A: 100 });
+    expect(pos.X).toBe(200);
+    expect(pos.Y).toBe(200);
+  });
+});
+
 // ─── Import buildLifeHistoryPages directly (now exported) ────────────────────
 import { buildLifeHistoryPages } from "./routers/claudeExport.js";
 

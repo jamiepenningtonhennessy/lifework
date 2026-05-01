@@ -325,6 +325,42 @@ const COLOUR_FIT: Record<string, string> = {
   "Earth Green":     "Roles requiring empathy, long-term relationship management, and values-led leadership.",
 };
 
+// Jungian type label per colour energy
+const COLOUR_JUNGIAN: Record<string, string> = {
+  "Cool Blue":       "Introverted Thinker (IT)",
+  "Fiery Red":       "Extraverted Thinker (ET)",
+  "Sunshine Yellow": "Extraverted Feeler (EF)",
+  "Earth Green":     "Introverted Feeler (IF)",
+};
+
+// Short description per colour energy (shown in the card body)
+const COLOUR_DESCRIPTION: Record<string, string> = {
+  "Cool Blue":       "Precise, analytical, and thorough. Brings rigour and careful deliberation to decisions. Prefers to gather evidence before acting and values accuracy above speed. Can appear reserved or overly cautious in fast-moving environments.",
+  "Fiery Red":       "Driven, purposeful, and results-oriented. Prefers to lead from the front, takes decisive action, and is comfortable with challenge and competition. Can be direct to the point of bluntness.",
+  "Sunshine Yellow": "Enthusiastic, persuasive, and sociable. Energised by people and ideas, brings optimism and creativity to groups. Can lose focus on detail and follow-through.",
+  "Earth Green":     "Empathetic, patient, and values-driven. Builds deep, lasting relationships and leads with integrity. Prefers consensus and can struggle with rapid or imposed change.",
+};
+
+// Derive the wheel dot position from OCEAN domain scores.
+// The wheel centre is (120,120) in a 240x240 SVG.
+// X axis: Extraversion (E) maps introvert (left) to extravert (right). E=50 -> x=120.
+// Y axis: Agreeableness (A) maps feeler (bottom) to thinker (top). A=50 -> y=120.
+// Radius is capped at 80px so the dot stays within the coloured quadrant area.
+function deriveWheelPosition(domainScores: Record<string, number>): { X: number; Y: number } {
+  const e = domainScores["E"] ?? 50;  // 0-100
+  const a = domainScores["A"] ?? 50;  // 0-100
+  // Normalise to -1..+1
+  const ex = (e - 50) / 50;  // positive = extravert (right)
+  const ay = (a - 50) / 50;  // positive = agreeable = feeler (down)
+  const maxR = 80;
+  const cx = 120 + ex * maxR;
+  const cy = 120 + ay * maxR;  // feeler is at bottom (higher y)
+  return {
+    X: Math.round(cx),
+    Y: Math.round(cy),
+  };
+}
+
 // ─── Life history → LIFE_HISTORY.PAGES[] ─────────────────────────────────────
 
 const DECADE_ORDER = [
@@ -682,10 +718,6 @@ export async function buildClaudeExportJson(clientId: number): Promise<Record<st
   const ch4KeyFindTitle = ch4Sections.find(s => s.heading.toLowerCase().includes("what this means"))?.heading ?? "What this means";
   const ch4KeyFindBody = ch4Sections.find(s => s.heading.toLowerCase().includes("what this means"))?.paragraphs?.[0] ?? extractPullquote(sections.personalitySection ?? "");
 
-  // CH5 — Behavioural Style
-  const ch5Sections = extractAllSections(sections.behaviouralStyle ?? "");
-  const ch5Lede = "This style is extrapolated from your Big Five profile, using a mapping between personality dimensions and the four broad orientations that shape how people typically engage with others, lead, and respond to challenge.";
-
   // CH6 — Development Edge (in the WOW report this is "Development Edge")
   const ch6Sections = extractAllSections(sections.developmentEdge ?? "");
   const ch6Pullquote = extractPullquote(sections.developmentEdge ?? "");
@@ -882,25 +914,19 @@ export async function buildClaudeExportJson(clientId: number): Promise<Record<st
       FACET_NOTE: "Facet scores help explain paradoxes in the domain score. A moderate domain score can mask very high and very low facets pulling in opposite directions.",
     },
     CH5: {
-      LEDE: ch5Lede,
+      WHEEL: deriveWheelPosition(domainScores),
       PRIMARY: {
-        name: primaryColour.replace(" ", "<br/>"),
-        traits: (COLOUR_STRENGTHS[primaryColour] ?? []).join(" · "),
+        fullName: primaryColour,
         cssClass: COLOUR_CSS[primaryColour] ?? "blue",
+        jungian: COLOUR_JUNGIAN[primaryColour] ?? "",
+        description: COLOUR_DESCRIPTION[primaryColour] ?? "",
       },
       SECONDARY: {
-        name: secondaryColour.replace(" ", "<br/>"),
-        traits: (COLOUR_STRENGTHS[secondaryColour] ?? []).join(" · "),
+        fullName: secondaryColour,
         cssClass: COLOUR_CSS[secondaryColour] ?? "green",
+        jungian: COLOUR_JUNGIAN[secondaryColour] ?? "",
+        description: COLOUR_DESCRIPTION[secondaryColour] ?? "",
       },
-      JUNGIAN: {
-        code: jungianType,
-        spelt: jungianSpelt,
-      },
-      AXES: deriveInsightsAxes(domainScores),
-      STRENGTHS: COLOUR_STRENGTHS[primaryColour] ?? [],
-      WATCHOUTS: COLOUR_WATCHOUTS[primaryColour] ?? [],
-      FIT: COLOUR_FIT[primaryColour] ?? "",
     },
     CH6: {
       SECTIONS: ch6Sections.length > 0

@@ -322,30 +322,26 @@ ol.rank-list.full li.bot5 .sc { color: var(--ink-muted); }
 .facet-group .facet .fbar { height: 3px; background: rgba(26,39,68,0.1); border-radius: 999px; overflow: hidden; position: relative; }
 .facet-group .facet .ff { height: 100%; background: var(--gold); }
 .facet-group .facet .fsc { font-variant-numeric: tabular-nums; color: var(--navy); font-weight: 600; text-align: right; font-size: 11px; }
-.behav-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 14px; }
-.behav-card { padding: 24px 24px; position: relative; display: flex; flex-direction: column; gap: 12px; min-height: 180px; }
-.behav-card.green { background: #7A9A5E; color: #fff; }
-.behav-card.blue  { background: #3C6E8F; color: #fff; }
-.behav-card.red   { background: #C0392B; color: #fff; }
-.behav-card.yellow{ background: #D4A017; color: #fff; }
-.behav-card .role { font-family: var(--sans); font-weight: 600; font-size: 10px; letter-spacing: 0.38em; text-transform: uppercase; opacity: 0.82; }
-.behav-card .pname { font-family: var(--serif); font-weight: 500; font-size: 32px; line-height: 1; margin: 0; }
-.behav-card .traits { margin-top: auto; font-family: var(--serif); font-style: italic; font-size: 14.5px; line-height: 1.4; }
-.jungian-strip { margin-top: 20px; border: 1px solid var(--rule-strong); padding: 20px 26px; display: grid; grid-template-columns: auto 1fr auto; gap: 32px; align-items: center; }
-.jungian-strip .jlab { font-family: var(--sans); font-weight: 500; font-size: 10px; letter-spacing: 0.38em; text-transform: uppercase; color: var(--ink-muted); }
-.jungian-strip .jtype { font-family: var(--serif); font-weight: 500; font-size: 42px; color: var(--navy); letter-spacing: 0.04em; line-height: 1; }
-.jungian-strip .jspell { font-family: var(--serif); font-style: italic; font-size: 14px; color: var(--ink-muted); text-align: right; max-width: 200px; line-height: 1.3; }
-.axes { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 18px; }
-.axis { padding: 14px 16px; background: rgba(26,39,68,0.04); border-top: 2px solid var(--gold); }
-.axis .ax-lab { font-family: var(--sans); font-weight: 500; font-size: 9px; letter-spacing: 0.38em; text-transform: uppercase; color: var(--ink-muted); }
-.axis .ax-val { font-family: var(--serif); font-weight: 500; font-size: 16px; color: var(--navy); margin: 4px 0 6px; }
-.axis .ax-note { font-family: var(--sans); font-size: 10.5px; color: var(--ink-muted); letter-spacing: 0.02em; }
-.swot { display: grid; grid-template-columns: 1fr 1fr 1.4fr; gap: 20px; margin-top: 22px; }
-.swot .col h5 { font-family: var(--sans); font-weight: 600; font-size: 10px; letter-spacing: 0.38em; text-transform: uppercase; color: var(--gold); margin: 0 0 12px; }
-.swot .col ul { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 6px; }
-.swot .col ul li { font-family: var(--serif); font-size: 15px; color: var(--navy); line-height: 1.35; padding-left: 16px; position: relative; }
-.swot .col ul li::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--gold); position: absolute; left: 0; top: 9px; }
-.swot .col.fit p { font-family: var(--serif); font-style: italic; font-size: 15px; line-height: 1.45; color: var(--ink); }
+/* ── Insights wheel layout ── */
+.insights-disclaimer { background: #1A2744; color: #fff; padding: 18px 22px; margin-top: 14px; border-radius: 4px; }
+.insights-disclaimer .disc-label { font-family: var(--sans); font-weight: 700; font-size: 9.5px; letter-spacing: 0.38em; text-transform: uppercase; color: var(--gold); margin-bottom: 8px; }
+.insights-disclaimer p { font-family: var(--serif); font-size: 14px; line-height: 1.55; margin: 0; color: rgba(255,255,255,0.92); }
+.insights-disclaimer em { font-style: italic; }
+.insights-body { display: grid; grid-template-columns: 260px 1fr; gap: 28px; margin-top: 22px; align-items: start; }
+.insights-wheel-wrap { display: flex; align-items: center; justify-content: center; }
+.insights-cards { display: flex; flex-direction: column; gap: 16px; }
+.icard { border-radius: 3px; overflow: hidden; }
+.icard-head { padding: 14px 18px; display: flex; align-items: center; gap: 14px; }
+.icard-head.green  { background: #7A9A5E; }
+.icard-head.blue   { background: #3C6E8F; }
+.icard-head.red    { background: #A93226; }
+.icard-head.yellow { background: #C9973A; }
+.icard-badge { width: 28px; height: 28px; border-radius: 50%; background: rgba(255,255,255,0.25); display: flex; align-items: center; justify-content: center; font-family: var(--sans); font-weight: 700; font-size: 13px; color: #fff; flex-shrink: 0; }
+.icard-title { display: flex; flex-direction: column; gap: 2px; }
+.icard-title .icard-name { font-family: var(--serif); font-weight: 600; font-size: 18px; color: #fff; line-height: 1.1; }
+.icard-title .icard-sub  { font-family: var(--sans); font-size: 10px; color: rgba(255,255,255,0.82); letter-spacing: 0.02em; }
+.icard-body { padding: 12px 18px; background: rgba(26,39,68,0.05); border: 1px solid rgba(26,39,68,0.1); border-top: none; }
+.icard-body p { font-family: var(--serif); font-size: 13.5px; line-height: 1.5; color: var(--ink); margin: 0; }
 table.variants { width: 100%; border-collapse: collapse; margin-top: 16px; font-family: var(--sans); font-size: 12px; }
 table.variants thead th { text-align: left; font-weight: 600; font-size: 10px; letter-spacing: 0.28em; text-transform: uppercase; color: var(--ink-muted); padding: 12px 12px 10px 0; border-bottom: 1px solid var(--rule-strong); }
 table.variants tbody td { padding: 16px 12px 16px 0; border-bottom: 1px solid var(--rule); vertical-align: top; }
@@ -723,41 +719,72 @@ const TEMPLATE = `<!doctype html>
   <div class="ph-body">
     <span class="kicker">Chapter 05 · Insights</span>
     <h2 class="chap-title">Behavioural <em>style.</em></h2>
-    <p class="lede">{{CH5.LEDE}}</p>
-    <div class="behav-grid">
-      <div class="behav-card {{CH5.PRIMARY.cssClass}}">
-        <div class="role">Primary energy</div>
-        <div class="pname">{{CH5.PRIMARY.name}}</div>
-        <div class="traits">{{CH5.PRIMARY.traits}}</div>
-      </div>
-      <div class="behav-card {{CH5.SECONDARY.cssClass}}">
-        <div class="role">Secondary energy</div>
-        <div class="pname">{{CH5.SECONDARY.name}}</div>
-        <div class="traits">{{CH5.SECONDARY.traits}}</div>
-      </div>
+    <div class="insights-disclaimer">
+      <div class="disc-label">Insights Discovery Mapping</div>
+      <p>The following is an <em>approximation</em> derived by mapping your Big Five scores onto the Insights Discovery colour-energy framework, using the academic consensus correlations between OCEAN and the Jungian dimensions. It is a coaching tool, not a clinical assessment. For a validated Insights profile, contact an accredited Insights practitioner.</p>
     </div>
-    <div class="jungian-strip">
-      <div>
-        <div class="jlab">Jungian type</div>
-        <div class="jtype">{{CH5.JUNGIAN.code}}</div>
+    <div class="insights-body">
+      <div class="insights-wheel-wrap">
+        <svg width="240" height="240" viewBox="0 0 240 240" xmlns="http://www.w3.org/2000/svg" style="overflow:visible;">
+          <!-- quadrant fills -->
+          <path d="M120,120 L120,16 A104,104 0 0,1 224,120 Z" fill="#A93226"/>
+          <path d="M120,120 L224,120 A104,104 0 0,1 120,224 Z" fill="#C9973A"/>
+          <path d="M120,120 L120,224 A104,104 0 0,1 16,120 Z" fill="#7A9A5E"/>
+          <path d="M120,120 L16,120 A104,104 0 0,1 120,16 Z" fill="#3C6E8F"/>
+          <!-- inner circle (white) -->
+          <circle cx="120" cy="120" r="52" fill="#fff" stroke="#e8e8e8" stroke-width="1"/>
+          <!-- axis labels inside inner circle -->
+          <text x="120" y="84" text-anchor="middle" font-family="Inter,sans-serif" font-size="9" font-weight="600" letter-spacing="0.06em" fill="#555" text-transform="uppercase">THINKER</text>
+          <text x="120" y="162" text-anchor="middle" font-family="Inter,sans-serif" font-size="9" font-weight="600" letter-spacing="0.06em" fill="#555">FEELER</text>
+          <text x="84" y="124" text-anchor="middle" font-family="Inter,sans-serif" font-size="9" font-weight="600" letter-spacing="0.06em" fill="#555" transform="rotate(-90 84 124)">INTROVERT</text>
+          <text x="156" y="124" text-anchor="middle" font-family="Inter,sans-serif" font-size="9" font-weight="600" letter-spacing="0.06em" fill="#555" transform="rotate(90 156 124)">EXTRAVERT</text>
+          <!-- colour name labels (curved, outside wheel) -->
+          <path id="arc-top" d="M 46,120 A 74,74 0 0,1 194,120" fill="none"/>
+          <path id="arc-right" d="M 120,46 A 74,74 0 0,1 120,194" fill="none"/>
+          <path id="arc-bottom" d="M 194,120 A 74,74 0 0,1 46,120" fill="none"/>
+          <path id="arc-left" d="M 120,194 A 74,74 0 0,1 120,46" fill="none"/>
+          <!-- COOL BLUE label (left arc, top half) -->
+          <text font-family="Inter,sans-serif" font-size="10" font-weight="800" letter-spacing="0.14em" fill="#3C6E8F">
+            <textPath href="#arc-left" startOffset="8%">COOL BLUE</textPath>
+          </text>
+          <!-- FIERY RED label (top arc) -->
+          <text font-family="Inter,sans-serif" font-size="10" font-weight="800" letter-spacing="0.14em" fill="#A93226">
+            <textPath href="#arc-top" startOffset="52%">FIERY RED</textPath>
+          </text>
+          <!-- SUNSHINE YELLOW label (right arc) -->
+          <text font-family="Inter,sans-serif" font-size="10" font-weight="800" letter-spacing="0.14em" fill="#C9973A">
+            <textPath href="#arc-right" startOffset="52%">SUNSHINE YELLOW</textPath>
+          </text>
+          <!-- EARTH GREEN label (bottom arc) -->
+          <text font-family="Inter,sans-serif" font-size="10" font-weight="800" letter-spacing="0.14em" fill="#7A9A5E">
+            <textPath href="#arc-bottom" startOffset="8%">EARTH GREEN</textPath>
+          </text>
+          <!-- client dot -->
+          <circle cx="{{CH5.WHEEL.X}}" cy="{{CH5.WHEEL.Y}}" r="7" fill="#fff" stroke="#C9973A" stroke-width="2.5" opacity="0.95"/>
+          <circle cx="{{CH5.WHEEL.X}}" cy="{{CH5.WHEEL.Y}}" r="3.5" fill="#C9973A"/>
+        </svg>
       </div>
-      <div class="mono-caps" style="font-size:10px;">Approx. MBTI equivalent</div>
-      <div class="jspell"><em>{{CH5.JUNGIAN.spelt}}</em></div>
-    </div>
-    <div class="axes">
-      {{#EACH CH5.AXES}}
-      <div class="axis"><div class="ax-lab">{{.label}}</div><div class="ax-val">{{.value}}</div><div class="ax-note">{{.note}}</div></div>
-      {{/EACH}}
-    </div>
-    <div class="swot">
-      <div class="col"><h5>Strengths</h5><ul>
-        {{#EACH CH5.STRENGTHS}}<li>{{.}}</li>{{/EACH}}
-      </ul></div>
-      <div class="col"><h5>Watch-outs</h5><ul>
-        {{#EACH CH5.WATCHOUTS}}<li>{{.}}</li>{{/EACH}}
-      </ul></div>
-      <div class="col fit"><h5>Career environment fit</h5>
-        <p>{{CH5.FIT}}</p>
+      <div class="insights-cards">
+        <div class="icard">
+          <div class="icard-head {{CH5.PRIMARY.cssClass}}">
+            <div class="icard-badge">1</div>
+            <div class="icard-title">
+              <div class="icard-name">{{CH5.PRIMARY.fullName}}</div>
+              <div class="icard-sub">Primary energy &middot; {{CH5.PRIMARY.jungian}}</div>
+            </div>
+          </div>
+          <div class="icard-body"><p>{{CH5.PRIMARY.description}}</p></div>
+        </div>
+        <div class="icard">
+          <div class="icard-head {{CH5.SECONDARY.cssClass}}">
+            <div class="icard-badge">2</div>
+            <div class="icard-title">
+              <div class="icard-name">{{CH5.SECONDARY.fullName}}</div>
+              <div class="icard-sub">Secondary energy &middot; {{CH5.SECONDARY.jungian}}</div>
+            </div>
+          </div>
+          <div class="icard-body"><p>{{CH5.SECONDARY.description}}</p></div>
+        </div>
       </div>
     </div>
   </div>

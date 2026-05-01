@@ -1321,3 +1321,9 @@
 - [x] Restore the Download Report PDF button to call /api/report/pdf/:clientId (Puppeteer route)
 - [x] Puppeteer is now primary; PDFKit is fallback if Chromium not available
 - [ ] Test end-to-end in production after publish
+
+## Chapter 5 — Insights Wheel Redesign
+
+- [x] Replace Chapter 5 (Behavioural Style) content in html-report.ts with: disclaimer text box, SVG Insights wheel with dynamic client dot, two colour-energy cards (primary + secondary)
+- [x] Remove Strengths / Watch-outs / Career Environment Fit section from Chapter 5
+- [x] Ensure claudeExport.ts passes the correct wheel position (x, y) and colour-energy data to the template
