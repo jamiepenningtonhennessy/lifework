@@ -1303,3 +1303,7 @@
 ## Chapter 8 — Minimum 3 Career Directions
 
 - [x] Update Chapter 8 prompt in all report variants to always produce at least 3 distinct named career direction options (strengthened to "MUST write EXACTLY 3" in all 5 variants)
+
+## Chapter 6 — Minimum 3 Development Edges
+
+- [x] Update Chapter 6 Development Edge prompt in all 5 report variants to always produce exactly 3 named development edges (strengthened to "MUST write EXACTLY 3" in all 5 variants)
