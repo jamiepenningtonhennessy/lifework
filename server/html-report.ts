@@ -718,42 +718,20 @@ const TEMPLATE = `<!doctype html>
     <p class="lede">The following is an <em>approximation</em> derived by mapping your Big Five scores onto the Insights Discovery colour-energy framework, using the academic consensus correlations between OCEAN and the Jungian dimensions. It is a coaching tool, not a clinical assessment. For a validated Insights profile, contact an accredited Insights practitioner.</p>
     <div class="insights-body">
       <div class="insights-wheel-wrap">
-        <svg width="240" height="240" viewBox="0 0 240 240" xmlns="http://www.w3.org/2000/svg" style="overflow:visible;">
-          <!-- quadrant fills -->
-          <path d="M120,120 L120,16 A104,104 0 0,1 224,120 Z" fill="#A93226"/>
-          <path d="M120,120 L224,120 A104,104 0 0,1 120,224 Z" fill="#C9973A"/>
-          <path d="M120,120 L120,224 A104,104 0 0,1 16,120 Z" fill="#7A9A5E"/>
-          <path d="M120,120 L16,120 A104,104 0 0,1 120,16 Z" fill="#3C6E8F"/>
-          <!-- inner circle (white) -->
-          <circle cx="120" cy="120" r="52" fill="#fff" stroke="#e8e8e8" stroke-width="1"/>
-          <!-- axis labels inside inner circle -->
-          <text x="120" y="84" text-anchor="middle" font-family="Inter,sans-serif" font-size="9" font-weight="600" letter-spacing="0.06em" fill="#555" text-transform="uppercase">THINKER</text>
-          <text x="120" y="162" text-anchor="middle" font-family="Inter,sans-serif" font-size="9" font-weight="600" letter-spacing="0.06em" fill="#555">FEELER</text>
-          <text x="84" y="124" text-anchor="middle" font-family="Inter,sans-serif" font-size="9" font-weight="600" letter-spacing="0.06em" fill="#555" transform="rotate(-90 84 124)">INTROVERT</text>
-          <text x="156" y="124" text-anchor="middle" font-family="Inter,sans-serif" font-size="9" font-weight="600" letter-spacing="0.06em" fill="#555" transform="rotate(90 156 124)">EXTRAVERT</text>
-          <!-- colour name labels (curved, outside wheel) -->
-          <path id="arc-top" d="M 46,120 A 74,74 0 0,1 194,120" fill="none"/>
-          <path id="arc-right" d="M 120,46 A 74,74 0 0,1 120,194" fill="none"/>
-          <path id="arc-bottom" d="M 194,120 A 74,74 0 0,1 46,120" fill="none"/>
-          <path id="arc-left" d="M 120,194 A 74,74 0 0,1 120,46" fill="none"/>
-          <!-- COOL BLUE label (left arc, top half) -->
-          <text font-family="Inter,sans-serif" font-size="10" font-weight="800" letter-spacing="0.14em" fill="#3C6E8F">
-            <textPath href="#arc-left" startOffset="8%">COOL BLUE</textPath>
-          </text>
-          <!-- FIERY RED label (top arc) -->
-          <text font-family="Inter,sans-serif" font-size="10" font-weight="800" letter-spacing="0.14em" fill="#A93226">
-            <textPath href="#arc-top" startOffset="52%">FIERY RED</textPath>
-          </text>
-          <!-- SUNSHINE YELLOW label (right arc) -->
-          <text font-family="Inter,sans-serif" font-size="10" font-weight="800" letter-spacing="0.14em" fill="#C9973A">
-            <textPath href="#arc-right" startOffset="52%">SUNSHINE YELLOW</textPath>
-          </text>
-          <!-- EARTH GREEN label (bottom arc) -->
-          <text font-family="Inter,sans-serif" font-size="10" font-weight="800" letter-spacing="0.14em" fill="#7A9A5E">
-            <textPath href="#arc-bottom" startOffset="8%">EARTH GREEN</textPath>
-          </text>
+        <svg width="240" height="240" viewBox="0 0 240 240" xmlns="http://www.w3.org/2000/svg">
+          <!-- four solid quadrant segments -->
+          <!-- top-right: Fiery Red -->
+          <path d="M120,120 L120,8 A112,112 0 0,1 232,120 Z" fill="#A93226"/>
+          <!-- bottom-right: Sunshine Yellow -->
+          <path d="M120,120 L232,120 A112,112 0 0,1 120,232 Z" fill="#C9973A"/>
+          <!-- bottom-left: Earth Green -->
+          <path d="M120,120 L120,232 A112,112 0 0,1 8,120 Z" fill="#7A9A5E"/>
+          <!-- top-left: Cool Blue -->
+          <path d="M120,120 L8,120 A112,112 0 0,1 120,8 Z" fill="#3C6E8F"/>
+          <!-- white centre circle -->
+          <circle cx="120" cy="120" r="50" fill="#fff"/>
           <!-- client dot -->
-          <circle cx="{{CH5.WHEEL.X}}" cy="{{CH5.WHEEL.Y}}" r="7" fill="#fff" stroke="#C9973A" stroke-width="2.5" opacity="0.95"/>
+          <circle cx="{{CH5.WHEEL.X}}" cy="{{CH5.WHEEL.Y}}" r="7" fill="#fff" stroke="#C9973A" stroke-width="2.5"/>
           <circle cx="{{CH5.WHEEL.X}}" cy="{{CH5.WHEEL.Y}}" r="3.5" fill="#C9973A"/>
         </svg>
       </div>
