@@ -35,8 +35,23 @@ import {
 } from "lucide-react";
 import { Streamdown } from "streamdown";
 import { IPIP_DOMAINS, IPIP_FACETS, type IpipDomainKey, type IpipFacetKey } from "../../../shared/ipip-data";
-import { PREVIEW_IPIP_RESULTS, PREVIEW_VIA_RESULTS } from "./previewData";
+import { PREVIEW_IPIP_RESULTS, PREVIEW_VIA_RESULTS, PREVIEW_ACHIEVEMENTS, PREVIEW_FAMILY } from "./previewData";
 import { ChatToPeter } from "@/components/ChatToPeter";
+
+// ─── Alex Morgan's preview context for Sage ───────────────────────────────────
+const ALEX_SAGE_CONTEXT = [
+  "LIFE HISTORY ACHIEVEMENTS:",
+  ...PREVIEW_ACHIEVEMENTS.map(a =>
+    `[${a.decade}] ${a.title} (${a.esf}): ${a.description}`
+  ),
+  "",
+  "FAMILY BACKGROUND:",
+  `Father's occupation: ${PREVIEW_FAMILY.fatherOccupation}`,
+  `Mother's occupation: ${PREVIEW_FAMILY.motherOccupation}`,
+  `Siblings: ${PREVIEW_FAMILY.siblings}`,
+  `Childhood location: ${PREVIEW_FAMILY.childhoodLocation}`,
+  `Family notes: ${PREVIEW_FAMILY.familyNotes}`,
+].join("\n");
 
 // ─── Video embed helper ───────────────────────────────────────────────────────
 function VideoEmbed({ fileId, title }: { fileId: string; title: string }) {
@@ -349,13 +364,14 @@ export function PreviewClientDashboard() {
                         {isLocked && <Lock className="w-3.5 h-3.5 text-muted-foreground" />}
                       </div>
                       <p className="text-sm text-muted-foreground leading-relaxed mb-3">{step.description}</p>
-                      {/* Sage step: show live ChatToPeter */}
+                      {/* Sage step: show live ChatToPeter with Alex's dummy data */}
                       {step.id === "sage" && !isLocked && (
                         <div className="mt-2">
                           <ChatToPeter
                             section="life_history"
                             buttonLabel="Chat to Sage"
-                            sectionDescription="Sage has read your Life History and Background. She would like to explore what you have written and ask some reflective questions to deepen your self-understanding."
+                            sectionDescription="Sage has read Alex's Life History and Background. She would like to explore what has been written and ask some reflective questions to deepen understanding."
+                            previewContext={ALEX_SAGE_CONTEXT}
                           />
                         </div>
                       )}
@@ -1068,7 +1084,7 @@ export function PreviewSage() {
           <div className="w-px h-5 bg-border" />
           <Sparkles className="h-5 w-5 text-primary" />
           <span className="font-semibold text-foreground">Sage — Life History Coach</span>
-          <span className="ml-auto text-xs text-muted-foreground bg-muted px-2 py-1 rounded-full">Live preview — chatting as yourself</span>
+          <span className="ml-auto text-xs text-muted-foreground bg-muted px-2 py-1 rounded-full">Preview — using Alex Morgan's data</span>
         </div>
       </div>
 
@@ -1083,13 +1099,14 @@ export function PreviewSage() {
           </p>
         </div>
 
-        {/* The real ChatToPeter widget, opened inline */}
+        {/* ChatToPeter widget — uses Alex Morgan's dummy data in preview mode */}
         <div className="flex justify-start">
           <ChatToPeter
             section="life_history"
             buttonLabel="Open Sage 1 Chat"
             autoOpen
-            sectionDescription="Sage has read your life history and would like to explore what you have written. She will ask reflective questions to draw out the depth and detail beneath each experience."
+            sectionDescription="Sage has read Alex Morgan's life history and would like to explore what has been written. She will ask reflective questions to draw out the depth and detail beneath each experience."
+            previewContext={ALEX_SAGE_CONTEXT}
           />
         </div>
       </div>

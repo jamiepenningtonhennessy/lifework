@@ -1327,3 +1327,8 @@
 - [x] Replace Chapter 5 (Behavioural Style) content in html-report.ts with: disclaimer text box, SVG Insights wheel with dynamic client dot, two colour-energy cards (primary + secondary)
 - [x] Remove Strengths / Watch-outs / Career Environment Fit section from Chapter 5
 - [x] Ensure claudeExport.ts passes the correct wheel position (x, y) and colour-energy data to the template
+
+## Sage Preview Override
+- [x] Add previewContext prop to ChatToPeter so preview mode passes Alex's dummy life history instead of the real user's data
+- [x] Add a new publicProcedure chatPeter.sendMessagePreview that accepts inline context (no DB lookup)
+- [x] Wire the preview dashboard Sage step to use the new prop

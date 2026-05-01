@@ -23,6 +23,13 @@ interface ChatToPeterProps {
   sectionDescription?: string;
   /** If true, the chat panel opens automatically on mount */
   autoOpen?: boolean;
+  /**
+   * When set, the component runs in preview mode:
+   * - Uses publicProcedure endpoints (no auth required)
+   * - Passes this string as the inline context instead of fetching from DB
+   * - Conversation history is kept in local state only (not persisted)
+   */
+  previewContext?: string;
 }
 
 /**
@@ -66,7 +73,9 @@ export function ChatToPeter({
   buttonLabel = "Chat to Sage",
   sectionDescription,
   autoOpen = false,
+  previewContext,
 }: ChatToPeterProps) {
+  const isPreview = !!previewContext;
   const [isOpen, setIsOpen] = useState(autoOpen);
   const [sessionId, setSessionId] = useState<number | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -81,7 +90,7 @@ export function ChatToPeter({
 
   const { data: sessions, refetch: refetchSessions } = trpc.chatPeter.getSession.useQuery(
     { section },
-    { enabled: isOpen }
+    { enabled: isOpen && !isPreview }
   );
 
   // Load existing session when panel opens
@@ -122,6 +131,18 @@ export function ChatToPeter({
     },
   });
 
+  // Preview-mode opening message (no auth, no DB)
+  const getOpeningMessagePreview = trpc.chatPeter.getOpeningMessagePreview.useMutation({
+    onSuccess: (data) => {
+      const openingMsg: Message = {
+        role: "peter",
+        content: data.message.content,
+        timestamp: data.message.timestamp,
+      };
+      setMessages([openingMsg]);
+    },
+  });
+
   // Fire the scripted opening message once sessions have loaded and the session is empty.
   // We track whether we've already fired to prevent double-calls.
   const openingFiredRef = useRef(false);
@@ -129,15 +150,21 @@ export function ChatToPeter({
     if (
       isOpen &&
       section === "life_history" &&
-      sessions !== undefined && // sessions have loaded
-      messages.length === 0 &&  // no messages yet
-      !openingFiredRef.current  // haven't fired already
+      messages.length === 0 &&
+      !openingFiredRef.current
     ) {
-      openingFiredRef.current = true;
-      getOpeningMessage.mutate({ section });
+      if (isPreview) {
+        // Preview mode: fire immediately, no session check needed
+        openingFiredRef.current = true;
+        getOpeningMessagePreview.mutate();
+      } else if (sessions !== undefined) {
+        // Normal mode: wait for sessions to load
+        openingFiredRef.current = true;
+        getOpeningMessage.mutate({ section });
+      }
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isOpen, sessions, messages.length]);
+  }, [isOpen, sessions, messages.length, isPreview]);
 
   const sendMessage = trpc.chatPeter.sendMessage.useMutation({
     onSuccess: (data) => {
@@ -148,6 +175,19 @@ export function ChatToPeter({
       };
       setMessages(prev => [...prev, sageMsg]);
       setSessionId(data.sessionId);
+    },
+    onError: () => toast.error("Failed to get a response. Please try again."),
+  });
+
+  // Preview-mode send (stateless — history passed inline)
+  const sendMessagePreview = trpc.chatPeter.sendMessagePreview.useMutation({
+    onSuccess: (data) => {
+      const sageMsg: Message = {
+        role: "peter",
+        content: data.peterResponse,
+        timestamp: Date.now(),
+      };
+      setMessages(prev => [...prev, sageMsg]);
     },
     onError: () => toast.error("Failed to get a response. Please try again."),
   });
@@ -223,23 +263,35 @@ export function ChatToPeter({
     onError: () => toast.error("Failed to save conversation. Please try again."),
   });
 
+  const isSending = sendMessage.isPending || sendMessagePreview.isPending;
+
   const handleSend = () => {
     const text = inputValue.trim();
-    if (!text || sendMessage.isPending) return;
+    if (!text || isSending) return;
 
     const userMsg: Message = {
       role: "client",
       content: text,
       timestamp: Date.now(),
     };
+    // Capture history BEFORE adding the new user message
+    const historyBeforeSend = messages;
     setMessages(prev => [...prev, userMsg]);
     setInputValue("");
 
-    sendMessage.mutate({
-      section,
-      userMessage: text,
-      sessionId: sessionId ?? undefined,
-    });
+    if (isPreview && previewContext) {
+      sendMessagePreview.mutate({
+        userMessage: text,
+        contextText: previewContext,
+        history: historyBeforeSend.map(m => ({ role: m.role, content: m.content })),
+      });
+    } else {
+      sendMessage.mutate({
+        section,
+        userMessage: text,
+        sessionId: sessionId ?? undefined,
+      });
+    }
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -267,6 +319,10 @@ export function ChatToPeter({
 
   // How many messages before the "Save & finish" button appears
   const MIN_MESSAGES_TO_SAVE = 4;
+
+  // In preview mode, hide the Save & finish / Reset buttons (no DB session)
+  const showSaveButton = !isPreview && messages.length >= MIN_MESSAGES_TO_SAVE && !isSummarised;
+  const showResetButton = !isPreview && messages.length > 0;
 
   return (
     <>
@@ -307,7 +363,7 @@ export function ChatToPeter({
               </div>
               <div className="flex items-center gap-1">
                 {/* Reset button — always visible when there are messages */}
-                {messages.length > 0 && (
+                {showResetButton && (
                   <Button
                     size="sm"
                     variant="ghost"
@@ -328,7 +384,7 @@ export function ChatToPeter({
                   </Button>
                 )}
               {/* Save & finish button — only shown when there are enough messages and not yet saved */}
-                {messages.length >= MIN_MESSAGES_TO_SAVE && !isSummarised && (
+                {showSaveButton && (
                   <Button
                     size="sm"
                     variant="ghost"
@@ -507,15 +563,15 @@ export function ChatToPeter({
                       onKeyDown={handleKeyDown}
                       placeholder="Type your response… (Enter to send, Shift+Enter for new line)"
                       className="text-sm resize-none flex-1"
-                      disabled={sendMessage.isPending}
-                    />
+                    disabled={isSending}
+                  />
                     <Button
                       size="sm"
                       className="h-[60px] w-10 p-0 bg-[var(--lw-gold)] hover:bg-[oklch(0.60 0.13 72)] flex-shrink-0"
                       onClick={handleSend}
-                      disabled={!inputValue.trim() || sendMessage.isPending}
+                      disabled={!inputValue.trim() || isSending}
                     >
-                      {sendMessage.isPending ? (
+                      {isSending ? (
                         <Loader2 className="w-4 h-4 animate-spin" />
                       ) : (
                         <Send className="w-4 h-4" />

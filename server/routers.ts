@@ -2788,6 +2788,78 @@ const chatPeterRouter = router({
       const session = await resetChatSession(profile.id, input.section);
       return { sessionId: session.id };
     }),
+
+  // ── Preview-mode procedures (no auth, no DB — context supplied inline) ──────
+
+  // Return Sage's scripted opening message for a preview session.
+  getOpeningMessagePreview: publicProcedure
+    .mutation(async () => {
+      const openingText = "Hi. I'm Sage, and I'm a research assistant here at Lifework. My role is simple, but it relies on you being willing to work with me: being willing to reflect on your life history and allow me to dig for more detail. The more detail we have, the better the analysis. Is that OK?";
+      return {
+        message: { role: "peter" as const, content: openingText, timestamp: Date.now() },
+      };
+    }),
+
+  // Send a message in preview mode — context is passed inline, no DB session.
+  // Conversation history is managed entirely on the client.
+  sendMessagePreview: publicProcedure
+    .input(z.object({
+      userMessage: z.string().min(1).max(2000),
+      // Full inline context string (achievements + background)
+      contextText: z.string(),
+      // Conversation history so far [[role, content], ...]
+      history: z.array(z.object({
+        role: z.enum(["peter", "client"]),
+        content: z.string(),
+      })),
+    }))
+    .mutation(async ({ input }) => {
+      const sectionContext = `The client has completed their Life History Interview and their Background & History. Here is what they have recorded:\n\n${input.contextText}\n\nIMPORTANT: Your role at this stage is to explore the life history achievements and the family backdrop ONLY. Do not discuss their formal career history or job titles — that is covered in a separate session. Focus on what they did of their own initiative, what they found genuinely rewarding, and how their early life and family context shaped who they are.\n\nYou have approximately 30 minutes.\n\nPacing guide:\n- Opening (first 2-3 exchanges): Begin with a brief warm reflection on what you noticed reading their whole story. Then start with early childhood (0-11) — pick ONE achievement that catches your attention.\n- Early middle (next 3-4 exchanges): Move through late childhood and teenage years (12-18). Notice what they were doing of their own initiative, not what was done to them.\n- Middle (next 3-4 exchanges): Move into the adult decades — 20s and 30s. Ask about what they found rewarding in those years, drawing on the achievements they recorded.\n- Later (next 3-4 exchanges): Cover the 40s, 50s, and beyond if relevant. Ask what has remained constant across all the changes.\n- Final third: Begin drawing threads together. Name the pattern you are seeing across the whole life and invite them to respond. Weave in the family backdrop naturally where it illuminates something.\n\nDo not spend more than 2-3 exchanges on any single phase before moving forward. Actively signal the transition: "Let me move us on to your [decade/phase]..." After covering the full arc, invite them to tell you when they are ready to wrap up.`;
+
+      const isSecondScriptedMessage =
+        input.history.length === 1 && input.history[0].role === "peter";
+      const isThirdMessage = input.history.length === 3;
+      const isFourthMessage = input.history.length === 5;
+
+      if (isSecondScriptedMessage) {
+        const secondScripted = "Thank you. The easiest way for me to work is to go through your life achievements methodically — the earliest ones are the most seminal. It can seem a bit \"samey\", but every life experience is an important data point. Does this make sense?";
+        return { peterResponse: secondScripted };
+      }
+
+      const llmMessages: Array<{ role: string; content: string }> = [
+        {
+          role: "system",
+          content: `${PETER_SYSTEM_PROMPT}\n\n---\nCLIENT PROFILE CONTEXT:\n${sectionContext}`,
+        },
+        ...input.history.map(m => ({
+          role: m.role === "peter" ? "assistant" : "user",
+          content: m.content,
+        })),
+        { role: "user", content: input.userMessage },
+      ];
+
+      if (isThirdMessage) {
+        llmMessages[llmMessages.length - 1] = {
+          role: "user",
+          content: `[The client has confirmed they are ready to begin. Start your response with exactly the words "Good. Let's start" then continue naturally to identify the FIRST activity recorded before age 20 and ask your ONE question about it. Do NOT include any reflection paragraph, preamble, or summary of what you have read — go straight to the question. One question only.]`,
+        };
+      }
+
+      if (isFourthMessage) {
+        llmMessages[llmMessages.length - 1] = {
+          role: "user",
+          content: `[The client has just replied to your first question. Write ONE paragraph that reflects back what you heard — be specific and warm. End the paragraph with a short, light confirmation question such as "is that right?", "does that make sense?", or "have I understood that correctly?" — vary the phrasing each time. Do NOT ask a new question about a different activity yet. One paragraph, one confirmation question, nothing else.]`,
+        };
+      }
+
+      const response = await invokeLLM({
+        messages: llmMessages as any,
+        max_tokens: 400,
+      });
+
+      const peterResponse = response.choices[0]?.message?.content as string;
+      return { peterResponse };
+    }),
 });
 
 // ─── Career Explorer Router ────────────────────────────────────────────────
