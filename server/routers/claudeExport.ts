@@ -657,7 +657,12 @@ export async function buildClaudeExportJson(clientId: number): Promise<Record<st
   // ── Section parsing ───────────────────────────────────────────────────────
 
   // CH1 — Lifework Summary
-  const summaryParas = splitParagraphs(sections.summary ?? "");
+  // Deduplicate: remove any paragraph that is identical to the one immediately
+  // before it (LLMs occasionally emit the same paragraph twice when rewriting).
+  const rawSummaryParas = splitParagraphs(sections.summary ?? "");
+  const summaryParas = rawSummaryParas.filter(
+    (p, i) => i === 0 || p.trim() !== rawSummaryParas[i - 1].trim()
+  );
   const ch1Hero = summaryParas[0] ?? "";
   const ch1Paras = summaryParas.slice(1);
 

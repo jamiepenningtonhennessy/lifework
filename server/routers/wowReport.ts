@@ -654,7 +654,7 @@ async function rewriteSectionsForMark(
     if (!original || original.trim().length === 0) return [key, original] as const;
 
     const context = sectionContext[key as string] ?? "";
-    const userPrompt = `${context ? context + "\n\n" : ""}--- HOUSE STYLE ORIGINAL ---\n${original}\n--- END ---\n\nRewrite the above in Mark Brandon's voice following all the rules in your system prompt.`;
+    const userPrompt = `${context ? context + "\n\n" : ""}--- HOUSE STYLE ORIGINAL ---\n${original}\n--- END ---\n\nRewrite the above in Mark Brandon's voice following all the rules in your system prompt. CRITICAL: every paragraph must be unique — do NOT repeat or paraphrase any paragraph that already appeared earlier in your response.`;
 
     try {
       const rewritten = await callLLMWithTimeout(MARK_REWRITE_SYS, userPrompt, 120_000);
@@ -787,7 +787,7 @@ async function rewriteSectionsForCliveJames(
     if (!original || original.trim().length === 0) return [key, original] as const;
 
     const context = sectionContext[key as string] ?? "";
-    const userPrompt = `${context ? context + "\n\n" : ""}--- HOUSE STYLE ORIGINAL ---\n${original}\n--- END ---\n\nRewrite the above in Clive James's voice following all the rules in your system prompt.`;
+    const userPrompt = `${context ? context + "\n\n" : ""}--- HOUSE STYLE ORIGINAL ---\n${original}\n--- END ---\n\nRewrite the above in Clive James's voice following all the rules in your system prompt. CRITICAL: every paragraph must be unique — do NOT repeat or paraphrase any paragraph that already appeared earlier in your response.`;
 
     try {
       const rewritten = await callLLMWithTimeout(CLIVE_JAMES_REWRITE_SYS, userPrompt, 120_000);
@@ -933,7 +933,7 @@ async function rewriteSectionsForMichaelLewis(
     if (!original || original.trim().length === 0) return [key, original] as const;
 
     const context = sectionContext[key as string] ?? "";
-    const userPrompt = `${context ? context + "\n\n" : ""}--- HOUSE STYLE ORIGINAL ---\n${original}\n--- END ---\n\nRewrite the above in Michael Lewis's voice following all the rules in your system prompt.`;
+    const userPrompt = `${context ? context + "\n\n" : ""}--- HOUSE STYLE ORIGINAL ---\n${original}\n--- END ---\n\nRewrite the above in Michael Lewis's voice following all the rules in your system prompt. CRITICAL: every paragraph must be unique — do NOT repeat or paraphrase any paragraph that already appeared earlier in your response.`;
 
     try {
       const rewritten = await callLLMWithTimeout(MICHAEL_LEWIS_REWRITE_SYS, userPrompt, 120_000);
@@ -1073,7 +1073,7 @@ async function rewriteSectionsForOliverSacks(
     if (!original || original.trim().length === 0) return [key, original] as const;
 
     const context = sectionContext[key as string] ?? "";
-    const userPrompt = `${context ? context + "\n\n" : ""}--- HOUSE STYLE ORIGINAL ---\n${original}\n--- END ---\n\nRewrite the above in Oliver Sacks's voice following all the rules in your system prompt.`;
+    const userPrompt = `${context ? context + "\n\n" : ""}--- HOUSE STYLE ORIGINAL ---\n${original}\n--- END ---\n\nRewrite the above in Oliver Sacks's voice following all the rules in your system prompt. CRITICAL: every paragraph must be unique — do NOT repeat or paraphrase any paragraph that already appeared earlier in your response.`;
 
     try {
       const rewritten = await callLLMWithTimeout(OLIVER_SACKS_REWRITE_SYS, userPrompt, 120_000);
