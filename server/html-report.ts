@@ -728,8 +728,6 @@ const TEMPLATE = `<!doctype html>
           <path d="M120,120 L120,232 A112,112 0 0,1 8,120 Z" fill="#7A9A5E"/>
           <!-- top-left: Cool Blue -->
           <path d="M120,120 L8,120 A112,112 0 0,1 120,8 Z" fill="#3C6E8F"/>
-          <!-- white centre circle -->
-          <circle cx="120" cy="120" r="50" fill="#fff"/>
           <!-- client dot -->
           <circle cx="{{CH5.WHEEL.X}}" cy="{{CH5.WHEEL.Y}}" r="7" fill="#fff" stroke="#C9973A" stroke-width="2.5"/>
           <circle cx="{{CH5.WHEEL.X}}" cy="{{CH5.WHEEL.Y}}" r="3.5" fill="#C9973A"/>
