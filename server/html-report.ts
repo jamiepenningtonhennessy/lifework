@@ -732,30 +732,6 @@ const TEMPLATE = `<!doctype html>
     <span class="kicker">Chapter 05 · Insights</span>
     <h2 class="chap-title">Behavioural <em>style.</em></h2>
     <p class="lede">The following is an <em>approximation</em> derived by mapping your Big Five scores onto the Insights Discovery colour-energy framework, using the academic consensus correlations between OCEAN and the Jungian dimensions. It is a coaching tool, not a clinical assessment. For a validated Insights profile, contact an accredited Insights practitioner.</p>
-    <!-- Jungian type box -->
-    <div class="jungian-box">
-      <div class="jb-left">
-        <div class="jb-label">Jungian Type</div>
-        <div class="jb-type">{{CH5.JUNGIAN_TYPE}}</div>
-      </div>
-      <div class="jb-right">
-        <div class="jb-mbti">
-          <div class="jb-mbti-label">Approx. MBTI Equivalent</div>
-          <div class="jb-mbti-val">{{CH5.JUNGIAN_TYPE}}</div>
-        </div>
-        <div class="jb-spelt">{{CH5.JUNGIAN_SPELT}}</div>
-      </div>
-    </div>
-    <!-- Axis cards -->
-    <div class="axis-row">
-      {{#EACH CH5.AXES}}
-      <div class="axis-card">
-        <div class="ac-label">{{.label}}</div>
-        <div class="ac-value">{{.value}}</div>
-        <div class="ac-note">{{.note}}</div>
-      </div>
-      {{/EACH}}
-    </div>
     <div class="insights-body">
       <div class="insights-wheel-wrap">
         <svg width="240" height="240" viewBox="0 0 240 240" xmlns="http://www.w3.org/2000/svg">
@@ -795,6 +771,30 @@ const TEMPLATE = `<!doctype html>
           <div class="icard-body"><p>{{CH5.SECONDARY.description}}</p></div>
         </div>
       </div>
+    </div>
+    <!-- Jungian type box -->
+    <div class="jungian-box">
+      <div class="jb-left">
+        <div class="jb-label">Jungian Type</div>
+        <div class="jb-type">{{CH5.JUNGIAN_TYPE}}</div>
+      </div>
+      <div class="jb-right">
+        <div class="jb-mbti">
+          <div class="jb-mbti-label">Approx. MBTI Equivalent</div>
+          <div class="jb-mbti-val">{{CH5.JUNGIAN_TYPE}}</div>
+        </div>
+        <div class="jb-spelt">{{CH5.JUNGIAN_SPELT}}</div>
+      </div>
+    </div>
+    <!-- Axis cards -->
+    <div class="axis-row">
+      {{#EACH CH5.AXES}}
+      <div class="axis-card">
+        <div class="ac-label">{{.label}}</div>
+        <div class="ac-value">{{.value}}</div>
+        <div class="ac-note">{{.note}}</div>
+      </div>
+      {{/EACH}}
     </div>
   </div>
   <footer class="ph-bot">
