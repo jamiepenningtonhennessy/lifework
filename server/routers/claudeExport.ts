@@ -668,17 +668,28 @@ export async function buildClaudeExportJson(clientId: number): Promise<Record<st
 
   // CH2 — Life History Pattern
   const lhSections = extractAllSections(sections.lifeHistoryPattern ?? "");
-  // Page 1: first two sections (intro paragraphs + first named section)
-  const ch2Page1Paras = lhSections[0]?.paragraphs ?? splitParagraphs(sections.lifeHistoryPattern ?? "").slice(0, 2);
-  const ch2Page1SectionH = lhSections[1]?.heading ?? "";
-  const ch2Page1SectionParas = lhSections[1]?.paragraphs ?? [];
-  // Page 2: third section heading + paragraphs; fall back to fourth section or raw paragraphs 3–6
-  const ch2Page2SectionH = lhSections[2]?.heading ?? lhSections[1]?.heading ?? "Recurring themes";
-  const ch2Page2Paras = (
-    lhSections[2]?.paragraphs?.length ? lhSections[2].paragraphs :
-    lhSections[3]?.paragraphs?.length ? lhSections[3].paragraphs :
-    splitParagraphs(sections.lifeHistoryPattern ?? "").slice(3, 7)
-  );
+  // All raw paragraphs — used as fallback when LLM produces flat (no-heading) output
+  const lhAllParas = splitParagraphs(sections.lifeHistoryPattern ?? "");
+  const lhHasSections = lhSections.length >= 2;
+
+  // Page 1: first named section paragraphs (or first half of flat paragraphs)
+  const ch2Page1Paras = lhHasSections
+    ? (lhSections[0]?.paragraphs ?? [])
+    : lhAllParas.slice(0, Math.ceil(lhAllParas.length / 2));
+  const ch2Page1SectionH = lhHasSections ? (lhSections[1]?.heading ?? "") : "";
+  const ch2Page1SectionParas = lhHasSections ? (lhSections[1]?.paragraphs ?? []) : [];
+
+  // Page 2: second named section (or second half of flat paragraphs — strictly non-overlapping)
+  const ch2Page2SectionH = lhHasSections
+    ? (lhSections[2]?.heading ?? lhSections[1]?.heading ?? "Recurring themes")
+    : "Recurring themes";
+  const ch2Page2Paras = lhHasSections
+    ? (
+        lhSections[2]?.paragraphs?.length ? lhSections[2].paragraphs :
+        lhSections[3]?.paragraphs?.length ? lhSections[3].paragraphs :
+        lhAllParas.slice(Math.ceil(lhAllParas.length / 2))
+      )
+    : lhAllParas.slice(Math.ceil(lhAllParas.length / 2));
   // Use the "What the Pattern Reveals" section paragraphs directly.
   // Fallback chain (most specific → most general):
   //  1. A section whose heading contains "pattern reveals" or "what the pattern"
