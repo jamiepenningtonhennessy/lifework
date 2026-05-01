@@ -750,6 +750,35 @@ export async function buildClaudeExportJson(clientId: number): Promise<Record<st
     return [];
   })();
 
+  // TMAY paragraphs — everything AFTER the drives block
+  // (skip the "I am fundamentally driven by:" line and the bullet lines, since those are in DRIVES)
+  const ch7TmayAfterDrives: string[] = (() => {
+    const tmay = sections.coachingQuestions ?? "";
+    const drivesMarker = "fundamentally driven by";
+    const lower = tmay.toLowerCase();
+    const idx = lower.indexOf(drivesMarker);
+    if (idx === -1) return ch7TmayParas; // no drives found, return as-is
+    const after = tmay.slice(idx + drivesMarker.length);
+    const colonIdx = after.indexOf(":");
+    if (colonIdx === -1) return ch7TmayParas;
+    const rest = after.slice(colonIdx + 1);
+    const lines = rest.split("\n");
+    // Skip bullet lines, then collect remaining non-empty lines as paragraphs
+    let pastBullets = false;
+    const remainingLines: string[] = [];
+    for (const line of lines) {
+      const trimmed = line.trim();
+      if (!pastBullets && (trimmed.startsWith("- ") || trimmed.startsWith("• ") || trimmed.startsWith("* "))) {
+        continue; // skip bullet lines
+      }
+      if (!pastBullets && trimmed === "") continue; // skip blank lines before content
+      pastBullets = true;
+      remainingLines.push(line);
+    }
+    const result = splitParagraphs(remainingLines.join("\n"));
+    return result.length > 0 ? result : ch7TmayParas;
+  })();
+
   // CH8 — Career Directions
   // Split into page-1 (first 2 sections) and overflow page-2 (remaining sections).
   // This ensures the section is never truncated — it simply spills onto a second page.
@@ -885,7 +914,7 @@ export async function buildClaudeExportJson(clientId: number): Promise<Record<st
       PRESENT_PULLQUOTE: ch7PresentPullquote,
       FUTURE:  ch7Future.length > 0 ? ch7Future : splitParagraphs(sections.coachingQuestions ?? "").slice(4, 6),
       DRIVES:  ch7Drives.length > 0 ? ch7Drives : top10.slice(0, 3).map(s => s.name),
-      TMAY_PARAS: ch7TmayParas.length > 0 ? ch7TmayParas : [],
+      TMAY_PARAS: ch7TmayAfterDrives.length > 0 ? ch7TmayAfterDrives : [],
     },
     CH8: {
       // Page 1: named sections (up to 2) OR flat paragraphs (up to 5)

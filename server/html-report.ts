@@ -828,7 +828,6 @@ const TEMPLATE = `<!doctype html>
     <div class="tmay">
       <div class="q-kicker">Tell me about yourself · a suggested answer</div>
       <div class="q-body">
-        <p style="margin:12px 0 6px;font-family:var(--sans);font-style:normal;font-size:11px;letter-spacing:0.28em;text-transform:uppercase;color:var(--ink-muted);">You are fundamentally driven by —</p>
         <ul class="drives">
           {{#EACH CH7.DRIVES}}<li>{{.}}</li>{{/EACH}}
         </ul>

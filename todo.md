@@ -1297,3 +1297,5 @@
 - [x] Remove the "You are fundamentally driven by:" bullet-point preamble from the Conclusions prompt (all 5 variants updated)
 - [x] Reformat the three drivers as bullet points within the paragraph rather than inline prose
 - [x] Standardise all 5 variants to use first-person "I am fundamentally driven by:" followed by 3 bullets
+- [x] Remove hardcoded "You are fundamentally driven by —" label from html-report.ts template
+- [x] Fix ch7TmayAfterDrives extraction in claudeExport.ts: strip the drives line and bullet lines from TMAY_PARAS so they don’t appear inline as plain text
