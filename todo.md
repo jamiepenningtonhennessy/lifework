@@ -1287,3 +1287,7 @@
 ## Canonical Stage 1 — Full Context Enrichment
 
 - [x] Add family background, education history, and career history to the canonical Stage 1 context so the life history analysis has the complete picture, not just achievements and the Sage transcript
+
+## Chapter 2 Prompt — Explicit Family & Career Context Instructions
+
+- [x] Update LIFE_HISTORY_PROMPT to instruct the AI to draw on family background and career trajectory explicitly, not just achievements

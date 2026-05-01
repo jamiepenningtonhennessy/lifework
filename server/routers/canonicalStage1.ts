@@ -48,14 +48,23 @@ CRITICAL TONE RULES:
 // ─── Life History Pattern prompt (identical to WoW report Chapter 2) ──────────
 export const LIFE_HISTORY_PROMPT = `Write the Life History Pattern analysis. This traces the recurring themes in the client's life history from earliest childhood to today. It is the single most important analytical output — the canonical interpretation of the life history that all other analysis builds on.
 
+You have been given the client's complete record: life history achievements, family background, education history, career history, and (where available) the Sage interview transcript. Use ALL of it. The achievements are the primary evidence, but family background, education, and career trajectory are essential context — they explain why certain themes emerged, what shaped the earliest choices, and how the pattern has expressed itself across different life stages.
+
 ANALYTICAL PRINCIPLE: The earliest experiences carry the deepest imprint. They establish the seed themes that reproduce — in different forms — throughout the rest of life. Your job is to identify those themes and trace them through the decades with specificity and directness.
+
+USING THE FULL CONTEXT:
+- Family background: draw on parents' occupations, sibling position, upbringing location, and family narrative to explain the soil in which the earliest themes took root. If a client grew up in a household shaped by a particular profession, social expectation, or family dynamic, name it and connect it to what followed.
+- Education: note where education reinforced or redirected the emerging themes — not just what was studied, but what the choices reveal about the person.
+- Career history: use the sequence of organisations and roles to show how the seed themes have expressed themselves professionally. Note where the pattern accelerated, stalled, or found its fullest expression.
+- Do NOT treat these as separate sections — weave them into the analysis of the achievements to build a richer, more grounded picture.
 
 STRUCTURE THE ANALYSIS AS FOLLOWS:
 
 ## The Opening Bars
-Examine the client's earliest recorded achievements — childhood and adolescence. Write 2 short paragraphs (4-5 lines each) that:
+Examine the client's earliest recorded achievements — childhood and adolescence — in the context of their family background and upbringing. Write 2 short paragraphs (4-5 lines each) that:
 - Name the 2-3 seed themes already visible in these early experiences
 - Reference specific early achievements by name and decade
+- Where relevant, connect the early themes to the family background: what in the upbringing made these particular choices possible, inevitable, or significant?
 - State plainly why these early patterns matter: they were chosen freely, before career pressures shaped the choices
 
 Close with: "From what you have told us, we can see:" followed by 3-4 tight bullets naming the specific early-established patterns.
@@ -65,14 +74,15 @@ This is the heart of the analysis. For EACH of the 2-3 seed themes:
 - Give it a clear, direct name as a ### subheading (e.g. ### The Drive for Mastery)
 - Write 2 short paragraphs (4-5 lines each) that:
   - Show how this theme first appeared in early life
-  - Trace 3-4 concrete examples of how it has reproduced across different decades and contexts
+  - Trace 3-4 concrete examples of how it has reproduced across different decades and contexts — drawing on achievements, education choices, and career moves
   - Name what others have consistently observed about you in relation to this theme
+  - Where the career history illuminates the theme (e.g. a pattern of moving towards greater complexity, or repeatedly leaving organisations at a particular point), name it directly
 
 ## What the Pattern Reveals
 CRITICAL: This section MUST always be present with the exact heading "## What the Pattern Reveals". It MUST be a separate, distinct section from "## Recurring Motifs" — do NOT merge them or omit this heading.
 
 Write 2 short paragraphs that:
-- Name the single most consistent thread running from earliest experiences to today — what does the whole pattern add up to?
+- Name the single most consistent thread running from earliest experiences to today — what does the whole pattern add up to? Draw on the full arc: family background → early achievements → education → career trajectory.
 - State what the ESF distribution tells us about deepest motivational drivers — what does the balance of Enjoyment, Strength, and Fulfilment reveal about what truly drives this person?
 
 Close with: "From what you have told us, we can see:" followed by 3-5 bullets that name the core motivational findings — insights that could only emerge from seeing the whole pattern together, not from any single achievement.
