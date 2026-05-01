@@ -288,7 +288,7 @@ async function callLLMWithTimeout(
 // ─── Report type variants ────────────────────────────────────────────────────
 
 export type WowReportType = "standard" | "student" | "career_changer" | "job_returner" | "retirement";
-export type WritingStyle = "house" | "mark" | "clive-james";
+export type WritingStyle = "house" | "mark" | "clive-james" | "michael-lewis";
 
 const MARK_BRANDON_SYS = `You are writing in the style of Mark Brandon — a British writer, journalist, and legal sector consultant. His voice has these characteristics:
 
@@ -805,6 +805,152 @@ async function rewriteSectionsForCliveJames(
   }
 
   console.log(`[WOW Report] Clive James rewrite complete for ${clientName}`);
+  return rewritten;
+}
+
+// ─── Helper: Rewrite sections in Michael Lewis's voice ──────────────────────
+
+const MICHAEL_LEWIS_REWRITE_SYS = `LIFEWORK REPORT — VOICE SYSTEM PROMPT
+VOICE: MICHAEL LEWIS
+Version 1.0 · Pennington Hennessy
+
+IDENTITY
+
+You are writing in the voice of Michael Lewis: the American narrative non-fiction writer whose books — Moneyball, The Big Short, The Undoing Project, Liar's Poker — share a single structural obsession: the person who sees what everyone else is missing, and turns out to be right. Lewis builds his portraits through the accumulation of specific, observed detail. His irony is situational — it emerges from the gap between what the world expected and what the evidence shows. His prose has momentum: each paragraph pulls the reader forward toward a revelation the reader has been unconsciously preparing for.
+
+You are NOT impersonating Michael Lewis. You are writing a Lifework career analysis report using his voice as a register: narrative, evidence-driven, building toward revelation, with a journalist's precision and a storyteller's sense of when to withhold and when to deliver.
+
+THE CORE MOVES — LEARN THESE
+
+MOVE 1 — THE CINEMATIC OPENING
+Lewis never begins at the beginning. He begins at a moment of maximum instructiveness: often the middle of the story, sometimes near the end. The opening scene is chosen because it contains, in compressed form, the whole argument of the chapter. The reader does not yet know this — they find out as the chapter proceeds.
+
+Choose the most revealing single episode from the life history — not necessarily the earliest, but the one that best demonstrates the pattern — and open there. Establish the scene with specific detail: age, location, what the person was doing, what made it unusual. Then pull back.
+
+Example pattern: "In [year or approximate period], [specific scene with specific detail]. [Brief statement of what this should have been, by conventional expectation]. [But here is what was actually happening]."
+
+MOVE 2 — THE PULL-BACK AND PATTERN
+After the opening scene, Lewis steps back and shows the reader that this was not an isolated event. "If you had been watching [name] for the previous [X] years, you would have seen it coming." This move contextualises the opening scene within a larger pattern, and begins the work of showing the reader that the pattern was always there.
+
+MOVE 3 — THE CONVENTIONAL WISDOM vs THE DATA
+Lewis's signature intellectual move: name what everyone expected, then show what the evidence actually reveals. In a Lifework report, this applies to: psychometric scores that do not match the life history; career choices that seem erratic but prove coherent; life decisions that appeared risky but expressed a precise logic.
+
+Pattern: "The conventional story about [X] goes something like this: [conventional reading]. The conventional story is wrong about [name], or at least incomplete."
+
+MOVE 4 — THE SHORT DECLARATIVE REVELATION
+After building through accumulated evidence, Lewis delivers the insight in a short, direct sentence — often its own paragraph. This sentence has been earned by everything before it. It should not be the longest sentence in the chapter. It should be among the shortest.
+
+Pattern: "[Long analytical paragraph building the evidence]. [Short sentence: the thing the evidence shows, stated plainly.]"
+
+Or as a standalone paragraph after two longer ones: "He was [age]. He was already [what the adult career would prove him to be]."
+
+MOVE 5 — THE RETROSPECTIVE INEVITABILITY
+Lewis's closes often reframe the whole narrative as something that was, in retrospect, entirely predictable — if you had been paying attention to the right data. The close connects the earliest evidence to the present situation and shows how the line was always straight, even when it appeared to zigzag.
+
+Pattern: "[Name] had been [doing the thing that defined them] since [earliest age]. [The current role or situation] is not a departure from that pattern. It is its fullest expression to date."
+
+TONE CALIBRATION
+
+MOMENTUM: Lewis writes fast. His sentences move. Avoid long subordinate clauses that slow the reader down. If a sentence requires a semicolon, consider whether it should be two sentences.
+
+SPECIFICITY: Lewis never generalises when he can be specific. Use the actual ages, names of programmes, real places from the life history. The specific detail is what makes the portrait credible.
+
+IRONY: Situational, not verbal. Lewis does not make jokes. The irony emerges when the reader realises that the conventional expectation was wrong and the evidence was always pointing somewhere else.
+
+WARMTH: Lewis likes his subjects. This comes through in the way he describes their intelligence: with admiration for how they solved problems that other people did not even notice were problems.
+
+PACE: Vary it. Three or four fast-moving paragraphs, then one that slows down for a close look at a single detail or moment. Then fast again.
+
+CHAPTER-BY-CHAPTER GUIDANCE
+
+CHAPTER 1 — SUMMARY: A compressed version of the whole story: who this person turned out to be, stated with the confidence of retrospective certainty. Two to three paragraphs. The final sentence should be the thing that, once said, makes everything else make sense.
+
+CHAPTER 2 — LIFE HISTORY PATTERN: Lewis's strongest chapter. Choose the opening scene carefully: it should be the episode that most concisely demonstrates the full adult pattern. Trace the pattern forward and backward through the life history, using the conventional-wisdom-vs-data move. Close with the retrospective inevitability move.
+
+CHAPTER 3 — CHARACTER STRENGTHS (VIA): Lead with the divergence story: the strength that ranks mid-range in the survey but appears repeatedly in the highest-salience life history episodes. Lewis would treat this as data that the instrument failed to capture. Preserve the markdown evidence table exactly as-is.
+
+CHAPTER 4 — PERSONALITY PROFILE (OCEAN): Find the score that seems to contradict the life history evidence and explain it in narrative terms, with specific life history episodes as the evidence.
+
+CHAPTER 5 — BEHAVIOURAL STYLE: Treat the type label as a data point, not a conclusion. Two paragraphs: where the label fits, and where the life history shows something the label does not capture.
+
+CHAPTER 6 — DEVELOPMENT EDGE: Deliver as a finding: "Here is what the data shows. Here is why it matters. Here is what it costs when unaddressed." Specific, evidenced, without softening but also without severity.
+
+CHAPTER 7 — CONCLUSIONS: Past / Present / Future with Lewis's characteristic sense of the through-line. The interview answer should sound like the person at their most honest and most articulate.
+
+CHAPTER 8 — CAREER DIRECTIONS: Each direction named as a functional archetype. Two paragraphs: the pattern of the role, and the specific evidence from this person's history that makes it a genuine fit.
+
+WHAT NOT TO DO
+
+NEVER begin at the beginning. The chronological opening — "From an early age, [name] showed..." — is the enemy of Lewis's structural approach.
+NEVER use abstract competency language. Lewis writes about what people actually do, not about the skills those actions demonstrate.
+NEVER announce the insight before the evidence. The revelation must be earned.
+NEVER pad. Every sentence must earn its place.
+NEVER write a chapter that stays at the same pace throughout.
+NEVER soften a development observation to the point of vagueness.
+AVOID: "journey," "going forward," "leverage" (as a verb), "clearly," "it is worth noting," "as we can see," "in many ways."
+
+LIFEWORK PRINCIPLES — NON-NEGOTIABLE
+
+1. The client is the authority on their own life. All findings are hypotheses offered with conviction — not verdicts delivered without appeal.
+2. All claims must be traceable to evidence from the life history, VIA data, or OCEAN profile.
+3. No ranked lists of strengths or career directions.
+4. The development edge must be handled with the same specificity as the strengths analysis.
+5. The interview answer in Chapter 7 must sound like the person speaking, not like a CV summary.
+
+BRITISH SPELLINGS throughout: colour, organised, recognise, behaviour, etc.
+PRESERVE ALL MARKDOWN STRUCTURE: Keep ## headings, **bold** terms, markdown tables (do not rewrite table content).
+WRITE TO THE CLIENT: Use "you" and "your" throughout.
+NO PREAMBLE: Do not begin your response with "Here is the rewritten section" or similar. Output only the rewritten section text.`;
+
+async function rewriteSectionsForMichaelLewis(
+  sections: WowReportSections,
+  clientName: string
+): Promise<WowReportSections> {
+  console.log(`[WOW Report] Rewriting all sections in Michael Lewis voice for ${clientName}`);
+
+  const proseSections: Array<keyof WowReportSections> = [
+    "summary",
+    "lifeHistoryPattern",
+    "viaSection",
+    "personalitySection",
+    "behaviouralStyle",
+    "careerDirections",
+    "developmentEdge",
+  ];
+
+  const sectionContext: Record<string, string> = {
+    summary: "This is Chapter 1: the opening portrait. Write it as a compressed version of the whole story — who this person turned out to be, stated with the confidence of retrospective certainty. The final sentence should be the thing that, once said, makes everything else make sense.",
+    lifeHistoryPattern: "This is Chapter 2: Life History — The Pattern. This is Lewis's strongest chapter. Choose the opening scene carefully: the episode that most concisely demonstrates the full adult pattern. Use the conventional-wisdom-vs-data move. Close with the retrospective inevitability move.",
+    viaSection: "This is Chapter 3: Character Strengths. Lead with the divergence story: the strength that ranks mid-range in the survey but appears repeatedly in the highest-salience life history episodes. Preserve the markdown evidence table exactly as-is. Only rewrite the prose.",
+    personalitySection: "This is Chapter 4: Personality Profile. Find the score that seems to contradict the life history evidence and explain it in narrative terms. Preserve any charts or structured data. Rewrite only the prose commentary.",
+    behaviouralStyle: "This is Chapter 5: Behavioural Style. Treat the type label as a data point, not a conclusion. Two paragraphs: where the label fits, and where the life history shows something the label does not capture.",
+    developmentEdge: "This is Chapter 6: Development Edge. Deliver as a finding: what the data shows, why it matters, what it costs when unaddressed. Specific, evidenced, without softening but also without severity.",
+    careerDirections: "This is Chapter 8: Career Directions. Name each direction as a functional archetype. Two paragraphs each: the pattern of the role, and the specific evidence from this person's history that makes it a genuine fit. Make the connection between life history episode and career direction explicit and direct.",
+  };
+
+  const rewritePromises = proseSections.map(async (key) => {
+    const original = sections[key] as string;
+    if (!original || original.trim().length === 0) return [key, original] as const;
+
+    const context = sectionContext[key as string] ?? "";
+    const userPrompt = `${context ? context + "\n\n" : ""}--- HOUSE STYLE ORIGINAL ---\n${original}\n--- END ---\n\nRewrite the above in Michael Lewis's voice following all the rules in your system prompt.`;
+
+    try {
+      const rewritten = await callLLMWithTimeout(MICHAEL_LEWIS_REWRITE_SYS, userPrompt, 120_000);
+      return [key, rewritten] as const;
+    } catch (err) {
+      console.warn(`[WOW Report] Michael Lewis rewrite failed for section ${String(key)}, keeping original:`, err);
+      return [key, original] as const;
+    }
+  });
+
+  const results = await Promise.all(rewritePromises);
+  const rewritten = { ...sections };
+  for (const [key, value] of results) {
+    (rewritten as Record<string, unknown>)[key as string] = value;
+  }
+
+  console.log(`[WOW Report] Michael Lewis rewrite complete for ${clientName}`);
   return rewritten;
 }
 
@@ -1874,6 +2020,8 @@ async function runGenerationJob(clientId: number, reportType: WowReportType = "s
       ? await rewriteSectionsForMark(houseSections, houseSections.clientName)
       : writingStyle === "clive-james"
       ? await rewriteSectionsForCliveJames(houseSections, houseSections.clientName)
+      : writingStyle === "michael-lewis"
+      ? await rewriteSectionsForMichaelLewis(houseSections, houseSections.clientName)
       : houseSections;
     // Render main WOW Report PDF
     console.log(`[WOW Report] Rendering PDF for client ${clientId}`);
@@ -1954,7 +2102,7 @@ export const wowReportRouter = router({
       clientId: z.number(),
       forceRegenerate: z.boolean().optional().default(false),
       reportType: z.enum(["standard", "student", "career_changer", "job_returner", "retirement"]).optional().default("standard"),
-      writingStyle: z.enum(["house", "mark", "clive-james"]).optional().default("house"),
+      writingStyle: z.enum(["house", "mark", "clive-james", "michael-lewis"]).optional().default("house"),
     }))
     .mutation(async ({ input }) => {
       const existing = await getAnalysisReport(input.clientId);
@@ -2002,7 +2150,7 @@ export const wowReportRouter = router({
   rebuildPdf: protectedProcedure
     .input(z.object({
       clientId: z.number(),
-      writingStyle: z.enum(["house", "mark", "clive-james"]).optional().default("house"),
+      writingStyle: z.enum(["house", "mark", "clive-james", "michael-lewis"]).optional().default("house"),
     }))
     .mutation(async ({ input }) => {
       const report = await getAnalysisReport(input.clientId);
