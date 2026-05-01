@@ -233,32 +233,38 @@ export function PreviewClientDashboard() {
   const steps = [
     {
       id: "interview", icon: <MessageSquare className="w-5 h-5" />,
-      title: "Life History Interview",
+      title: "1. Life History Interview",
       description: "A structured conversation exploring your achievements across the decades of your life.",
       status: "not_started", cta: "Begin Interview", path: "/preview/interview",
     },
     {
       id: "background", icon: <User className="w-5 h-5" />,
-      title: "Background & History",
+      title: "2. Background & History",
       description: "Capture your family background, education, and career timeline.",
       status: "not_started", cta: "Add Background", path: "/preview/background",
     },
     {
       id: "sage", icon: <Sparkles className="w-5 h-5" />,
-      title: "Sage the Online Career Coach",
+      title: "3. Sage - Exploring your Life History",
       description: "Sage will read what you have written and add depth by asking you some reflective questions.",
       status: "not_started", cta: null, path: null,
     },
     {
       id: "psychometrics", icon: <Star className="w-5 h-5" />,
-      title: "Psychometrics",
+      title: "4. Psychometrics",
       description: "Two assessments — VIA Character Strengths (120 questions) and a Personality Profile (IPIP-NEO-120) — that provide additional lenses on who you are.",
       status: "not_started", cta: "Begin Psychometrics", path: "/preview/via",
     },
     {
+      id: "lifework_coaching", icon: <Brain className="w-5 h-5" />,
+      title: "5. Lifework Coaching",
+      description: "Set up an exploration of your Lifework report with a Lifework Coach.",
+      status: "not_started", cta: "Request a Coaching Date", path: null,
+    },
+    {
       id: "career_explorer", icon: <Compass className="w-5 h-5" />,
-      title: "Career Explorer",
-      description: "Come back to this site once you have had your Lifework Coaching Conversation, and you can ask Sage for her opinion on future careers.",
+      title: "6. Career Explorer",
+      description: "Come back to this site once you have had your Lifework Coaching Conversation, and you can ask Sage for her opinion on future careers, or perhaps discuss the challenges that a possible chosen career might bring.",
       status: "not_started", cta: "Open Career Explorer", path: "/preview/career-explorer",
     },
   ];
@@ -287,7 +293,7 @@ export function PreviewClientDashboard() {
           <h1 className="text-3xl font-serif font-bold text-foreground mb-2">Welcome, Alex</h1>
           <div className="text-muted-foreground leading-relaxed space-y-3 text-sm">
             <p>
-              Your Lifework journey has five stages. Begin by completing your{" "}
+              Your Lifework journey has six stages. Begin by completing your{" "}
               <strong className="text-foreground">Life History Interview</strong> and{" "}
               <strong className="text-foreground">Background &amp; History</strong> — these form the foundation of everything that follows.
             </p>
@@ -318,7 +324,7 @@ export function PreviewClientDashboard() {
         <div className="mb-8 p-5 rounded-xl bg-card border border-border">
           <div className="flex items-center justify-between mb-3">
             <span className="text-sm font-medium text-foreground">Overall Progress</span>
-            <span className="text-sm font-bold" style={{ color: "var(--lw-gold)" }}>0 of 5 steps complete</span>
+            <span className="text-sm font-bold" style={{ color: "var(--lw-gold)" }}>0 of 6 steps complete</span>
           </div>
           <div className="h-2.5 bg-muted rounded-full overflow-hidden">
             <div className="h-full rounded-full" style={{ width: "0%", background: "var(--lw-gold)" }} />
@@ -343,6 +349,28 @@ export function PreviewClientDashboard() {
                         {isLocked && <Lock className="w-3.5 h-3.5 text-muted-foreground" />}
                       </div>
                       <p className="text-sm text-muted-foreground leading-relaxed mb-3">{step.description}</p>
+                      {/* Sage step: show live ChatToPeter */}
+                      {step.id === "sage" && !isLocked && (
+                        <div className="mt-2">
+                          <ChatToPeter
+                            section="life_history"
+                            buttonLabel="Chat to Sage"
+                            sectionDescription="Sage has read your Life History and Background. She would like to explore what you have written and ask some reflective questions to deepen your self-understanding."
+                          />
+                        </div>
+                      )}
+                      {/* Lifework Coaching: mailto */}
+                      {step.id === "lifework_coaching" && !isLocked && (
+                        <a href={`mailto:jamie@penningtonhennessy.com?subject=${encodeURIComponent("I'm ready for coaching")}&body=${encodeURIComponent("Hi Jamie,\n\nI have finished my data input and want to set up a coaching date. Could you send me some possible timeslots?")}`}>
+                          <button
+                            className="px-4 py-2 text-xs font-semibold uppercase tracking-widest cursor-pointer"
+                            style={{ background: "var(--lw-gold)", color: "var(--lw-navy)", letterSpacing: "0.08em" }}
+                          >
+                            {step.cta} →
+                          </button>
+                        </a>
+                      )}
+                      {/* Regular steps with a path */}
                       {step.cta && step.path && !isLocked && (
                         <button
                           onClick={() => navigate(step.path!)}

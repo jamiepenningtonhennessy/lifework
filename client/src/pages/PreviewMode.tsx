@@ -83,6 +83,8 @@ const PAGES = [
   },
 ];
 
+// Step 3 Sage is rendered inline inside the dashboard preview (uses live ChatToPeter)
+
 export default function PreviewMode() {
   const [, navigate] = useLocation();
 
@@ -121,6 +123,9 @@ export default function PreviewMode() {
             Every client-facing page rendered with a realistic fictional client — Alex Morgan, a
             Legal Director considering a move to General Counsel or legal education. No login
             required. Changes to layout, copy, and styling are immediately visible here.
+          </p>
+          <p className="text-muted-foreground max-w-2xl text-sm mt-2">
+            <strong className="text-foreground">Stage 3 — Chat to Sage</strong> is embedded live inside the Dashboard preview and uses the real Sage AI. All other stages are static previews.
           </p>
         </div>
 
