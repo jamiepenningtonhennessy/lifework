@@ -915,6 +915,9 @@ export async function buildClaudeExportJson(clientId: number): Promise<Record<st
     },
     CH5: {
       WHEEL: deriveWheelPosition(domainScores),
+      JUNGIAN_TYPE: jungianType,
+      JUNGIAN_SPELT: jungianSpelt,
+      AXES: deriveInsightsAxes(domainScores),
       PRIMARY: {
         fullName: primaryColour,
         cssClass: COLOUR_CSS[primaryColour] ?? "blue",

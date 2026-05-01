@@ -324,6 +324,22 @@ ol.rank-list.full li.bot5 .sc { color: var(--ink-muted); }
 .facet-group .facet .fsc { font-variant-numeric: tabular-nums; color: var(--navy); font-weight: 600; text-align: right; font-size: 11px; }
 /* ── Insights wheel layout ── */
 .insights-body { display: grid; grid-template-columns: 260px 1fr; gap: 28px; margin-top: 22px; align-items: start; }
+/* Jungian type box */
+.jungian-box { border: 1px solid var(--navy); padding: 16px 22px; display: grid; grid-template-columns: 1fr 1fr; gap: 0; margin-bottom: 20px; }
+.jungian-box .jb-left { border-right: 1px solid var(--navy); padding-right: 20px; }
+.jungian-box .jb-label { font-family: var(--sans); font-size: 9px; letter-spacing: 0.36em; text-transform: uppercase; color: var(--ink-muted); margin-bottom: 2px; }
+.jungian-box .jb-type { font-family: var(--serif); font-size: 48px; font-weight: 700; color: var(--navy); line-height: 1; letter-spacing: 0.04em; }
+.jungian-box .jb-right { padding-left: 20px; display: flex; flex-direction: column; justify-content: space-between; }
+.jungian-box .jb-mbti { display: flex; flex-direction: column; gap: 2px; }
+.jungian-box .jb-mbti-label { font-family: var(--sans); font-size: 9px; letter-spacing: 0.36em; text-transform: uppercase; color: var(--ink-muted); }
+.jungian-box .jb-mbti-val { font-family: var(--serif); font-size: 13px; color: var(--navy); font-weight: 500; }
+.jungian-box .jb-spelt { font-family: var(--serif); font-style: italic; font-size: 12px; color: var(--ink-muted); line-height: 1.4; text-align: right; align-self: flex-end; }
+/* Axis cards */
+.axis-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 20px; }
+.axis-card { border-top: 3px solid var(--gold); padding: 10px 14px 12px; background: rgba(26,39,68,0.03); }
+.axis-card .ac-label { font-family: var(--sans); font-size: 8.5px; letter-spacing: 0.36em; text-transform: uppercase; color: var(--ink-muted); margin-bottom: 4px; }
+.axis-card .ac-value { font-family: var(--serif); font-size: 15px; color: var(--navy); font-weight: 500; line-height: 1.2; }
+.axis-card .ac-note { font-family: var(--sans); font-size: 9.5px; color: var(--ink-muted); margin-top: 3px; }
 .insights-wheel-wrap { display: flex; align-items: center; justify-content: center; }
 .insights-cards { display: flex; flex-direction: column; gap: 16px; }
 .icard { border-radius: 3px; overflow: hidden; }
@@ -716,6 +732,30 @@ const TEMPLATE = `<!doctype html>
     <span class="kicker">Chapter 05 · Insights</span>
     <h2 class="chap-title">Behavioural <em>style.</em></h2>
     <p class="lede">The following is an <em>approximation</em> derived by mapping your Big Five scores onto the Insights Discovery colour-energy framework, using the academic consensus correlations between OCEAN and the Jungian dimensions. It is a coaching tool, not a clinical assessment. For a validated Insights profile, contact an accredited Insights practitioner.</p>
+    <!-- Jungian type box -->
+    <div class="jungian-box">
+      <div class="jb-left">
+        <div class="jb-label">Jungian Type</div>
+        <div class="jb-type">{{CH5.JUNGIAN_TYPE}}</div>
+      </div>
+      <div class="jb-right">
+        <div class="jb-mbti">
+          <div class="jb-mbti-label">Approx. MBTI Equivalent</div>
+          <div class="jb-mbti-val">{{CH5.JUNGIAN_TYPE}}</div>
+        </div>
+        <div class="jb-spelt">{{CH5.JUNGIAN_SPELT}}</div>
+      </div>
+    </div>
+    <!-- Axis cards -->
+    <div class="axis-row">
+      {{#EACH CH5.AXES}}
+      <div class="axis-card">
+        <div class="ac-label">{{.label}}</div>
+        <div class="ac-value">{{.value}}</div>
+        <div class="ac-note">{{.note}}</div>
+      </div>
+      {{/EACH}}
+    </div>
     <div class="insights-body">
       <div class="insights-wheel-wrap">
         <svg width="240" height="240" viewBox="0 0 240 240" xmlns="http://www.w3.org/2000/svg">
