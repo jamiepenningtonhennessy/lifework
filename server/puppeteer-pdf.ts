@@ -169,20 +169,26 @@ export async function handlePuppeteerPdfDownload(req: Request, res: Response) {
     let pdfBuffer: Buffer;
 
     // Strategy:
-    //  1. PDFKit — pure Node.js, zero system dependencies, works everywhere
-    //  2. WeasyPrint — HTML→PDF, used if available (local dev)
-    //  3. Puppeteer — last resort (requires Chromium system libs)
+    //  1. Puppeteer — headless Chromium, produces pixel-perfect branded PDF
+    //                  (requires Chromium installed via postinstall script)
+    //  2. PDFKit    — pure Node.js fallback if Chromium is not available
     try {
-      console.log("[pdf] Using PDFKit (pure Node.js)");
-      pdfBuffer = await generatePdfKitReport(data as Record<string, unknown>);
-      console.log("[pdf] PDFKit succeeded, buffer size:", pdfBuffer.length);
-    } catch (pdfkitErr) {
-      const pdfkitErrMsg = pdfkitErr instanceof Error ? pdfkitErr.message : String(pdfkitErr);
-      console.warn("[pdf] PDFKit failed:", pdfkitErrMsg);
-      // PDFKit is the primary renderer — if it fails, surface the error directly
-      // rather than falling through to Puppeteer (which requires Chrome).
-      // This makes the error visible so it can be diagnosed and fixed.
-      throw new Error(`PDFKit error: ${pdfkitErrMsg}`);
+      const html = renderHtmlReport(data as Record<string, unknown>);
+      console.log("[pdf] Using Puppeteer (headless Chromium)");
+      pdfBuffer = await generatePdfWithPuppeteer(html);
+      console.log("[pdf] Puppeteer succeeded, buffer size:", pdfBuffer.length);
+    } catch (puppeteerErr) {
+      const puppeteerErrMsg = puppeteerErr instanceof Error ? puppeteerErr.message : String(puppeteerErr);
+      console.warn("[pdf] Puppeteer failed:", puppeteerErrMsg, "— falling back to PDFKit");
+      try {
+        console.log("[pdf] Using PDFKit fallback (pure Node.js)");
+        pdfBuffer = await generatePdfKitReport(data as Record<string, unknown>);
+        console.log("[pdf] PDFKit succeeded, buffer size:", pdfBuffer.length);
+      } catch (pdfkitErr) {
+        const pdfkitErrMsg = pdfkitErr instanceof Error ? pdfkitErr.message : String(pdfkitErr);
+        console.warn("[pdf] PDFKit also failed:", pdfkitErrMsg);
+        throw new Error(`PDF generation failed. Puppeteer: ${puppeteerErrMsg}. PDFKit: ${pdfkitErrMsg}`);
+      }
     }
 
     // ── Stream response ───────────────────────────────────────────────────────

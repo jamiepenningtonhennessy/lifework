@@ -1314,3 +1314,10 @@
 - [x] Renamed button to "Print / Save as PDF" (top toolbar) and "Open Report for Printing" (lower panel) with updated tooltip
 - [x] Updated lower panel description text to guide user to use File → Print → Save as PDF
 - [x] Server-side /api/report/pdf/:clientId route kept in code for future Puppeteer fix but no longer wired to any button
+
+## Download Report PDF — Restore Puppeteer/Chromium (PRIORITY)
+
+- [x] Add postinstall script to package.json: `npx puppeteer browsers install chrome` so Chromium is installed in the production container at build time
+- [x] Restore the Download Report PDF button to call /api/report/pdf/:clientId (Puppeteer route)
+- [x] Puppeteer is now primary; PDFKit is fallback if Chromium not available
+- [ ] Test end-to-end in production after publish

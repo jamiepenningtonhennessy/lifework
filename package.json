@@ -11,7 +11,7 @@
     "format": "prettier --write .",
     "test": "vitest run",
     "db:push": "drizzle-kit generate && drizzle-kit migrate",
-    "postinstall": "pip3 install weasyprint --quiet --no-warn-script-location 2>/dev/null || pip install weasyprint --quiet --no-warn-script-location 2>/dev/null || true"
+    "postinstall": "(pip3 install weasyprint --quiet --no-warn-script-location 2>/dev/null || pip install weasyprint --quiet --no-warn-script-location 2>/dev/null || true) && (npx puppeteer browsers install chrome 2>/dev/null || true)"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.693.0",
