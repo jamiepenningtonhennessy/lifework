@@ -1273,3 +1273,4 @@
 - [x] 138 tests passing
 - [x] Add /api/debug/pdfkit-test diagnostic endpoint (public, no auth) to diagnose production failures
 - [x] Update puppeteer-pdf.ts: surface PDFKit error directly instead of falling through to Puppeteer
+- [x] Fix NaN error: OCEAN.DOMAINS uses `name`+`pct` fields (not `label`+`score`+`leftPole`+`rightPole`); add `num()` helper for safe numeric coercion; add OCEAN_POLES lookup for pole labels

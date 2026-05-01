@@ -27,6 +27,15 @@ const SERIF_ITALIC = "Times-Italic";
 const SANS = "Helvetica";
 const SANS_BOLD = "Helvetica-Bold";
 
+// ─── OCEAN pole labels ───────────────────────────────────────────────────────
+const OCEAN_POLES: Record<string, [string, string]> = {
+  Openness:          ["Conventional", "Open"],
+  Conscientiousness: ["Flexible", "Disciplined"],
+  Extraversion:      ["Introverted", "Extraverted"],
+  Agreeableness:     ["Challenging", "Agreeable"],
+  Neuroticism:       ["Stable", "Reactive"],
+};
+
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 function s(v: unknown): string {
   if (v === null || v === undefined) return "";
@@ -37,6 +46,11 @@ function arr<T>(v: unknown): T[] {
 }
 function obj(v: unknown): Record<string, unknown> {
   return v && typeof v === "object" && !Array.isArray(v) ? (v as Record<string, unknown>) : {};
+}
+/** Safely coerce a value to a finite number; returns fallback (default 0) if NaN/undefined. */
+function num(v: unknown, fallback = 0): number {
+  const n = Number(v);
+  return isFinite(n) ? n : fallback;
 }
 
 // Strip HTML tags from text
@@ -112,7 +126,7 @@ function barChart(
 
   for (const item of items) {
     const maxVal = item.maxValue ?? 100;
-    const pct = Math.min(item.value / maxVal, 1);
+    const pct = Math.min(num(item.value) / Math.max(num(maxVal, 100), 1), 1);
     const barWidth = Math.max(pct * barAreaWidth, 2);
     const y = doc.y;
 
@@ -129,7 +143,7 @@ function barChart(
     doc.rect(MARGIN + labelWidth, y, barWidth, barHeight).fill(barColor);
     // Score label
     doc.font(SANS).fontSize(8).fillColor(MID_GREY).text(
-      String(item.value),
+      String(num(item.value)),
       MARGIN + labelWidth + barAreaWidth + 4,
       y + 2,
       { width: 40 }
@@ -151,7 +165,7 @@ function oceanBar(
   const trackW = CONTENT_W - 20;
   const trackX = MARGIN + 10;
   const midX = trackX + trackW / 2;
-  const pct = Math.min(Math.max(score / 100, 0), 1);
+  const pct = Math.min(Math.max(num(score, 50) / 100, 0), 1);
   const barX = pct < 0.5 ? midX + (pct - 0.5) * trackW : midX;
   const barW = Math.abs(pct - 0.5) * trackW;
 
@@ -427,9 +441,15 @@ function renderCh4(doc: PDFKit.PDFDocument, data: Record<string, unknown>) {
 
   bodyPara(doc, s(ch4.LEDE));
 
-  const domains = arr<{ label: string; score: number; leftPole: string; rightPole: string }>(ocean.DOMAINS);
+  // OCEAN.DOMAINS uses `name` and `pct` (0-100 percentile) from claudeExport
+  const domains = arr<{ name?: string; label?: string; pct?: number; score?: number; leftPole?: string; rightPole?: string }>(ocean.DOMAINS);
   for (const domain of domains) {
-    oceanBar(doc, domain.label, domain.score, domain.leftPole, domain.rightPole);
+    const domainLabel = s(domain.label ?? domain.name);
+    const domainScore = num(domain.score ?? domain.pct, 50);
+    const poles = OCEAN_POLES[domainLabel] ?? ["Low", "High"];
+    const leftPole = s(domain.leftPole ?? poles[0]);
+    const rightPole = s(domain.rightPole ?? poles[1]);
+    oceanBar(doc, domainLabel, domainScore, leftPole, rightPole);
   }
 
   doc.font(SANS).fontSize(8).fillColor(MID_GREY).text(s(ocean.FACET_NOTE), MARGIN, doc.y, { width: CONTENT_W });
