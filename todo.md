@@ -1299,3 +1299,7 @@
 - [x] Standardise all 5 variants to use first-person "I am fundamentally driven by:" followed by 3 bullets
 - [x] Remove hardcoded "You are fundamentally driven by —" label from html-report.ts template
 - [x] Fix ch7TmayAfterDrives extraction in claudeExport.ts: strip the drives line and bullet lines from TMAY_PARAS so they don’t appear inline as plain text
+
+## Chapter 8 — Minimum 3 Career Directions
+
+- [x] Update Chapter 8 prompt in all report variants to always produce at least 3 distinct named career direction options (strengthened to "MUST write EXACTLY 3" in all 5 variants)
