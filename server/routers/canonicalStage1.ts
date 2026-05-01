@@ -16,6 +16,9 @@ import {
   getClientProfileById,
   getAchievements,
   getInterviewMessages,
+  getFamilyBackground,
+  getEducationHistory,
+  getCareerHistory,
   updateCanonicalStage1,
   getAnalysisReport,
 } from "../db";
@@ -105,10 +108,13 @@ function buildAchievementContext(
 
 // ─── Main export: generate and store the canonical Stage 1 ───────────────────
 export async function generateAndStoreCanonicalStage1(clientId: number): Promise<string> {
-  const [profile, achievementsList, interviewMsgs] = await Promise.all([
+  const [profile, achievementsList, interviewMsgs, family, education, career] = await Promise.all([
     getClientProfileById(clientId),
     getAchievements(clientId),
     getInterviewMessages(clientId),
+    getFamilyBackground(clientId),
+    getEducationHistory(clientId),
+    getCareerHistory(clientId),
   ]);
 
   if (!profile) throw new Error(`Client profile not found for id ${clientId}`);
@@ -120,6 +126,47 @@ export async function generateAndStoreCanonicalStage1(clientId: number): Promise
 
   const achievementContext = buildAchievementContext(achievementsList);
 
+  // Family background section
+  const familyLines: string[] = [];
+  if (family) {
+    familyLines.push("--- FAMILY BACKGROUND ---");
+    if (family.fatherOccupation) familyLines.push(`Father's occupation: ${family.fatherOccupation}`);
+    if (family.motherOccupation) familyLines.push(`Mother's occupation: ${family.motherOccupation}`);
+    if (family.siblingPosition) familyLines.push(`Sibling position: ${family.siblingPosition}`);
+    if (family.upbringingLocation) familyLines.push(`Upbringing location: ${family.upbringingLocation}`);
+    if (family.familyNarrative) familyLines.push(`Family narrative: ${family.familyNarrative}`);
+    if (family.significantInfluences) familyLines.push(`Significant influences: ${family.significantInfluences}`);
+  }
+  const familyContext = familyLines.length > 1 ? familyLines.join("\n") : null;
+
+  // Education history section
+  const educationLines: string[] = [];
+  if (education && education.length > 0) {
+    educationLines.push("--- EDUCATION HISTORY ---");
+    for (const e of education) {
+      educationLines.push(
+        `${e.institution ?? ""} — ${e.qualification ?? ""} ${e.subject ?? ""} (${e.yearFrom ?? ""}–${e.yearTo ?? ""})`.trim()
+      );
+      if (e.highlights) educationLines.push(`  Highlights: ${e.highlights}`);
+    }
+  }
+  const educationContext = educationLines.length > 1 ? educationLines.join("\n") : null;
+
+  // Career history section
+  const careerLines: string[] = [];
+  if (career && career.length > 0) {
+    careerLines.push("--- CAREER HISTORY ---");
+    for (const c of career) {
+      careerLines.push(
+        `${c.organisation ?? ""} — ${c.role ?? ""} (${c.yearFrom ?? ""}–${c.yearTo ?? ""})`.trim()
+      );
+      if (c.keyResponsibilities) careerLines.push(`  Responsibilities: ${c.keyResponsibilities}`);
+      if (c.highlights) careerLines.push(`  Highlights: ${c.highlights}`);
+      if (c.whyLeft) careerLines.push(`  Why left: ${c.whyLeft}`);
+    }
+  }
+  const careerContext = careerLines.length > 1 ? careerLines.join("\n") : null;
+
   // Include Sage 1 interview transcript if available
   const interviewContext =
     interviewMsgs && interviewMsgs.length > 0
@@ -128,12 +175,22 @@ export async function generateAndStoreCanonicalStage1(clientId: number): Promise
           .join("\n")
       : null;
 
-  const userPrompt = `CLIENT: ${clientName}
+  const contextParts: string[] = [
+    `CLIENT: ${clientName}`,
+    ...(profile.currentRole ? [`CURRENT ROLE: ${profile.currentRole}`] : []),
+    ...(profile.currentOrg ? [`CURRENT ORGANISATION: ${profile.currentOrg}`] : []),
+    "",
+    "--- LIFE HISTORY ACHIEVEMENTS ---",
+    achievementContext,
+    ...(familyContext ? ["", familyContext] : []),
+    ...(educationContext ? ["", educationContext] : []),
+    ...(careerContext ? ["", careerContext] : []),
+    ...(interviewContext ? ["", "--- SAGE 1 INTERVIEW TRANSCRIPT ---", interviewContext] : []),
+    "",
+    LIFE_HISTORY_PROMPT,
+  ];
 
---- LIFE HISTORY ACHIEVEMENTS ---
-${achievementContext}
-${interviewContext ? `\n--- SAGE 1 INTERVIEW TRANSCRIPT ---\n${interviewContext}\n` : ""}
-${LIFE_HISTORY_PROMPT}`;
+  const userPrompt = contextParts.join("\n");
 
   const response = await invokeLLM({
     messages: [

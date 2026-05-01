@@ -1274,3 +1274,16 @@
 - [x] Add /api/debug/pdfkit-test diagnostic endpoint (public, no auth) to diagnose production failures
 - [x] Update puppeteer-pdf.ts: surface PDFKit error directly instead of falling through to Puppeteer
 - [x] Fix NaN error: OCEAN.DOMAINS uses `name`+`pct` fields (not `label`+`score`+`leftPole`+`rightPole`); add `num()` helper for safe numeric coercion; add OCEAN_POLES lookup for pole labels
+
+## PDF Generation — Puppeteer with Bundled Chromium (DEFERRED)
+
+- [ ] Add `"postinstall": "npx puppeteer browsers install chrome"` to package.json so Chromium is downloaded into the container at build time
+- [ ] Remove PDFKit/WeasyPrint fallback chain in puppeteer-pdf.ts — go straight to Puppeteer since Chromium will always be present
+- [ ] Remove /api/debug/pdfkit-test diagnostic endpoint (no longer needed once Puppeteer works)
+- [ ] Test: deploy, then download a WOW report PDF and confirm it matches the on-screen HTML report exactly
+- NOTE: Adds ~3–5 min to deploy time (one-off Chromium download ~150 MB); no impact on day-to-day site use or print speed (5–15 sec per PDF)
+- NOTE: Deferred until batch of report content changes is complete to minimise deploys
+
+## Canonical Stage 1 — Full Context Enrichment
+
+- [x] Add family background, education history, and career history to the canonical Stage 1 context so the life history analysis has the complete picture, not just achievements and the Sage transcript
