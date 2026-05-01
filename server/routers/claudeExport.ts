@@ -668,9 +668,11 @@ export async function buildClaudeExportJson(clientId: number): Promise<Record<st
 
   // CH2 — Life History Pattern
   const lhSections = extractAllSections(sections.lifeHistoryPattern ?? "");
-  // All raw paragraphs — used as fallback when LLM produces flat (no-heading) output
+  // All raw paragraphs — used as fallback when LLM produces flat or single-section output
   const lhAllParas = splitParagraphs(sections.lifeHistoryPattern ?? "");
-  const lhHasSections = lhSections.length >= 2;
+  // Require at least 3 sections (intro + 2 named sections) for section-based splitting;
+  // with fewer sections the paragraphs are just pooled in lhSections[0] and we must split by index.
+  const lhHasSections = lhSections.length >= 3;
 
   // Page 1: first named section paragraphs (or first half of flat paragraphs)
   const ch2Page1Paras = lhHasSections
@@ -681,15 +683,18 @@ export async function buildClaudeExportJson(clientId: number): Promise<Record<st
 
   // Page 2: second named section (or second half of flat paragraphs — strictly non-overlapping)
   const ch2Page2SectionH = lhHasSections
-    ? (lhSections[2]?.heading ?? lhSections[1]?.heading ?? "Recurring themes")
+    ? (lhSections[2]?.heading ?? "Recurring themes")
     : "Recurring themes";
-  const ch2Page2Paras = lhHasSections
+  const _ch2Page2ParasRaw = lhHasSections
     ? (
         lhSections[2]?.paragraphs?.length ? lhSections[2].paragraphs :
         lhSections[3]?.paragraphs?.length ? lhSections[3].paragraphs :
         lhAllParas.slice(Math.ceil(lhAllParas.length / 2))
       )
     : lhAllParas.slice(Math.ceil(lhAllParas.length / 2));
+  // Final deduplication guard: strip any paragraph that already appeared on page 1
+  const _ch2Page1Set = new Set([...ch2Page1Paras, ...ch2Page1SectionParas]);
+  const ch2Page2Paras = _ch2Page2ParasRaw.filter(p => !_ch2Page1Set.has(p));
   // Use the "What the Pattern Reveals" section paragraphs directly.
   // Fallback chain (most specific → most general):
   //  1. A section whose heading contains "pattern reveals" or "what the pattern"
