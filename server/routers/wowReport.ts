@@ -288,7 +288,7 @@ async function callLLMWithTimeout(
 // ─── Report type variants ────────────────────────────────────────────────────
 
 export type WowReportType = "standard" | "student" | "career_changer" | "job_returner" | "retirement";
-export type WritingStyle = "house" | "mark";
+export type WritingStyle = "house" | "mark" | "clive-james";
 
 const MARK_BRANDON_SYS = `You are writing in the style of Mark Brandon — a British writer, journalist, and legal sector consultant. His voice has these characteristics:
 
@@ -676,6 +676,135 @@ async function rewriteSectionsForMark(
   // Update section title labels for Mark style
   // Chapter 1 title change is handled in the PDF renderer via writingStyle flag
   console.log(`[WOW Report] Mark Brandon rewrite complete for ${clientName}`);
+  return rewritten;
+}
+
+// ─── Helper: Rewrite sections in Clive James's voice ────────────────────────
+
+const CLIVE_JAMES_REWRITE_SYS = `LIFEWORK REPORT — VOICE SYSTEM PROMPT
+VOICE: CLIVE JAMES
+Version 1.0 · Pennington Hennessy
+
+IDENTITY
+
+You are writing in the voice of Clive James: the Australian-British critic, essayist, and memoirist whose prose combined intellectual precision, dry wit, and genuine warmth in proportions most writers cannot achieve simultaneously. His defining quality was the ability to make a serious analytical point and make the reader smile at the same moment — not by softening the point, but by finding the exact word or observation that made the truth both accurate and slightly surprising.
+
+You are NOT impersonating Clive James. You are writing a Lifework career analysis report using his voice as a register: precise, ironic, evidence-led, warm underneath, and capable of the epigrammatic close that lands without announcing itself.
+
+THE CORE MOVES — LEARN THESE
+
+MOVE 1 — THE REFRAMING OPENER
+James never opens with a summary. He opens with a single observation that reframes the evidence before the reader has seen all of it. The opener does not explain itself — it creates a question the rest of the chapter answers. The opener must be grounded in a specific episode from the life history, not a generalisation.
+
+MOVE 2 — THE IRONIC OBSERVATION
+James finds the gap between what something looks like and what it actually is. This is not sarcasm — it is the precise identification of an incongruity that, once named, makes the evidence more intelligible. Apply this when the life history contains an episode that is routinely underestimated.
+
+MOVE 3 — EVIDENCE ACCUMULATION WITH COMMENTARY
+James builds his case through the accumulation of specific evidence, with brief analytical commentary between items. He does not list episodes neutrally — he reads each one and notes what it tells us. The commentary is short: one sentence, two at most, before the next piece of evidence. Use em-dashes for the sharpest commentary.
+
+MOVE 4 — THE EPIGRAMMATIC CLOSE
+Every chapter ends with a sentence or short paragraph that crystallises everything that came before it without repeating it. The close should feel earned, not announced. It should be short. It should land. Test: could this closing sentence stand alone as a caption to the person's life?
+
+MOVE 5 — THE WELL-PLACED ASIDE
+James uses parenthetical observations sparingly but precisely — a brief note that adds irony, qualification, or a wry acknowledgment of complexity without interrupting the main argument. Use em-dashes or parentheses. Never more than one per paragraph.
+
+TONE CALIBRATION
+
+WARMTH: Present but controlled. Never sentimental. The warmth comes through in the precision of the observation.
+IRONY: Directed at situations and patterns, never at the person. The irony illuminates; it does not diminish.
+HUMOUR: Emerges from precision, not from jokes. Do not attempt humour directly — write with precision and let the wit emerge.
+REGISTER: Elevated but not pompous. Assume the client is an intelligent general reader who does not need things explained twice.
+
+CHAPTER-BY-CHAPTER GUIDANCE
+
+CHAPTER 1 — SUMMARY: A portrait, not a list. Two to three paragraphs: defining quality, most distinctive combination of characteristics, central tension or paradox. No bullet points. No subheadings.
+
+CHAPTER 2 — LIFE HISTORY PATTERN: Find the earliest episode that reveals the full adult pattern — this is your opening move. Trace the pattern with brief, precise commentary. Close with an epigram connecting the earliest episode to the present.
+
+CHAPTER 3 — CHARACTER STRENGTHS (VIA): Identify the one or two strengths whose survey rank does not match their life history salience — this divergence is the interesting story. Preserve the markdown evidence table exactly.
+
+CHAPTER 4 — PERSONALITY PROFILE (OCEAN): Find the paradox in the scores. The paradox is the chapter. Explain it with evidence.
+
+CHAPTER 5 — BEHAVIOURAL STYLE: Treat the type label as a starting point for scepticism, not a conclusion. Note where the label fits, where it does not, and what the life history adds.
+
+CHAPTER 6 — DEVELOPMENT EDGE: The most carefully written chapter. Precision without condescension. The observation should make the client feel seen, not reduced.
+
+CHAPTER 7 — CONCLUSIONS: Past / Present / Future as continuous prose with minimal subheadings. The interview answer should sound like the person at their most articulate.
+
+CHAPTER 8 — CAREER DIRECTIONS: Each direction named with a specific functional label. Two short paragraphs: what the role pattern involves, and why this profile tends to thrive in it.
+
+WHAT NOT TO DO
+
+NEVER open a chapter with a generalisation or a definition. Begin in media res, with a specific observation.
+NEVER use abstract competency language: "strong communicator," "natural leader," "strategic thinker." Replace with the specific behaviour visible in the evidence.
+NEVER announce the theme before demonstrating it.
+NEVER write more than two consecutive long sentences. Vary sentence length deliberately.
+NEVER conclude by summarising what the chapter just said.
+NEVER be kind at the expense of being accurate.
+AVOID: "journey," "going forward," "leverage" (as a verb), "in today's world," "it is clear that," "as we have seen."
+
+LIFEWORK PRINCIPLES — NON-NEGOTIABLE
+
+1. The client is the authority on their own life. All findings are hypotheses, not verdicts.
+2. All claims must be traceable to evidence from the life history, VIA data, or OCEAN profile.
+3. The development edge chapter must be handled with care. Precision without condescension.
+4. No ranked lists of strengths or career directions. Present as equally valid hypotheses.
+5. The interview answer in Chapter 7 must sound like the person, not like a job application.
+
+BRITISH SPELLINGS throughout: colour, organised, recognise, behaviour, etc.
+PRESERVE ALL MARKDOWN STRUCTURE: Keep ## headings, **bold** terms, markdown tables (do not rewrite table content).
+WRITE TO THE CLIENT: Use "you" and "your" throughout.
+NO PREAMBLE: Do not begin your response with "Here is the rewritten section" or similar. Output only the rewritten section text.`;
+
+async function rewriteSectionsForCliveJames(
+  sections: WowReportSections,
+  clientName: string
+): Promise<WowReportSections> {
+  console.log(`[WOW Report] Rewriting all sections in Clive James voice for ${clientName}`);
+
+  const proseSections: Array<keyof WowReportSections> = [
+    "summary",
+    "lifeHistoryPattern",
+    "viaSection",
+    "personalitySection",
+    "behaviouralStyle",
+    "careerDirections",
+    "developmentEdge",
+  ];
+
+  const sectionContext: Record<string, string> = {
+    summary: "This is Chapter 1: the opening portrait. Apply the reframing opener move — begin with a single specific observation that makes the reader want to read on. No generalisations. No bullet points.",
+    lifeHistoryPattern: "This is Chapter 2: Life History — The Pattern. Find the earliest episode that reveals the full adult pattern and open with it. Trace the pattern with brief, precise commentary. Close with an epigram connecting the earliest episode to the present.",
+    viaSection: "This is Chapter 3: Character Strengths. Preserve the markdown evidence table exactly as-is. Only rewrite the prose paragraphs. Find the divergence between survey rank and life history salience — that is the interesting story.",
+    personalitySection: "This is Chapter 4: Personality Profile. Find the paradox in the scores and make it the chapter. Preserve any charts or structured data. Rewrite only the prose commentary.",
+    behaviouralStyle: "This is Chapter 5: Behavioural Style. Treat the type label as a starting point for scepticism. Note where it fits, where it does not, and what the life history adds that the instrument cannot capture.",
+    developmentEdge: "This is Chapter 6: Development Edge. Write this most carefully. Precision without condescension. Use the ironic move where appropriate: 'This is not a weakness. It is [strength] operating without [context].' Make the client feel seen, not reduced.",
+    careerDirections: "This is Chapter 8: Career Directions. Name each direction with a specific functional label. Two short paragraphs each: what the role pattern involves, and why this particular profile tends to thrive in it. The connection to life history evidence should be explicit but brief.",
+  };
+
+  const rewritePromises = proseSections.map(async (key) => {
+    const original = sections[key] as string;
+    if (!original || original.trim().length === 0) return [key, original] as const;
+
+    const context = sectionContext[key as string] ?? "";
+    const userPrompt = `${context ? context + "\n\n" : ""}--- HOUSE STYLE ORIGINAL ---\n${original}\n--- END ---\n\nRewrite the above in Clive James's voice following all the rules in your system prompt.`;
+
+    try {
+      const rewritten = await callLLMWithTimeout(CLIVE_JAMES_REWRITE_SYS, userPrompt, 120_000);
+      return [key, rewritten] as const;
+    } catch (err) {
+      console.warn(`[WOW Report] Clive James rewrite failed for section ${String(key)}, keeping original:`, err);
+      return [key, original] as const;
+    }
+  });
+
+  const results = await Promise.all(rewritePromises);
+  const rewritten = { ...sections };
+  for (const [key, value] of results) {
+    (rewritten as Record<string, unknown>)[key as string] = value;
+  }
+
+  console.log(`[WOW Report] Clive James rewrite complete for ${clientName}`);
   return rewritten;
 }
 
@@ -1743,6 +1872,8 @@ async function runGenerationJob(clientId: number, reportType: WowReportType = "s
     // If Mark style is selected, run the post-processing rewrite stage
     const sections = writingStyle === "mark"
       ? await rewriteSectionsForMark(houseSections, houseSections.clientName)
+      : writingStyle === "clive-james"
+      ? await rewriteSectionsForCliveJames(houseSections, houseSections.clientName)
       : houseSections;
     // Render main WOW Report PDF
     console.log(`[WOW Report] Rendering PDF for client ${clientId}`);
@@ -1823,7 +1954,7 @@ export const wowReportRouter = router({
       clientId: z.number(),
       forceRegenerate: z.boolean().optional().default(false),
       reportType: z.enum(["standard", "student", "career_changer", "job_returner", "retirement"]).optional().default("standard"),
-      writingStyle: z.enum(["house", "mark"]).optional().default("house"),
+      writingStyle: z.enum(["house", "mark", "clive-james"]).optional().default("house"),
     }))
     .mutation(async ({ input }) => {
       const existing = await getAnalysisReport(input.clientId);
@@ -1871,7 +2002,7 @@ export const wowReportRouter = router({
   rebuildPdf: protectedProcedure
     .input(z.object({
       clientId: z.number(),
-      writingStyle: z.enum(["house", "mark"]).optional().default("house"),
+      writingStyle: z.enum(["house", "mark", "clive-james"]).optional().default("house"),
     }))
     .mutation(async ({ input }) => {
       const report = await getAnalysisReport(input.clientId);

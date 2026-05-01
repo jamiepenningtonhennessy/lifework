@@ -165,7 +165,7 @@ export default function WowReportTab({ clientId, clientName }: WowReportTabProps
   const [isPolling, setIsPolling] = useState(false);
   const [progressMsg, setProgressMsg] = useState(0);
   const [selectedReportType, setSelectedReportType] = useState<WowReportType>("standard");
-  const [selectedWritingStyle, setSelectedWritingStyle] = useState<"house" | "mark">("house");
+  const [selectedWritingStyle, setSelectedWritingStyle] = useState<"house" | "mark" | "clive-james">("house");
   const [sageOpen, setSageOpen] = useState(false);
   const pollIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const msgIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -247,11 +247,11 @@ export default function WowReportTab({ clientId, clientName }: WowReportTabProps
       setSelectedReportType(reportData.reportType as WowReportType);
     }
     if (reportData?.writingStyle && reportData.writingStyle !== selectedWritingStyle) {
-      setSelectedWritingStyle(reportData.writingStyle as "house" | "mark");
+      setSelectedWritingStyle(reportData.writingStyle as "house" | "mark" | "clive-james");
     }
   }, [reportData?.reportType, reportData?.writingStyle]);
 
-  const handleGenerate = (forceRegenerate = false, overrideType?: WowReportType, overrideStyle?: "house" | "mark") => {
+  const handleGenerate = (forceRegenerate = false, overrideType?: WowReportType, overrideStyle?: "house" | "mark" | "clive-james") => {
     generateMutation.mutate({ clientId, forceRegenerate, reportType: overrideType ?? selectedReportType, writingStyle: overrideStyle ?? selectedWritingStyle });
   };
 
@@ -392,7 +392,7 @@ export default function WowReportTab({ clientId, clientName }: WowReportTabProps
   const rebuildPdfMutation = trpc.wowReport.rebuildPdf.useMutation({
     onSuccess: (result) => {
       utils.wowReport.get.invalidate({ clientId });
-      toast.success("PDF rebuilt in " + (result.writingStyle === "mark" ? "Mark" : "House") + " style — ready to download.");
+      toast.success("PDF rebuilt in " + (result.writingStyle === "mark" ? "Mark" : result.writingStyle === "clive-james" ? "Clive James" : "House") + " style — ready to download.");
     },
     onError: (err) => {
       toast.error("Could not rebuild PDF: " + err.message);
@@ -405,7 +405,7 @@ export default function WowReportTab({ clientId, clientName }: WowReportTabProps
   // Report exists if we have JSON sections (even without a PDF URL)
   const reportExists = !!(reportData?.exists);
   /** True when the stored PDF was built with a different style than currently selected */
-  const pdfStyleMismatch = !!pdfUrl && selectedWritingStyle !== ((reportData as any)?.writingStyle ?? "house");
+  const pdfStyleMismatch = !!pdfUrl && selectedWritingStyle !== ((reportData as any)?.writingStyle ?? "house") as "house" | "mark" | "clive-james";
 
   const handleDownloadPdf = async () => {
     if (!pdfUrl) return;
@@ -780,12 +780,14 @@ export default function WowReportTab({ clientId, clientName }: WowReportTabProps
                   <p className="text-xs text-white/40">
                     {selectedWritingStyle === "mark"
                       ? "Mark Brandon — conversational, dry British wit, punchy sentences, no jargon."
+                      : selectedWritingStyle === "clive-james"
+                      ? "Clive James — precise, ironic, warm underneath; epigrammatic closes, evidence-led wit."
                       : "House Style — direct, evidence-led, second person, structured with subheadings."}
                   </p>
                 </div>
                 <Select
                   value={selectedWritingStyle}
-                  onValueChange={(v) => setSelectedWritingStyle(v as "house" | "mark")}
+                  onValueChange={(v) => setSelectedWritingStyle(v as "house" | "mark" | "clive-james")}
                   disabled={isGenerating}
                 >
                   <SelectTrigger className="w-[220px] bg-white/5 border-white/20 text-white text-sm">
@@ -794,6 +796,7 @@ export default function WowReportTab({ clientId, clientName }: WowReportTabProps
                   <SelectContent>
                     <SelectItem value="house">House Style</SelectItem>
                     <SelectItem value="mark">Mark</SelectItem>
+                    <SelectItem value="clive-james">Clive James</SelectItem>
                   </SelectContent>
                 </Select>
                 {pdfStyleMismatch && (
@@ -805,7 +808,7 @@ export default function WowReportTab({ clientId, clientName }: WowReportTabProps
                       disabled={rebuildPdfMutation.isPending || isGenerating}
                     >
                       {rebuildPdfMutation.isPending ? <Loader2 className="w-3 h-3 mr-1 animate-spin" /> : <RefreshCw className="w-3 h-3 mr-1" />}
-                      Rebuild PDF in {selectedWritingStyle === "mark" ? "Mark" : "House"} Style
+                      Rebuild PDF in {selectedWritingStyle === "mark" ? "Mark" : selectedWritingStyle === "clive-james" ? "Clive James" : "House"} Style
                     </Button>
                     <p className="text-xs text-white/40">Rebuilds PDF from current sections (fast — no LLM)</p>
                     <Button
