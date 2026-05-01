@@ -323,10 +323,6 @@ ol.rank-list.full li.bot5 .sc { color: var(--ink-muted); }
 .facet-group .facet .ff { height: 100%; background: var(--gold); }
 .facet-group .facet .fsc { font-variant-numeric: tabular-nums; color: var(--navy); font-weight: 600; text-align: right; font-size: 11px; }
 /* ── Insights wheel layout ── */
-.insights-disclaimer { background: #1A2744; color: #fff; padding: 18px 22px; margin-top: 14px; border-radius: 4px; }
-.insights-disclaimer .disc-label { font-family: var(--sans); font-weight: 700; font-size: 9.5px; letter-spacing: 0.38em; text-transform: uppercase; color: var(--gold); margin-bottom: 8px; }
-.insights-disclaimer p { font-family: var(--serif); font-size: 14px; line-height: 1.55; margin: 0; color: rgba(255,255,255,0.92); }
-.insights-disclaimer em { font-style: italic; }
 .insights-body { display: grid; grid-template-columns: 260px 1fr; gap: 28px; margin-top: 22px; align-items: start; }
 .insights-wheel-wrap { display: flex; align-items: center; justify-content: center; }
 .insights-cards { display: flex; flex-direction: column; gap: 16px; }
@@ -719,10 +715,7 @@ const TEMPLATE = `<!doctype html>
   <div class="ph-body">
     <span class="kicker">Chapter 05 · Insights</span>
     <h2 class="chap-title">Behavioural <em>style.</em></h2>
-    <div class="insights-disclaimer">
-      <div class="disc-label">Insights Discovery Mapping</div>
-      <p>The following is an <em>approximation</em> derived by mapping your Big Five scores onto the Insights Discovery colour-energy framework, using the academic consensus correlations between OCEAN and the Jungian dimensions. It is a coaching tool, not a clinical assessment. For a validated Insights profile, contact an accredited Insights practitioner.</p>
-    </div>
+    <p class="lede">The following is an <em>approximation</em> derived by mapping your Big Five scores onto the Insights Discovery colour-energy framework, using the academic consensus correlations between OCEAN and the Jungian dimensions. It is a coaching tool, not a clinical assessment. For a validated Insights profile, contact an accredited Insights practitioner.</p>
     <div class="insights-body">
       <div class="insights-wheel-wrap">
         <svg width="240" height="240" viewBox="0 0 240 240" xmlns="http://www.w3.org/2000/svg" style="overflow:visible;">
