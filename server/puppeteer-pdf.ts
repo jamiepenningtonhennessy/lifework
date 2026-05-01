@@ -175,16 +175,14 @@ export async function handlePuppeteerPdfDownload(req: Request, res: Response) {
     try {
       console.log("[pdf] Using PDFKit (pure Node.js)");
       pdfBuffer = await generatePdfKitReport(data as Record<string, unknown>);
+      console.log("[pdf] PDFKit succeeded, buffer size:", pdfBuffer.length);
     } catch (pdfkitErr) {
-      console.warn("[pdf] PDFKit failed:", pdfkitErr instanceof Error ? pdfkitErr.message : String(pdfkitErr));
-      const html = renderHtmlReport(data as Record<string, unknown>);
-      if (isWeasyPrintAvailable()) {
-        console.log("[pdf] Falling back to WeasyPrint");
-        pdfBuffer = await generatePdfWithWeasyPrint(html);
-      } else {
-        console.log("[pdf] Falling back to Puppeteer");
-        pdfBuffer = await generatePdfWithPuppeteer(html);
-      }
+      const pdfkitErrMsg = pdfkitErr instanceof Error ? pdfkitErr.message : String(pdfkitErr);
+      console.warn("[pdf] PDFKit failed:", pdfkitErrMsg);
+      // PDFKit is the primary renderer — if it fails, surface the error directly
+      // rather than falling through to Puppeteer (which requires Chrome).
+      // This makes the error visible so it can be diagnosed and fixed.
+      throw new Error(`PDFKit error: ${pdfkitErrMsg}`);
     }
 
     // ── Stream response ───────────────────────────────────────────────────────

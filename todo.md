@@ -1271,3 +1271,5 @@
 - [x] Update puppeteer-pdf.ts: try PDFKit first, then WeasyPrint, then Puppeteer as fallbacks
 - [x] Verify 15-page PDF renders correctly (all chapters, charts, appendix)
 - [x] 138 tests passing
+- [x] Add /api/debug/pdfkit-test diagnostic endpoint (public, no auth) to diagnose production failures
+- [x] Update puppeteer-pdf.ts: surface PDFKit error directly instead of falling through to Puppeteer

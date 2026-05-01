@@ -77,6 +77,33 @@ async function startServer() {
   // HTML report renderer (counsellor)
   app.get("/api/report/html/:clientId", htmlReportHandler);
   app.get("/api/report/pdf/:clientId", handlePuppeteerPdfDownload);
+  // PDFKit diagnostic endpoint (public, no auth required)
+  app.get("/api/debug/pdfkit-test", async (_req, res) => {
+    try {
+      const { generatePdfKitReport } = await import("../pdfkit-report.js");
+      const mockData = {
+        CLIENT: { NAME: "Test" },
+        COVERING_LETTER: { PARAGRAPHS: ["Para 1"], SIGN_OFF: "Warmly,", AUTHOR_NAME: "Jamie", AUTHOR_EMAIL: "j@ph.com" },
+        CH1: { HERO: "Hero text", PARAGRAPHS: ["Para 1"] },
+        CH2: { LEDE: "Lede", PAGE1_PARAGRAPHS: [], PAGE1_SECTION_H: "", PAGE1_SECTION_PARAS: [], PAGE2_SECTION_H: "", PAGE2_PARAGRAPHS: [], KEYFIND: { PARAGRAPHS: [], ESF_PARA: "" } },
+        CH3: { LEDE: "Lede", KEY_FINDINGS: [] },
+        VIA: { TOP10: [], ALL24: [], EVIDENCE: [], VIRTUES_NOTE: "" },
+        CH4: { LEDE: "Lede", PSYCHOMETRICS_PARAS: [], SYNTHESIS_PARAS: [], KEYFIND: { TITLE: "", BODY: "" } },
+        OCEAN: { DOMAINS: [], PAGE1_DOMAINS: [], PAGE2_DOMAINS: [], FACET_NOTE: "" },
+        CH5: { LEDE: "Lede", PRIMARY: { name: "", traits: "" }, SECONDARY: { name: "", traits: "" }, JUNGIAN: { code: "", spelt: "" }, STRENGTHS: [], WATCHOUTS: [], FIT: "" },
+        CH6: { SECTIONS: [], PULLQUOTE: "" },
+        CH7: { PAST: [], PRESENT: [], PRESENT_PULLQUOTE: "", FUTURE: [], DRIVES: [], TMAY_PARAS: [] },
+        CH8: { DIRECTIONS: [], OVERFLOW_DIRECTIONS: [] },
+        APPENDIX: { ACHIEVEMENTS: [] }
+      };
+      const buf = await generatePdfKitReport(mockData as Record<string, unknown>);
+      res.json({ ok: true, bytes: buf.length, nodeVersion: process.version });
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      const stack = err instanceof Error ? err.stack : String(err);
+      res.status(500).json({ ok: false, error: msg, stack: stack?.slice(0, 500), nodeVersion: process.version });
+    }
+  });
   // tRPC API
   app.use(
     "/api/trpc",
