@@ -422,3 +422,424 @@ The GC route and the education route both appear in your report. Which one do yo
     createdAt: new Date("2025-03-05T10:07:00"),
   },
 ];
+
+// ─────────────────────────────────────────────────────────────────────────────
+// ALISTAIR DRUMMOND — dummy client data
+// A 48-year-old partner at a mid-size commercial law firm, considering whether
+// to stay in private practice, move in-house, or pivot to legal tech / academia.
+// ─────────────────────────────────────────────────────────────────────────────
+
+export const PREVIEW_PROFILE_ALISTAIR = {
+  id: 9998,
+  userId: "preview-alistair",
+  firstName: "Alistair",
+  lastName: "Drummond",
+  email: "alistair.drummond@example.com",
+  analysisStatus: "complete" as const,
+  interviewCompleted: true,
+  backgroundCompleted: true,
+  viaCompleted: true,
+  ipipCompleted: true,
+  createdAt: new Date("2025-02-01"),
+};
+
+export const PREVIEW_ACHIEVEMENTS_ALISTAIR = [
+  {
+    id: 101,
+    clientId: 9998,
+    decade: "childhood",
+    title: "Built a working radio transmitter",
+    description:
+      "Spent a summer building an AM radio transmitter from a kit, then modified it to broadcast further. Neighbourhood kids tuned in. Wrote a short programme guide.",
+    esf: "enjoyable",
+    age: 12,
+    othersObservations: "Physics teacher said I had an unusual ability to hold a complex system in my head.",
+  },
+  {
+    id: 102,
+    clientId: 9998,
+    decade: "teens",
+    title: "Won the regional schools chess championship",
+    description:
+      "Trained independently for two years using library books. Represented the school at regional level and won the under-18 individual title.",
+    esf: "satisfying",
+    age: 16,
+    othersObservations: "Coach said I was the most methodical player he had coached — never made the same mistake twice.",
+  },
+  {
+    id: 103,
+    clientId: 9998,
+    decade: "teens",
+    title: "Edited the school magazine",
+    description:
+      "Took over a failing publication, redesigned the layout, recruited writers, and doubled the readership in one academic year.",
+    esf: "fulfilling",
+    age: 17,
+    othersObservations: "Head of English said I had a gift for drawing out other people's best work.",
+  },
+  {
+    id: 104,
+    clientId: 9998,
+    decade: "twenties",
+    title: "Published a note in the Cambridge Law Journal",
+    description:
+      "As a second-year undergraduate, spotted an inconsistency in a recent Court of Appeal judgment and wrote a 2,000-word note. Accepted after minor revisions.",
+    esf: "satisfying",
+    age: 20,
+    othersObservations: "Tutor described it as the most original piece of student writing he had seen in five years.",
+  },
+  {
+    id: 105,
+    clientId: 9998,
+    decade: "twenties",
+    title: "Negotiated the firm's first pro bono partnership with a housing charity",
+    description:
+      "As a newly qualified solicitor, identified a local housing charity that needed legal support. Drafted the partnership agreement, got sign-off from the managing partner, and ran the first clinic.",
+    esf: "fulfilling",
+    age: 27,
+    othersObservations: "Managing partner said it was the most commercially astute piece of business development from a junior he had seen.",
+  },
+  {
+    id: 106,
+    clientId: 9998,
+    decade: "thirties",
+    title: "Designed and delivered the firm's knowledge management system",
+    description:
+      "Identified that the firm was losing institutional knowledge every time a senior lawyer left. Designed a precedent library and know-how system, trained 40 lawyers, and reduced drafting time on standard documents by 30%.",
+    esf: "satisfying",
+    age: 34,
+    othersObservations: "IT director said I was the only lawyer who had ever understood the technical constraints and worked within them.",
+  },
+  {
+    id: 107,
+    clientId: 9998,
+    decade: "thirties",
+    title: "Led the firm's largest ever restructuring deal",
+    description:
+      "Lead partner on a £120m debt restructuring involving six creditor groups. Managed a team of 14 over nine months. The deal was cited in Legal 500 as a standout transaction.",
+    esf: "enjoyable",
+    age: 38,
+    othersObservations: "Client CFO said I was the calmest person in the room at every crisis point.",
+  },
+  {
+    id: 108,
+    clientId: 9998,
+    decade: "forties",
+    title: "Launched an internal legal tech incubator",
+    description:
+      "Persuaded the partnership to fund a six-month pilot in which junior lawyers could prototype legal tech tools. Three tools are now in daily use. One has been licensed to two other firms.",
+    esf: "fulfilling",
+    age: 44,
+    othersObservations: "Junior associates said it was the first time the firm had made them feel like their ideas mattered.",
+  },
+  {
+    id: 109,
+    clientId: 9998,
+    decade: "forties",
+    title: "Appointed visiting lecturer at UCL Faculty of Laws",
+    description:
+      "Invited to deliver a module on commercial dispute resolution to LLM students. Developed original case studies. Student evaluations placed the module in the top 10% of the faculty.",
+    esf: "fulfilling",
+    age: 46,
+    othersObservations: "Course director said I had a rare ability to make abstract legal doctrine feel practically urgent.",
+  },
+];
+
+export const PREVIEW_FAMILY_ALISTAIR = {
+  id: 2,
+  clientId: 9998,
+  fatherOccupation: "Electrical engineer (British Telecom)",
+  motherOccupation: "Secondary school librarian",
+  siblings: "One older brother — now a software architect in Edinburgh",
+  childhoodLocation: "Guildford, Surrey",
+  familyNotes:
+    "A technically-minded household where precision and self-sufficiency were valued. Father built his own hi-fi equipment; mother ran the school library with a rigour that impressed even the headteacher. Intellectual curiosity was modelled rather than taught.",
+};
+
+export const PREVIEW_EDUCATION_ALISTAIR = [
+  {
+    id: 10,
+    clientId: 9998,
+    institution: "Royal Grammar School, Guildford",
+    qualification: "A-Levels",
+    subject: "Mathematics, Physics, Economics",
+    yearFrom: 1993,
+    yearTo: 1995,
+    notes: "A, A, A. Head of Chess Club. Editor of school magazine.",
+  },
+  {
+    id: 11,
+    clientId: 9998,
+    institution: "Gonville & Caius College, Cambridge",
+    qualification: "BA Law (Hons)",
+    subject: "Law",
+    yearFrom: 1995,
+    yearTo: 1998,
+    notes: "First Class. Published in Cambridge Law Journal (1997).",
+  },
+  {
+    id: 12,
+    clientId: 9998,
+    institution: "College of Law, London",
+    qualification: "LPC",
+    subject: "Legal Practice Course",
+    yearFrom: 1998,
+    yearTo: 1999,
+    notes: "Commendation.",
+  },
+];
+
+export const PREVIEW_CAREER_ALISTAIR = [
+  {
+    id: 10,
+    clientId: 9998,
+    role: "Trainee Solicitor",
+    organisation: "Freshfields Bruckhaus Deringer",
+    yearFrom: 1999,
+    yearTo: 2001,
+    notes: "Finance and Dispute Resolution seats.",
+  },
+  {
+    id: 11,
+    clientId: 9998,
+    role: "Associate — Finance & Restructuring",
+    organisation: "Freshfields Bruckhaus Deringer",
+    yearFrom: 2001,
+    yearTo: 2008,
+    notes: "Promoted to Senior Associate in 2005.",
+  },
+  {
+    id: 12,
+    clientId: 9998,
+    role: "Partner — Finance & Restructuring",
+    organisation: "Gateley plc",
+    yearFrom: 2008,
+    yearTo: null,
+    notes: "Current role. Legal 500 ranked. Visiting Lecturer at UCL since 2022.",
+  },
+];
+
+export const PREVIEW_VIA_RESULTS_ALISTAIR = {
+  id: 2,
+  clientId: 9998,
+  rankedStrengths: [
+    { rank: 1,  id: "love_of_learning",        name: "Love of Learning",        virtue: "wisdom",        score: 24 },
+    { rank: 2,  id: "curiosity",                name: "Curiosity",               virtue: "wisdom",        score: 23 },
+    { rank: 3,  id: "creativity",               name: "Creativity",              virtue: "wisdom",        score: 22 },
+    { rank: 4,  id: "perspective",              name: "Perspective",             virtue: "wisdom",        score: 22 },
+    { rank: 5,  id: "prudence",                 name: "Prudence",                virtue: "temperance",    score: 21 },
+    { rank: 6,  id: "perseverance",             name: "Perseverance",            virtue: "courage",       score: 21 },
+    { rank: 7,  id: "honesty",                  name: "Honesty",                 virtue: "courage",       score: 20 },
+    { rank: 8,  id: "leadership",               name: "Leadership",              virtue: "justice",       score: 19 },
+    { rank: 9,  id: "fairness",                 name: "Fairness",                virtue: "justice",       score: 19 },
+    { rank: 10, id: "self_regulation",          name: "Self-Regulation",         virtue: "temperance",    score: 18 },
+    { rank: 11, id: "bravery",                  name: "Bravery",                 virtue: "courage",       score: 17 },
+    { rank: 12, id: "social_intelligence",      name: "Social Intelligence",     virtue: "humanity",      score: 17 },
+    { rank: 13, id: "kindness",                 name: "Kindness",                virtue: "humanity",      score: 16 },
+    { rank: 14, id: "teamwork",                 name: "Teamwork",                virtue: "justice",       score: 16 },
+    { rank: 15, id: "appreciation_of_beauty",   name: "Appreciation of Beauty",  virtue: "transcendence", score: 15 },
+    { rank: 16, id: "hope",                     name: "Hope",                    virtue: "transcendence", score: 14 },
+    { rank: 17, id: "humor",                    name: "Humor",                   virtue: "transcendence", score: 14 },
+    { rank: 18, id: "gratitude",                name: "Gratitude",               virtue: "transcendence", score: 13 },
+    { rank: 19, id: "love",                     name: "Love",                    virtue: "humanity",      score: 13 },
+    { rank: 20, id: "zest",                     name: "Zest",                    virtue: "courage",       score: 12 },
+    { rank: 21, id: "forgiveness",              name: "Forgiveness",             virtue: "temperance",    score: 12 },
+    { rank: 22, id: "humility",                 name: "Humility",                virtue: "temperance",    score: 11 },
+    { rank: 23, id: "citizenship",              name: "Citizenship",             virtue: "justice",       score: 11 },
+    { rank: 24, id: "spirituality",             name: "Spirituality",            virtue: "transcendence", score: 10 },
+  ],
+  completedAt: new Date("2025-03-01"),
+};
+
+export const PREVIEW_IPIP_RESULTS_ALISTAIR = {
+  id: 2,
+  clientId: 9998,
+  domainScores: {
+    N: 22,  // Low neuroticism — calm under pressure
+    E: 52,  // Moderate extraversion — ambivert
+    O: 88,  // Very high openness — intellectual curiosity, creativity
+    A: 58,  // Moderate agreeableness
+    C: 82,  // High conscientiousness — methodical, precise
+  },
+  facetScores: {
+    N1: 20, N2: 18, N3: 22, N4: 25, N5: 20, N6: 27,
+    E1: 55, E2: 48, E3: 52, E4: 56, E5: 50, E6: 51,
+    O1: 90, O2: 85, O3: 92, O4: 88, O5: 86, O6: 87,
+    A1: 60, A2: 55, A3: 62, A4: 58, A5: 56, A6: 57,
+    C1: 84, C2: 80, C3: 82, C4: 85, C5: 78, C6: 83,
+  },
+  completedAt: new Date("2025-03-10"),
+};
+
+// ─── Normalised client data accessor ─────────────────────────────────────────
+// Provides a single interface for both Alex and Alistair data, with all fields
+// normalised to the same shape so components don't need to branch on client.
+
+export type PreviewClientKey = "alex" | "alistair";
+
+export type NormalisedAchievement = {
+  id: number;
+  clientId: number;
+  decade: string;
+  title: string;
+  description: string;
+  esf: string;
+  order: number;
+};
+
+export type NormalisedEducation = {
+  id: number;
+  institution: string;
+  qualification: string;
+  type: string;
+  years: string;
+  notes: string;
+};
+
+export type NormalisedCareer = {
+  id: number;
+  title: string;
+  organisation: string;
+  sector: string;
+  years: string;
+  notes: string;
+};
+
+export type NormalisedFamily = {
+  fatherOccupation: string;
+  motherOccupation: string;
+  siblings: string;
+  childhoodLocation: string;
+  familyNotes: string;
+};
+
+export type NormalisedProfile = {
+  id: number;
+  fullName: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  analysisStatus: "complete";
+  interviewCompleted: boolean;
+  backgroundCompleted: boolean;
+  viaCompleted: boolean;
+  ipipCompleted: boolean;
+  createdAt: Date;
+};
+
+export type NormalisedClientData = {
+  profile: NormalisedProfile;
+  achievements: NormalisedAchievement[];
+  family: NormalisedFamily;
+  education: NormalisedEducation[];
+  career: NormalisedCareer[];
+};
+
+// Map Alistair decade labels to the canonical phase IDs used by the form
+const ALISTAIR_DECADE_MAP: Record<string, string> = {
+  childhood: "mid_childhood",
+  teens: "late_childhood",
+  twenties: "twenties",
+  thirties: "thirties",
+  forties: "forties",
+};
+
+type RawAchievement = {
+  id: number;
+  clientId: number;
+  decade: string;
+  title: string;
+  description: string;
+  esf: string;
+  order?: number;
+  age?: number;
+  othersObservations?: string;
+};
+
+function normAchievements(
+  raw: RawAchievement[]
+): NormalisedAchievement[] {
+  return raw.map((a, i) => ({
+    id: a.id,
+    clientId: a.clientId,
+    decade: a.order != null ? a.decade : (ALISTAIR_DECADE_MAP[a.decade] ?? a.decade),
+    title: a.title,
+    description: a.description,
+    esf: a.esf,
+    order: a.order ?? i + 1,
+  }));
+}
+
+type RawEducation = {
+  id: number;
+  clientId: number;
+  institution: string;
+  qualification: string;
+  subject?: string;
+  yearFrom: number;
+  yearTo: number | null;
+  notes?: string;
+};
+
+function normEducation(
+  raw: RawEducation[]
+): NormalisedEducation[] {
+  return raw.map((e) => ({
+    id: e.id,
+    institution: e.institution,
+    qualification: e.qualification,
+    type: e.qualification.includes("A-Level") ? "Secondary" :
+          e.qualification.includes("LPC") || e.qualification.includes("BVC") ? "Professional" : "University",
+    years: `${e.yearFrom}–${e.yearTo ?? "present"}`,
+    notes: e.notes ?? "",
+  }));
+}
+
+type RawCareer = {
+  id: number;
+  clientId: number;
+  role: string;
+  organisation: string;
+  yearFrom: number;
+  yearTo: number | null;
+  notes?: string;
+};
+
+function normCareer(
+  raw: RawCareer[]
+): NormalisedCareer[] {
+  return raw.map((c) => ({
+    id: c.id,
+    title: c.role,
+    organisation: c.organisation,
+    sector: c.organisation.includes("LLP") || c.organisation.includes("plc") || c.organisation.includes("Freshfields") || c.organisation.includes("Clifford") || c.organisation.includes("Linklaters") || c.organisation.includes("Gateley") || c.organisation.includes("BPP") ? "Legal" : "Other",
+    years: `${c.yearFrom}–${c.yearTo ?? "present"}`,
+    notes: c.notes ?? "",
+  }));
+}
+
+const ALEX_DATA: NormalisedClientData = {
+  profile: {
+    ...PREVIEW_PROFILE,
+    fullName: "Alex Morgan",
+  },
+  achievements: normAchievements(PREVIEW_ACHIEVEMENTS),
+  family: PREVIEW_FAMILY,
+  education: normEducation(PREVIEW_EDUCATION),
+  career: normCareer(PREVIEW_CAREER),
+};
+
+const ALISTAIR_DATA: NormalisedClientData = {
+  profile: {
+    ...PREVIEW_PROFILE_ALISTAIR,
+    fullName: "Alistair Drummond",
+  },
+  achievements: normAchievements(PREVIEW_ACHIEVEMENTS_ALISTAIR as RawAchievement[]),
+  family: PREVIEW_FAMILY_ALISTAIR,
+  education: normEducation(PREVIEW_EDUCATION_ALISTAIR as RawEducation[]),
+  career: normCareer(PREVIEW_CAREER_ALISTAIR as RawCareer[]),
+};
+
+export function getClientData(client: PreviewClientKey): NormalisedClientData {
+  return client === "alistair" ? ALISTAIR_DATA : ALEX_DATA;
+}

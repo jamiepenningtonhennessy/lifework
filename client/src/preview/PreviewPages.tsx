@@ -35,10 +35,41 @@ import {
 } from "lucide-react";
 import { Streamdown } from "streamdown";
 import { IPIP_DOMAINS, IPIP_FACETS, type IpipDomainKey, type IpipFacetKey } from "../../../shared/ipip-data";
-import { PREVIEW_IPIP_RESULTS, PREVIEW_VIA_RESULTS, PREVIEW_ACHIEVEMENTS, PREVIEW_FAMILY } from "./previewData";
+import {
+  PREVIEW_IPIP_RESULTS, PREVIEW_VIA_RESULTS, PREVIEW_ACHIEVEMENTS, PREVIEW_FAMILY,
+  PREVIEW_EDUCATION, PREVIEW_CAREER, PREVIEW_PROFILE,
+  PREVIEW_IPIP_RESULTS_ALISTAIR, PREVIEW_VIA_RESULTS_ALISTAIR,
+  PREVIEW_ACHIEVEMENTS_ALISTAIR, PREVIEW_FAMILY_ALISTAIR,
+  PREVIEW_EDUCATION_ALISTAIR, PREVIEW_CAREER_ALISTAIR, PREVIEW_PROFILE_ALISTAIR,
+  getClientData as getClientDataNorm,
+} from "./previewData";
+
+// ─── Active preview client ────────────────────────────────────────────────────
+type PreviewClientKey = "alex" | "alistair";
+
+function usePreviewClient(): [PreviewClientKey, (k: PreviewClientKey) => void] {
+  const [client, setClientState] = useState<PreviewClientKey>(() => {
+    try { return (sessionStorage.getItem("previewClient") as PreviewClientKey) || "alex"; }
+    catch { return "alex"; }
+  });
+  const setClient = (k: PreviewClientKey) => {
+    try { sessionStorage.setItem("previewClient", k); } catch { /* ignore */ }
+    setClientState(k);
+  };
+  return [client, setClient];
+}
+
+// Use the normalised accessor from previewData.ts — ensures consistent field shapes
+function getClientData(client: PreviewClientKey) {
+  const norm = getClientDataNorm(client);
+  // Also expose raw VIA/IPIP for components that need the full objects
+  const via = client === "alistair" ? PREVIEW_VIA_RESULTS_ALISTAIR : PREVIEW_VIA_RESULTS;
+  const ipip = client === "alistair" ? PREVIEW_IPIP_RESULTS_ALISTAIR : PREVIEW_IPIP_RESULTS;
+  return { ...norm, via, ipip };
+}
 import { ChatToPeter } from "@/components/ChatToPeter";
 
-// ─── Alex Morgan's preview context for Sage ───────────────────────────────────
+// ─── Sage context strings ─────────────────────────────────────────────────────
 const ALEX_SAGE_CONTEXT = [
   "LIFE HISTORY ACHIEVEMENTS:",
   ...PREVIEW_ACHIEVEMENTS.map(a =>
@@ -52,6 +83,24 @@ const ALEX_SAGE_CONTEXT = [
   `Childhood location: ${PREVIEW_FAMILY.childhoodLocation}`,
   `Family notes: ${PREVIEW_FAMILY.familyNotes}`,
 ].join("\n");
+
+const ALISTAIR_SAGE_CONTEXT = [
+  "LIFE HISTORY ACHIEVEMENTS:",
+  ...PREVIEW_ACHIEVEMENTS_ALISTAIR.map(a =>
+    `[${a.decade}] ${a.title} (${a.esf}): ${a.description}`
+  ),
+  "",
+  "FAMILY BACKGROUND:",
+  `Father's occupation: ${PREVIEW_FAMILY_ALISTAIR.fatherOccupation}`,
+  `Mother's occupation: ${PREVIEW_FAMILY_ALISTAIR.motherOccupation}`,
+  `Siblings: ${PREVIEW_FAMILY_ALISTAIR.siblings}`,
+  `Childhood location: ${PREVIEW_FAMILY_ALISTAIR.childhoodLocation}`,
+  `Family notes: ${PREVIEW_FAMILY_ALISTAIR.familyNotes}`,
+].join("\n");
+
+function getSageContext(client: PreviewClientKey) {
+  return client === "alistair" ? ALISTAIR_SAGE_CONTEXT : ALEX_SAGE_CONTEXT;
+}
 
 // ─── Video embed helper ───────────────────────────────────────────────────────
 function VideoEmbed({ fileId, title }: { fileId: string; title: string }) {
@@ -87,7 +136,9 @@ const NAV_PAGES = [
 function PreviewNav({ current }: { current: string }) {
   const [, navigate] = useLocation();
   const [open, setOpen] = useState(false);
+  const [client, setClient] = usePreviewClient();
   const currentPage = NAV_PAGES.find((p) => p.path === current);
+  const clientLabel = client === "alistair" ? "Alistair Drummond" : "Alex Morgan";
 
   return (
     <div className="sticky top-0 z-50">
@@ -132,10 +183,31 @@ function PreviewNav({ current }: { current: string }) {
             {open ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
           </button>
 
-          {/* Right: badge */}
-          <Badge variant="outline" className="text-xs border-primary/40 text-primary flex-shrink-0 hidden sm:flex">
-            Alex Morgan
-          </Badge>
+          {/* Right: client switcher */}
+          <div className="flex items-center gap-1 flex-shrink-0">
+            <button
+              onClick={() => setClient("alex")}
+              className="px-2 py-0.5 text-xs rounded cursor-pointer transition-all"
+              style={{
+                background: client === "alex" ? "var(--lw-gold)" : "transparent",
+                color: client === "alex" ? "var(--lw-navy)" : "rgba(255,255,255,0.5)",
+                border: "1px solid",
+                borderColor: client === "alex" ? "var(--lw-gold)" : "rgba(255,255,255,0.2)",
+                fontWeight: client === "alex" ? 700 : 400,
+              }}
+            >Alex</button>
+            <button
+              onClick={() => setClient("alistair")}
+              className="px-2 py-0.5 text-xs rounded cursor-pointer transition-all"
+              style={{
+                background: client === "alistair" ? "var(--lw-gold)" : "transparent",
+                color: client === "alistair" ? "var(--lw-navy)" : "rgba(255,255,255,0.5)",
+                border: "1px solid",
+                borderColor: client === "alistair" ? "var(--lw-gold)" : "rgba(255,255,255,0.2)",
+                fontWeight: client === "alistair" ? 700 : 400,
+              }}
+            >Alistair</button>
+          </div>
         </div>
       </div>
 
@@ -244,6 +316,11 @@ export function PreviewHome() {
 // ─── 1. Client Dashboard (first visit — all steps not started) ────────────────
 export function PreviewClientDashboard() {
   const [, navigate] = useLocation();
+  const [client] = usePreviewClient();
+  const clientData = getClientData(client);
+  const firstName = clientData.profile.firstName;
+  const fullName = clientData.profile.fullName;
+  const sageContext = getSageContext(client);
 
   const steps = [
     {
@@ -296,7 +373,7 @@ export function PreviewClientDashboard() {
             <span className="font-serif font-semibold" style={{ color: "white" }}>Lifework</span>
           </div>
           <div className="flex items-center gap-3">
-            <span className="text-sm hidden sm:block" style={{ color: "rgba(255,255,255,0.6)" }}>Alex Morgan</span>
+            <span className="text-sm hidden sm:block" style={{ color: "rgba(255,255,255,0.6)" }}>{fullName}</span>
             <LogOut className="w-4 h-4" style={{ color: "rgba(255,255,255,0.4)" }} />
           </div>
         </div>
@@ -305,7 +382,7 @@ export function PreviewClientDashboard() {
       <div className="container max-w-3xl py-10">
         {/* Welcome */}
         <div className="mb-10">
-          <h1 className="text-3xl font-serif font-bold text-foreground mb-2">Welcome, Alex</h1>
+          <h1 className="text-3xl font-serif font-bold text-foreground mb-2">Welcome, {firstName}</h1>
           <div className="text-muted-foreground leading-relaxed space-y-3 text-sm">
             <p>
               Your Lifework journey has six stages. Begin by completing your{" "}
@@ -364,14 +441,14 @@ export function PreviewClientDashboard() {
                         {isLocked && <Lock className="w-3.5 h-3.5 text-muted-foreground" />}
                       </div>
                       <p className="text-sm text-muted-foreground leading-relaxed mb-3">{step.description}</p>
-                      {/* Sage step: show live ChatToPeter with Alex's dummy data */}
+                      {/* Sage step: show live ChatToPeter with active client's data */}
                       {step.id === "sage" && !isLocked && (
                         <div className="mt-2">
                           <ChatToPeter
                             section="life_history"
                             buttonLabel="Chat to Sage"
-                            sectionDescription="Sage has read Alex's Life History and Background. She would like to explore what has been written and ask some reflective questions to deepen understanding."
-                            previewContext={ALEX_SAGE_CONTEXT}
+                            sectionDescription={`Sage has read ${firstName}'s Life History and Background. She would like to explore what has been written and ask some reflective questions to deepen understanding.`}
+                            previewContext={sageContext}
                           />
                         </div>
                       )}
@@ -484,6 +561,8 @@ export function PreviewInterview() {
 export function PreviewBackground() {
   const [, navigate] = useLocation();
   const [activeTab, setActiveTab] = useState<"family" | "education" | "career">("family");
+  const [client] = usePreviewClient();
+  const { family, education, career } = getClientData(client);
 
   return (
     <div className="min-h-screen" style={{ background: "var(--lw-cream)" }}>
@@ -527,17 +606,17 @@ export function PreviewBackground() {
           <div className="space-y-5">
             <p className="text-sm text-muted-foreground">Tell us about your family background. This context helps your counsellor understand the environment that shaped you.</p>
             {[
-              { label: "Father's occupation", placeholder: "e.g. Accountant, Teacher, Farmer…" },
-              { label: "Mother's occupation", placeholder: "e.g. Nurse, Shop owner, Homemaker…" },
-              { label: "Siblings", placeholder: "e.g. One older brother, two younger sisters…" },
-              { label: "Where did you grow up?", placeholder: "Town, city, or region…" },
+              { label: "Father's occupation", value: family.fatherOccupation },
+              { label: "Mother's occupation", value: family.motherOccupation },
+              { label: "Siblings", value: family.siblings },
+              { label: "Where did you grow up?", value: family.childhoodLocation },
             ].map((f) => (
               <div key={f.label}>
                 <label className="block text-sm font-medium text-foreground mb-1.5">{f.label}</label>
                 <input
                   type="text"
-                  placeholder={f.placeholder}
-                  className="w-full px-3 py-2.5 text-sm border border-border rounded bg-card text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1"
+                  defaultValue={f.value}
+                  className="w-full px-3 py-2.5 text-sm border border-border rounded bg-card text-foreground focus:outline-none focus:ring-1"
                   style={{ "--tw-ring-color": "var(--lw-gold)" } as React.CSSProperties}
                   readOnly
                 />
@@ -547,8 +626,8 @@ export function PreviewBackground() {
               <label className="block text-sm font-medium text-foreground mb-1.5">Additional notes</label>
               <textarea
                 rows={3}
-                placeholder="Anything else about your family background that feels relevant…"
-                className="w-full px-3 py-2.5 text-sm border border-border rounded bg-card text-foreground placeholder:text-muted-foreground focus:outline-none resize-none"
+                defaultValue={family.familyNotes}
+                className="w-full px-3 py-2.5 text-sm border border-border rounded bg-card text-foreground focus:outline-none resize-none"
                 readOnly
               />
             </div>
@@ -562,12 +641,25 @@ export function PreviewBackground() {
         {activeTab === "education" && (
           <div className="space-y-5">
             <p className="text-sm text-muted-foreground">Add your educational history, starting with secondary school. You can add multiple entries.</p>
-            <div className="p-5 rounded-xl border border-dashed border-border bg-card text-center">
-              <p className="text-sm text-muted-foreground mb-3">No education entries yet.</p>
-              <button className="px-4 py-2 text-xs font-semibold uppercase tracking-widest cursor-pointer" style={{ background: "var(--lw-gold)", color: "var(--lw-navy)" }}>
-                + Add Education
-              </button>
-            </div>
+            {education.map((edu, i) => (
+              <div key={i} className="p-5 rounded-xl border border-border bg-card space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-semibold uppercase tracking-widest" style={{ color: "var(--lw-gold)" }}>{edu.type}</span>
+                  <span className="text-xs text-muted-foreground">{edu.years}</span>
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs text-muted-foreground mb-1">Institution</label>
+                    <input type="text" defaultValue={edu.institution} readOnly className="w-full px-3 py-2 text-sm border border-border rounded bg-background text-foreground" />
+                  </div>
+                  <div>
+                    <label className="block text-xs text-muted-foreground mb-1">Qualification</label>
+                    <input type="text" defaultValue={edu.qualification} readOnly className="w-full px-3 py-2 text-sm border border-border rounded bg-background text-foreground" />
+                  </div>
+                </div>
+                {edu.notes && <p className="text-xs text-muted-foreground italic">{edu.notes}</p>}
+              </div>
+            ))}
           </div>
         )}
 
@@ -575,12 +667,25 @@ export function PreviewBackground() {
         {activeTab === "career" && (
           <div className="space-y-5">
             <p className="text-sm text-muted-foreground">Add your career history, starting with your first role. You can add multiple entries.</p>
-            <div className="p-5 rounded-xl border border-dashed border-border bg-card text-center">
-              <p className="text-sm text-muted-foreground mb-3">No career entries yet.</p>
-              <button className="px-4 py-2 text-xs font-semibold uppercase tracking-widest cursor-pointer" style={{ background: "var(--lw-gold)", color: "var(--lw-navy)" }}>
-                + Add Role
-              </button>
-            </div>
+            {career.map((role, i) => (
+              <div key={i} className="p-5 rounded-xl border border-border bg-card space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-semibold text-foreground">{role.title}</span>
+                  <span className="text-xs text-muted-foreground">{role.years}</span>
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs text-muted-foreground mb-1">Organisation</label>
+                    <input type="text" defaultValue={role.organisation} readOnly className="w-full px-3 py-2 text-sm border border-border rounded bg-background text-foreground" />
+                  </div>
+                  <div>
+                    <label className="block text-xs text-muted-foreground mb-1">Sector</label>
+                    <input type="text" defaultValue={role.sector} readOnly className="w-full px-3 py-2 text-sm border border-border rounded bg-background text-foreground" />
+                  </div>
+                </div>
+                {role.notes && <p className="text-xs text-muted-foreground italic">{role.notes}</p>}
+              </div>
+            ))}
           </div>
         )}
       </div>
@@ -1070,6 +1175,9 @@ What brings you here today — what's the question you most want to answer?`;
 // ─── 10. Sage Life History Chat — first visit ─────────────────────────────────
 export function PreviewSage() {
   const [, navigate] = useLocation();
+  const [client] = usePreviewClient();
+  const { profile } = getClientData(client);
+  const sageContext = getSageContext(client);
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
@@ -1084,29 +1192,24 @@ export function PreviewSage() {
           <div className="w-px h-5 bg-border" />
           <Sparkles className="h-5 w-5 text-primary" />
           <span className="font-semibold text-foreground">Sage — Life History Coach</span>
-          <span className="ml-auto text-xs text-muted-foreground bg-muted px-2 py-1 rounded-full">Preview — using Alex Morgan's data</span>
+          <span className="ml-auto text-xs text-muted-foreground bg-muted px-2 py-1 rounded-full">Preview — {profile.fullName}'s data</span>
         </div>
       </div>
 
-      {/* Live chat — uses your own (Jamie's) life history data */}
       <div className="flex-1 flex flex-col max-w-3xl w-full mx-auto px-4 py-6">
         <div className="mb-4 rounded-xl border border-[var(--lw-gold)]/25 bg-[var(--lw-gold)]/5 px-4 py-3">
           <p className="text-sm text-foreground leading-relaxed">
-            <strong>This is a live Sage 1 session using your own life history data.</strong> Sage has read your recorded achievements and will ask you reflective questions to draw out depth and detail. This is exactly what your clients experience at Step 3.
-          </p>
-          <p className="text-xs text-muted-foreground italic mt-1">
-            Your conversation will be saved to your profile. You can reset it at any time using the reset button inside the chat.
+            <strong>Live Sage session using {profile.fullName}'s dummy data.</strong> Sage has read the recorded achievements and will ask reflective questions to draw out depth and detail.
           </p>
         </div>
 
-        {/* ChatToPeter widget — uses Alex Morgan's dummy data in preview mode */}
         <div className="flex justify-start">
           <ChatToPeter
             section="life_history"
             buttonLabel="Open Sage 1 Chat"
             autoOpen
-            sectionDescription="Sage has read Alex Morgan's life history and would like to explore what has been written. She will ask reflective questions to draw out the depth and detail beneath each experience."
-            previewContext={ALEX_SAGE_CONTEXT}
+            sectionDescription={`Sage has read ${profile.fullName}'s life history and would like to explore what has been written. She will ask reflective questions to draw out the depth and detail beneath each experience.`}
+            previewContext={sageContext}
           />
         </div>
       </div>
@@ -1135,15 +1238,50 @@ const PREVIEW_ESF = [
 type PreviewAction = { title: string; age: string; description: string; esf: string };
 const emptyPreviewAction = (): PreviewAction => ({ title: "", age: "", description: "", esf: "" });
 
+function buildPhaseActions(achievements: typeof PREVIEW_ACHIEVEMENTS): Record<string, PreviewAction[]> {
+  const byPhase: Record<string, PreviewAction[]> = Object.fromEntries(
+    PREVIEW_PHASES.map(p => [p.id, [emptyPreviewAction(), emptyPreviewAction(), emptyPreviewAction(), emptyPreviewAction()]])
+  );
+  // Map achievement decade labels to phase IDs
+  const decadeToPhase: Record<string, string> = {
+    "early_childhood": "early_childhood", "Early Childhood": "early_childhood",
+    "mid_childhood": "mid_childhood",     "Mid Childhood":   "mid_childhood",
+    "late_childhood": "late_childhood",   "Late Childhood":  "late_childhood",
+    "twenties": "twenties",               "20s": "twenties",  "Twenties": "twenties",
+    "thirties": "thirties",               "30s": "thirties",  "Thirties": "thirties",
+    "forties":  "forties",                "40s": "forties",   "Forties":  "forties",
+    "fifties":  "fifties",                "50s": "fifties",   "Fifties":  "fifties",
+    "sixties_plus": "sixties_plus",       "60s": "sixties_plus", "60s+": "sixties_plus",
+  };
+  for (const ach of achievements) {
+    const phaseId = decadeToPhase[ach.decade] ?? ach.decade;
+    if (!byPhase[phaseId]) continue;
+    const slot = byPhase[phaseId].findIndex(a => !a.title);
+    if (slot === -1) continue;
+    byPhase[phaseId][slot] = { title: ach.title, age: "", description: ach.description, esf: ach.esf };
+  }
+  return byPhase;
+}
+
 export function PreviewInterviewForm() {
   const [, navigate] = useLocation();
+  const [client] = usePreviewClient();
+  const { achievements } = getClientData(client);
   const [phaseIndex, setPhaseIndex] = useState(0);
   const [phaseActions, setPhaseActions] = useState<Record<string, PreviewAction[]>>(() =>
-    Object.fromEntries(PREVIEW_PHASES.map(p => [p.id, [emptyPreviewAction(), emptyPreviewAction(), emptyPreviewAction(), emptyPreviewAction()]]))
+    buildPhaseActions(achievements)
   );
   const [phaseOthers, setPhaseOthers] = useState<Record<string, string>>(() =>
     Object.fromEntries(PREVIEW_PHASES.map(p => [p.id, ""]))
   );
+
+  // Re-seed when client switches
+  const prevClientRef = useState(client);
+  if (prevClientRef[0] !== client) {
+    prevClientRef[1](client);
+    setPhaseActions(buildPhaseActions(achievements));
+    setPhaseIndex(0);
+  }
 
   const currentPhase = PREVIEW_PHASES[phaseIndex];
   const actions = phaseActions[currentPhase.id];
