@@ -1345,3 +1345,5 @@
 
 - [x] Fix duplicate paragraphs in Oliver Sacks WOW report Chapter 2: rewrite context now instructs the model to open with a DIFFERENT episode from the life history (not the canonical earliest childhood scene) and to produce a genuinely distinct "## What the Pattern Reveals" synthesis
 - [x] Fix Oliver Sacks Development Edge: enforce exactly 3 named areas with ## headings (2 paragraphs each), allow second page, close with nature-and-will synthesis
+- [x] Fix Michael Lewis repeated "if you had been watching" opener: phrase now banned as paragraph opener (max once per rewrite), with alternative constructions specified
+- [x] Fix Michael Lewis Development Edge: enforce exactly 3 named areas with sharp ## headings, 2 paragraphs each, closing with retrospective-inevitability synthesis
