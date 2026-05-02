@@ -9,6 +9,7 @@ import { counsellorPin } from "../drizzle/schema";
 import { counsellorSageRouter } from "./routers/counsellorSage";
 import { coachingSlidesRouter } from "./routers/coachingSlides";
 import { roleDecoderRouter } from "./routers/roleDecoder";
+import { linkedInRewriterRouter } from "./routers/linkedInRewriter";
 import { ENV } from "./_core/env";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
@@ -3462,6 +3463,7 @@ export const appRouter = router({
   claudeExport: claudeExportRouter,
   pin: pinRouter,
   roleDecoder: roleDecoderRouter,
+  linkedInRewriter: linkedInRewriterRouter,
 });
 
 export type AppRouter = typeof appRouter;

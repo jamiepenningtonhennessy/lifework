@@ -1350,3 +1350,10 @@
 - [x] Audit Clive James voice: add banned repetitive openers ("What is striking", "The thing that stands out", "It is worth noting", "There is something", "One of the most") to system prompt
 - [x] Fix Clive James Development Edge: enforce exactly 3 named areas with precise ironic ## headings, 2 paragraphs each, "This is not a weakness" construction limited to once, closing epigrammatic paragraph
 - [x] Expand Clive James Key Findings: viaSection context now requires 3 substantial paragraphs (5-6 lines each) with reframing opener, evidence-accumulation-with-commentary, closing bullets, and epigrammatic final line
+
+## LinkedIn Profile Rewriter
+
+- [x] Create server/routers/linkedInRewriter.ts — tRPC procedure that generates Headline, About, and Experience framing guide from Lifework data
+- [x] Wire linkedInRewriterRouter into appRouter in routers.ts
+- [x] Create client/src/components/LinkedInRewriterTab.tsx — counsellor-only tab UI
+- [x] Add LinkedIn Rewriter tab to ClientProfile.tsx
