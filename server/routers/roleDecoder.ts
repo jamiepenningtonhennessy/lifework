@@ -193,19 +193,25 @@ You must return a JSON object with exactly three fields:
   "interviewLanguage": "..."
 }
 
+FORMAT RULES — CRITICAL
+Each field must be SHORT and SCANNABLE. Use this structure for every field:
+- One short framing sentence (1–2 lines maximum) that names the central insight.
+- Then a tight bullet list of 4–6 items. Each bullet is one sentence — direct, specific, no padding.
+- No paragraphs. No multi-sentence bullets. No preamble. No sign-off.
+
 FIELD DEFINITIONS
 
-roleCore (3-4 paragraphs)
-Strip away the HR language and surface what this role is actually asking for. What problems does it exist to solve? What kind of person would thrive in it — not in terms of qualifications, but in terms of how they think, what energises them, what environment they need? Be specific and direct. Do not summarise the JD — decode it.
+roleCore
+Decode what this role is actually asking for beneath the HR language. The framing sentence names the core problem the role exists to solve. The bullets name the specific qualities, working style, and conditions that would make someone genuinely good in it — not qualifications, but how they think and what energises them.
 
-patternConnection (3-4 paragraphs)
-Show where the client's alive pattern — as revealed by their life history, character strengths, and personality profile — connects to what the role is actually asking for. Be specific: name actual achievements, actual strengths, actual patterns from their history. Do not make generic claims. The connection must be grounded in the client's real data. Where the fit is genuine, say so clearly. Where there are tensions or gaps, name them honestly — this is useful information for the counsellor.
+patternConnection
+Show where the client's alive pattern connects to what the role needs. The framing sentence states the headline fit (or partial fit). The bullets name specific evidence: actual achievements, actual strengths, actual patterns from their history. Where there is a genuine gap or tension, include it as one of the bullets — this is useful information for the counsellor.
 
-interviewLanguage (3-4 paragraphs)
-Give the client the specific language they would need to use in an interview to make this connection visible to a hiring manager. Not generic interview advice — specific sentences, framings, and examples drawn from their actual history that would allow a hiring manager to see the fit. Write this as if coaching the client directly: "You might say something like..." or "When they ask about X, the honest answer from your history is...". The goal is to help the client speak about themselves in a way that is both true and legible to the employer.
+interviewLanguage
+Give the client the specific language to use in an interview. The framing sentence names the single most important thing the client needs to convey. The bullets are concrete, ready-to-use sentences or framings drawn from their actual history — things they could say almost verbatim. Write each bullet as a direct coaching instruction: "When they ask about X, say..." or "Lead with the example of..."
 
 TONE
-Professional, warm, direct. Not corporate. Not HR. Write as a thoughtful senior counsellor who has read the client's file carefully and is speaking to a colleague. Avoid jargon. Avoid hedging. If the fit is strong, say so. If it is partial, say so. If there is a specific gap the client would need to address, name it.`;
+Direct, warm, specific. Not corporate. Not HR. Write as a thoughtful senior counsellor speaking to a colleague. Avoid jargon. Avoid hedging. Be honest about fit — partial fits are as useful as strong ones.`;
 
 // ─── Router ───────────────────────────────────────────────────────────────────
 export const roleDecoderRouter = router({
