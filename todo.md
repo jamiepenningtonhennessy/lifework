@@ -1340,3 +1340,7 @@
 - [x] Create client/src/components/RoleDecoderTab.tsx — textarea for JD, Decode button with loading state, three-section output display
 - [x] Add "role-decoder" tab to ClientProfile.tsx (Tab type, TABS array, tab content block)
 - [x] Write server/role-decoder.test.ts — unit tests for the new procedure
+
+## Bug Fixes
+
+- [x] Fix duplicate paragraphs in Oliver Sacks WOW report Chapter 2: rewrite context now instructs the model to open with a DIFFERENT episode from the life history (not the canonical earliest childhood scene) and to produce a genuinely distinct "## What the Pattern Reveals" synthesis
