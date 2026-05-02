@@ -30,14 +30,16 @@ import {
   Compass,
   Unlock,
   Lock,
+  Search,
 } from "lucide-react";
 import { Streamdown } from "streamdown";
 import { toast } from "sonner";
 import CoachingSessionTab from "@/components/CoachingSessionTab";
 import { InsightsMapping } from "@/components/InsightsMapping";
 import WowReportTab from "@/components/WowReportTab";
+import RoleDecoderTab from "@/components/RoleDecoderTab";
 
-type Tab = "overview" | "interview" | "background" | "via" | "ocean" | "insights" | "report" | "virtual-peter" | "coaching-annex" | "coaching-session" | "wow-report";
+type Tab = "overview" | "interview" | "background" | "via" | "ocean" | "insights" | "report" | "virtual-peter" | "coaching-annex" | "coaching-session" | "wow-report" | "role-decoder";
 
 export default function ClientProfile() {
   const { isAuthenticated, loading, user } = useAuth();
@@ -199,6 +201,7 @@ export default function ClientProfile() {
   { id: "coaching-annex", label: "Coaching Annex", icon: <FileText className="w-4 h-4" /> },
   { id: "coaching-session", label: "Coaching Session", icon: <Sparkles className="w-4 h-4" /> },
   { id: "wow-report", label: "WOW Report", icon: <Sparkles className="w-4 h-4" /> },
+  { id: "role-decoder", label: "Role Decoder", icon: <Search className="w-4 h-4" /> },
   ];
 
   return (
@@ -1120,6 +1123,16 @@ export default function ClientProfile() {
           {activeTab === "wow-report" && (
             <div className="py-4">
               <WowReportTab
+                clientId={clientId}
+                clientName={data.profile.firstName ?? undefined}
+              />
+            </div>
+          )}
+
+          {/* Role Decoder tab */}
+          {activeTab === "role-decoder" && (
+            <div className="py-4">
+              <RoleDecoderTab
                 clientId={clientId}
                 clientName={data.profile.firstName ?? undefined}
               />

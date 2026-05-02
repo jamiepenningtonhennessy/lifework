@@ -1332,3 +1332,11 @@
 - [x] Add previewContext prop to ChatToPeter so preview mode passes Alex's dummy life history instead of the real user's data
 - [x] Add a new publicProcedure chatPeter.sendMessagePreview that accepts inline context (no DB lookup)
 - [x] Wire the preview dashboard Sage step to use the new prop
+
+## Role Decoder
+
+- [x] Create server/routers/roleDecoder.ts — protectedProcedure, input: { clientId, jobDescription }, assembles client profile context, calls invokeLLM, returns { roleCore, patternConnection, interviewLanguage }
+- [x] Wire roleDecoderRouter into appRouter in server/routers.ts
+- [x] Create client/src/components/RoleDecoderTab.tsx — textarea for JD, Decode button with loading state, three-section output display
+- [x] Add "role-decoder" tab to ClientProfile.tsx (Tab type, TABS array, tab content block)
+- [x] Write server/role-decoder.test.ts — unit tests for the new procedure
