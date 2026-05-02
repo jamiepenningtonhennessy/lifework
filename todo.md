@@ -1349,3 +1349,4 @@
 - [x] Fix Michael Lewis Development Edge: enforce exactly 3 named areas with sharp ## headings, 2 paragraphs each, closing with retrospective-inevitability synthesis
 - [x] Audit Clive James voice: add banned repetitive openers ("What is striking", "The thing that stands out", "It is worth noting", "There is something", "One of the most") to system prompt
 - [x] Fix Clive James Development Edge: enforce exactly 3 named areas with precise ironic ## headings, 2 paragraphs each, "This is not a weakness" construction limited to once, closing epigrammatic paragraph
+- [x] Expand Clive James Key Findings: viaSection context now requires 3 substantial paragraphs (5-6 lines each) with reframing opener, evidence-accumulation-with-commentary, closing bullets, and epigrammatic final line
