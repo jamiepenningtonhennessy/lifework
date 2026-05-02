@@ -52,13 +52,14 @@ A single line of 220 characters or fewer. This is the positioning statement that
 Format: plain text, no markdown, no line breaks.
 
 aboutSection
-Three paragraphs of flowing prose, written in first person ("I"), in a warm, direct, professional register. No bullet points. No subheadings. Each paragraph has a distinct purpose:
+Three short paragraphs in first person ("I"), warm, direct, professional. No bullet points. No subheadings. No padding. Every sentence must earn its place.
 
-Paragraph 1 — The Pattern: What is the thread that runs through everything this person has done? Open with a specific observation about where it started or where it shows most clearly. This should feel like a person speaking honestly about themselves, not a corporate bio.
+STRICT WORD COUNTS — these are hard limits, not targets:
+- Paragraph 1 (The Hook): 40–50 words. This is what LinkedIn shows before "see more" — it must earn the click. Open with a single specific observation about the thread that runs through this person's work. Make it feel like a person speaking honestly, not a corporate bio.
+- Paragraph 2 (The Strengths): 60–70 words. Name the specific combination of qualities that makes this person effective. Use evidence from the life history — not abstract competency language. Ground every claim in something real.
+- Paragraph 3 (The Direction): 60–70 words. Where are they headed and why? Connect the pattern to the kind of work they are now looking for or building toward. End with one sentence that makes the reader want to speak with them.
 
-Paragraph 2 — The Strengths in Combination: What is the specific combination of qualities that makes this person effective? Name the strengths using the evidence from the life history — not abstract competency language. Ground each claim in something real.
-
-Paragraph 3 — The Forward Direction: Where is this person headed, and why? Connect the pattern to the kind of work they are now looking for or building toward. End with a sentence that makes the reader want to speak with them.
+Total target: 160–190 words. If you exceed 200 words, cut — do not add.
 
 Format: three paragraphs separated by a blank line. No markdown. Plain text.
 
