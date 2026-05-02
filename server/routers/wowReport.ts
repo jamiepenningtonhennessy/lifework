@@ -743,6 +743,14 @@ NEVER conclude by summarising what the chapter just said.
 NEVER be kind at the expense of being accurate.
 AVOID: "journey," "going forward," "leverage" (as a verb), "in today's world," "it is clear that," "as we have seen."
 
+BANNED REPETITIVE OPENERS — these phrases are clichés of this voice and become deadening when repeated across chapters. Each is BANNED as a paragraph or section opener:
+- "What is striking about [name]" / "What is most striking"
+- "The thing that stands out" / "What stands out"
+- "It is worth noting" / "It is perhaps worth noting"
+- "There is something" (as a sentence opener)
+- "One of the most" (as a sentence opener)
+Use each of these constructions at most ONCE across the entire rewrite, and only if no sharper alternative exists. James's openers are specific and surprising — they do not announce themselves.
+
 LIFEWORK PRINCIPLES — NON-NEGOTIABLE
 
 1. The client is the authority on their own life. All findings are hypotheses, not verdicts.
@@ -778,7 +786,7 @@ async function rewriteSectionsForCliveJames(
     viaSection: "This is Chapter 3: Character Strengths. Preserve the markdown evidence table exactly as-is. Only rewrite the prose paragraphs. Find the divergence between survey rank and life history salience — that is the interesting story.",
     personalitySection: "This is Chapter 4: Personality Profile. Find the paradox in the scores and make it the chapter. Preserve any charts or structured data. Rewrite only the prose commentary.",
     behaviouralStyle: "This is Chapter 5: Behavioural Style. Treat the type label as a starting point for scepticism. Note where it fits, where it does not, and what the life history adds that the instrument cannot capture.",
-    developmentEdge: "This is Chapter 6: Development Edge. Write this most carefully. Precision without condescension. Use the ironic move where appropriate: 'This is not a weakness. It is [strength] operating without [context].' Make the client feel seen, not reduced.",
+    developmentEdge: "This is Chapter 6: Development Edge. STRUCTURE IS MANDATORY: You MUST produce EXACTLY 3 development areas, each introduced with a ## heading that names the area in Clive James's style — precise, specific, slightly ironic, never generic (e.g. ## The Precision That Forecloses Surprise, ## The Argument That Ends the Conversation, ## The Standard Nobody Else Knew They Were Being Held To). Do NOT write a flowing essay. Do NOT produce fewer than 3. For each area: write 2 paragraphs — the first making the observation with James's characteristic precision and warmth, the second naming what it costs when unaddressed, without softening. The ironic construction 'This is not a weakness. It is [strength] operating without [context].' may be used at most ONCE across all three areas — do not use it as a template for every heading. Close with a single epigrammatic paragraph (no heading) that holds the three observations together: the James-style close that lands without announcing itself.",
     careerDirections: "This is Chapter 8: Career Directions. Name each direction with a specific functional label. Two short paragraphs each: what the role pattern involves, and why this particular profile tends to thrive in it. The connection to life history evidence should be explicit but brief.",
   };
 

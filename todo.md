@@ -1347,3 +1347,5 @@
 - [x] Fix Oliver Sacks Development Edge: enforce exactly 3 named areas with ## headings (2 paragraphs each), allow second page, close with nature-and-will synthesis
 - [x] Fix Michael Lewis repeated "if you had been watching" opener: phrase now banned as paragraph opener (max once per rewrite), with alternative constructions specified
 - [x] Fix Michael Lewis Development Edge: enforce exactly 3 named areas with sharp ## headings, 2 paragraphs each, closing with retrospective-inevitability synthesis
+- [x] Audit Clive James voice: add banned repetitive openers ("What is striking", "The thing that stands out", "It is worth noting", "There is something", "One of the most") to system prompt
+- [x] Fix Clive James Development Edge: enforce exactly 3 named areas with precise ironic ## headings, 2 paragraphs each, "This is not a weakness" construction limited to once, closing epigrammatic paragraph
