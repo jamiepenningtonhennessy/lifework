@@ -1365,3 +1365,11 @@
 - [x] Show per-phase progress indicator (X of Y completed)
 - [x] Soft-gate Continue button with warning when minimum not met
 - [x] Update reminder banner text to show phase-specific target
+
+## Key Findings 5-paragraph minimum (all voices)
+
+- [x] Audit all four viaSection contexts for paragraph minimums
+- [x] Mark Brandon: add full 5-paragraph structure instruction
+- [x] Clive James: update from 3 to 5 paragraphs minimum
+- [x] Michael Lewis: add full 5-paragraph structure instruction
+- [x] Oliver Sacks: add full 5-paragraph structure instruction
