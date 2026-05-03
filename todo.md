@@ -1357,3 +1357,11 @@
 - [x] Wire linkedInRewriterRouter into appRouter in routers.ts
 - [x] Create client/src/components/LinkedInRewriterTab.tsx — counsellor-only tab UI
 - [x] Add LinkedIn Rewriter tab to ClientProfile.tsx
+
+## Life History Age-Band Minimums (under-30s)
+
+- [x] Add minSlots per phase to PHASES definition (5/6/6/4 for under-30s)
+- [x] Dynamically initialise phaseActions with correct slot count per phase
+- [x] Show per-phase progress indicator (X of Y completed)
+- [x] Soft-gate Continue button with warning when minimum not met
+- [x] Update reminder banner text to show phase-specific target

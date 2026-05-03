@@ -38,16 +38,27 @@ const PHASES: {
   ageRange: string;
   decade: DecadeEnum;
   subPhase: string; // stored as prefix in title to distinguish within same decade
+  /** Minimum events required for under-30s */
+  minSlotsUnder30: number;
+  /** Default slot count for 30+ clients */
+  defaultSlots: number;
 }[] = [
-  { id: "early_childhood",  label: "Early Childhood",   phase: "1st Phase", ageRange: "Ages 0–5",   decade: "childhood",    subPhase: "Early (0-5)" },
-  { id: "mid_childhood",    label: "Mid Childhood",     phase: "2nd Phase", ageRange: "Ages 6–11",  decade: "childhood",    subPhase: "Mid (6-11)" },
-  { id: "late_childhood",   label: "Late Childhood",    phase: "3rd Phase", ageRange: "Ages 12–18", decade: "teens",        subPhase: "Late (12-18)" },
-  { id: "twenties",         label: "Your 20s",          phase: "4th Phase", ageRange: "Ages 19–29", decade: "twenties",     subPhase: "" },
-  { id: "thirties",         label: "Your 30s",          phase: "5th Phase", ageRange: "Ages 30–39", decade: "thirties",     subPhase: "" },
-  { id: "forties",          label: "Your 40s",          phase: "6th Phase", ageRange: "Ages 40–49", decade: "forties",      subPhase: "" },
-  { id: "fifties",          label: "Your 50s",          phase: "7th Phase", ageRange: "Ages 50–59", decade: "fifties",      subPhase: "" },
-  { id: "sixties_plus",     label: "Your 60s & beyond", phase: "8th Phase", ageRange: "Ages 60+",   decade: "sixties_plus", subPhase: "" },
+  { id: "early_childhood",  label: "Early Childhood",   phase: "1st Phase", ageRange: "Ages 0–5",   decade: "childhood",    subPhase: "Early (0-5)",   minSlotsUnder30: 5, defaultSlots: 4 },
+  { id: "mid_childhood",    label: "Mid Childhood",     phase: "2nd Phase", ageRange: "Ages 6–11",  decade: "childhood",    subPhase: "Mid (6-11)",    minSlotsUnder30: 6, defaultSlots: 4 },
+  { id: "late_childhood",   label: "Late Childhood",    phase: "3rd Phase", ageRange: "Ages 12–18", decade: "teens",        subPhase: "Late (12-18)",  minSlotsUnder30: 6, defaultSlots: 4 },
+  { id: "twenties",         label: "Your 20s",          phase: "4th Phase", ageRange: "Ages 19–29", decade: "twenties",     subPhase: "",              minSlotsUnder30: 4, defaultSlots: 4 },
+  { id: "thirties",         label: "Your 30s",          phase: "5th Phase", ageRange: "Ages 30–39", decade: "thirties",     subPhase: "",              minSlotsUnder30: 4, defaultSlots: 4 },
+  { id: "forties",          label: "Your 40s",          phase: "6th Phase", ageRange: "Ages 40–49", decade: "forties",      subPhase: "",              minSlotsUnder30: 4, defaultSlots: 4 },
+  { id: "fifties",          label: "Your 50s",          phase: "7th Phase", ageRange: "Ages 50–59", decade: "fifties",      subPhase: "",              minSlotsUnder30: 4, defaultSlots: 4 },
+  { id: "sixties_plus",     label: "Your 60s & beyond", phase: "8th Phase", ageRange: "Ages 60+",   decade: "sixties_plus", subPhase: "",              minSlotsUnder30: 4, defaultSlots: 4 },
 ];
+
+/** Return the number of action slots for a phase given the user's age */
+function phaseSlotCount(phaseId: string, age: number | null): number {
+  const p = PHASES.find((x) => x.id === phaseId);
+  if (!p) return 4;
+  return age !== null && age < 30 ? p.minSlotsUnder30 : p.defaultSlots;
+}
 
 const ESF_OPTIONS = [
   {
@@ -94,7 +105,7 @@ export default function Interview() {
   const [phaseIndex, setPhaseIndex] = useState(0);
   const [phaseActions, setPhaseActions] = useState<Record<string, Action[]>>(() =>
     Object.fromEntries(
-      PHASES.map((p) => [p.id, [emptyAction(), emptyAction(), emptyAction(), emptyAction()]]) // Always init all phases
+      PHASES.map((p) => [p.id, Array.from({ length: p.minSlotsUnder30 }, emptyAction)]) // Always init all phases with max possible slots
     )
   );
   // Phase-level "Others" observation — stored in action[0].othersObservations for backward compat
@@ -170,7 +181,7 @@ export default function Interview() {
   useEffect(() => {
     if (!existing || existing.length === 0) return;
     const loaded: Record<string, Action[]> = Object.fromEntries(
-      PHASES.map((p) => [p.id, [emptyAction(), emptyAction(), emptyAction(), emptyAction()]])
+      PHASES.map((p) => [p.id, Array.from({ length: p.minSlotsUnder30 }, emptyAction)])
     );
     // For each phase, collect matching achievements
     PHASES.forEach((phase) => {
@@ -183,7 +194,8 @@ export default function Interview() {
         // For adult decades, exclude any items that have a subPhase prefix
         return !a.title?.match(/^\[.+\] /);
       });
-      items.slice(0, 4).forEach((a: any, i: number) => {
+      const slotCount = phaseSlotCount(phase.id, null); // load all possible slots
+      items.slice(0, slotCount).forEach((a: any, i: number) => {
         const rawTitle = phase.subPhase
           ? (a.title ?? "").replace(`[${phase.subPhase}] `, "")
           : (a.title ?? "");
@@ -245,7 +257,18 @@ export default function Interview() {
   }
 
   const currentPhase = ACTIVE_PHASES[phaseIndex];
-  const actions = phaseActions[currentPhase.id];
+  // Slot count for the current phase based on user age
+  const currentSlotCount = phaseSlotCount(currentPhase.id, userAge);
+  // Ensure actions array is long enough (may be shorter if loaded from older data)
+  const rawActions = phaseActions[currentPhase.id] ?? [];
+  const actions = rawActions.length >= currentSlotCount
+    ? rawActions
+    : [...rawActions, ...Array.from({ length: currentSlotCount - rawActions.length }, emptyAction)];
+  // How many slots have at least a title or description
+  const filledCount = actions.filter((a) => a.title.trim() || a.description.trim()).length;
+  const minRequired = currentPhase.minSlotsUnder30;
+  const isUnder30 = userAge !== null && userAge < 30;
+  const meetsMinimum = !isUnder30 || filledCount >= minRequired;
 
   const updateAction = (idx: number, field: keyof Action, value: string) => {
     isDirtyRef.current = true;
@@ -259,7 +282,7 @@ export default function Interview() {
   const handleSaveAndNext = async () => {
     setSaving(true);
     try {
-      // Work over all 4 slots (including empty ones, to handle deletions gracefully)
+      // Work over all slots (including empty ones, to handle deletions gracefully)
       const updatedActions = [...actions];
 
       for (let i = 0; i < actions.length; i++) {
@@ -697,10 +720,26 @@ export default function Interview() {
         {/* Reminder banner */}
         <div className="p-4 rounded-lg bg-[var(--lw-gold-light)]/20 border border-[var(--lw-gold)]/15 mb-6 text-sm text-foreground leading-relaxed">
           Think of things where <strong>some skill was indicated</strong> — where you were
-          personally pleased with what you did. Don't take any notice of what others thought. Record{" "}
-          <strong>4 actions</strong> for this stage using several short phrases — the more detail the better.
+          personally pleased with what you did. Don't take any notice of what others thought.{" "}
+          {isUnder30
+            ? <><strong>We'd like at least {currentSlotCount} events</strong> for this stage — the more detail the better.</>
+            : <>Record <strong>4 actions</strong> for this stage using several short phrases — the more detail the better.</>
+          }
         </div>
 
+        {/* Progress indicator for under-30s */}
+        {isUnder30 && (
+          <div className={`flex items-center gap-2 mb-4 text-sm font-medium ${meetsMinimum ? "text-[var(--lw-gold)]" : "text-muted-foreground"}`}>
+            <span className={`inline-flex items-center justify-center w-6 h-6 rounded-full text-xs font-bold ${meetsMinimum ? "bg-[var(--lw-gold)] text-white" : "bg-muted text-muted-foreground"}`}>
+              {filledCount}
+            </span>
+            <span>
+              {meetsMinimum
+                ? `${filledCount} of ${currentSlotCount} events — minimum met`
+                : `${filledCount} of ${currentSlotCount} events — ${currentSlotCount - filledCount} more to go`}
+            </span>
+          </div>
+        )}
         {/* ESF quick-reference pills */}
         <div className="flex gap-2 mb-7 flex-wrap">
           {ESF_OPTIONS.map((opt) => (
@@ -884,23 +923,30 @@ export default function Interview() {
             </p>
           </div>
 
-          <Button
-            onClick={handleSaveAndNext}
-            disabled={saving}
-            className="bg-[var(--lw-gold)] hover:bg-[oklch(0.60 0.13 72)] text-white gap-1.5"
-          >
-            {saving ? (
-              <Loader2 className="w-4 h-4 animate-spin" />
-            ) : phaseIndex < PHASES.length - 1 ? (
-              <>
-                Save & Continue <ArrowRight className="w-4 h-4" />
-              </>
-            ) : (
-              <>
-                Complete Life History <CheckCircle2 className="w-4 h-4" />
-              </>
+          <div className="flex flex-col items-end gap-1">
+            <Button
+              onClick={handleSaveAndNext}
+              disabled={saving}
+              className={`gap-1.5 ${meetsMinimum ? "bg-[var(--lw-gold)] hover:bg-[oklch(0.60 0.13 72)] text-white" : "bg-muted text-muted-foreground hover:bg-muted/80"}`}
+            >
+              {saving ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : phaseIndex < PHASES.length - 1 ? (
+                <>
+                  {meetsMinimum ? "Save & Continue" : "Continue anyway"} <ArrowRight className="w-4 h-4" />
+                </>
+              ) : (
+                <>
+                  Complete Life History <CheckCircle2 className="w-4 h-4" />
+                </>
+              )}
+            </Button>
+            {isUnder30 && !meetsMinimum && (
+              <p className="text-xs text-muted-foreground text-right max-w-[200px]">
+                {currentSlotCount - filledCount} more event{currentSlotCount - filledCount !== 1 ? "s" : ""} recommended
+              </p>
             )}
-          </Button>
+          </div>
         </div>
 
         {phaseIndex >= 3 && (
