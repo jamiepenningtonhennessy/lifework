@@ -390,9 +390,26 @@ export default function WowReportTab({ clientId, clientName }: WowReportTabProps
   });
 
   const rebuildPdfMutation = trpc.wowReport.rebuildPdf.useMutation({
-    onSuccess: (result) => {
+    onSuccess: async (result) => {
       utils.wowReport.get.invalidate({ clientId });
-      toast.success("PDF rebuilt in " + (result.writingStyle === "mark" ? "Mark" : result.writingStyle === "clive-james" ? "Clive James" : result.writingStyle === "michael-lewis" ? "Michael Lewis" : result.writingStyle === "oliver-sacks" ? "Oliver Sacks" : result.writingStyle === "william-zinsser" ? "William Zinsser" : "House") + " style — ready to download.");
+      const voiceName = result.writingStyle === "mark" ? "Mark" : result.writingStyle === "clive-james" ? "Clive James" : result.writingStyle === "michael-lewis" ? "Michael Lewis" : result.writingStyle === "oliver-sacks" ? "Oliver Sacks" : result.writingStyle === "william-zinsser" ? "William Zinsser" : "House";
+      // Auto-download the freshly rebuilt PDF immediately
+      try {
+        const res = await fetch(result.pdfUrl);
+        const blob = await res.blob();
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `WOW-Report-${clientName ?? "client"}.pdf`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        toast.success(`PDF rebuilt in ${voiceName} style and downloaded.`);
+      } catch {
+        window.open(result.pdfUrl, "_blank");
+        toast.success(`PDF rebuilt in ${voiceName} style — opened in new tab.`);
+      }
     },
     onError: (err) => {
       toast.error("Could not rebuild PDF: " + err.message);

@@ -1395,3 +1395,8 @@
 
 - [x] Fix "Download Report PDF" button to use handleDownloadPdf (respects selected writing style via stored S3 URL)
 - [x] Remove stale /api/report/pdf/:clientId route from the WOW report tab download button
+
+## PDF Download — auto-download after rebuild
+
+- [x] Fix rebuildPdfMutation onSuccess to auto-download the new branded PDF immediately after rebuild (no second click required)
+- [x] Diagnose plain-HTML PDF issue: stored pdfUrl was pointing to old puppeteer PDF; rebuild now produces correct branded pdfmake version and downloads it automatically
