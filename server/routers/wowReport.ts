@@ -572,6 +572,95 @@ Write directly to the client using "you" and "your" throughout. Do NOT include a
   };
 }
 
+// ─── Shared: Cross-section duplicate paragraph guard ─────────────────────────
+/**
+ * After a parallel rewrite, scan all prose sections for paragraphs that appear
+ * verbatim (or near-verbatim after normalisation) in more than one section.
+ * Any duplicate is replaced with a targeted LLM call that rewrites just that
+ * paragraph in the same voice, with an explicit instruction not to repeat
+ * anything already written.
+ */
+async function deduplicateSections(
+  sections: WowReportSections,
+  systemPrompt: string,
+  voiceName: string,
+): Promise<WowReportSections> {
+  const PROSE_KEYS = [
+    "summary",
+    "lifeHistoryPattern",
+    "viaSection",
+    "personalitySection",
+    "behaviouralStyle",
+    "developmentEdge",
+    "careerDirections",
+    "coachingQuestions",
+  ];
+
+  // Normalise a paragraph for comparison: lowercase, collapse whitespace, strip punctuation
+  const normalise = (p: string) =>
+    p.toLowerCase().replace(/[^a-z0-9 ]/g, " ").replace(/\s+/g, " ").trim();
+
+  // Split a section into paragraphs (double-newline separated), ignoring blank lines
+  const toParagraphs = (text: string): string[] =>
+    text.split("\n\n").map((p) => p.trim()).filter((p) => p.length > 40);
+
+  // Build a map: normalised paragraph → [sectionKey, originalParagraph][]
+  const seen = new Map<string, { key: string; original: string }[]>();
+  for (const key of PROSE_KEYS) {
+    const text = (sections as unknown as Record<string, unknown>)[key] as string | undefined;
+    if (!text) continue;
+    for (const para of toParagraphs(text)) {
+      const norm = normalise(para);
+      if (!seen.has(norm)) seen.set(norm, []);
+      seen.get(norm)!.push({ key, original: para });
+    }
+  }
+
+  // Collect duplicates: norm → entries where it appears in 2+ sections
+  const duplicates: { norm: string; entries: { key: string; original: string }[] }[] = [];
+  for (const [norm, entries] of Array.from(seen.entries())) {
+    const uniqueKeys = new Set(entries.map((e: { key: string; original: string }) => e.key));
+    if (uniqueKeys.size >= 2) {
+      duplicates.push({ norm, entries });
+    }
+  }
+
+  if (duplicates.length === 0) {
+    console.log(`[WOW Report] ${voiceName}: no cross-section duplicate paragraphs found.`);
+    return sections;
+  }
+
+  console.log(`[WOW Report] ${voiceName}: found ${duplicates.length} duplicate paragraph(s) across sections — rewriting.`);
+
+  // For each duplicate, rewrite it in every section it appears in except the first
+  const result = { ...sections };
+  for (const { entries } of duplicates) {
+    // Keep the first occurrence; rewrite all subsequent ones
+    const [_keep, ...toRewrite] = entries;
+    for (const { key, original } of toRewrite) {
+      const sectionText = (result as unknown as Record<string, unknown>)[key] as string;
+      if (!sectionText) continue;
+      try {
+        const rewrittenPara = await callLLMWithTimeout(
+          systemPrompt,
+          `The following paragraph appears verbatim in another section of this report. Rewrite it so it covers the same analytical point but in completely different language, sentence structure, and opening — do NOT begin with the same word or phrase as the original:
+
+${original}
+
+Output only the rewritten paragraph. No preamble.`,
+          60_000,
+        );
+        (result as unknown as Record<string, unknown>)[key] = sectionText.replace(original, rewrittenPara.trim());
+        console.log(`[WOW Report] ${voiceName}: rewrote duplicate paragraph in section "${key}".`);
+      } catch (err) {
+        console.warn(`[WOW Report] ${voiceName}: failed to rewrite duplicate in "${key}":`, err);
+      }
+    }
+  }
+
+  return result;
+}
+
 // ─── Helper: Rewrite house-style sections in Mark Brandon's voice ────────────
 /**
  * Takes a fully-generated house-style WowReportSections object and rewrites
@@ -675,8 +764,9 @@ async function rewriteSectionsForMark(
 
   // Update section title labels for Mark style
   // Chapter 1 title change is handled in the PDF renderer via writingStyle flag
+  const deduplicated = await deduplicateSections(rewritten, MARK_REWRITE_SYS, "Mark Brandon");
   console.log(`[WOW Report] Mark Brandon rewrite complete for ${clientName}`);
-  return rewritten;
+  return deduplicated;
 }
 
 // ─── Helper: Rewrite sections in Clive James's voice ────────────────────────
@@ -812,8 +902,9 @@ async function rewriteSectionsForCliveJames(
     (rewritten as Record<string, unknown>)[key as string] = value;
   }
 
+  const deduplicated = await deduplicateSections(rewritten, CLIVE_JAMES_REWRITE_SYS, "Clive James");
   console.log(`[WOW Report] Clive James rewrite complete for ${clientName}`);
-  return rewritten;
+  return deduplicated;
 }
 
 // ─── Helper: Rewrite sections in Michael Lewis's voice ──────────────────────
@@ -960,8 +1051,9 @@ async function rewriteSectionsForMichaelLewis(
     (rewritten as Record<string, unknown>)[key as string] = value;
   }
 
+  const deduplicated = await deduplicateSections(rewritten, MICHAEL_LEWIS_REWRITE_SYS, "Michael Lewis");
   console.log(`[WOW Report] Michael Lewis rewrite complete for ${clientName}`);
-  return rewritten;
+  return deduplicated;
 }
 
 // ─── Helper: Rewrite sections in Oliver Sacks's voice ──────────────────────────
@@ -1120,8 +1212,9 @@ async function rewriteSectionsForOliverSacks(
     (rewritten as Record<string, unknown>)[key as string] = value;
   }
 
+  const deduplicated = await deduplicateSections(rewritten, OLIVER_SACKS_REWRITE_SYS, "Oliver Sacks");
   console.log(`[WOW Report] Oliver Sacks rewrite complete for ${clientName}`);
-  return rewritten;
+  return deduplicated;
 }
 
 const WILLIAM_ZINSSER_REWRITE_SYS = `LIFEWORK REPORT — VOICE SYSTEM PROMPT
@@ -1249,8 +1342,9 @@ async function rewriteSectionsForZinsser(
   for (const [key, value] of results) {
     (rewritten as Record<string, unknown>)[key as string] = value;
   }
+  const deduplicated = await deduplicateSections(rewritten, WILLIAM_ZINSSER_REWRITE_SYS, "William Zinsser");
   console.log(`[WOW Report] William Zinsser rewrite complete for ${clientName}`);
-  return rewritten;
+  return deduplicated;
 }
 
 /// ─── Helper: Render PDF with pdfmake 0.3.x ───────────────────────────────────────────────────────

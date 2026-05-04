@@ -1383,3 +1383,10 @@
 - [x] Add "William Zinsser" SelectItem to WowReportTab UI
 - [x] Update all selectedWritingStyle type annotations and display strings in WowReportTab
 - [x] Write tests for Zinsser voice
+
+## Cross-section deduplication guard
+
+- [x] Add deduplicateSections() utility to wowReport.ts
+- [x] Wire deduplication into all five rewrite functions (Mark, Clive James, Michael Lewis, Oliver Sacks, William Zinsser)
+- [x] Fix esbuild regex issue — use string split instead of regex literal
+- [x] Fix TypeScript cast errors in deduplicateSections
