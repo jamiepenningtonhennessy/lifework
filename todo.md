@@ -1400,3 +1400,8 @@
 
 - [x] Fix rebuildPdfMutation onSuccess to auto-download the new branded PDF immediately after rebuild (no second click required)
 - [x] Diagnose plain-HTML PDF issue: stored pdfUrl was pointing to old puppeteer PDF; rebuild now produces correct branded pdfmake version and downloads it automatically
+
+## Zinsser intra-section duplicate fix
+
+- [x] Fix Zinsser lifeHistoryPattern context: CRITICAL ANTI-DUPLICATION RULE requiring narrative and What the Pattern Reveals synthesis to be structurally distinct
+- [x] Extend deduplicateSections guard to catch intra-section repeats (same paragraph appearing twice within one section, not just across sections)

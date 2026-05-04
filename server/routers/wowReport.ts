@@ -616,11 +616,17 @@ async function deduplicateSections(
     }
   }
 
-  // Collect duplicates: norm → entries where it appears in 2+ sections
+  // Collect duplicates: norm → entries where it appears in 2+ sections (cross-section)
+  // OR appears 2+ times within the same section (intra-section, e.g. narrative + synthesis sub-section)
   const duplicates: { norm: string; entries: { key: string; original: string }[] }[] = [];
   for (const [norm, entries] of Array.from(seen.entries())) {
     const uniqueKeys = new Set(entries.map((e: { key: string; original: string }) => e.key));
     if (uniqueKeys.size >= 2) {
+      // Cross-section duplicate: keep first occurrence, rewrite the rest
+      duplicates.push({ norm, entries });
+    } else if (entries.length >= 2) {
+      // Intra-section duplicate: same paragraph appears twice within one section
+      // (e.g. narrative + "What the Pattern Reveals" sub-section in lifeHistoryPattern)
       duplicates.push({ norm, entries });
     }
   }
@@ -1315,7 +1321,7 @@ async function rewriteSectionsForZinsser(
 
   const sectionContext: Record<string, string> = {
     summary: "This is Chapter 1: the opening portrait. One point. One clear portrait. Three to four short paragraphs, each doing one job. Find the most essential quality of this person and say it plainly. The first sentence must not warm up — it must make a statement, name a moment, or give a concrete detail. No generalisations. No bullet points.",
-    lifeHistoryPattern: "This is Chapter 2: Life History — The Pattern. Begin with a specific episode — not the most dramatic, but the most instructive. Move through the life history in an order that shows the pattern building. Name each episode briefly and precisely. Follow each with the sentence that says what it shows. Do not belabour the evidence. Trust the facts. The close should state the pattern in the fewest words it takes to hold it accurately.",
+    lifeHistoryPattern: "This is Chapter 2: Life History — The Pattern. CRITICAL ANTI-DUPLICATION RULE: The house-style original has two distinct parts: (1) a narrative section tracing episodes chronologically under headings like '## The Opening Bars' and '## Recurring Motifs', and (2) a synthesis sub-section headed '## What the Pattern Reveals'. Your rewrite MUST preserve this two-part structure. The narrative and the synthesis MUST NOT share any paragraph, sentence, or observation — they are doing different jobs: the narrative shows, the synthesis names. NARRATIVE (before '## What the Pattern Reveals'): Begin with a specific episode — not the most dramatic, but the most instructive. Move through the life history in an order that shows the pattern building. Name each episode briefly and precisely. Follow each with the sentence that says what it shows. Do not belabour the evidence. Trust the facts. SYNTHESIS (under '## What the Pattern Reveals'): Do NOT repeat or paraphrase any episode, sentence, or observation already used in the narrative above. Instead: state what the whole arc adds up to in 2–3 short paragraphs, then close with 'From what you have told us, we can see:' followed by 3–4 bullets. The final sentence should state the pattern in the fewest words it takes to hold it accurately.",
     viaSection: "This is Chapter 3: Character Strengths. Preserve the markdown evidence table exactly as-is. Only rewrite the prose — specifically the '## The Key Findings' section and any closing prose. MINIMUM STRUCTURE: (1) Open with a single direct sentence naming the most interesting divergence between survey rank and life history evidence. (2) Write EXACTLY 5 substantial prose paragraphs — each doing one job, each grounded in a named episode or achievement, each ending with the short declarative that lands the point. No bullet points in the body. (3) Close with: 'From what you have told us, we can see:' followed by 3-4 tight bullets. (4) Final line: the earned close — the implication stated in the fewest words that can hold it. Do NOT produce fewer than 5 prose paragraphs.",
     personalitySection: "This is Chapter 4: Personality Profile. Find the tension between the scores and the life history. State it. Explain it in one paragraph with specific evidence. Preserve any charts or structured data. Rewrite only the prose commentary.",
     behaviouralStyle: "This is Chapter 5: Behavioural Style. Two paragraphs. What the profile shows. What the life history adds. Stop.",
