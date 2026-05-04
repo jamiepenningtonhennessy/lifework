@@ -1409,3 +1409,9 @@
 ## WOW Report Download Fix
 
 - [x] Fix download button to produce the HTML-rendered branded PDF (cream/gold/navy, Lifework logo) matching the preview
+
+## Annex B — Biographical Data
+
+- [x] Add Annex B (family background, education history, career history) to WOW report PDF
+- [x] Renumber existing Annex A sections to C1/C2/C3
+- [x] Update annex cover page contents list
