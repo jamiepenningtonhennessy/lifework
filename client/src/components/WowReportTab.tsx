@@ -165,7 +165,7 @@ export default function WowReportTab({ clientId, clientName }: WowReportTabProps
   const [isPolling, setIsPolling] = useState(false);
   const [progressMsg, setProgressMsg] = useState(0);
   const [selectedReportType, setSelectedReportType] = useState<WowReportType>("standard");
-  const [selectedWritingStyle, setSelectedWritingStyle] = useState<"house" | "mark" | "clive-james" | "michael-lewis" | "oliver-sacks">("house");
+  const [selectedWritingStyle, setSelectedWritingStyle] = useState<"house" | "mark" | "clive-james" | "michael-lewis" | "oliver-sacks" | "william-zinsser">("house");
   const [sageOpen, setSageOpen] = useState(false);
   const pollIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const msgIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -247,11 +247,11 @@ export default function WowReportTab({ clientId, clientName }: WowReportTabProps
       setSelectedReportType(reportData.reportType as WowReportType);
     }
     if (reportData?.writingStyle && reportData.writingStyle !== selectedWritingStyle) {
-      setSelectedWritingStyle(reportData.writingStyle as "house" | "mark" | "clive-james" | "michael-lewis" | "oliver-sacks");
+      setSelectedWritingStyle(reportData.writingStyle as "house" | "mark" | "clive-james" | "michael-lewis" | "oliver-sacks" | "william-zinsser");
     }
   }, [reportData?.reportType, reportData?.writingStyle]);
 
-  const handleGenerate = (forceRegenerate = false, overrideType?: WowReportType, overrideStyle?: "house" | "mark" | "clive-james" | "michael-lewis" | "oliver-sacks") => {
+  const handleGenerate = (forceRegenerate = false, overrideType?: WowReportType, overrideStyle?: "house" | "mark" | "clive-james" | "michael-lewis" | "oliver-sacks" | "william-zinsser") => {
     generateMutation.mutate({ clientId, forceRegenerate, reportType: overrideType ?? selectedReportType, writingStyle: overrideStyle ?? selectedWritingStyle });
   };
 
@@ -392,7 +392,7 @@ export default function WowReportTab({ clientId, clientName }: WowReportTabProps
   const rebuildPdfMutation = trpc.wowReport.rebuildPdf.useMutation({
     onSuccess: (result) => {
       utils.wowReport.get.invalidate({ clientId });
-      toast.success("PDF rebuilt in " + (result.writingStyle === "mark" ? "Mark" : result.writingStyle === "clive-james" ? "Clive James" : result.writingStyle === "michael-lewis" ? "Michael Lewis" : result.writingStyle === "oliver-sacks" ? "Oliver Sacks" : "House") + " style — ready to download.");
+      toast.success("PDF rebuilt in " + (result.writingStyle === "mark" ? "Mark" : result.writingStyle === "clive-james" ? "Clive James" : result.writingStyle === "michael-lewis" ? "Michael Lewis" : result.writingStyle === "oliver-sacks" ? "Oliver Sacks" : result.writingStyle === "william-zinsser" ? "William Zinsser" : "House") + " style — ready to download.");
     },
     onError: (err) => {
       toast.error("Could not rebuild PDF: " + err.message);
@@ -405,7 +405,7 @@ export default function WowReportTab({ clientId, clientName }: WowReportTabProps
   // Report exists if we have JSON sections (even without a PDF URL)
   const reportExists = !!(reportData?.exists);
   /** True when the stored PDF was built with a different style than currently selected */
-  const pdfStyleMismatch = !!pdfUrl && selectedWritingStyle !== ((reportData as any)?.writingStyle ?? "house") as "house" | "mark" | "clive-james" | "michael-lewis" | "oliver-sacks";
+  const pdfStyleMismatch = !!pdfUrl && selectedWritingStyle !== ((reportData as any)?.writingStyle ?? "house") as "house" | "mark" | "clive-james" | "michael-lewis" | "oliver-sacks" | "william-zinsser";
 
   const handleDownloadPdf = async () => {
     if (!pdfUrl) return;
@@ -786,12 +786,14 @@ export default function WowReportTab({ clientId, clientName }: WowReportTabProps
                       ? "Michael Lewis — cinematic openings, conventional-wisdom-vs-data, short declarative revelations."
                       : selectedWritingStyle === "oliver-sacks"
                       ? "Oliver Sacks — case-study intimacy, wonder at adaptation, clinical precision with human warmth."
+                      : selectedWritingStyle === "william-zinsser"
+                      ? "William Zinsser — short sentences, active verbs, no clutter. Clear writing is clear thinking."
                       : "House Style — direct, evidence-led, second person, structured with subheadings."}
                   </p>
                 </div>
                 <Select
                   value={selectedWritingStyle}
-                  onValueChange={(v) => setSelectedWritingStyle(v as "house" | "mark" | "clive-james" | "michael-lewis" | "oliver-sacks")}
+                  onValueChange={(v) => setSelectedWritingStyle(v as "house" | "mark" | "clive-james" | "michael-lewis" | "oliver-sacks" | "william-zinsser" | "william-zinsser")}
                   disabled={isGenerating}
                 >
                   <SelectTrigger className="w-[220px] bg-white/5 border-white/20 text-white text-sm">
@@ -803,6 +805,7 @@ export default function WowReportTab({ clientId, clientName }: WowReportTabProps
                     <SelectItem value="clive-james">Clive James</SelectItem>
                     <SelectItem value="michael-lewis">Michael Lewis</SelectItem>
                     <SelectItem value="oliver-sacks">Oliver Sacks</SelectItem>
+                    <SelectItem value="william-zinsser">William Zinsser</SelectItem>
                   </SelectContent>
                 </Select>
                 {pdfStyleMismatch && (
@@ -814,7 +817,7 @@ export default function WowReportTab({ clientId, clientName }: WowReportTabProps
                       disabled={rebuildPdfMutation.isPending || isGenerating}
                     >
                       {rebuildPdfMutation.isPending ? <Loader2 className="w-3 h-3 mr-1 animate-spin" /> : <RefreshCw className="w-3 h-3 mr-1" />}
-                      Rebuild PDF in {selectedWritingStyle === "mark" ? "Mark" : selectedWritingStyle === "clive-james" ? "Clive James" : selectedWritingStyle === "michael-lewis" ? "Michael Lewis" : selectedWritingStyle === "oliver-sacks" ? "Oliver Sacks" : "House"} Style
+                      Rebuild PDF in {selectedWritingStyle === "mark" ? "Mark" : selectedWritingStyle === "clive-james" ? "Clive James" : selectedWritingStyle === "michael-lewis" ? "Michael Lewis" : selectedWritingStyle === "oliver-sacks" ? "Oliver Sacks" : selectedWritingStyle === "william-zinsser" ? "William Zinsser" : "House"} Style
                     </Button>
                     <p className="text-xs text-white/40">Rebuilds PDF from current sections (fast — no LLM)</p>
                     <Button

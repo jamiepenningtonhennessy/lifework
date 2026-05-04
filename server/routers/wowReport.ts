@@ -288,7 +288,7 @@ async function callLLMWithTimeout(
 // ─── Report type variants ────────────────────────────────────────────────────
 
 export type WowReportType = "standard" | "student" | "career_changer" | "job_returner" | "retirement";
-export type WritingStyle = "house" | "mark" | "clive-james" | "michael-lewis" | "oliver-sacks";
+export type WritingStyle = "house" | "mark" | "clive-james" | "michael-lewis" | "oliver-sacks" | "william-zinsser";
 
 const MARK_BRANDON_SYS = `You are writing in the style of Mark Brandon — a British writer, journalist, and legal sector consultant. His voice has these characteristics:
 
@@ -1121,6 +1121,135 @@ async function rewriteSectionsForOliverSacks(
   }
 
   console.log(`[WOW Report] Oliver Sacks rewrite complete for ${clientName}`);
+  return rewritten;
+}
+
+const WILLIAM_ZINSSER_REWRITE_SYS = `LIFEWORK REPORT — VOICE SYSTEM PROMPT
+VOICE: WILLIAM ZINSSER
+Version 1.0 · Pennington Hennessy
+
+IDENTITY
+You are writing in the voice of William Zinsser: the American writer, editor, and teacher whose book On Writing Well became one of the most influential guides to non-fiction prose ever published. His own writing — in Spring Training, Writing About Your Life, and his essays — demonstrated everything he taught: short sentences, active verbs, no clutter, no hedging, no words that don't earn their place.
+
+Zinsser's central conviction was this: clear writing is clear thinking. If a sentence is muddy, the thought behind it is muddy. The solution is not better vocabulary or more elegant construction. It is to strip the sentence until what remains is exactly what you mean.
+
+His warmth — and he was genuinely warm — came not from sentiment but from directness. To say something plainly and confidently to another person is itself a form of respect. Vague kindness costs nothing and delivers nothing. Precise truth, stated without armour, is the real thing.
+
+You are NOT producing a simplified or dumbed-down report. Zinsser's simplicity is not the simplicity of less thinking. It is the simplicity of more. You are doing the hardest kind of writing: saying something true, in the fewest words that can hold it, without losing anything that matters.
+
+THE CORE MOVES — LEARN THESE
+
+MOVE 1 — THE DIRECT LEAD
+Zinsser's opening sentence does not warm up. It does not clear its throat. It makes a statement, names a person, gives a concrete detail, or poses a question. Whatever it does, it earns the second sentence.
+Do not begin: "From an early age..." or "Throughout their life..." or "What makes [name] distinctive is..."
+Begin with something specific. One person. One moment. One fact. Then let the pattern emerge.
+
+MOVE 2 — THE SHORT SENTENCE AS WEAPON
+Among good writers it is the short sentence that predominates. Zinsser uses it with intent. A short sentence after two longer ones carries weight out of proportion to its length. It closes. It lands. It confirms.
+Vary your sentence length deliberately. Build through a longer accumulation of evidence, then cut to the short declarative.
+
+MOVE 3 — THE ACTIVE VERB
+Choose verbs that do work. Not "was engaged in the process of building" but "built." Not "demonstrated a capacity for" but "could." Not "sought to achieve mastery of" but "mastered." Passive constructions and noun-heavy phrases are clutter. Cut them.
+
+MOVE 4 — ONE POINT PER PARAGRAPH
+Each paragraph does one job. It makes one point, illustrates it with one or two specific details, and stops. If a paragraph is doing two things, split it. If it is doing half a thing, cut it.
+
+MOVE 5 — THE EARNED CLOSE
+Zinsser does not summarise at the end of a chapter. His closes state the implication — the thing the evidence leads to — in the plainest possible language, as if it were obvious. Because by the time you reach it, it should be.
+The close should be short. It should feel like the only way the chapter could end.
+
+TONE CALIBRATION
+DIRECTNESS: Say what you mean. Do not say "you demonstrate a capacity for framework development." That is not a sentence. It is a fog machine.
+CONFIDENCE: Do not hedge. Cut every qualifier that weakens a claim without adding precision: "sort of," "in many ways," "a kind of," "perhaps could be seen as," "it seems that."
+WARMTH: Comes from precision and from taking the person seriously. You are paying attention to this specific life, this specific person, this specific evidence. That attention is the warmth.
+HUMOUR: Understatement. The slight pause before the unexpected detail. Never jokes. Never exclamation points.
+SECOND PERSON: Use "you" and "your" directly and confidently — not "one might consider" but "you built this" and "you chose that."
+
+CHAPTER-BY-CHAPTER GUIDANCE
+
+CHAPTER 1 — SUMMARY: One point. One clear portrait. Three to four short paragraphs, each doing one job. Find the most essential quality of this person and say it plainly. The summary should make the reader want to read on, not feel that they have already read it all.
+
+CHAPTER 2 — LIFE HISTORY PATTERN: Begin with a specific episode — not the most dramatic, but the most instructive. Move through the life history in an order that shows the pattern building. Name each episode briefly and precisely. Follow each with the sentence that says what it shows. Do not belabour the evidence. Trust the facts. The close should state the pattern in the fewest words it takes to hold it accurately.
+
+CHAPTER 3 — CHARACTER STRENGTHS (VIA): Present the strengths that the life history confirms. Present the divergences between the survey rank and the life history evidence. State what this means. MINIMUM STRUCTURE FOR THE KEY FINDINGS REWRITE: (1) Open with a single direct sentence naming the most interesting divergence. (2) Write EXACTLY 5 substantial prose paragraphs — each doing one job, each grounded in a named episode or achievement. No bullet points in the body. (3) Close with: 'From what you have told us, we can see:' followed by 3-4 tight bullets. (4) Final line: the earned close — the implication stated plainly. Do NOT produce fewer than 5 prose paragraphs.
+
+CHAPTER 4 — PERSONALITY PROFILE (OCEAN): Find the tension between the scores and the life history. State it. Explain it in one paragraph with specific evidence. Zinsser would not spend three paragraphs doing what one can do. Preserve any charts or structured data. Rewrite only the prose.
+
+CHAPTER 5 — BEHAVIOURAL STYLE: Two paragraphs. What the profile shows. What the life history adds. Stop.
+
+CHAPTER 6 — DEVELOPMENT EDGE: STRUCTURE IS MANDATORY: You MUST produce EXACTLY 3 development areas, each introduced with a ## heading that names the area in plain, precise language — specific enough that the client recognises it immediately (e.g. ## Waiting to Be Asked, ## The Standard That Goes Unstated, ## The Work That Doesn't Get Shown). Do NOT write a flowing essay. Do NOT produce fewer than 3. For each area: one paragraph naming the pattern with Zinsser's directness, one paragraph naming the cost in concrete terms. No softening. No hedging. Close with a single short paragraph (no heading) that states the implication plainly — the Zinsser earned close.
+
+CHAPTER 7 — CONCLUSIONS: Past / Present / Future, written with economy. Each section two to three paragraphs. The interview answer must sound like the person speaking plainly — not a script, but the thing they would say if they dropped all the performance and just told the truth.
+
+CHAPTER 8 — CAREER DIRECTIONS: Each direction named in plain functional language. Two paragraphs: what the role involves, and why this person's history makes it a genuine fit. The connection to the evidence should be stated directly, not implied.
+
+WHAT NOT TO DO
+NEVER use qualifiers that weaken without adding precision: "sort of," "kind of," "rather," "quite," "a bit," "in a sense," "to some extent," "it could be argued," "one might say," "in many ways."
+NEVER use abstract nouns where a concrete verb would do.
+NEVER write long words that have short equivalents: "assistance" = help. "individual" = person. "facilitate" = help. "utilise" = use. "demonstrate" = show.
+NEVER summarise at the end of a chapter what the chapter has already said.
+NEVER use exclamation marks.
+NEVER open with a generalisation: "Many people find that..." or "In today's professional world..."
+NEVER write a sentence in the passive voice when an active verb is available.
+AVOID: "journey," "going forward," "leverage" (as a verb), "synergies," "ecosystem," "stakeholder," "paradigm," "in terms of," "with regard to," "it is important to note," "needless to say."
+NEVER open two paragraphs anywhere in the report with the same word or phrase.
+
+LIFEWORK PRINCIPLES — NON-NEGOTIABLE
+1. The client is the authority on their own life. All findings are hypotheses offered with conviction — not verdicts.
+2. All claims must trace to specific evidence: a named episode, a VIA score, a specific OCEAN facet.
+3. No ranked lists of strengths or career directions.
+4. The development edge must name the pattern and state the cost.
+5. The interview answer in Chapter 7 must sound like speech, not writing.
+
+PRESERVE ALL MARKDOWN STRUCTURE: Keep ## headings, **bold** terms, markdown tables (do not rewrite table content).
+WRITE TO THE CLIENT: Use "you" and "your" throughout.
+NO PREAMBLE: Do not begin your response with "Here is the rewritten section" or similar. Output only the rewritten section text.`;
+
+async function rewriteSectionsForZinsser(
+  sections: WowReportSections,
+  clientName: string,
+): Promise<WowReportSections> {
+  const proseSections = [
+    "summary",
+    "lifeHistoryPattern",
+    "viaSection",
+    "personalitySection",
+    "behaviouralStyle",
+    "developmentEdge",
+    "careerDirections",
+    "coachingQuestions",
+  ];
+
+  const sectionContext: Record<string, string> = {
+    summary: "This is Chapter 1: the opening portrait. One point. One clear portrait. Three to four short paragraphs, each doing one job. Find the most essential quality of this person and say it plainly. The first sentence must not warm up — it must make a statement, name a moment, or give a concrete detail. No generalisations. No bullet points.",
+    lifeHistoryPattern: "This is Chapter 2: Life History — The Pattern. Begin with a specific episode — not the most dramatic, but the most instructive. Move through the life history in an order that shows the pattern building. Name each episode briefly and precisely. Follow each with the sentence that says what it shows. Do not belabour the evidence. Trust the facts. The close should state the pattern in the fewest words it takes to hold it accurately.",
+    viaSection: "This is Chapter 3: Character Strengths. Preserve the markdown evidence table exactly as-is. Only rewrite the prose — specifically the '## The Key Findings' section and any closing prose. MINIMUM STRUCTURE: (1) Open with a single direct sentence naming the most interesting divergence between survey rank and life history evidence. (2) Write EXACTLY 5 substantial prose paragraphs — each doing one job, each grounded in a named episode or achievement, each ending with the short declarative that lands the point. No bullet points in the body. (3) Close with: 'From what you have told us, we can see:' followed by 3-4 tight bullets. (4) Final line: the earned close — the implication stated in the fewest words that can hold it. Do NOT produce fewer than 5 prose paragraphs.",
+    personalitySection: "This is Chapter 4: Personality Profile. Find the tension between the scores and the life history. State it. Explain it in one paragraph with specific evidence. Preserve any charts or structured data. Rewrite only the prose commentary.",
+    behaviouralStyle: "This is Chapter 5: Behavioural Style. Two paragraphs. What the profile shows. What the life history adds. Stop.",
+    developmentEdge: "This is Chapter 6: Development Edge. STRUCTURE IS MANDATORY: You MUST produce EXACTLY 3 development areas, each introduced with a ## heading that names the area in plain, precise language — specific enough that the client recognises it immediately (e.g. ## Waiting to Be Asked, ## The Standard That Goes Unstated, ## The Work That Doesn't Get Shown). Do NOT write a flowing essay. Do NOT produce fewer than 3. For each area: one paragraph naming the pattern with Zinsser's directness, one paragraph naming the cost in concrete terms. No softening. No hedging. Close with a single short paragraph (no heading) that states the implication plainly — the Zinsser earned close.",
+    careerDirections: "This is Chapter 8: Career Directions. Each direction named in plain functional language. Two paragraphs each: what the role involves, and why this person's history makes it a genuine fit. The connection to the evidence should be stated directly, not implied.",
+  };
+
+  const rewritePromises = proseSections.map(async (key) => {
+    const original = sections[key as keyof WowReportSections] as string;
+    if (!original || original.trim().length === 0) return [key, original] as const;
+    const context = sectionContext[key] ?? "";
+    const userPrompt = `${context ? context + "\n\n" : ""}--- HOUSE STYLE ORIGINAL ---\n${original}\n--- END ---\n\nRewrite the above in William Zinsser's voice following all the rules in your system prompt. Apply the Zinsser Test to every paragraph before finalising: cut every word that doesn't earn its place, make every passive construction active, replace every long word with its short equivalent, remove every qualifier that weakens without adding precision.`;
+    try {
+      const rewritten = await callLLMWithTimeout(WILLIAM_ZINSSER_REWRITE_SYS, userPrompt, 120_000);
+      return [key, rewritten] as const;
+    } catch (err) {
+      console.warn(`[WOW Report] Zinsser rewrite failed for section ${String(key)}, keeping original:`, err);
+      return [key, original] as const;
+    }
+  });
+
+  const results = await Promise.all(rewritePromises);
+  const rewritten = { ...sections };
+  for (const [key, value] of results) {
+    (rewritten as Record<string, unknown>)[key as string] = value;
+  }
+  console.log(`[WOW Report] William Zinsser rewrite complete for ${clientName}`);
   return rewritten;
 }
 
@@ -2191,6 +2320,8 @@ async function runGenerationJob(clientId: number, reportType: WowReportType = "s
       ? await rewriteSectionsForMichaelLewis(houseSections, houseSections.clientName)
       : writingStyle === "oliver-sacks"
       ? await rewriteSectionsForOliverSacks(houseSections, houseSections.clientName)
+      : writingStyle === "william-zinsser"
+      ? await rewriteSectionsForZinsser(houseSections, houseSections.clientName)
       : houseSections;
     // Render main WOW Report PDF
     console.log(`[WOW Report] Rendering PDF for client ${clientId}`);
@@ -2271,7 +2402,7 @@ export const wowReportRouter = router({
       clientId: z.number(),
       forceRegenerate: z.boolean().optional().default(false),
       reportType: z.enum(["standard", "student", "career_changer", "job_returner", "retirement"]).optional().default("standard"),
-      writingStyle: z.enum(["house", "mark", "clive-james", "michael-lewis", "oliver-sacks"]).optional().default("house"),
+      writingStyle: z.enum(["house", "mark", "clive-james", "michael-lewis", "oliver-sacks", "william-zinsser"]).optional().default("house"),
     }))
     .mutation(async ({ input }) => {
       const existing = await getAnalysisReport(input.clientId);
@@ -2319,7 +2450,7 @@ export const wowReportRouter = router({
   rebuildPdf: protectedProcedure
     .input(z.object({
       clientId: z.number(),
-      writingStyle: z.enum(["house", "mark", "clive-james", "michael-lewis", "oliver-sacks"]).optional().default("house"),
+      writingStyle: z.enum(["house", "mark", "clive-james", "michael-lewis", "oliver-sacks", "william-zinsser"]).optional().default("house"),
     }))
     .mutation(async ({ input }) => {
       const report = await getAnalysisReport(input.clientId);

@@ -1373,3 +1373,13 @@
 - [x] Clive James: update from 3 to 5 paragraphs minimum
 - [x] Michael Lewis: add full 5-paragraph structure instruction
 - [x] Oliver Sacks: add full 5-paragraph structure instruction
+
+## William Zinsser WOW Report Voice
+
+- [x] Add WILLIAM_ZINSSER_REWRITE_SYS constant and rewriteSectionsForZinsser function
+- [x] Update WritingStyle type to include "william-zinsser"
+- [x] Update z.enum in generate and rebuildPdf procedures
+- [x] Update runGenerationJob dispatch chain
+- [x] Add "William Zinsser" SelectItem to WowReportTab UI
+- [x] Update all selectedWritingStyle type annotations and display strings in WowReportTab
+- [x] Write tests for Zinsser voice
