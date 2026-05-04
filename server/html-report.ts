@@ -964,10 +964,10 @@ const TEMPLATE = `<!doctype html>
     <h1 class="display" style="margin-top:24px;font-size:80px;line-height:0.96;">Your <em>data.</em></h1>
     <p class="lede" style="margin-top:24px;max-width:540px;">The underlying information that Sage used to build your report — recorded exactly as you gave it, and as the instruments scored it.</p>
     <div class="contents">
+      <div class="row"><span class="ix">A</span><span class="lb">Life History Data</span></div>
       <div class="row"><span class="ix">B</span><span class="lb">Biographical Data</span></div>
-      <div class="row"><span class="ix">C1</span><span class="lb">Life History Data</span></div>
-      <div class="row"><span class="ix">C2</span><span class="lb">VIA Character Strengths — all 24</span></div>
-      <div class="row"><span class="ix">C3</span><span class="lb">OCEAN Personality Profile — with facets</span></div>
+      <div class="row"><span class="ix">C</span><span class="lb">VIA Character Strengths — all 24</span></div>
+      <div class="row"><span class="ix">D</span><span class="lb">OCEAN Personality Profile — with facets</span></div>
     </div>
   </div>
   <div style="position:relative;z-index:1;font-family:var(--sans);font-size:10px;letter-spacing:0.28em;text-transform:uppercase;color:var(--ink-muted);">
@@ -1055,16 +1055,16 @@ const TEMPLATE = `<!doctype html>
   </footer>
 </section>
 
-<!-- ════════ PAGES 18–21 · C1 LIFE HISTORY (was A1) ════════ -->
+<!-- ════════ ANNEX A · LIFE HISTORY ════════ -->
 {{#EACH LIFE_HISTORY.PAGES}}
 <section class="page">
   <header class="ph-top">
     <span class="lockup"><span class="mark"></span>Lifework</span>
-    <span>C1 · Life History</span>
+    <span>A · Life History</span>
   </header>
   <div class="ph-body">
     {{#IF .showKicker}}
-    <span class="kicker">Annex C1</span>
+    <span class="kicker">Annex A</span>
     <h2 class="chap-title">Life <em>history.</em></h2>
     <p style="font-family:var(--serif);font-style:italic;font-size:15px;color:var(--ink-muted);">Achievements recorded during the Sage life history interview. Where Sage asked a follow-up, the enrichment note is shown beneath.</p>
     {{/IF}}
@@ -1086,14 +1086,14 @@ const TEMPLATE = `<!doctype html>
 </section>
 {{/EACH}}
 
-<!-- ════════ PAGE 22 · C2 VIA FULL 24 ════════ -->
+<!-- ════════ ANNEX C · VIA FULL 24 ════════ -->
 <section class="page">
   <header class="ph-top">
     <span class="lockup"><span class="mark"></span>Lifework</span>
-    <span>C2 · VIA Character Strengths</span>
+    <span>C · VIA Character Strengths</span>
   </header>
   <div class="ph-body">
-    <span class="kicker">Annex C2</span>
+    <span class="kicker">Annex C</span>
     <h2 class="chap-title">VIA character <em>strengths.</em></h2>
     <p style="font-family:var(--serif);font-style:italic;font-size:15px;color:var(--ink-muted);">All 24 strengths ranked by score out of 25. Top 5 highlighted in gold; bottom 5 in muted.</p>
     <ol class="rank-list full" style="columns:2;column-gap:56px;margin-top:8px;">
@@ -1109,14 +1109,14 @@ const TEMPLATE = `<!doctype html>
   </footer>
 </section>
 
-<!-- ════════ PAGE 23 · C3 OCEAN FACETS (1/2) ════════ -->
+<!-- ════════ ANNEX D · OCEAN FACETS (1/2) ════════ -->
 <section class="page">
   <header class="ph-top">
     <span class="lockup"><span class="mark"></span>Lifework</span>
-    <span>C3 · OCEAN Personality Profile</span>
+    <span>D · OCEAN Personality Profile</span>
   </header>
   <div class="ph-body">
-    <span class="kicker">Annex C3</span>
+    <span class="kicker">Annex D</span>
     <h2 class="chap-title">OCEAN <em>personality profile.</em></h2>
     <p style="font-family:var(--serif);font-style:italic;font-size:15px;color:var(--ink-muted);">Five domain scores and 30 sub-scale facets. Scores are percentiles (0–100). Above 70 is high; below 30 is low.</p>
     {{#EACH OCEAN.PAGE1_DOMAINS}}
@@ -1136,11 +1136,11 @@ const TEMPLATE = `<!doctype html>
   </footer>
 </section>
 
-<!-- ════════ PAGE 24 · C3 OCEAN FACETS (2/2) ════════ -->
+<!-- ════════ ANNEX D · OCEAN FACETS (2/2) ════════ -->
 <section class="page">
   <header class="ph-top">
     <span class="lockup"><span class="mark"></span>Lifework</span>
-    <span>C3 · OCEAN Personality Profile</span>
+    <span>D · OCEAN Personality Profile</span>
   </header>
   <div class="ph-body">
     {{#EACH OCEAN.PAGE2_DOMAINS}}
