@@ -964,9 +964,10 @@ const TEMPLATE = `<!doctype html>
     <h1 class="display" style="margin-top:24px;font-size:80px;line-height:0.96;">Your <em>data.</em></h1>
     <p class="lede" style="margin-top:24px;max-width:540px;">The underlying information that Sage used to build your report — recorded exactly as you gave it, and as the instruments scored it.</p>
     <div class="contents">
-      <div class="row"><span class="ix">A1</span><span class="lb">Life History Data</span></div>
-      <div class="row"><span class="ix">A2</span><span class="lb">VIA Character Strengths — all 24</span></div>
-      <div class="row"><span class="ix">A3</span><span class="lb">OCEAN Personality Profile — with facets</span></div>
+      <div class="row"><span class="ix">B</span><span class="lb">Biographical Data</span></div>
+      <div class="row"><span class="ix">C1</span><span class="lb">Life History Data</span></div>
+      <div class="row"><span class="ix">C2</span><span class="lb">VIA Character Strengths — all 24</span></div>
+      <div class="row"><span class="ix">C3</span><span class="lb">OCEAN Personality Profile — with facets</span></div>
     </div>
   </div>
   <div style="position:relative;z-index:1;font-family:var(--sans);font-size:10px;letter-spacing:0.28em;text-transform:uppercase;color:var(--ink-muted);">
@@ -974,16 +975,96 @@ const TEMPLATE = `<!doctype html>
   </div>
 </section>
 
-<!-- ════════ PAGES 18–21 · A1 LIFE HISTORY ════════ -->
+<!-- ════════ ANNEX B · BIOGRAPHICAL DATA ════════ -->
+<section class="page">
+  <header class="ph-top">
+    <span class="lockup"><span class="mark"></span>Lifework</span>
+    <span>B · Biographical Data</span>
+  </header>
+  <div class="ph-body">
+    <span class="kicker">Annex B</span>
+    <h2 class="chap-title">Biographical <em>data.</em></h2>
+    <p style="font-family:var(--serif);font-style:italic;font-size:15px;color:var(--ink-muted);">Family background, educational history, and career history as provided by the client.</p>
+
+    <!-- B1: Family Background -->
+    <div style="margin-top:24px;">
+      <div style="font-family:var(--sans);font-size:10px;letter-spacing:0.42em;text-transform:uppercase;color:var(--gold);display:inline-flex;align-items:center;gap:14px;margin-bottom:10px;"><span style="width:32px;height:1px;background:var(--gold);display:inline-block;"></span>B1 — Family Background</div>
+      {{#IF BIOGRAPHICAL.FAMILY.HAS_DATA}}
+      <table style="width:100%;border-collapse:collapse;font-size:13px;font-family:var(--sans);margin-bottom:10px;">
+        {{#IF BIOGRAPHICAL.FAMILY.upbringingLocation}}<tr><td style="color:var(--ink-muted);padding:4px 0;width:200px;vertical-align:top;">Location of upbringing</td><td style="padding:4px 0;color:var(--ink);">{{BIOGRAPHICAL.FAMILY.upbringingLocation}}</td></tr>{{/IF}}
+        {{#IF BIOGRAPHICAL.FAMILY.fatherOccupation}}<tr><td style="color:var(--ink-muted);padding:4px 0;vertical-align:top;">Father's occupation</td><td style="padding:4px 0;color:var(--ink);">{{BIOGRAPHICAL.FAMILY.fatherOccupation}}</td></tr>{{/IF}}
+        {{#IF BIOGRAPHICAL.FAMILY.motherOccupation}}<tr><td style="color:var(--ink-muted);padding:4px 0;vertical-align:top;">Mother's occupation</td><td style="padding:4px 0;color:var(--ink);">{{BIOGRAPHICAL.FAMILY.motherOccupation}}</td></tr>{{/IF}}
+        {{#IF BIOGRAPHICAL.FAMILY.siblingPosition}}<tr><td style="color:var(--ink-muted);padding:4px 0;vertical-align:top;">Position among siblings</td><td style="padding:4px 0;color:var(--ink);">{{BIOGRAPHICAL.FAMILY.siblingPosition}}</td></tr>{{/IF}}
+      </table>
+      {{#IF BIOGRAPHICAL.FAMILY.familyNarrative}}<p style="font-size:13px;font-family:var(--serif);color:var(--ink);line-height:1.6;margin:0 0 8px;">{{BIOGRAPHICAL.FAMILY.familyNarrative}}</p>{{/IF}}
+      {{#IF BIOGRAPHICAL.FAMILY.significantInfluences}}
+      <p style="font-size:11px;font-family:var(--sans);color:var(--ink-muted);letter-spacing:0.1em;text-transform:uppercase;margin:8px 0 4px;">Significant influences</p>
+      <p style="font-size:13px;font-family:var(--serif);color:var(--ink);line-height:1.6;margin:0;">{{BIOGRAPHICAL.FAMILY.significantInfluences}}</p>
+      {{/IF}}
+      {{/IF}}
+    </div>
+
+    <!-- B2: Educational History -->
+    <div style="margin-top:24px;">
+      <div style="font-family:var(--sans);font-size:10px;letter-spacing:0.42em;text-transform:uppercase;color:var(--gold);display:inline-flex;align-items:center;gap:14px;margin-bottom:10px;"><span style="width:32px;height:1px;background:var(--gold);display:inline-block;"></span>B2 — Educational History</div>
+      {{#IF BIOGRAPHICAL.HAS_EDUCATION}}
+      {{#EACH BIOGRAPHICAL.EDUCATION}}
+      <div style="padding:8px 0;border-bottom:1px solid var(--rule);">
+        <div style="font-family:var(--serif);font-size:15px;font-weight:500;color:var(--navy);">{{.institution}}</div>
+        <div style="font-family:var(--sans);font-size:12px;color:var(--ink-muted);margin-top:2px;">{{.qualification}}{{#IF .subject}} · {{.subject}}{{/IF}}{{#IF .yearFrom}} · {{.yearFrom}}–{{.yearTo}}{{/IF}}</div>
+        {{#IF .highlights}}<div style="font-family:var(--serif);font-style:italic;font-size:13px;color:var(--ink);margin-top:4px;line-height:1.5;">{{.highlights}}</div>{{/IF}}
+      </div>
+      {{/EACH}}
+      {{/IF}}
+    </div>
+  </div>
+  <footer class="ph-bot">
+    <span class="who">{{CLIENT.NAME}}</span>
+    <span class="pageno">{{BRAND.COMPANY}} · Annex B</span>
+  </footer>
+</section>
+
+<!-- ════════ ANNEX B (cont.) · CAREER HISTORY ════════ -->
+<section class="page">
+  <header class="ph-top">
+    <span class="lockup"><span class="mark"></span>Lifework</span>
+    <span>B · Biographical Data</span>
+  </header>
+  <div class="ph-body">
+    <span class="kicker">Annex B (continued)</span>
+    <h2 class="chap-title">Career <em>history.</em></h2>
+    <p style="font-family:var(--serif);font-style:italic;font-size:15px;color:var(--ink-muted);">B3 — Career history as provided by the client.</p>
+    {{#IF BIOGRAPHICAL.HAS_CAREER}}
+    {{#EACH BIOGRAPHICAL.CAREER}}
+    <div style="padding:10px 0;border-bottom:1px solid var(--rule);">
+      <div style="display:flex;justify-content:space-between;align-items:baseline;">
+        <div style="font-family:var(--serif);font-size:15px;font-weight:500;color:var(--navy);">{{.organisation}}</div>
+        {{#IF .yearFrom}}<div style="font-family:var(--sans);font-size:11px;color:var(--ink-muted);">{{.yearFrom}}–{{.yearTo}}</div>{{/IF}}
+      </div>
+      {{#IF .role}}<div style="font-family:var(--sans);font-size:12px;color:var(--gold);margin-top:2px;letter-spacing:0.04em;">{{.role}}</div>{{/IF}}
+      {{#IF .keyResponsibilities}}<div style="font-family:var(--serif);font-size:13px;color:var(--ink);margin-top:5px;line-height:1.5;">{{.keyResponsibilities}}</div>{{/IF}}
+      {{#IF .highlights}}<div style="font-family:var(--serif);font-style:italic;font-size:12px;color:var(--ink-muted);margin-top:3px;line-height:1.4;">{{.highlights}}</div>{{/IF}}
+      {{#IF .whyLeft}}<div style="font-family:var(--sans);font-size:11px;color:var(--ink-muted);margin-top:3px;"><em>Why left:</em> {{.whyLeft}}</div>{{/IF}}
+    </div>
+    {{/EACH}}
+    {{/IF}}
+  </div>
+  <footer class="ph-bot">
+    <span class="who">{{CLIENT.NAME}}</span>
+    <span class="pageno">{{BRAND.COMPANY}} · Annex B</span>
+  </footer>
+</section>
+
+<!-- ════════ PAGES 18–21 · C1 LIFE HISTORY (was A1) ════════ -->
 {{#EACH LIFE_HISTORY.PAGES}}
 <section class="page">
   <header class="ph-top">
     <span class="lockup"><span class="mark"></span>Lifework</span>
-    <span>A1 · Life History</span>
+    <span>C1 · Life History</span>
   </header>
   <div class="ph-body">
     {{#IF .showKicker}}
-    <span class="kicker">Annex A1</span>
+    <span class="kicker">Annex C1</span>
     <h2 class="chap-title">Life <em>history.</em></h2>
     <p style="font-family:var(--serif);font-style:italic;font-size:15px;color:var(--ink-muted);">Achievements recorded during the Sage life history interview. Where Sage asked a follow-up, the enrichment note is shown beneath.</p>
     {{/IF}}
@@ -1005,14 +1086,14 @@ const TEMPLATE = `<!doctype html>
 </section>
 {{/EACH}}
 
-<!-- ════════ PAGE 22 · A2 VIA FULL 24 ════════ -->
+<!-- ════════ PAGE 22 · C2 VIA FULL 24 ════════ -->
 <section class="page">
   <header class="ph-top">
     <span class="lockup"><span class="mark"></span>Lifework</span>
-    <span>A2 · VIA Character Strengths</span>
+    <span>C2 · VIA Character Strengths</span>
   </header>
   <div class="ph-body">
-    <span class="kicker">Annex A2</span>
+    <span class="kicker">Annex C2</span>
     <h2 class="chap-title">VIA character <em>strengths.</em></h2>
     <p style="font-family:var(--serif);font-style:italic;font-size:15px;color:var(--ink-muted);">All 24 strengths ranked by score out of 25. Top 5 highlighted in gold; bottom 5 in muted.</p>
     <ol class="rank-list full" style="columns:2;column-gap:56px;margin-top:8px;">
@@ -1028,14 +1109,14 @@ const TEMPLATE = `<!doctype html>
   </footer>
 </section>
 
-<!-- ════════ PAGE 23 · A3 OCEAN FACETS (1/2) ════════ -->
+<!-- ════════ PAGE 23 · C3 OCEAN FACETS (1/2) ════════ -->
 <section class="page">
   <header class="ph-top">
     <span class="lockup"><span class="mark"></span>Lifework</span>
-    <span>A3 · OCEAN Personality Profile</span>
+    <span>C3 · OCEAN Personality Profile</span>
   </header>
   <div class="ph-body">
-    <span class="kicker">Annex A3</span>
+    <span class="kicker">Annex C3</span>
     <h2 class="chap-title">OCEAN <em>personality profile.</em></h2>
     <p style="font-family:var(--serif);font-style:italic;font-size:15px;color:var(--ink-muted);">Five domain scores and 30 sub-scale facets. Scores are percentiles (0–100). Above 70 is high; below 30 is low.</p>
     {{#EACH OCEAN.PAGE1_DOMAINS}}
@@ -1055,11 +1136,11 @@ const TEMPLATE = `<!doctype html>
   </footer>
 </section>
 
-<!-- ════════ PAGE 24 · A3 OCEAN FACETS (2/2) ════════ -->
+<!-- ════════ PAGE 24 · C3 OCEAN FACETS (2/2) ════════ -->
 <section class="page">
   <header class="ph-top">
     <span class="lockup"><span class="mark"></span>Lifework</span>
-    <span>A3 · OCEAN Personality Profile</span>
+    <span>C3 · OCEAN Personality Profile</span>
   </header>
   <div class="ph-body">
     {{#EACH OCEAN.PAGE2_DOMAINS}}

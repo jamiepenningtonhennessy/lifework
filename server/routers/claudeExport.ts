@@ -18,6 +18,9 @@ import { invokeLLM } from "../_core/llm.js";
 import {
   getClientProfileById,
   getAchievements,
+  getFamilyBackground,
+  getEducationHistory,
+  getCareerHistory,
   getViaResults,
   getIpipResults,
   getAnalysisReport,
@@ -543,9 +546,12 @@ function buildViaEvidence(
 // ─── Main export builder ──────────────────────────────────────────────────────
 
 export async function buildClaudeExportJson(clientId: number): Promise<Record<string, unknown>> {
-  const [profile, achievementsList, via, ipip, report] = await Promise.all([
+  const [profile, achievementsList, familyBg, educationList, careerList, via, ipip, report] = await Promise.all([
     getClientProfileById(clientId),
     getAchievements(clientId),
+    getFamilyBackground(clientId),
+    getEducationHistory(clientId),
+    getCareerHistory(clientId),
     getViaResults(clientId),
     getIpipResults(clientId),
     getAnalysisReport(clientId),
@@ -993,12 +999,40 @@ export async function buildClaudeExportJson(clientId: number): Promise<Record<st
     LIFE_HISTORY: {
       PAGES: buildLifeHistoryPages(achievementsList as Achievement[]),
     },
+    BIOGRAPHICAL: {
+      FAMILY: familyBg ? {
+        upbringingLocation: familyBg.upbringingLocation ?? null,
+        fatherOccupation: familyBg.fatherOccupation ?? null,
+        motherOccupation: familyBg.motherOccupation ?? null,
+        siblingPosition: familyBg.siblingPosition ?? null,
+        familyNarrative: familyBg.familyNarrative ?? null,
+        significantInfluences: familyBg.significantInfluences ?? null,
+        HAS_DATA: !!(familyBg.upbringingLocation || familyBg.fatherOccupation || familyBg.motherOccupation || familyBg.siblingPosition || familyBg.familyNarrative || familyBg.significantInfluences),
+      } : { HAS_DATA: false },
+      EDUCATION: educationList.map(e => ({
+        institution: e.institution,
+        qualification: e.qualification ?? null,
+        subject: e.subject ?? null,
+        yearFrom: e.yearFrom ?? null,
+        yearTo: e.yearTo ?? null,
+        highlights: e.highlights ?? null,
+      })),
+      HAS_EDUCATION: educationList.length > 0,
+      CAREER: careerList.map(c => ({
+        organisation: c.organisation,
+        role: c.role ?? null,
+        yearFrom: c.yearFrom ?? null,
+        yearTo: c.yearTo ?? null,
+        keyResponsibilities: c.keyResponsibilities ?? null,
+        highlights: c.highlights ?? null,
+        whyLeft: c.whyLeft ?? null,
+      })),
+      HAS_CAREER: careerList.length > 0,
+    },
   };
-
   return payload;
 }
-
-// ─── tRPC router ──────────────────────────────────────────────────────────────
+// ─── tRPC router ───────────────────────────────────────────────────────────────
 
 const counselorProcedure = protectedProcedure.use(({ ctx, next }) => {
   if (ctx.user.role !== "admin") {
