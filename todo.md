@@ -1405,3 +1405,7 @@
 
 - [x] Fix Zinsser lifeHistoryPattern context: CRITICAL ANTI-DUPLICATION RULE requiring narrative and What the Pattern Reveals synthesis to be structurally distinct
 - [x] Extend deduplicateSections guard to catch intra-section repeats (same paragraph appearing twice within one section, not just across sections)
+
+## WOW Report Download Fix
+
+- [x] Fix download button to produce the HTML-rendered branded PDF (cream/gold/navy, Lifework logo) matching the preview

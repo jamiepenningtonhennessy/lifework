@@ -628,12 +628,11 @@ export default function WowReportTab({ clientId, clientName }: WowReportTabProps
                     <Button
                       size="sm"
                       className="bg-[var(--lw-gold)] hover:bg-[var(--lw-gold)]/90 text-[var(--lw-navy)] font-semibold text-xs"
-                      onClick={handleDownloadPdf}
-                      disabled={rebuildPdfMutation.isPending || !pdfUrl}
-                      title={pdfStyleMismatch ? `PDF will be rebuilt in ${selectedWritingStyle} voice before download` : "Download the branded WOW Report PDF in the selected voice"}
+                      onClick={() => window.open(`/api/report/pdf/${clientId}`, '_blank')}
+                      title="Download the branded Lifework report as a PDF — same as the View Report preview"
                     >
-                      {rebuildPdfMutation.isPending ? <Loader2 className="w-3 h-3 mr-1 animate-spin" /> : <Download className="w-3 h-3 mr-1" />}
-                      {pdfStyleMismatch ? "Rebuild & Download" : "Download Report PDF"}
+                      <Download className="w-3 h-3 mr-1" />
+                      Download Report PDF
                     </Button>
                     <Button
                       size="sm"
