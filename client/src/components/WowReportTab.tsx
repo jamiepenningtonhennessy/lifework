@@ -611,15 +611,12 @@ export default function WowReportTab({ clientId, clientName }: WowReportTabProps
                     <Button
                       size="sm"
                       className="bg-[var(--lw-gold)] hover:bg-[var(--lw-gold)]/90 text-[var(--lw-navy)] font-semibold text-xs"
-                      onClick={() => {
-                        const a = document.createElement('a');
-                        a.href = `/api/report/pdf/${clientId}`;
-                        a.click();
-                      }}
-                      title="Download a pixel-perfect branded PDF of this report"
+                      onClick={handleDownloadPdf}
+                      disabled={rebuildPdfMutation.isPending || !pdfUrl}
+                      title={pdfStyleMismatch ? `PDF will be rebuilt in ${selectedWritingStyle} voice before download` : "Download the branded WOW Report PDF in the selected voice"}
                     >
-                      <Download className="w-3 h-3 mr-1" />
-                      Download Report PDF
+                      {rebuildPdfMutation.isPending ? <Loader2 className="w-3 h-3 mr-1 animate-spin" /> : <Download className="w-3 h-3 mr-1" />}
+                      {pdfStyleMismatch ? "Rebuild & Download" : "Download Report PDF"}
                     </Button>
                     <Button
                       size="sm"

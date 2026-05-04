@@ -1390,3 +1390,8 @@
 - [x] Wire deduplication into all five rewrite functions (Mark, Clive James, Michael Lewis, Oliver Sacks, William Zinsser)
 - [x] Fix esbuild regex issue — use string split instead of regex literal
 - [x] Fix TypeScript cast errors in deduplicateSections
+
+## PDF Download Fix
+
+- [x] Fix "Download Report PDF" button to use handleDownloadPdf (respects selected writing style via stored S3 URL)
+- [x] Remove stale /api/report/pdf/:clientId route from the WOW report tab download button
