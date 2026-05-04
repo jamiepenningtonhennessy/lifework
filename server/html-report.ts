@@ -975,6 +975,37 @@ const TEMPLATE = `<!doctype html>
   </div>
 </section>
 
+<!-- ════════ ANNEX A · LIFE HISTORY ════════ -->
+{{#EACH LIFE_HISTORY.PAGES}}
+<section class="page">
+  <header class="ph-top">
+    <span class="lockup"><span class="mark"></span>Lifework</span>
+    <span>A · Life History</span>
+  </header>
+  <div class="ph-body">
+    {{#IF .showKicker}}
+    <span class="kicker">Annex A</span>
+    <h2 class="chap-title">Life <em>history.</em></h2>
+    <p style="font-family:var(--serif);font-style:italic;font-size:15px;color:var(--ink-muted);">Achievements recorded during the Sage life history interview. Where Sage asked a follow-up, the enrichment note is shown beneath.</p>
+    {{/IF}}
+    {{#EACH .stages}}
+    <div class="stage-head"><span class="sh-title">{{.title}}</span><span class="sh-age">{{.ages}}</span></div>
+    {{#EACH .entries}}
+    <div class="lh-entry">
+      <div class="lh-top"><span class="lh-title">{{.title}}</span><span class="lh-meta">Age {{.age}}<span class="esf {{.esfClass}}">{{.esf}}</span></span></div>
+      <div class="lh-body">{{.body}}</div>
+      {{#IF .note}}<div class="lh-note">{{.note}}</div>{{/IF}}
+    </div>
+    {{/EACH}}
+    {{/EACH}}
+  </div>
+  <footer class="ph-bot">
+    <span class="who">{{CLIENT.NAME}}</span>
+    <span class="pageno">{{BRAND.COMPANY}} · <span class="cur">{{.pageNum}}</span></span>
+  </footer>
+</section>
+{{/EACH}}
+
 <!-- ════════ ANNEX B · BIOGRAPHICAL DATA ════════ -->
 <section class="page">
   <header class="ph-top">
@@ -1054,37 +1085,6 @@ const TEMPLATE = `<!doctype html>
     <span class="pageno">{{BRAND.COMPANY}} · Annex B</span>
   </footer>
 </section>
-
-<!-- ════════ ANNEX A · LIFE HISTORY ════════ -->
-{{#EACH LIFE_HISTORY.PAGES}}
-<section class="page">
-  <header class="ph-top">
-    <span class="lockup"><span class="mark"></span>Lifework</span>
-    <span>A · Life History</span>
-  </header>
-  <div class="ph-body">
-    {{#IF .showKicker}}
-    <span class="kicker">Annex A</span>
-    <h2 class="chap-title">Life <em>history.</em></h2>
-    <p style="font-family:var(--serif);font-style:italic;font-size:15px;color:var(--ink-muted);">Achievements recorded during the Sage life history interview. Where Sage asked a follow-up, the enrichment note is shown beneath.</p>
-    {{/IF}}
-    {{#EACH .stages}}
-    <div class="stage-head"><span class="sh-title">{{.title}}</span><span class="sh-age">{{.ages}}</span></div>
-    {{#EACH .entries}}
-    <div class="lh-entry">
-      <div class="lh-top"><span class="lh-title">{{.title}}</span><span class="lh-meta">Age {{.age}}<span class="esf {{.esfClass}}">{{.esf}}</span></span></div>
-      <div class="lh-body">{{.body}}</div>
-      {{#IF .note}}<div class="lh-note">{{.note}}</div>{{/IF}}
-    </div>
-    {{/EACH}}
-    {{/EACH}}
-  </div>
-  <footer class="ph-bot">
-    <span class="who">{{CLIENT.NAME}}</span>
-    <span class="pageno">{{BRAND.COMPANY}} · <span class="cur">{{.pageNum}}</span></span>
-  </footer>
-</section>
-{{/EACH}}
 
 <!-- ════════ ANNEX C · VIA FULL 24 ════════ -->
 <section class="page">
