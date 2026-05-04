@@ -2703,8 +2703,38 @@ export const wowReportRouter = router({
       catch { throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Stored report sections are corrupted." }); }
       const writingStyle = (input.writingStyle ?? "house") as WritingStyle;
       const pdfBuffer = await renderWowPdf(sections, writingStyle);
+      // Merge annex (same as runGenerationJob)
+      let combinedBuffer = pdfBuffer;
+      try {
+        const { PDFDocument } = await import("pdf-lib");
+        const [annexFamilyBg, annexEducation, annexCareer] = await Promise.all([
+          getFamilyBackground(input.clientId),
+          getEducationHistory(input.clientId),
+          getCareerHistory(input.clientId),
+        ]);
+        const annexBuffer = await renderAnnexPdf(
+          input.clientId,
+          sections.clientFullName ?? sections.clientName,
+          sections.viaRanked ?? [],
+          sections.domainScores ?? {},
+          sections.facetScores ?? {},
+          annexFamilyBg,
+          annexEducation,
+          annexCareer,
+        );
+        const mainDoc = await PDFDocument.load(pdfBuffer);
+        const annexDoc = await PDFDocument.load(annexBuffer);
+        const annexPageIndices = annexDoc.getPageIndices();
+        const copiedPages = await mainDoc.copyPages(annexDoc, annexPageIndices);
+        for (const page of copiedPages) mainDoc.addPage(page);
+        const mergedBytes = await mainDoc.save();
+        combinedBuffer = Buffer.from(mergedBytes);
+        console.log(`[rebuildPdf] Annex merged, total pages: ${mainDoc.getPageCount()}`);
+      } catch (annexErr) {
+        console.warn(`[rebuildPdf] Annex generation failed (using main report only):`, annexErr);
+      }
       const fileKey = `wow-reports/client-${input.clientId}-${Date.now()}.pdf`;
-      const { url: pdfUrl } = await storagePut(fileKey, pdfBuffer, "application/pdf");
+      const { url: pdfUrl } = await storagePut(fileKey, combinedBuffer, "application/pdf");
       // Update stored PDF URL and writing style via the standard upsert helper
       await upsertAnalysisReport({
         clientId: input.clientId,
