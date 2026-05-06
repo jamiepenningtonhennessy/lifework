@@ -48,7 +48,7 @@ export default function DebriefChat() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [colleagueName, setColleagueName] = useState("");
   const [clientName, setClientName] = useState("");
-  const [pdfText, setPdfText] = useState("");
+  const [pdfUrl, setPdfUrl] = useState("");
   const [pdfFileName, setPdfFileName] = useState("");
   const [inputText, setInputText] = useState("");
   const [isSending, setIsSending] = useState(false);
@@ -60,7 +60,7 @@ export default function DebriefChat() {
 
   // ── tRPC mutations ────────────────────────────────────────────────────────
   const verifyMutation = trpc.debriefChat.verifyPassword.useMutation();
-  const extractMutation = trpc.debriefChat.extractPdf.useMutation();
+  const uploadMutation = trpc.debriefChat.uploadPdf.useMutation();
   const chatMutation = trpc.debriefChat.chat.useMutation();
   const recallMutation = trpc.debriefChat.generateRecall.useMutation();
 
@@ -140,7 +140,7 @@ export default function DebriefChat() {
           content: m.content,
         }));
         const result = await chatMutation.mutateAsync({
-          pdfText,
+          pdfUrl,
           colleagueName,
           clientName,
           messages: conversationHistory,
@@ -186,39 +186,29 @@ export default function DebriefChat() {
       for (let i = 0; i < uint8.length; i++) binary += String.fromCharCode(uint8[i]);
       const base64 = btoa(binary);
 
-      const result = await extractMutation.mutateAsync({
+        const result = await uploadMutation.mutateAsync({
         fileBase64: base64,
         fileName: file.name,
       });
-
-      setPdfText(result.extractedText);
-
-      // Remove the uploading message and add a success note
+      setPdfUrl(result.pdfUrl);
+      // Remove the uploading message and add a reading note
       setMessages(prev => {
         const withoutUploading = prev.filter(m => !m.content.startsWith("*Uploading"));
         return [...withoutUploading, {
           role: "assistant",
-          content: `*Report received (${Math.round(result.charCount / 1000)}k characters extracted). Let me read it…*`,
+          content: `*Report uploaded. Let me read it…*`,
         }];
       });
-
-      // Use detected client name if available and better than what was typed
-      const resolvedClientName = result.detectedClientName
-        ? `${result.detectedClientName} ${clientName.split(" ").slice(1).join(" ")}`.trim()
-        : clientName;
-      if (result.detectedClientName) setClientName(resolvedClientName);
-
+      const resolvedClientName = clientName;
       setStage("recalling");
-
       // Generate the recall message
       const recallResult = await recallMutation.mutateAsync({
-        pdfText: result.extractedText,
+        pdfUrl: result.pdfUrl,
         colleagueName,
         clientName: resolvedClientName,
-      });
-
+       });
       setMessages(prev => {
-        const withoutReading = prev.filter(m => !m.content.startsWith("*Report received"));
+        const withoutReading = prev.filter(m => !m.content.startsWith("*Report uploaded"));
         return [...withoutReading, { role: "assistant", content: recallResult.recall }];
       });
 
@@ -242,7 +232,7 @@ export default function DebriefChat() {
     }]);
     setColleagueName("");
     setClientName("");
-    setPdfText("");
+    setPdfUrl("");
     setPdfFileName("");
     setInputText("");
   }
