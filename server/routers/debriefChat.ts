@@ -6,19 +6,43 @@
  *
  * Flow:
  *  1. verifyPassword  — checks the shared passphrase
- *  2. extractPdf      — accepts base64 PDF, extracts text, returns it to client
- *  3. chat            — ephemeral conversation with Alistair, seeded with PDF text
+ *  2. extractPdf      — accepts base64 PDF, extracts text via pdftotext (poppler)
+ *  3. generateRecall  — Alistair's warm opening recall after reading the report
+ *  4. chat            — ephemeral conversation with Alistair, seeded with PDF text
  */
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { router, publicProcedure } from "../_core/trpc";
 import { invokeLLM } from "../_core/llm";
-import * as pdfParseModule from "pdf-parse";
-const pdfParse = (pdfParseModule as any).default ?? pdfParseModule;
+import { execFile } from "child_process";
+import { promisify } from "util";
+import { writeFile, unlink } from "fs/promises";
+import { tmpdir } from "os";
+import { join } from "path";
+import { randomBytes } from "crypto";
+
+const execFileAsync = promisify(execFile);
 
 // ─── Password ─────────────────────────────────────────────────────────────────
-// Defaults to "debrief2024" if the env var is not set.
 const DEBRIEF_PASSWORD = process.env.DEBRIEF_PASSWORD ?? "debrief2024";
+
+// ─── PDF text extraction via pdftotext (poppler) ──────────────────────────────
+async function extractTextFromPdf(buffer: Buffer): Promise<string> {
+  // Write buffer to a temp file
+  const tmpFile = join(tmpdir(), `debrief-${randomBytes(8).toString("hex")}.pdf`);
+  try {
+    await writeFile(tmpFile, buffer);
+    // pdftotext -layout preserves column structure; "-" means stdout
+    const { stdout } = await execFileAsync("pdftotext", ["-layout", tmpFile, "-"], {
+      maxBuffer: 10 * 1024 * 1024, // 10 MB output limit
+      timeout: 30000,
+    });
+    return stdout.trim();
+  } finally {
+    // Clean up temp file (best-effort)
+    unlink(tmpFile).catch(() => {});
+  }
+}
 
 // ─── System prompt builder ────────────────────────────────────────────────────
 function buildSystemPrompt(pdfText: string, colleagueName: string, clientName: string): string {
@@ -40,7 +64,6 @@ export const debriefChatRouter = router({
 
   /**
    * Verify the shared debrief passphrase.
-   * Returns { valid: true } on success.
    */
   verifyPassword: publicProcedure
     .input(z.object({ password: z.string() }))
@@ -50,8 +73,8 @@ export const debriefChatRouter = router({
     }),
 
   /**
-   * Accept a base64-encoded PDF, extract its text, and return it.
-   * The client stores the text in state and passes it with every chat message.
+   * Accept a base64-encoded PDF, extract its text using pdftotext, and return it.
+   * Works with WeasyPrint-generated PDFs that pdf-parse cannot handle.
    */
   extractPdf: publicProcedure
     .input(z.object({
@@ -63,23 +86,40 @@ export const debriefChatRouter = router({
       if (fileBuffer.length > 20 * 1024 * 1024) {
         throw new TRPCError({ code: "BAD_REQUEST", message: "File too large (max 20 MB)" });
       }
+
       let extractedText = "";
       try {
-        const parsed = await pdfParse(fileBuffer);
-        extractedText = parsed.text?.trim() ?? "";
-      } catch {
-        throw new TRPCError({ code: "BAD_REQUEST", message: "Could not read this PDF. Please check it is not password-protected." });
+        extractedText = await extractTextFromPdf(fileBuffer);
+      } catch (err: any) {
+        // If pdftotext is not available, fall back to pdf-parse
+        try {
+          const pdfParseModule = await import("pdf-parse");
+          const pdfParse = (pdfParseModule as any).default ?? pdfParseModule;
+          const parsed = await pdfParse(fileBuffer);
+          extractedText = parsed.text?.trim() ?? "";
+        } catch {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "Could not read this PDF. Please check it is not password-protected or a scanned image.",
+          });
+        }
       }
+
       if (!extractedText || extractedText.length < 100) {
-        throw new TRPCError({ code: "BAD_REQUEST", message: "No readable text found in this PDF. It may be a scanned image." });
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "No readable text found in this PDF. It may be a scanned image.",
+        });
       }
-      // Try to extract the client's first name from the PDF text
-      // The WOW report typically starts with the client's name in the first few lines
+
+      // Try to detect the client's first name from the PDF text
+      // WOW reports typically have "Dear [Name]" near the top
       let detectedClientName: string | null = null;
       const nameMatch = extractedText.match(/(?:Dear|Report for|Prepared for|Client:)\s+([A-Z][a-z]+)/);
       if (nameMatch) {
         detectedClientName = nameMatch[1];
       }
+
       return {
         charCount: extractedText.length,
         extractedText,
@@ -89,8 +129,7 @@ export const debriefChatRouter = router({
 
   /**
    * Send a message to Alistair and receive a reply.
-   * The full conversation history, PDF text, colleague name, and client name
-   * are passed in from the client (ephemeral — no DB persistence).
+   * Ephemeral — no DB persistence.
    */
   chat: publicProcedure
     .input(z.object({
@@ -120,8 +159,6 @@ export const debriefChatRouter = router({
 
   /**
    * Generate Alistair's opening "recall" message after the PDF is uploaded.
-   * Returns a warm, specific observation about the client drawn from the report,
-   * plus an offer to help prepare.
    */
   generateRecall: publicProcedure
     .input(z.object({
