@@ -1249,6 +1249,92 @@ const TEMPLATE = `<!doctype html>
   </footer>
 </section>
 
+<!-- ════════ ANNEX D (cont.) · OCEAN DEFINITIONS ════════ -->
+<section class="page">
+  <header class="ph-top">
+    <span class="lockup"><span class="mark"></span>Lifework</span>
+    <span>D · OCEAN Personality Profile — Sub-scale Definitions</span>
+  </header>
+  <div class="ph-body" style="font-size:12px;">
+    <span class="kicker">Annex D (continued)</span>
+    <h2 class="chap-title" style="margin-bottom:16px;">OCEAN <em>sub-scales.</em></h2>
+    <p style="font-family:var(--serif);font-style:italic;font-size:13px;color:var(--ink-muted);margin-bottom:18px;">The 30 facets of the NEO Personality Inventory, grouped by the five broad domains. Definitions are drawn from Costa &amp; McCrae (1992).</p>
+
+    <div style="columns:2;column-gap:40px;">
+
+      <!-- OPENNESS -->
+      <div style="break-inside:avoid;margin-bottom:16px;">
+        <div style="font-family:var(--sans);font-size:9px;letter-spacing:0.42em;text-transform:uppercase;color:var(--gold);display:flex;align-items:center;gap:10px;margin-bottom:8px;"><span style="width:24px;height:1px;background:var(--gold);display:inline-block;"></span>Openness to Experience</div>
+        <div style="border-left:2px solid var(--rule);padding-left:10px;">
+          <div style="margin-bottom:7px;"><span style="font-family:var(--serif);font-weight:600;font-size:12px;color:var(--navy);">Imagination</span><br><span style="font-family:var(--serif);font-size:11.5px;color:var(--ink);line-height:1.5;">A vivid imagination and a tendency to create a rich inner world of fantasy; daydreaming as a creative outlet.</span></div>
+          <div style="margin-bottom:7px;"><span style="font-family:var(--serif);font-weight:600;font-size:12px;color:var(--navy);">Artistic Interests</span><br><span style="font-family:var(--serif);font-size:11.5px;color:var(--ink);line-height:1.5;">Deep appreciation for art, music, and poetry; moved by beauty in nature and the arts.</span></div>
+          <div style="margin-bottom:7px;"><span style="font-family:var(--serif);font-weight:600;font-size:12px;color:var(--navy);">Emotionality</span><br><span style="font-family:var(--serif);font-size:11.5px;color:var(--ink);line-height:1.5;">Receptivity to one's own inner feelings and emotions; valuing emotional experience as an important part of life.</span></div>
+          <div style="margin-bottom:7px;"><span style="font-family:var(--serif);font-weight:600;font-size:12px;color:var(--navy);">Adventurousness</span><br><span style="font-family:var(--serif);font-size:11.5px;color:var(--ink);line-height:1.5;">Eagerness to try new activities, travel to new places, and experience variety; discomfort with the familiar and routine.</span></div>
+          <div style="margin-bottom:7px;"><span style="font-family:var(--serif);font-weight:600;font-size:12px;color:var(--navy);">Intellect</span><br><span style="font-family:var(--serif);font-size:11.5px;color:var(--ink);line-height:1.5;">Intellectual curiosity and a love of ideas; enjoying philosophical discussion and abstract thinking for its own sake.</span></div>
+          <div><span style="font-family:var(--serif);font-weight:600;font-size:12px;color:var(--navy);">Liberalism</span><br><span style="font-family:var(--serif);font-size:11.5px;color:var(--ink);line-height:1.5;">Readiness to challenge authority, convention, and traditional values; comfort with moral and social ambiguity.</span></div>
+        </div>
+      </div>
+
+      <!-- CONSCIENTIOUSNESS -->
+      <div style="break-inside:avoid;margin-bottom:16px;">
+        <div style="font-family:var(--sans);font-size:9px;letter-spacing:0.42em;text-transform:uppercase;color:var(--gold);display:flex;align-items:center;gap:10px;margin-bottom:8px;"><span style="width:24px;height:1px;background:var(--gold);display:inline-block;"></span>Conscientiousness</div>
+        <div style="border-left:2px solid var(--rule);padding-left:10px;">
+          <div style="margin-bottom:7px;"><span style="font-family:var(--serif);font-weight:600;font-size:12px;color:var(--navy);">Self-Efficacy</span><br><span style="font-family:var(--serif);font-size:11.5px;color:var(--ink);line-height:1.5;">Confidence in one's own ability to accomplish things; a sense of competence and readiness to handle life's demands.</span></div>
+          <div style="margin-bottom:7px;"><span style="font-family:var(--serif);font-weight:600;font-size:12px;color:var(--navy);">Orderliness</span><br><span style="font-family:var(--serif);font-size:11.5px;color:var(--ink);line-height:1.5;">Being tidy, well-organised, and methodical; keeping belongings neat and following a regular schedule.</span></div>
+          <div style="margin-bottom:7px;"><span style="font-family:var(--serif);font-weight:600;font-size:12px;color:var(--navy);">Dutifulness</span><br><span style="font-family:var(--serif);font-size:11.5px;color:var(--ink);line-height:1.5;">A strong sense of moral obligation; scrupulous adherence to ethical principles and fulfilment of commitments.</span></div>
+          <div style="margin-bottom:7px;"><span style="font-family:var(--serif);font-weight:600;font-size:12px;color:var(--navy);">Achievement-Striving</span><br><span style="font-family:var(--serif);font-size:11.5px;color:var(--ink);line-height:1.5;">High aspirations and hard work to reach goals; a sense of direction and purposefulness in life.</span></div>
+          <div style="margin-bottom:7px;"><span style="font-family:var(--serif);font-weight:600;font-size:12px;color:var(--navy);">Self-Discipline</span><br><span style="font-family:var(--serif);font-size:11.5px;color:var(--ink);line-height:1.5;">The capacity to begin tasks and carry them through to completion despite boredom or distraction.</span></div>
+          <div><span style="font-family:var(--serif);font-weight:600;font-size:12px;color:var(--navy);">Cautiousness</span><br><span style="font-family:var(--serif);font-size:11.5px;color:var(--ink);line-height:1.5;">Thinking carefully before acting or speaking; deliberateness and avoidance of impulsive decisions.</span></div>
+        </div>
+      </div>
+
+      <!-- EXTRAVERSION -->
+      <div style="break-inside:avoid;margin-bottom:16px;">
+        <div style="font-family:var(--sans);font-size:9px;letter-spacing:0.42em;text-transform:uppercase;color:var(--gold);display:flex;align-items:center;gap:10px;margin-bottom:8px;"><span style="width:24px;height:1px;background:var(--gold);display:inline-block;"></span>Extraversion</div>
+        <div style="border-left:2px solid var(--rule);padding-left:10px;">
+          <div style="margin-bottom:7px;"><span style="font-family:var(--serif);font-weight:600;font-size:12px;color:var(--navy);">Friendliness</span><br><span style="font-family:var(--serif);font-size:11.5px;color:var(--ink);line-height:1.5;">Genuine liking for other people and a tendency to form close, warm attachments; easy to get along with.</span></div>
+          <div style="margin-bottom:7px;"><span style="font-family:var(--serif);font-weight:600;font-size:12px;color:var(--navy);">Gregariousness</span><br><span style="font-family:var(--serif);font-size:11.5px;color:var(--ink);line-height:1.5;">Preference for the company of others; enjoyment of crowds and social gatherings.</span></div>
+          <div style="margin-bottom:7px;"><span style="font-family:var(--serif);font-weight:600;font-size:12px;color:var(--navy);">Assertiveness</span><br><span style="font-family:var(--serif);font-size:11.5px;color:var(--ink);line-height:1.5;">Dominance, forcefulness, and social ascendance; speaking up without hesitation and taking charge of situations.</span></div>
+          <div style="margin-bottom:7px;"><span style="font-family:var(--serif);font-weight:600;font-size:12px;color:var(--navy);">Activity Level</span><br><span style="font-family:var(--serif);font-size:11.5px;color:var(--ink);line-height:1.5;">A fast tempo, vigorous movement, and a sense of being busy and energetic; preference for a hectic pace of life.</span></div>
+          <div style="margin-bottom:7px;"><span style="font-family:var(--serif);font-weight:600;font-size:12px;color:var(--navy);">Excitement-Seeking</span><br><span style="font-family:var(--serif);font-size:11.5px;color:var(--ink);line-height:1.5;">Craving for stimulation and excitement; enjoyment of bright colours, noisy environments, and risk-taking.</span></div>
+          <div><span style="font-family:var(--serif);font-weight:600;font-size:12px;color:var(--navy);">Cheerfulness</span><br><span style="font-family:var(--serif);font-size:11.5px;color:var(--ink);line-height:1.5;">Tendency to experience positive emotions such as joy, happiness, love, and excitement; an optimistic outlook.</span></div>
+        </div>
+      </div>
+
+      <!-- AGREEABLENESS -->
+      <div style="break-inside:avoid;margin-bottom:16px;">
+        <div style="font-family:var(--sans);font-size:9px;letter-spacing:0.42em;text-transform:uppercase;color:var(--gold);display:flex;align-items:center;gap:10px;margin-bottom:8px;"><span style="width:24px;height:1px;background:var(--gold);display:inline-block;"></span>Agreeableness</div>
+        <div style="border-left:2px solid var(--rule);padding-left:10px;">
+          <div style="margin-bottom:7px;"><span style="font-family:var(--serif);font-weight:600;font-size:12px;color:var(--navy);">Trust</span><br><span style="font-family:var(--serif);font-size:11.5px;color:var(--ink);line-height:1.5;">A disposition to believe that others are honest and well-intentioned; assuming good faith in people's motives.</span></div>
+          <div style="margin-bottom:7px;"><span style="font-family:var(--serif);font-weight:600;font-size:12px;color:var(--navy);">Morality</span><br><span style="font-family:var(--serif);font-size:11.5px;color:var(--ink);line-height:1.5;">Frankness and sincerity in dealing with others; discomfort with manipulation or deception, even when socially convenient.</span></div>
+          <div style="margin-bottom:7px;"><span style="font-family:var(--serif);font-weight:600;font-size:12px;color:var(--navy);">Altruism</span><br><span style="font-family:var(--serif);font-size:11.5px;color:var(--ink);line-height:1.5;">Active concern for the welfare of others; generosity and a willingness to assist those in need.</span></div>
+          <div style="margin-bottom:7px;"><span style="font-family:var(--serif);font-weight:600;font-size:12px;color:var(--navy);">Cooperation</span><br><span style="font-family:var(--serif);font-size:11.5px;color:var(--ink);line-height:1.5;">Dislike of confrontation; willingness to compromise and suppress one's own needs to get along with others.</span></div>
+          <div style="margin-bottom:7px;"><span style="font-family:var(--serif);font-weight:600;font-size:12px;color:var(--navy);">Modesty</span><br><span style="font-family:var(--serif);font-size:11.5px;color:var(--ink);line-height:1.5;">Humbleness and self-effacement; reluctance to claim superiority over others even when entitled to do so.</span></div>
+          <div><span style="font-family:var(--serif);font-weight:600;font-size:12px;color:var(--navy);">Sympathy</span><br><span style="font-family:var(--serif);font-size:11.5px;color:var(--ink);line-height:1.5;">Being moved by others' needs; a tender-minded attitude and concern for the less fortunate.</span></div>
+        </div>
+      </div>
+
+      <!-- NEUROTICISM -->
+      <div style="break-inside:avoid;margin-bottom:16px;">
+        <div style="font-family:var(--sans);font-size:9px;letter-spacing:0.42em;text-transform:uppercase;color:var(--gold);display:flex;align-items:center;gap:10px;margin-bottom:8px;"><span style="width:24px;height:1px;background:var(--gold);display:inline-block;"></span>Neuroticism (Emotional Range)</div>
+        <div style="border-left:2px solid var(--rule);padding-left:10px;">
+          <div style="margin-bottom:7px;"><span style="font-family:var(--serif);font-weight:600;font-size:12px;color:var(--navy);">Anxiety</span><br><span style="font-family:var(--serif);font-size:11.5px;color:var(--ink);line-height:1.5;">Tendency to experience worry, fear, and apprehension; a nervous, tense disposition that anticipates trouble.</span></div>
+          <div style="margin-bottom:7px;"><span style="font-family:var(--serif);font-weight:600;font-size:12px;color:var(--navy);">Anger</span><br><span style="font-family:var(--serif);font-size:11.5px;color:var(--ink);line-height:1.5;">Tendency to experience frustration, bitterness, and anger when things do not go as desired.</span></div>
+          <div style="margin-bottom:7px;"><span style="font-family:var(--serif);font-weight:600;font-size:12px;color:var(--navy);">Depression</span><br><span style="font-family:var(--serif);font-size:11.5px;color:var(--ink);line-height:1.5;">Proneness to feelings of guilt, sadness, despondency, and loneliness; a tendency to feel discouraged.</span></div>
+          <div style="margin-bottom:7px;"><span style="font-family:var(--serif);font-weight:600;font-size:12px;color:var(--navy);">Self-Consciousness</span><br><span style="font-family:var(--serif);font-size:11.5px;color:var(--ink);line-height:1.5;">Shyness and social anxiety; discomfort around others and sensitivity to ridicule or embarrassment.</span></div>
+          <div style="margin-bottom:7px;"><span style="font-family:var(--serif);font-weight:600;font-size:12px;color:var(--navy);">Immoderation</span><br><span style="font-family:var(--serif);font-size:11.5px;color:var(--ink);line-height:1.5;">Difficulty resisting cravings and urges; a tendency to pursue short-term pleasures despite longer-term costs.</span></div>
+          <div><span style="font-family:var(--serif);font-weight:600;font-size:12px;color:var(--navy);">Vulnerability</span><br><span style="font-family:var(--serif);font-size:11.5px;color:var(--ink);line-height:1.5;">Susceptibility to stress; difficulty coping with pressure, panic, or feelings of being overwhelmed in difficult situations.</span></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+  <footer class="ph-bot">
+    <span class="who">{{CLIENT.NAME}}</span>
+    <span class="pageno">{{BRAND.COMPANY}} · Annex D</span>
+  </footer>
+</section>
+
 <div id="lw-print-bar">
   <span>Lifework WOW Report · {{CLIENT.NAME}} · {{REPORT.DATE}}</span>
   <button onclick="window.print()">Print / Save as PDF</button>
