@@ -43,6 +43,7 @@ import {
   PreviewCareerExplorer,
 } from "./preview/PreviewPages";
 import CounsellorCareerExplorer from "./pages/CounsellorCareerExplorer";
+import DebriefChat from "./pages/DebriefChat";
 
 function Router() {
   return (
@@ -123,6 +124,9 @@ function Router() {
       <Route path="/preview/results-held/ipip">{() => <ResultsHeld assessmentName="Personality Profile" />}</Route>
       <Route path="/preview/my-report" component={PreviewMyReport} />
       <Route path="/preview/career-explorer" component={PreviewCareerExplorer} />
+
+      {/* ── Debrief prep (password-gated, no Manus login required) ── */}
+      <Route path="/debrief" component={DebriefChat} />
 
       <Route path="/404" component={NotFound} />
       <Route component={NotFound} />
