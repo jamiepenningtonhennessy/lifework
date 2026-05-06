@@ -1109,6 +1109,93 @@ const TEMPLATE = `<!doctype html>
   </footer>
 </section>
 
+<!-- ════════ ANNEX C (cont.) · VIA DEFINITIONS ════════ -->
+<section class="page">
+  <header class="ph-top">
+    <span class="lockup"><span class="mark"></span>Lifework</span>
+    <span>C · VIA Character Strengths — Definitions</span>
+  </header>
+  <div class="ph-body" style="font-size:12px;">
+    <span class="kicker">Annex C (continued)</span>
+    <h2 class="chap-title" style="margin-bottom:16px;">VIA <em>definitions.</em></h2>
+    <p style="font-family:var(--serif);font-style:italic;font-size:13px;color:var(--ink-muted);margin-bottom:18px;">The 24 character strengths, grouped by the six core virtues. Definitions are drawn from the VIA Classification (Peterson &amp; Seligman, 2004).</p>
+
+    <div style="columns:2;column-gap:40px;">
+
+      <!-- WISDOM -->
+      <div style="break-inside:avoid;margin-bottom:16px;">
+        <div style="font-family:var(--sans);font-size:9px;letter-spacing:0.42em;text-transform:uppercase;color:var(--gold);display:flex;align-items:center;gap:10px;margin-bottom:8px;"><span style="width:24px;height:1px;background:var(--gold);display:inline-block;"></span>Wisdom</div>
+        <div style="border-left:2px solid var(--rule);padding-left:10px;">
+          <div style="margin-bottom:7px;"><span style="font-family:var(--serif);font-weight:600;font-size:12px;color:var(--navy);">Creativity</span><br><span style="font-family:var(--serif);font-size:11.5px;color:var(--ink);line-height:1.5;">Thinking of novel and productive ways to conceptualise and do things; includes artistic achievement but is not limited to it.</span></div>
+          <div style="margin-bottom:7px;"><span style="font-family:var(--serif);font-weight:600;font-size:12px;color:var(--navy);">Curiosity</span><br><span style="font-family:var(--serif);font-size:11.5px;color:var(--ink);line-height:1.5;">Taking an interest in ongoing experience for its own sake; finding subjects and topics fascinating; exploring and discovering.</span></div>
+          <div style="margin-bottom:7px;"><span style="font-family:var(--serif);font-weight:600;font-size:12px;color:var(--navy);">Judgement</span><br><span style="font-family:var(--serif);font-size:11.5px;color:var(--ink);line-height:1.5;">Thinking things through and examining them from all sides; not jumping to conclusions; being able to change one's mind in light of evidence.</span></div>
+          <div style="margin-bottom:7px;"><span style="font-family:var(--serif);font-weight:600;font-size:12px;color:var(--navy);">Love of Learning</span><br><span style="font-family:var(--serif);font-size:11.5px;color:var(--ink);line-height:1.5;">Mastering new skills, topics, and bodies of knowledge, whether on one's own or formally; related to curiosity but goes beyond it.</span></div>
+          <div><span style="font-family:var(--serif);font-weight:600;font-size:12px;color:var(--navy);">Perspective</span><br><span style="font-family:var(--serif);font-size:11.5px;color:var(--ink);line-height:1.5;">Being able to provide wise counsel to others; having ways of looking at the world that make sense to oneself and to other people.</span></div>
+        </div>
+      </div>
+
+      <!-- COURAGE -->
+      <div style="break-inside:avoid;margin-bottom:16px;">
+        <div style="font-family:var(--sans);font-size:9px;letter-spacing:0.42em;text-transform:uppercase;color:var(--gold);display:flex;align-items:center;gap:10px;margin-bottom:8px;"><span style="width:24px;height:1px;background:var(--gold);display:inline-block;"></span>Courage</div>
+        <div style="border-left:2px solid var(--rule);padding-left:10px;">
+          <div style="margin-bottom:7px;"><span style="font-family:var(--serif);font-weight:600;font-size:12px;color:var(--navy);">Bravery</span><br><span style="font-family:var(--serif);font-size:11.5px;color:var(--ink);line-height:1.5;">Not shrinking from threat, challenge, difficulty, or pain; speaking up for what is right even if there is opposition.</span></div>
+          <div style="margin-bottom:7px;"><span style="font-family:var(--serif);font-weight:600;font-size:12px;color:var(--navy);">Perseverance</span><br><span style="font-family:var(--serif);font-size:11.5px;color:var(--ink);line-height:1.5;">Finishing what one starts; persisting in a course of action in spite of obstacles; taking pleasure in completing tasks.</span></div>
+          <div style="margin-bottom:7px;"><span style="font-family:var(--serif);font-weight:600;font-size:12px;color:var(--navy);">Honesty</span><br><span style="font-family:var(--serif);font-size:11.5px;color:var(--ink);line-height:1.5;">Speaking the truth but more broadly presenting oneself in a genuine way and acting without pretence; taking responsibility for one's feelings and actions.</span></div>
+          <div><span style="font-family:var(--serif);font-weight:600;font-size:12px;color:var(--navy);">Zest</span><br><span style="font-family:var(--serif);font-size:11.5px;color:var(--ink);line-height:1.5;">Approaching life with excitement and energy; not doing things halfway or half-heartedly; living life as an adventure; feeling alive and activated.</span></div>
+        </div>
+      </div>
+
+      <!-- HUMANITY -->
+      <div style="break-inside:avoid;margin-bottom:16px;">
+        <div style="font-family:var(--sans);font-size:9px;letter-spacing:0.42em;text-transform:uppercase;color:var(--gold);display:flex;align-items:center;gap:10px;margin-bottom:8px;"><span style="width:24px;height:1px;background:var(--gold);display:inline-block;"></span>Humanity</div>
+        <div style="border-left:2px solid var(--rule);padding-left:10px;">
+          <div style="margin-bottom:7px;"><span style="font-family:var(--serif);font-weight:600;font-size:12px;color:var(--navy);">Love</span><br><span style="font-family:var(--serif);font-size:11.5px;color:var(--ink);line-height:1.5;">Valuing close relations with others, in particular those in which sharing and caring are reciprocated; being close to people.</span></div>
+          <div style="margin-bottom:7px;"><span style="font-family:var(--serif);font-weight:600;font-size:12px;color:var(--navy);">Kindness</span><br><span style="font-family:var(--serif);font-size:11.5px;color:var(--ink);line-height:1.5;">Doing favours and good deeds for others; helping them; taking care of them.</span></div>
+          <div><span style="font-family:var(--serif);font-weight:600;font-size:12px;color:var(--navy);">Social Intelligence</span><br><span style="font-family:var(--serif);font-size:11.5px;color:var(--ink);line-height:1.5;">Being aware of the motives and feelings of other people and oneself; knowing what to do to fit into different social situations.</span></div>
+        </div>
+      </div>
+
+      <!-- JUSTICE -->
+      <div style="break-inside:avoid;margin-bottom:16px;">
+        <div style="font-family:var(--sans);font-size:9px;letter-spacing:0.42em;text-transform:uppercase;color:var(--gold);display:flex;align-items:center;gap:10px;margin-bottom:8px;"><span style="width:24px;height:1px;background:var(--gold);display:inline-block;"></span>Justice</div>
+        <div style="border-left:2px solid var(--rule);padding-left:10px;">
+          <div style="margin-bottom:7px;"><span style="font-family:var(--serif);font-weight:600;font-size:12px;color:var(--navy);">Teamwork</span><br><span style="font-family:var(--serif);font-size:11.5px;color:var(--ink);line-height:1.5;">Working well as a member of a group or team; being loyal to the group; doing one's share.</span></div>
+          <div style="margin-bottom:7px;"><span style="font-family:var(--serif);font-weight:600;font-size:12px;color:var(--navy);">Fairness</span><br><span style="font-family:var(--serif);font-size:11.5px;color:var(--ink);line-height:1.5;">Treating all people the same according to notions of fairness and justice; not letting personal feelings bias decisions about others.</span></div>
+          <div><span style="font-family:var(--serif);font-weight:600;font-size:12px;color:var(--navy);">Leadership</span><br><span style="font-family:var(--serif);font-size:11.5px;color:var(--ink);line-height:1.5;">Encouraging a group of which one is a member to get things done and at the same time maintain good relations within the group.</span></div>
+        </div>
+      </div>
+
+      <!-- TEMPERANCE -->
+      <div style="break-inside:avoid;margin-bottom:16px;">
+        <div style="font-family:var(--sans);font-size:9px;letter-spacing:0.42em;text-transform:uppercase;color:var(--gold);display:flex;align-items:center;gap:10px;margin-bottom:8px;"><span style="width:24px;height:1px;background:var(--gold);display:inline-block;"></span>Temperance</div>
+        <div style="border-left:2px solid var(--rule);padding-left:10px;">
+          <div style="margin-bottom:7px;"><span style="font-family:var(--serif);font-weight:600;font-size:12px;color:var(--navy);">Forgiveness</span><br><span style="font-family:var(--serif);font-size:11.5px;color:var(--ink);line-height:1.5;">Forgiving those who have done wrong; accepting the shortcomings of others; giving people a second chance; not being vengeful.</span></div>
+          <div style="margin-bottom:7px;"><span style="font-family:var(--serif);font-weight:600;font-size:12px;color:var(--navy);">Humility</span><br><span style="font-family:var(--serif);font-size:11.5px;color:var(--ink);line-height:1.5;">Letting one's accomplishments speak for themselves; not regarding oneself as more special than one is.</span></div>
+          <div style="margin-bottom:7px;"><span style="font-family:var(--serif);font-weight:600;font-size:12px;color:var(--navy);">Prudence</span><br><span style="font-family:var(--serif);font-size:11.5px;color:var(--ink);line-height:1.5;">Being careful about one's choices; not taking undue risks; not saying or doing things that might later be regretted.</span></div>
+          <div><span style="font-family:var(--serif);font-weight:600;font-size:12px;color:var(--navy);">Self-Regulation</span><br><span style="font-family:var(--serif);font-size:11.5px;color:var(--ink);line-height:1.5;">Regulating what one feels and does; being disciplined; controlling one's appetites and emotions.</span></div>
+        </div>
+      </div>
+
+      <!-- TRANSCENDENCE -->
+      <div style="break-inside:avoid;margin-bottom:16px;">
+        <div style="font-family:var(--sans);font-size:9px;letter-spacing:0.42em;text-transform:uppercase;color:var(--gold);display:flex;align-items:center;gap:10px;margin-bottom:8px;"><span style="width:24px;height:1px;background:var(--gold);display:inline-block;"></span>Transcendence</div>
+        <div style="border-left:2px solid var(--rule);padding-left:10px;">
+          <div style="margin-bottom:7px;"><span style="font-family:var(--serif);font-weight:600;font-size:12px;color:var(--navy);">Appreciation of Beauty</span><br><span style="font-family:var(--serif);font-size:11.5px;color:var(--ink);line-height:1.5;">Noticing and appreciating beauty, excellence, and/or skilled performance in various domains of life.</span></div>
+          <div style="margin-bottom:7px;"><span style="font-family:var(--serif);font-weight:600;font-size:12px;color:var(--navy);">Gratitude</span><br><span style="font-family:var(--serif);font-size:11.5px;color:var(--ink);line-height:1.5;">Being aware of and thankful for the good things that happen; taking time to express thanks.</span></div>
+          <div style="margin-bottom:7px;"><span style="font-family:var(--serif);font-weight:600;font-size:12px;color:var(--navy);">Hope</span><br><span style="font-family:var(--serif);font-size:11.5px;color:var(--ink);line-height:1.5;">Expecting the best in the future and working to achieve it; believing that a good future is something that can be brought about.</span></div>
+          <div style="margin-bottom:7px;"><span style="font-family:var(--serif);font-weight:600;font-size:12px;color:var(--navy);">Humour</span><br><span style="font-family:var(--serif);font-size:11.5px;color:var(--ink);line-height:1.5;">Liking to laugh and tease; bringing smiles to other people; seeing the light side; making (not necessarily telling) jokes.</span></div>
+          <div><span style="font-family:var(--serif);font-weight:600;font-size:12px;color:var(--navy);">Spirituality</span><br><span style="font-family:var(--serif);font-size:11.5px;color:var(--ink);line-height:1.5;">Having coherent beliefs about the higher purpose and meaning of the universe; knowing where one fits within the larger scheme; having beliefs that shape conduct and provide comfort.</span></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+  <footer class="ph-bot">
+    <span class="who">{{CLIENT.NAME}}</span>
+    <span class="pageno">{{BRAND.COMPANY}} · Annex C</span>
+  </footer>
+</section>
+
 <!-- ════════ ANNEX D · OCEAN FACETS (1/2) ════════ -->
 <section class="page">
   <header class="ph-top">
