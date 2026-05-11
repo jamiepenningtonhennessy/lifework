@@ -81,8 +81,10 @@ This is the heart of the analysis. For EACH of the 2-3 seed themes:
 ## What the Pattern Reveals
 CRITICAL: This section MUST always be present with the exact heading "## What the Pattern Reveals". It MUST be a separate, distinct section from "## Recurring Motifs" — do NOT merge them or omit this heading.
 
+ANTI-REPETITION RULE (MANDATORY): Do NOT reproduce, restate, paraphrase, or echo any sentence or paragraph that already appeared in "## The Opening Bars" or "## Recurring Motifs". This section is purely analytical and interpretive — it draws conclusions from the pattern, it does not retell it. If you find yourself writing a sentence that describes a specific episode or event already mentioned above, stop and replace it with an inference or conclusion instead.
+
 Write 2 short paragraphs that:
-- Name the single most consistent thread running from earliest experiences to today — what does the whole pattern add up to? Draw on the full arc: family background → early achievements → education → career trajectory.
+- Name the single most consistent thread running from earliest experiences to today — what does the whole pattern add up to? Draw on the full arc: family background → early achievements → education → career trajectory. State this as a synthesis conclusion, not as a retelling of events.
 - State what the ESF distribution tells us about deepest motivational drivers — what does the balance of Enjoyment, Strength, and Fulfilment reveal about what truly drives this person?
 
 Close with: "From what you have told us, we can see:" followed by 3-5 bullets that name the core motivational findings — insights that could only emerge from seeing the whole pattern together, not from any single achievement.
