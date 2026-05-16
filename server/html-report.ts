@@ -859,6 +859,27 @@ const TEMPLATE = `<!doctype html>
   </footer>
 </section>
 
+<!-- ════════ PAGE 12b · CH 6 DEVELOPMENT EDGE (OVERFLOW) ════════ -->
+{{#IF CH6.HAS_OVERFLOW}}
+<section class="page">
+  <header class="ph-top">
+    <span class="lockup"><span class="mark"></span>Lifework</span>
+    <span>Chapter 6 · Development Edge (continued)</span>
+  </header>
+  <div class="ph-body">
+    {{#EACH CH6.OVERFLOW_SECTIONS}}
+    {{#IF .heading}}<h3 class="section-h">{{.heading}}</h3>{{/IF}}
+    {{#EACH .paragraphs}}
+    <p>{{.}}</p>
+    {{/EACH}}
+    {{/EACH}}
+  </div>
+  <footer class="ph-bot">
+    <span class="who">{{CLIENT.NAME}}</span>
+    <span class="pageno">{{BRAND.COMPANY}} · <span class="cur">12b</span></span>
+  </footer>
+</section>
+{{/IF}}
 <!-- ════════ PAGE 13 · CH 7 CONCLUSIONS (past/present) ════════ -->
 <section class="page">
   <header class="ph-top">
