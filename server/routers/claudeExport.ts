@@ -748,8 +748,8 @@ export async function buildClaudeExportJson(clientId: number): Promise<Record<st
   // CH6 — Development Edge (in the WOW report this is "Development Edge")
   const ch6AllSections = extractAllSections(sections.developmentEdge ?? "");
   const ch6AllParas = splitParagraphs(sections.developmentEdge ?? "");
-  const CH6_PAGE1_MAX_SECTIONS = 3; // max named sections on the first Development Edge page
-  const CH6_PAGE1_MAX_PARAS = 5;    // max paragraphs on page 1 when no named sections exist
+  const CH6_PAGE1_MAX_SECTIONS = 2; // max named sections on the first Development Edge page
+  const CH6_PAGE1_MAX_PARAS = 4;    // max paragraphs on page 1 when no named sections exist
   const ch6Sections = ch6AllSections.length > 0 ? ch6AllSections.slice(0, CH6_PAGE1_MAX_SECTIONS) : [];
   const ch6OverflowSections = ch6AllSections.length > CH6_PAGE1_MAX_SECTIONS ? ch6AllSections.slice(CH6_PAGE1_MAX_SECTIONS) : [];
   const ch6FallbackPage1 = ch6AllParas.slice(0, CH6_PAGE1_MAX_PARAS);
