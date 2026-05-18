@@ -10,7 +10,6 @@ import {
   Star,
   Brain,
   CheckCircle2,
-  Circle,
   ArrowRight,
   Loader2,
   LogOut,
@@ -18,14 +17,13 @@ import {
   X,
   KeyRound,
   Sparkles,
+  Lock,
+  AlertCircle,
 } from "lucide-react";
 import { ChatToPeter } from "@/components/ChatToPeter";
 import { useState, useEffect } from "react";
 
-// ─── Step definitions (5 steps) ──────────────────────────────────────────────
-// "sage" is a special step — no path, uses ChatToPeter inline
-// "psychometrics" groups VIA + IPIP under one card (two sub-paths)
-// "career_explorer" is always the final step
+// ─── Step definitions ─────────────────────────────────────────────────────────
 
 const STEPS = [
   {
@@ -53,11 +51,11 @@ const STEPS = [
   {
     id: "sage",
     icon: <Sparkles className="w-5 h-5" />,
-    title: "3. Sage - Exploring your Life History",
+    title: "3. Sage — Exploring your Life History",
     description:
-      "Sage will read what you have written and add depth by asking you some reflective questions.",
+      "Sage will read what you have written and add depth by asking you some reflective questions. You must complete at least 20 events with Sage before moving on to the psychometric assessments.",
     path: null,
-    statusKey: "sageStatus", // set to "completed" when Sage insights are saved
+    statusKey: "sageStatus",
     cta: null,
     ctaInProgress: null,
   },
@@ -94,6 +92,8 @@ const STEPS = [
     ctaInProgress: "Continue Career Explorer",
   },
 ];
+
+const SAGE_REQUIRED = 20;
 
 // ─── First-login password banner ─────────────────────────────────────────────
 const BANNER_KEY = "lw_password_banner_dismissed";
@@ -157,6 +157,97 @@ function PasswordGuidanceBanner({ userId }: { userId?: number }) {
     </div>
   );
 }
+
+// ─── Sage progress panel ──────────────────────────────────────────────────────
+
+function SageGatePanel({
+  enriched,
+  required,
+  total,
+  unlocked,
+}: {
+  enriched: number;
+  required: number;
+  total: number;
+  unlocked: boolean;
+}) {
+  const pct = Math.min(100, Math.round((enriched / required) * 100));
+  const remaining = Math.max(0, required - enriched);
+
+  if (unlocked) {
+    return (
+      <div
+        className="mt-4 rounded-lg p-4 flex items-center gap-3"
+        style={{
+          background: "rgba(34,197,94,0.08)",
+          border: "1px solid rgba(34,197,94,0.25)",
+        }}
+      >
+        <CheckCircle2 className="w-5 h-5 flex-shrink-0 text-green-500" />
+        <div>
+          <p className="text-sm font-semibold text-green-700">
+            Sage stage complete — {enriched} of {total} events explored
+          </p>
+          <p className="text-xs text-green-600 mt-0.5">
+            You have met the minimum of {required} events. You may continue chatting with Sage at any time, or proceed to the Psychometrics step.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div
+      className="mt-4 rounded-lg p-4 space-y-3"
+      style={{
+        background: "rgba(201,151,58,0.07)",
+        border: "1px solid rgba(201,151,58,0.3)",
+      }}
+    >
+      {/* Header */}
+      <div className="flex items-center gap-2">
+        <AlertCircle className="w-4 h-4 flex-shrink-0" style={{ color: "var(--lw-gold)" }} />
+        <p className="text-sm font-semibold" style={{ color: "var(--lw-navy)" }}>
+          {enriched === 0
+            ? "Start your conversation with Sage below"
+            : `${remaining} more event${remaining === 1 ? "" : "s"} to explore before Psychometrics unlocks`}
+        </p>
+      </div>
+
+      {/* Progress bar */}
+      <div>
+        <div className="flex items-center justify-between mb-1.5">
+          <span className="text-xs" style={{ color: "var(--lw-navy)", opacity: 0.7 }}>
+            Events explored by Sage
+          </span>
+          <span className="text-xs font-bold" style={{ color: "var(--lw-gold)" }}>
+            {enriched} / {required}
+          </span>
+        </div>
+        <div className="h-2.5 rounded-full overflow-hidden" style={{ background: "rgba(201,151,58,0.15)" }}>
+          <div
+            className="h-full rounded-full transition-all duration-500"
+            style={{
+              width: `${pct}%`,
+              background: "var(--lw-gold)",
+            }}
+          />
+        </div>
+        {total > required && (
+          <p className="text-xs mt-1.5" style={{ color: "rgba(0,0,0,0.45)" }}>
+            You have {total} events in your life history. Sage needs to explore at least {required} of them.
+          </p>
+        )}
+      </div>
+
+      {/* Explanatory note */}
+      <p className="text-xs leading-relaxed" style={{ color: "rgba(0,0,0,0.55)" }}>
+        The Psychometrics step will unlock automatically once Sage has explored {required} of your events. Keep the conversation going — each event Sage investigates adds depth to your eventual report.
+      </p>
+    </div>
+  );
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 
 export default function ClientDashboard() {
@@ -180,7 +271,6 @@ export default function ClientDashboard() {
 
   const getStatus = (statusKey: string | null, stepId?: string): string => {
     if (!profile || !statusKey) return "not_started";
-    // Psychometrics step is only "completed" when BOTH VIA and IPIP are done
     if (stepId === "psychometrics") {
       const via = (profile as any).viaStatus ?? "not_started";
       const ipip = (profile as any).ipipStatus ?? "not_started";
@@ -191,17 +281,28 @@ export default function ClientDashboard() {
     return (profile as any)[statusKey] ?? "not_started";
   };
 
+  // Sage is "completed" when the gate is met
+  const sageUnlocked = enrichmentStatus?.unlocked ?? false;
+  const sageEnriched = enrichmentStatus?.enriched ?? 0;
+  const sageRequired = enrichmentStatus?.required ?? SAGE_REQUIRED;
+  const sageTotal = enrichmentStatus?.total ?? 0;
+
   // Progress counts only steps that have a meaningful statusKey
   const trackableSteps = STEPS.filter((s) => s.statusKey);
-  const completedSteps = trackableSteps.filter(
-    (s) => getStatus(s.statusKey, s.id) === "completed"
-  ).length;
-  const totalSteps = 6; // always 6
+  const completedSteps = trackableSteps.filter((s) => {
+    if (s.id === "sage") return sageUnlocked;
+    return getStatus(s.statusKey, s.id) === "completed";
+  }).length;
+  const totalSteps = 6;
   const progressPct = Math.round((completedSteps / totalSteps) * 100);
+
+  // Determine whether interview + background have been started (prerequisite for Sage)
+  const interviewStarted = getStatus("interviewStatus") !== "not_started";
+  const backgroundStarted = getStatus("backgroundStatus") !== "not_started";
+  const sagePrereqMet = interviewStarted || backgroundStarted;
 
   return (
     <div className="min-h-screen" style={{ background: "var(--lw-cream)" }}>
-      {/* First-login password guidance banner */}
       <PasswordGuidanceBanner userId={user?.id} />
 
       {/* Header */}
@@ -275,15 +376,11 @@ export default function ClientDashboard() {
                 </p>
                 <p>
                   You will then have a conversation with <strong className="text-foreground">Sage</strong>, our AI career coach,
-                  who will have read everything you have written. Sage’s role is to explore and draw out the depth and detail
-                  that lies beneath the surface of your story.
+                  who will have read everything you have written. Sage's role is to explore and draw out the depth and detail
+                  that lies beneath the surface of your story. <strong className="text-foreground">You must complete at least {SAGE_REQUIRED} events with Sage</strong> before the psychometric assessments become available — this conversation is the heart of the process.
                 </p>
                 <p>
-                  This conversation can take up to two hours — and it is worth every minute. It is the bedrock of the Lifework
-                  process, and the reason that Lifework has such a profound impact on the people who go through it.
-                </p>
-                <p>
-                  Next, you will complete two short psychometric assessments: the{" "}
+                  Once Sage has explored enough of your story, you will complete two short psychometric assessments: the{" "}
                   <strong className="text-foreground">VIA Character Strengths</strong> survey and the{" "}
                   <strong className="text-foreground">IPIP-NEO Personality Profile</strong>. These are not tests — they are lenses
                   that add a further layer of insight to what your life history has already begun to reveal.
@@ -315,30 +412,44 @@ export default function ClientDashboard() {
             {/* Steps */}
             <div className="space-y-4">
               {STEPS.map((step, idx) => {
-                const status = getStatus(step.statusKey, step.id);
+                // Determine status
+                let status: string;
+                if (step.id === "sage") {
+                  status = sageUnlocked ? "completed" : sageEnriched > 0 ? "in_progress" : "not_started";
+                } else {
+                  status = getStatus(step.statusKey, step.id);
+                }
                 const isCompleted = status === "completed";
                 const isInProgress = status === "in_progress";
 
-                // For the Sage step: show as active once background is done (no hard lock)
-                // Walk backwards to find the nearest preceding step that has a real statusKey
-                // (steps with statusKey: null are informational-only and cannot block)
+                // Determine locking
+                // Walk back to find the nearest preceding step with a real statusKey
                 let prevBlockerStatus = "completed";
                 for (let pi = idx - 1; pi >= 0; pi--) {
                   if (STEPS[pi].statusKey) {
-                    prevBlockerStatus = getStatus(STEPS[pi].statusKey, STEPS[pi].id);
+                    const prevId = STEPS[pi].id;
+                    prevBlockerStatus = prevId === "sage"
+                      ? (sageUnlocked ? "completed" : sageEnriched > 0 ? "in_progress" : "not_started")
+                      : getStatus(STEPS[pi].statusKey, prevId);
                     break;
                   }
                 }
-                // Psychometrics (step 4) requires enough Sage-enriched achievements.
-                // All other steps only require the previous step to have been started.
+
                 const isPsychometrics = step.id === "psychometrics";
-                const psychometricsUnlocked = enrichmentStatus?.unlocked ?? false;
-                const isLocked =
-                  idx > 0 &&
-                  (isPsychometrics
-                    ? !psychometricsUnlocked
-                    : prevBlockerStatus === "not_started") &&
-                  step.id !== "sage"; // Sage is never hard-locked
+                const isSage = step.id === "sage";
+
+                let isLocked = false;
+                if (idx > 0) {
+                  if (isPsychometrics) {
+                    // Psychometrics is locked until Sage gate is met
+                    isLocked = !sageUnlocked;
+                  } else if (isSage) {
+                    // Sage is locked until at least one of interview/background has been started
+                    isLocked = !sagePrereqMet;
+                  } else {
+                    isLocked = prevBlockerStatus === "not_started";
+                  }
+                }
 
                 return (
                   <Card
@@ -348,12 +459,14 @@ export default function ClientDashboard() {
                         ? "border-green-200 bg-green-50/50"
                         : isInProgress
                         ? "border-[var(--lw-gold)]/40 bg-[var(--lw-gold-light)]/20"
+                        : isLocked
+                        ? "border-border opacity-70"
                         : "border-border"
                     }`}
                   >
                     <CardContent className="pt-5 pb-5">
                       <div className="flex items-start gap-4">
-                        {/* Step number / status icon */}
+                        {/* Step icon */}
                         <div
                           className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${
                             isCompleted
@@ -367,6 +480,8 @@ export default function ClientDashboard() {
                         >
                           {isCompleted ? (
                             <CheckCircle2 className="w-5 h-5" />
+                          ) : isLocked ? (
+                            <Lock className="w-4 h-4" />
                           ) : (
                             step.icon
                           )}
@@ -377,9 +492,7 @@ export default function ClientDashboard() {
                             <h3
                               className="font-serif font-semibold"
                               style={{
-                                color: isLocked
-                                  ? "rgba(0,0,0,0.35)"
-                                  : "var(--foreground)",
+                                color: isLocked ? "rgba(0,0,0,0.35)" : "var(--foreground)",
                               }}
                             >
                               {step.title}
@@ -392,26 +505,93 @@ export default function ClientDashboard() {
                                 In Progress
                               </span>
                             )}
+                            {isLocked && isPsychometrics && (
+                              <span
+                                className="text-xs px-2 py-0.5 rounded-full flex items-center gap-1"
+                                style={{
+                                  background: "rgba(201,151,58,0.12)",
+                                  color: "var(--lw-gold)",
+                                  border: "1px solid rgba(201,151,58,0.3)",
+                                }}
+                              >
+                                <Lock className="w-3 h-3" />
+                                Locked
+                              </span>
+                            )}
                           </div>
                           <p
                             className="text-sm leading-relaxed"
                             style={{
-                              color: isLocked
-                                ? "rgba(0,0,0,0.3)"
-                                : "var(--muted-foreground)",
+                              color: isLocked ? "rgba(0,0,0,0.3)" : "var(--muted-foreground)",
                             }}
                           >
                             {step.description}
                           </p>
 
-                          {/* Sage inline chat — shown when step is "sage" and not locked */}
-                          {step.id === "sage" && !isLocked && (
-                            <div className="mt-4">
+                          {/* ── Sage stage: gate panel + chat ── */}
+                          {isSage && !isLocked && (
+                            <div className="mt-2 space-y-4">
+                              {/* Gate progress panel — always visible once Sage is accessible */}
+                              <SageGatePanel
+                                enriched={sageEnriched}
+                                required={sageRequired}
+                                total={sageTotal}
+                                unlocked={sageUnlocked}
+                              />
+                              {/* Chat button */}
                               <ChatToPeter
                                 section="life_history"
-                                buttonLabel="Chat to Sage"
+                                buttonLabel={sageEnriched === 0 ? "Begin conversation with Sage" : "Continue conversation with Sage"}
                                 sectionDescription="Sage has read your Life History and Background. She would like to explore what you have written and ask some reflective questions to deepen your self-understanding."
                               />
+                            </div>
+                          )}
+
+                          {/* Sage locked — prerequisite not met */}
+                          {isSage && isLocked && (
+                            <p
+                              className="text-xs mt-2"
+                              style={{ color: "rgba(0,0,0,0.4)" }}
+                            >
+                              Complete at least one section of your Life History Interview or Background &amp; History to unlock Sage.
+                            </p>
+                          )}
+
+                          {/* Psychometrics locked — Sage gate not met */}
+                          {isPsychometrics && isLocked && enrichmentStatus && (
+                            <div
+                              className="mt-3 rounded-lg p-3 flex items-start gap-3"
+                              style={{
+                                background: "rgba(201,151,58,0.07)",
+                                border: "1px solid rgba(201,151,58,0.25)",
+                              }}
+                            >
+                              <Lock className="w-4 h-4 flex-shrink-0 mt-0.5" style={{ color: "var(--lw-gold)" }} />
+                              <div>
+                                <p className="text-sm font-semibold mb-1" style={{ color: "var(--lw-navy)" }}>
+                                  Complete your Sage conversation first
+                                </p>
+                                <p className="text-xs leading-relaxed" style={{ color: "rgba(0,0,0,0.55)" }}>
+                                  Sage must explore at least <strong>{sageRequired} events</strong> from your life history before the psychometric assessments become available. You have completed <strong>{sageEnriched}</strong> so far — <strong>{Math.max(0, sageRequired - sageEnriched)} more</strong> to go. Return to Step 3 above to continue your conversation with Sage.
+                                </p>
+                                <div className="mt-2">
+                                  <div className="flex items-center justify-between mb-1">
+                                    <span className="text-xs" style={{ color: "rgba(0,0,0,0.45)" }}>Sage progress</span>
+                                    <span className="text-xs font-bold" style={{ color: "var(--lw-gold)" }}>
+                                      {sageEnriched}/{sageRequired}
+                                    </span>
+                                  </div>
+                                  <div className="h-2 rounded-full overflow-hidden" style={{ background: "rgba(201,151,58,0.15)" }}>
+                                    <div
+                                      className="h-full rounded-full transition-all duration-500"
+                                      style={{
+                                        width: `${Math.min(100, Math.round((sageEnriched / sageRequired) * 100))}%`,
+                                        background: "var(--lw-gold)",
+                                      }}
+                                    />
+                                  </div>
+                                </div>
+                              </div>
                             </div>
                           )}
                         </div>
@@ -435,8 +615,6 @@ export default function ClientDashboard() {
                             )}
 
                             {step.path && !isLocked && (() => {
-                              // For psychometrics: if VIA is done but IPIP not yet started,
-                              // send client directly to the IPIP survey instead of back to VIA.
                               const ipipStatus = (profile as any)?.ipipStatus ?? "not_started";
                               const viaStatusVal = (profile as any)?.viaStatus ?? "not_started";
                               let resolvedPath = step.path!;
@@ -468,28 +646,10 @@ export default function ClientDashboard() {
                               );
                             })()}
 
-                            {isLocked && step.id !== "psychometrics" && (
+                            {isLocked && !isPsychometrics && step.id !== "sage" && (
                               <span className="text-xs text-muted-foreground/50">
                                 Complete previous step first
                               </span>
-                            )}
-                            {isLocked && step.id === "psychometrics" && enrichmentStatus && (
-                              <div className="text-right">
-                                <div className="flex items-center gap-1.5 justify-end mb-1">
-                                  <div className="h-1.5 w-24 bg-muted rounded-full overflow-hidden">
-                                    <div
-                                      className="h-full bg-[var(--lw-gold)] rounded-full transition-all"
-                                      style={{ width: `${Math.round((enrichmentStatus.enriched / enrichmentStatus.required) * 100)}%` }}
-                                    />
-                                  </div>
-                                  <span className="text-xs font-medium" style={{ color: "var(--lw-gold)" }}>
-                                    {enrichmentStatus.enriched}/{enrichmentStatus.required}
-                                  </span>
-                                </div>
-                                <span className="text-xs text-muted-foreground/70 leading-tight block max-w-[180px] text-right">
-                                  Sage must explore {enrichmentStatus.required} of your {enrichmentStatus.total} achievements to unlock this step.
-                                </span>
-                              </div>
                             )}
                           </div>
                         )}
@@ -499,8 +659,6 @@ export default function ClientDashboard() {
                 );
               })}
             </div>
-
-
           </>
         )}
       </div>

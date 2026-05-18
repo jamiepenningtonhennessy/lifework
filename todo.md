@@ -1415,3 +1415,10 @@
 - [x] Add Annex B (family background, education history, career history) to WOW report PDF
 - [x] Renumber existing Annex A sections to C1/C2/C3
 - [x] Update annex cover page contents list
+
+## Sage Gate — Explicit Stage with Hard Lock on Psychometrics
+
+- [x] Make Sage an explicit, gated stage on the ClientDashboard: show a clear progress bar and counter (X of 20 events investigated) inside the Sage card
+- [x] Hard-lock the Psychometrics card (step 4) until the Sage gate is met (20 enriched events), with an explanatory message visible on the card
+- [x] Add a "locked" explanation to the Sage card itself when prerequisites (interview/background) are not yet started
+- [x] Ensure the VIASurvey and IpipSurvey pages also enforce the gate server-side (already done) and show a friendly redirect/message if accessed directly while locked

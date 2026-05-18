@@ -46,6 +46,9 @@ export default function IpipSurvey() {
   const [answers, setAnswers] = useState<Record<number, number>>({});
   const [submitting, setSubmitting] = useState(false);
 
+  const { data: enrichmentStatus, isLoading: loadingEnrichment } = trpc.profile.getEnrichmentStatus.useQuery();
+  const { data: existingIpipResults } = trpc.ipip.getMyResults.useQuery();
+
   const submitMutation = trpc.ipip.submit.useMutation({
     onSuccess: () => {
       toast.success("Personality profile complete!");
@@ -108,6 +111,53 @@ export default function IpipSurvey() {
   }
 
   const isLastPage = domainIndex === 4;
+
+  // Gate: show locked screen if Sage has not explored enough events
+  if (!loadingEnrichment && enrichmentStatus && !enrichmentStatus.unlocked && !existingIpipResults) {
+    return (
+      <div
+        className="min-h-screen flex items-center justify-center px-4"
+        style={{ background: "var(--lw-cream)" }}
+      >
+        <div className="max-w-md w-full text-center space-y-6">
+          <div className="flex justify-center">
+            <div
+              className="w-16 h-16 rounded-full flex items-center justify-center"
+              style={{ background: "var(--lw-navy)" }}
+            >
+              <Brain className="w-8 h-8" style={{ color: "var(--lw-gold)" }} />
+            </div>
+          </div>
+          <div>
+            <h1 className="text-2xl font-serif font-bold mb-2" style={{ color: "var(--lw-navy)" }}>
+              Psychometrics not yet unlocked
+            </h1>
+            <p className="text-sm leading-relaxed" style={{ color: "rgba(0,0,0,0.6)" }}>
+              You need to complete at least <strong>{enrichmentStatus.required} events</strong> with Sage before starting the Personality Profile.
+              You have completed <strong>{enrichmentStatus.enriched}</strong> so far.
+              Please return to your dashboard and continue your conversation with Sage.
+            </p>
+          </div>
+          <div className="h-2 rounded-full overflow-hidden" style={{ background: "rgba(201,151,58,0.15)" }}>
+            <div
+              className="h-full rounded-full"
+              style={{
+                width: `${Math.min(100, Math.round((enrichmentStatus.enriched / enrichmentStatus.required) * 100))}%`,
+                background: "var(--lw-gold)",
+              }}
+            />
+          </div>
+          <button
+            onClick={() => setLocation("/dashboard")}
+            className="px-6 py-2.5 text-sm font-medium"
+            style={{ background: "var(--lw-gold)", color: "white" }}
+          >
+            Return to Dashboard
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen" style={{ background: "var(--lw-cream)" }}>

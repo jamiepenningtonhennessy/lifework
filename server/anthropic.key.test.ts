@@ -23,5 +23,5 @@ describe("Anthropic API key validation", () => {
     expect(response.status, `Anthropic API returned ${response.status}`).toBe(200);
     const data = await response.json() as { content: Array<{ text: string }> };
     expect(data.content[0].text.length).toBeGreaterThan(0);
-  });
+  }, 15000); // 15 second timeout for live API call
 });

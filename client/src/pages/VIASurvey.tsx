@@ -28,6 +28,10 @@ export default function VIASurvey() {
   const { data: existingResults } = trpc.via.getMyResults.useQuery(undefined, {
     enabled: isAuthenticated,
   });
+  const { data: enrichmentStatus, isLoading: loadingEnrichment } = trpc.profile.getEnrichmentStatus.useQuery(
+    undefined,
+    { enabled: isAuthenticated }
+  );
 
   const submitSurvey = trpc.via.submitSurvey.useMutation({
     onSuccess: () => {
@@ -42,10 +46,57 @@ export default function VIASurvey() {
     return null;
   }
 
-  if (loadingQuestions) {
+  if (loadingQuestions || loadingEnrichment) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
+
+  // Gate: redirect to dashboard if Sage has not explored enough events yet
+  if (enrichmentStatus && !enrichmentStatus.unlocked && !existingResults) {
+    return (
+      <div
+        className="min-h-screen flex items-center justify-center px-4"
+        style={{ background: "var(--lw-cream)" }}
+      >
+        <div className="max-w-md w-full text-center space-y-6">
+          <div className="flex justify-center">
+            <div
+              className="w-16 h-16 rounded-full flex items-center justify-center"
+              style={{ background: "var(--lw-navy)" }}
+            >
+              <Lock className="w-8 h-8" style={{ color: "var(--lw-gold)" }} />
+            </div>
+          </div>
+          <div>
+            <h1 className="text-2xl font-serif font-bold mb-2" style={{ color: "var(--lw-navy)" }}>
+              Psychometrics not yet unlocked
+            </h1>
+            <p className="text-sm leading-relaxed" style={{ color: "rgba(0,0,0,0.6)" }}>
+              You need to complete at least <strong>{enrichmentStatus.required} events</strong> with Sage before starting the VIA survey.
+              You have completed <strong>{enrichmentStatus.enriched}</strong> so far.
+              Please return to your dashboard and continue your conversation with Sage.
+            </p>
+          </div>
+          <div className="h-2 rounded-full overflow-hidden" style={{ background: "rgba(201,151,58,0.15)" }}>
+            <div
+              className="h-full rounded-full"
+              style={{
+                width: `${Math.min(100, Math.round((enrichmentStatus.enriched / enrichmentStatus.required) * 100))}%`,
+                background: "var(--lw-gold)",
+              }}
+            />
+          </div>
+          <Button
+            onClick={() => navigate("/dashboard")}
+            className="gap-2"
+            style={{ background: "var(--lw-gold)", color: "white" }}
+          >
+            Return to Dashboard
+          </Button>
+        </div>
       </div>
     );
   }
