@@ -6,19 +6,22 @@
  *
  * Canvas: 1080×1080px
  * - Outer frame: navy #1a2744, full bleed
- * - Inner photo: 960×820px, centred horizontally, 30px from top
+ * - Inner photo: 960×820px, centred horizontally (60px each side), 30px from top
  * - Bottom rail: 200px, navy, full width
- * - Tangram mark: 90×90px, left edge of rail (x=60)
- * - Lifework wordmark: NotoSerif 90pt, cream #f5f0e8, after tangram
- * - Category label: NotoSans 38pt, cream, right-aligned, letter-spaced
+ * - Tangram mark: 90×90px, left edge of rail (x=60), vertically centred
+ * - Lifework wordmark: NotoSerif, ~72px tall, cream #f5f0e8, after tangram
+ * - Category label: NotoSans, ~32px tall, cream, letter-spaced, right-aligned
  *
- * Fonts are embedded as base64 inside the SVG overlay so they render
- * correctly even when system fonts are unavailable in the container.
- * Font files are fetched once from CDN and cached in memory.
+ * Text is rendered via sharp's native Pango text input (not SVG/librsvg),
+ * which requires a fontfile path on disk. Fonts are fetched from CDN on
+ * first use, written to a process-lifetime temp file, and reused thereafter.
+ * A local filesystem fallback is used when CDN is unavailable.
  */
 
 import sharp from "sharp";
 import * as fs from "fs";
+import * as os from "os";
+import * as path from "path";
 import * as https from "https";
 import * as http from "http";
 
@@ -30,13 +33,19 @@ const SANS_FONT_URL =
 const TANGRAM_URL =
   "https://d2xsxph8kpxj0f.cloudfront.net/107696804/kFbbE6kqNApXGDFpQJUGV7/tangram_ec333843.png";
 
-// In-memory cache so we only fetch each asset once per server process
-const assetCache = new Map<string, Buffer>();
+// Local fallback paths (available in sandbox/dev, may not exist in production)
+const LOCAL_SERIF = "/usr/share/fonts/truetype/noto/NotoSerif-Regular.ttf";
+const LOCAL_SANS = "/usr/share/fonts/truetype/noto/NotoSans-Regular.ttf";
+const LOCAL_TANGRAM = "/home/ubuntu/webdev-static-assets/tangram.png";
+
+// Process-lifetime temp file paths for fonts (written once, reused)
+let serifTmpPath: string | null = null;
+let sansTmpPath: string | null = null;
+
+// In-memory buffer cache for the tangram PNG
+let tangramBuffer: Buffer | null = null;
 
 function fetchBuffer(url: string): Promise<Buffer> {
-  const cached = assetCache.get(url);
-  if (cached) return Promise.resolve(cached);
-
   return new Promise((resolve, reject) => {
     const client = url.startsWith("https") ? https : http;
     client
@@ -47,33 +56,49 @@ function fetchBuffer(url: string): Promise<Buffer> {
         }
         const chunks: Buffer[] = [];
         res.on("data", (chunk: Buffer) => chunks.push(chunk));
-        res.on("end", () => {
-          const buf = Buffer.concat(chunks);
-          assetCache.set(url, buf);
-          resolve(buf);
-        });
+        res.on("end", () => resolve(Buffer.concat(chunks)));
         res.on("error", reject);
       })
       .on("error", reject);
   });
 }
 
-// Fallback: try to load fonts from local filesystem paths if CDN fetch fails
-const LOCAL_SERIF = "/usr/share/fonts/truetype/noto/NotoSerif-Regular.ttf";
-const LOCAL_SANS = "/usr/share/fonts/truetype/noto/NotoSans-Regular.ttf";
-const LOCAL_TANGRAM = "/home/ubuntu/webdev-static-assets/tangram.png";
+async function loadFontToTmpFile(
+  cdnUrl: string,
+  localPath: string,
+  suffix: string
+): Promise<string> {
+  const tmpPath = path.join(os.tmpdir(), `lw_font_${suffix}_${process.pid}.ttf`);
+  if (fs.existsSync(tmpPath)) return tmpPath;
 
-async function loadAsset(url: string, localPath: string): Promise<Buffer> {
-  try {
-    return await fetchBuffer(url);
-  } catch {
-    if (fs.existsSync(localPath)) {
-      const buf = fs.readFileSync(localPath);
-      assetCache.set(url, buf);
-      return buf;
-    }
-    throw new Error(`Could not load asset from ${url} or ${localPath}`);
+  let buf: Buffer;
+  if (fs.existsSync(localPath)) {
+    buf = fs.readFileSync(localPath);
+  } else {
+    buf = await fetchBuffer(cdnUrl);
   }
+  fs.writeFileSync(tmpPath, buf);
+  return tmpPath;
+}
+
+async function loadTangram(): Promise<Buffer> {
+  if (tangramBuffer) return tangramBuffer;
+  if (fs.existsSync(LOCAL_TANGRAM)) {
+    tangramBuffer = fs.readFileSync(LOCAL_TANGRAM);
+  } else {
+    tangramBuffer = await fetchBuffer(TANGRAM_URL);
+  }
+  return tangramBuffer;
+}
+
+async function ensureFonts(): Promise<{ serifPath: string; sansPath: string }> {
+  if (!serifTmpPath) {
+    serifTmpPath = await loadFontToTmpFile(SERIF_FONT_URL, LOCAL_SERIF, "serif");
+  }
+  if (!sansTmpPath) {
+    sansTmpPath = await loadFontToTmpFile(SANS_FONT_URL, LOCAL_SANS, "sans");
+  }
+  return { serifPath: serifTmpPath, sansPath: sansTmpPath };
 }
 
 /**
@@ -99,50 +124,71 @@ export async function composeNavyFrame(
   const TANGRAM_X = 60;
   const TANGRAM_Y = Math.round(H - RAIL_H + (RAIL_H - TANGRAM_SIZE) / 2);
 
-  // Rail text vertical centre
-  const railCenterY = H - RAIL_H + RAIL_H / 2;
-  // Approximate baseline for 90pt font (cap-height ~65% of em, baseline ~72% from top of em)
-  const wordmarkBaseline = Math.round(railCenterY + 32);
-  const wordmarkX = TANGRAM_X + TANGRAM_SIZE + 22;
-  const labelX = W - 60;
-  const labelY = wordmarkBaseline;
+  // Rail vertical centre
+  const railCenterY = H - RAIL_H + Math.round(RAIL_H / 2);
 
-  // Load assets (with CDN → local fallback)
-  const [serifBuf, sansBuf, tangramBuf] = await Promise.all([
-    loadAsset(SERIF_FONT_URL, LOCAL_SERIF),
-    loadAsset(SANS_FONT_URL, LOCAL_SANS),
-    loadAsset(TANGRAM_URL, LOCAL_TANGRAM),
-  ]);
+  // Load fonts and tangram
+  const { serifPath, sansPath } = await ensureFonts();
+  const tgramBuf = await loadTangram();
 
-  const serifB64 = serifBuf.toString("base64");
-  const sansB64 = sansBuf.toString("base64");
-
-  // Resize the inner photo
-  const resizedPhoto = await sharp(photoBuffer)
-    .resize(PHOTO_W, PHOTO_H, { fit: "cover", position: "centre" })
+  // ── Wordmark: "Lifework" in NotoSerif, ~72px tall ──────────────────────────
+  const WORDMARK_H = 72;
+  const wordmarkRaw = await sharp({
+    text: {
+      text: '<span foreground="#f5f0e8" font_family="NotoSerif">Lifework</span>',
+      fontfile: serifPath,
+      rgba: true,
+      dpi: 300,
+    },
+  } as Parameters<typeof sharp>[0])
+    .png()
+    .toBuffer();
+  const wMeta = await sharp(wordmarkRaw).metadata();
+  const wordmarkW = Math.round(wMeta.width! * (WORDMARK_H / wMeta.height!));
+  const wordmarkFinal = await sharp(wordmarkRaw)
+    .resize(wordmarkW, WORDMARK_H)
     .png()
     .toBuffer();
 
-  // Resize the tangram mark
-  const resizedTangram = await sharp(tangramBuf)
+  // ── Category label: NotoSans, ~32px tall, letter-spaced ────────────────────
+  const LABEL_H = 32;
+  const labelRaw = await sharp({
+    text: {
+      text: `<span foreground="#f5f0e8" letter_spacing="3000" font_family="NotoSans">${categoryLabel}</span>`,
+      fontfile: sansPath,
+      rgba: true,
+      dpi: 300,
+    },
+  } as Parameters<typeof sharp>[0])
+    .png()
+    .toBuffer();
+  const lMeta = await sharp(labelRaw).metadata();
+  const labelW = Math.round(lMeta.width! * (LABEL_H / lMeta.height!));
+  const labelFinal = await sharp(labelRaw)
+    .resize(labelW, LABEL_H)
+    .png()
+    .toBuffer();
+
+  // ── Tangram mark: 90×90px ───────────────────────────────────────────────────
+  const tangramFinal = await sharp(tgramBuf)
     .resize(TANGRAM_SIZE, TANGRAM_SIZE)
     .png()
     .toBuffer();
 
-  // Build SVG overlay for text (fonts embedded as base64 so they work in any container)
-  const overlaySvg = `<svg width="${W}" height="${H}" xmlns="http://www.w3.org/2000/svg">
-  <defs>
-    <style>
-      @font-face { font-family: 'NotoSerif'; src: url('data:font/truetype;base64,${serifB64}'); }
-      @font-face { font-family: 'NotoSans'; src: url('data:font/truetype;base64,${sansB64}'); }
-    </style>
-  </defs>
-  <text x="${wordmarkX}" y="${wordmarkBaseline}" font-family="NotoSerif" font-size="90" fill="#f5f0e8">Lifework</text>
-  <text x="${labelX}" y="${labelY}" font-family="NotoSans" font-size="38" fill="#f5f0e8" text-anchor="end" letter-spacing="4">${categoryLabel}</text>
-</svg>`;
+  // ── Inner photo: 960×820px, cover crop ─────────────────────────────────────
+  const photoFinal = await sharp(photoBuffer)
+    .resize(PHOTO_W, PHOTO_H, { fit: "cover", position: "centre" })
+    .png()
+    .toBuffer();
 
-  // Composite all layers onto the navy background
-  const result = await sharp({
+  // ── Composite positions ─────────────────────────────────────────────────────
+  const wordmarkTop = railCenterY - Math.round(WORDMARK_H / 2);
+  const wordmarkLeft = TANGRAM_X + TANGRAM_SIZE + 24;
+  const labelTop = railCenterY - Math.round(LABEL_H / 2);
+  const labelLeft = W - 60 - labelW;
+
+  // ── Final composite ─────────────────────────────────────────────────────────
+  return sharp({
     create: {
       width: W,
       height: H,
@@ -151,15 +197,11 @@ export async function composeNavyFrame(
     },
   })
     .composite([
-      // Inner photo
-      { input: resizedPhoto, top: PHOTO_Y, left: PHOTO_X },
-      // Tangram mark
-      { input: resizedTangram, top: TANGRAM_Y, left: TANGRAM_X },
-      // Text overlay (SVG with embedded fonts)
-      { input: Buffer.from(overlaySvg), top: 0, left: 0 },
+      { input: photoFinal, top: PHOTO_Y, left: PHOTO_X },
+      { input: tangramFinal, top: TANGRAM_Y, left: TANGRAM_X },
+      { input: wordmarkFinal, top: wordmarkTop, left: wordmarkLeft },
+      { input: labelFinal, top: labelTop, left: labelLeft },
     ])
     .png()
     .toBuffer();
-
-  return result;
 }
