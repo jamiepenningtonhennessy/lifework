@@ -1427,3 +1427,11 @@
 
 - [x] Rewrite PETER_SYSTEM_PROMPT: replace binary SUMMARY/QUESTION modes with INTERPRETIVE SUMMARY, NEXT QUESTION, and PATTERN MODE
 - [x] Sharpen wrap-up to name specific activities and recurring themes rather than generic observations
+
+## Blog Writing Machine
+
+- [x] Add `blog.generate` tRPC procedure: takes postType, lifeworkAspect, voice; returns ~300-word LinkedIn post
+- [x] Build BlogWriter page at /lifework/blog-writer with two-column selection (post type + lifework aspect) and voice selector
+- [x] Wire up loading state and rendered output below the selection area
+- [x] Add route /lifework/blog-writer to App.tsx
+- [x] Write vitest for the blog writer taxonomy contract (6 tests pass)

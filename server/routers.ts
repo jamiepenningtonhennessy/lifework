@@ -11,6 +11,7 @@ import { coachingSlidesRouter } from "./routers/coachingSlides";
 import { roleDecoderRouter } from "./routers/roleDecoder";
 import { linkedInRewriterRouter } from "./routers/linkedInRewriter";
 import { debriefChatRouter } from "./routers/debriefChat";
+import { blogWriterRouter } from "./routers/blogWriter";
 import { ENV } from "./_core/env";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
@@ -3467,6 +3468,7 @@ export const appRouter = router({
   roleDecoder: roleDecoderRouter,
   linkedInRewriter: linkedInRewriterRouter,
   debriefChat: debriefChatRouter,
+  blogWriter: blogWriterRouter,
 });
 
 export type AppRouter = typeof appRouter;

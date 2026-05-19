@@ -44,6 +44,7 @@ import {
 } from "./preview/PreviewPages";
 import CounsellorCareerExplorer from "./pages/CounsellorCareerExplorer";
 import DebriefChat from "./pages/DebriefChat";
+import BlogWriter from "./pages/ph/BlogWriter";
 
 function Router() {
   return (
@@ -124,6 +125,9 @@ function Router() {
       <Route path="/preview/results-held/ipip">{() => <ResultsHeld assessmentName="Personality Profile" />}</Route>
       <Route path="/preview/my-report" component={PreviewMyReport} />
       <Route path="/preview/career-explorer" component={PreviewCareerExplorer} />
+
+      {/* ── Blog Writing Machine (counsellor/coach-facing, on PH site) ── */}
+      <Route path="/lifework/blog-writer" component={BlogWriter} />
 
       {/* ── Debrief prep (password-gated, no Manus login required) ── */}
       <Route path="/debrief" component={DebriefChat} />
