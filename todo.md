@@ -1422,3 +1422,8 @@
 - [x] Hard-lock the Psychometrics card (step 4) until the Sage gate is met (20 enriched events), with an explanatory message visible on the card
 - [x] Add a "locked" explanation to the Sage card itself when prerequisites (interview/background) are not yet started
 - [x] Ensure the VIASurvey and IpipSurvey pages also enforce the gate server-side (already done) and show a friendly redirect/message if accessed directly while locked
+
+## Sage Prompt — Interpretive Depth Rewrite
+
+- [x] Rewrite PETER_SYSTEM_PROMPT: replace binary SUMMARY/QUESTION modes with INTERPRETIVE SUMMARY, NEXT QUESTION, and PATTERN MODE
+- [x] Sharpen wrap-up to name specific activities and recurring themes rather than generic observations
