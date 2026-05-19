@@ -1,6 +1,6 @@
 #!/usr/bin/env python3.11
 """
-Navy Frame compositor for Lifework LinkedIn images.
+Navy Frame compositor for Lifework LinkedIn images. v2
 Usage: python3.11 compose_navy_frame.py <photo_path> <tangram_path> <serif_font_path> <sans_font_path> <category_label> <output_path>
 
 Canvas: 1080×1080px
