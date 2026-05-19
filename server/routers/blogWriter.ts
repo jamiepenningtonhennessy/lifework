@@ -11,6 +11,7 @@
 import { z } from "zod";
 import { protectedProcedure, router } from "../_core/trpc";
 import { invokeLLM } from "../_core/llm";
+import { generateImage } from "../_core/imageGeneration";
 
 // ─── Taxonomy ────────────────────────────────────────────────────────────────
 
@@ -181,6 +182,85 @@ Write the post now.`;
         aspectLabel,
         voiceLabel,
       };
+    }),
+
+  generateImages: protectedProcedure
+    .input(z.object({
+      postText: z.string().min(50),
+      postType: z.enum(POST_TYPES.map(p => p.id) as [PostTypeId, ...PostTypeId[]]),
+      aspect: z.enum(LIFEWORK_ASPECTS.map(a => a.id) as [AspectId, ...AspectId[]]),
+    }))
+    .mutation(async ({ input }) => {
+      const postTypeLabel = POST_TYPES.find(p => p.id === input.postType)!.label;
+      const aspectLabel = LIFEWORK_ASPECTS.find(a => a.id === input.aspect)!.label;
+
+      // Ask the LLM to generate 3 distinct image prompts based on the post content
+      const promptResponse = await invokeLLM({
+        messages: [
+          {
+            role: "system",
+            content: `You are a creative director generating image prompts for LinkedIn posts about career coaching and the Lifework methodology.
+
+You will be given a LinkedIn post and its topic. Generate exactly 3 distinct image prompts for accompanying visuals.
+
+Each prompt should:
+- Be suitable for a professional LinkedIn audience
+- Avoid showing faces or identifiable people (use silhouettes, hands, abstract representations, or objects)
+- Evoke the emotional and intellectual tone of the post
+- Be visually distinct from the other two prompts — vary the approach: one could be abstract/conceptual, one more literal/scene-based, one typographic or symbolic
+- Use a warm, professional colour palette that complements navy blue and gold
+- Be 2–3 sentences long, specific enough to guide image generation
+- NOT mention Lifework, Pennington Hennessy, or any brand name
+
+Respond with a JSON object: { "prompts": ["prompt1", "prompt2", "prompt3"] }`,
+          },
+          {
+            role: "user",
+            content: `Post topic: ${postTypeLabel} — ${aspectLabel}
+
+Post text:
+${input.postText}
+
+Generate 3 image prompts.`,
+          },
+        ],
+        response_format: {
+          type: "json_schema",
+          json_schema: {
+            name: "image_prompts",
+            strict: true,
+            schema: {
+              type: "object",
+              properties: {
+                prompts: {
+                  type: "array",
+                  items: { type: "string" },
+                  description: "Exactly 3 image generation prompts",
+                },
+              },
+              required: ["prompts"],
+              additionalProperties: false,
+            },
+          },
+        },
+      });
+
+      const parsed = JSON.parse(promptResponse.choices[0]?.message?.content as string) as { prompts: string[] };
+      const imagePrompts = parsed.prompts.slice(0, 3);
+
+      // Generate all 3 images in parallel
+      const imageResults = await Promise.allSettled(
+        imagePrompts.map(prompt => generateImage({ prompt }))
+      );
+
+      const images = imageResults.map((result, i) => ({
+        index: i + 1,
+        prompt: imagePrompts[i],
+        url: result.status === "fulfilled" ? result.value.url ?? null : null,
+        error: result.status === "rejected" ? String(result.reason) : null,
+      }));
+
+      return { images };
     }),
 
   // Expose the taxonomy to the frontend

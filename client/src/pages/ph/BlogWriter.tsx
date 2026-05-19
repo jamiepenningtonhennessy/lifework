@@ -4,7 +4,7 @@ import { PHNav } from "@/components/PHNav";
 import { PHFooter } from "@/components/PHFooter";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { Loader2, Copy, Check, RefreshCw } from "lucide-react";
+import { Loader2, Copy, Check, RefreshCw, ImageIcon, Download } from "lucide-react";
 
 type PostTypeId = string;
 type AspectId = string;
@@ -16,16 +16,48 @@ export default function BlogWriter() {
   const [selectedVoice, setSelectedVoice] = useState<VoiceId>("house");
   const [generatedPost, setGeneratedPost] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  const [generatedImages, setGeneratedImages] = useState<Array<{ index: number; prompt: string; url: string | null; error: string | null }> | null>(null);
 
   const { data: taxonomy } = trpc.blogWriter.getTaxonomy.useQuery();
 
   const generateMutation = trpc.blogWriter.generate.useMutation({
     onSuccess: (data) => {
       setGeneratedPost(data.post);
+      setGeneratedImages(null); // reset images when post is regenerated
       window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
     },
     onError: () => toast.error("Failed to generate post. Please try again."),
   });
+
+  const generateImagesMutation = trpc.blogWriter.generateImages.useMutation({
+    onSuccess: (data) => {
+      setGeneratedImages(data.images);
+      const failed = data.images.filter(i => !i.url).length;
+      if (failed > 0) toast.error(`${failed} image(s) failed to generate.`);
+      window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
+    },
+    onError: () => toast.error("Failed to generate images. Please try again."),
+  });
+
+  function handleGenerateImages() {
+    if (!generatedPost || !selectedPostType || !selectedAspect) return;
+    setGeneratedImages(null);
+    generateImagesMutation.mutate({
+      postText: generatedPost,
+      postType: selectedPostType as any,
+      aspect: selectedAspect as any,
+    });
+  }
+
+  function handleDownloadImage(url: string, index: number) {
+    const a = document.createElement("a");
+    document.body.appendChild(a);
+    a.href = url;
+    a.download = `lifework-post-image-${index}.png`;
+    a.target = "_blank";
+    a.click();
+    setTimeout(() => { document.body.removeChild(a); }, 1000);
+  }
 
   const canGenerate = selectedPostType !== null && selectedAspect !== null && selectedVoice !== null;
 
@@ -213,6 +245,125 @@ export default function BlogWriter() {
             </p>
           )}
         </div>
+
+        {/* Image generation button — shown once a post exists */}
+        {generatedPost && (
+          <div className="flex items-center gap-4 mb-10">
+            <Button
+              onClick={handleGenerateImages}
+              disabled={generateImagesMutation.isPending}
+              className="gap-2 px-8 py-3 text-sm font-medium tracking-wide"
+              style={{
+                background: "var(--lw-navy)",
+                color: "white",
+                border: "none",
+                opacity: generateImagesMutation.isPending ? 0.7 : 1,
+              }}
+            >
+              {generateImagesMutation.isPending ? (
+                <><Loader2 className="w-4 h-4 animate-spin" /> Generating images…</>
+              ) : generatedImages ? (
+                <><RefreshCw className="w-4 h-4" /> Regenerate images</>
+              ) : (
+                <><ImageIcon className="w-4 h-4" /> Generate 3 image options</>
+              )}
+            </Button>
+            {!generatedImages && !generateImagesMutation.isPending && (
+              <p className="text-xs" style={{ color: "rgba(0,0,0,0.4)" }}>
+                Creates 3 distinct LinkedIn-sized image options to accompany your post
+              </p>
+            )}
+          </div>
+        )}
+
+        {/* Generated images output */}
+        {(generatedImages || generateImagesMutation.isPending) && (
+          <div
+            className="rounded-2xl overflow-hidden mb-10"
+            style={{
+              border: "1px solid rgba(201,151,58,0.25)",
+              boxShadow: "0 4px 24px rgba(0,0,0,0.07)",
+            }}
+          >
+            {/* Images header */}
+            <div
+              className="flex items-center justify-between px-6 py-4"
+              style={{ background: "var(--lw-navy)", borderBottom: "2px solid var(--lw-gold)" }}
+            >
+              <span className="font-serif font-semibold text-sm" style={{ color: "white" }}>
+                Companion Images
+              </span>
+              <span className="text-xs" style={{ color: "rgba(255,255,255,0.45)" }}>
+                Click any image to download
+              </span>
+            </div>
+
+            <div className="p-6" style={{ background: "white" }}>
+              {generateImagesMutation.isPending ? (
+                <div className="flex flex-col items-center gap-4 py-12" style={{ color: "rgba(0,0,0,0.4)" }}>
+                  <Loader2 className="w-8 h-8 animate-spin" style={{ color: "var(--lw-gold)" }} />
+                  <p className="text-sm">Generating 3 images — this takes 20–40 seconds…</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
+                  {generatedImages?.map((img) => (
+                    <div key={img.index} className="flex flex-col gap-2">
+                      <div
+                        className="relative rounded-xl overflow-hidden group"
+                        style={{
+                          aspectRatio: "1.91/1",
+                          background: "rgba(0,0,0,0.05)",
+                          border: "1px solid rgba(0,0,0,0.08)",
+                        }}
+                      >
+                        {img.url ? (
+                          <>
+                            <img
+                              src={img.url}
+                              alt={`Image option ${img.index}`}
+                              className="w-full h-full object-cover"
+                            />
+                            <button
+                              onClick={() => handleDownloadImage(img.url!, img.index)}
+                              className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                              style={{ background: "rgba(10,22,40,0.55)" }}
+                              title="Download image"
+                            >
+                              <Download className="w-6 h-6" style={{ color: "white" }} />
+                            </button>
+                          </>
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center">
+                            <span className="text-xs" style={{ color: "rgba(0,0,0,0.35)" }}>Generation failed</span>
+                          </div>
+                        )}
+                      </div>
+                      <p
+                        className="text-xs leading-relaxed"
+                        style={{ color: "rgba(0,0,0,0.45)", fontStyle: "italic" }}
+                      >
+                        {img.prompt}
+                      </p>
+                      {img.url && (
+                        <button
+                          onClick={() => handleDownloadImage(img.url!, img.index)}
+                          className="flex items-center gap-1.5 text-xs self-start px-3 py-1.5 rounded-full transition-all"
+                          style={{
+                            background: "rgba(201,151,58,0.1)",
+                            color: "var(--lw-gold)",
+                            border: "1px solid rgba(201,151,58,0.25)",
+                          }}
+                        >
+                          <Download className="w-3 h-3" /> Download
+                        </button>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
 
         {/* Generated post output */}
         {(generatedPost || generateMutation.isPending) && (

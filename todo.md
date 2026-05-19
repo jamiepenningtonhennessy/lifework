@@ -1440,3 +1440,9 @@
 
 - [x] Fix Alistair conversation download on Safari: append anchor to DOM before click, defer URL.revokeObjectURL by 1s
 - [x] Fix Alistair conversation upload on Safari: switch FileReader from readAsText to readAsArrayBuffer to prevent base64 corruption
+
+## Blog Writer — Companion Image Generation
+
+- [x] Add `blog.generateImages` tRPC procedure: takes post text + postType + aspect, generates 3 image prompts and calls generateImage for each, returns 3 URLs
+- [x] Add "Generate images" button below the post output in BlogWriter.tsx
+- [x] Show 3 image options in a responsive row with individual download links
