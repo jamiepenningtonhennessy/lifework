@@ -13,28 +13,7 @@ import { protectedProcedure, router } from "../_core/trpc";
 import { invokeLLM } from "../_core/llm";
 import { generateImage } from "../_core/imageGeneration";
 import { storagePut } from "../storage";
-import { execFile } from "child_process";
-import { promisify } from "util";
-import * as fs from "fs";
-import * as path from "path";
-import * as os from "os";
-const execFileAsync = promisify(execFile);
-
-// Absolute paths — tsx resolves import.meta.url to the project root, not the file location
-const COMPOSE_SCRIPT = "/home/ubuntu/plum-trees/server/scripts/compose_navy_frame.py";
-const TANGRAM_PATH = "/home/ubuntu/webdev-static-assets/tangram.png";
-const SERIF_FONT = "/usr/share/fonts/truetype/noto/NotoSerif-Regular.ttf";
-const SANS_FONT = "/usr/share/fonts/truetype/noto/NotoSans-Regular.ttf";
-// Use explicit python3.11 binary path and strip any venv env vars that would cause
-// the 3.11 binary to load PIL from the wrong (3.13) venv, causing SRE module mismatch
-const PYTHON_BIN = "/usr/bin/python3.11";
-const CLEAN_PYTHON_ENV = (() => {
-  const env = { ...process.env };
-  delete env.PYTHONPATH;
-  delete env.PYTHONHOME;
-  delete env.VIRTUAL_ENV;
-  return env;
-})();
+import { composeNavyFrame } from "../scripts/composeNavyFrame";
 
 // Map post type + aspect to a category label for the bottom rail
 function getCategoryLabel(postTypeId: string, aspectId: string): string {
@@ -295,8 +274,6 @@ Generate 3 photograph prompts for the inner photo area.`,
 
       // Step 2: Generate photos sequentially to avoid timeout and reduce peak load
       console.log("[blogWriter.generateImages] Step 2: generating photos sequentially");
-      const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "lifework-img-"));
-
       const compositeResults: PromiseSettledResult<string>[] = [];
       for (let i = 0; i < photoPrompts.length; i++) {
         try {
@@ -310,27 +287,11 @@ Generate 3 photograph prompts for the inner photo area.`,
           const photoResp = await fetch(photoUrl);
           if (!photoResp.ok) throw new Error(`Failed to download photo ${i+1}: ${photoResp.status}`);
           const photoBuffer = Buffer.from(await photoResp.arrayBuffer());
-          const photoTmpPath = path.join(tmpDir, `photo_${i+1}.png`);
-          fs.writeFileSync(photoTmpPath, photoBuffer);
           console.log(`[blogWriter.generateImages] Photo ${i+1} downloaded (${photoBuffer.length} bytes)`);
 
-          // Run the Python compositor
-          const outputPath = path.join(tmpDir, `navy_frame_${i+1}.png`);
+          // Run the Node.js sharp compositor
           console.log(`[blogWriter.generateImages] Running compositor for photo ${i+1}...`);
-          const { stdout: compOut, stderr: compErr } = await execFileAsync(PYTHON_BIN, [
-            COMPOSE_SCRIPT,
-            photoTmpPath,
-            TANGRAM_PATH,
-            SERIF_FONT,
-            SANS_FONT,
-            categoryLabel,
-            outputPath,
-          ], { env: CLEAN_PYTHON_ENV });
-          if (compErr) console.warn(`[blogWriter.generateImages] Compositor stderr ${i+1}:`, compErr);
-          if (compOut) console.log(`[blogWriter.generateImages] Compositor stdout ${i+1}:`, compOut);
-
-          // Upload the composited image to S3
-          const compositeBuffer = fs.readFileSync(outputPath);
+          const compositeBuffer = await composeNavyFrame(photoBuffer, categoryLabel);
           console.log(`[blogWriter.generateImages] Uploading composite ${i+1} (${compositeBuffer.length} bytes)...`);
           const { url } = await storagePut(
             `blog-images/${Date.now()}-${i+1}.png`,
@@ -345,8 +306,7 @@ Generate 3 photograph prompts for the inner photo area.`,
         }
       }
 
-      // Clean up temp files
-      try { fs.rmSync(tmpDir, { recursive: true, force: true }); } catch {}
+      // (no temp files to clean up — compositor works in memory)
 
       const images = compositeResults.map((result, i) => ({
         index: i + 1,
