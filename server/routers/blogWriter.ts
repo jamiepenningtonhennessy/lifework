@@ -12,6 +12,55 @@ import { z } from "zod";
 import { protectedProcedure, router } from "../_core/trpc";
 import { invokeLLM } from "../_core/llm";
 import { generateImage } from "../_core/imageGeneration";
+import { storagePut } from "../storage";
+import { execFile } from "child_process";
+import { promisify } from "util";
+import * as fs from "fs";
+import * as path from "path";
+import * as os from "os";
+import { fileURLToPath } from "url";
+
+const execFileAsync = promisify(execFile);
+
+// ESM-compatible __dirname
+const __filename = fileURLToPath(import.meta.url);
+const __dirnameESM = path.dirname(__filename);
+
+// Paths to compositing assets
+// __dirnameESM = server/routers/ at runtime, so go up two levels to project root
+const COMPOSE_SCRIPT = path.join(__dirnameESM, "..", "scripts", "compose_navy_frame.py");
+const TANGRAM_PATH = path.join(__dirnameESM, "..", "..", "..", "webdev-static-assets", "tangram.png");
+const SERIF_FONT = "/usr/share/fonts/truetype/noto/NotoSerif-Regular.ttf";
+const SANS_FONT = "/usr/share/fonts/truetype/noto/NotoSans-Regular.ttf";
+
+// Map post type + aspect to a category label for the bottom rail
+function getCategoryLabel(postTypeId: string, aspectId: string): string {
+  const aspectMap: Record<string, string> = {
+    "reflective-process": "REFLECTIONS",
+    "psychometric-underpinnings": "IN PRACTICE",
+    "personal-feedback": "REFLECTIONS",
+    "ai-in-process": "IN PRACTICE",
+    "report-structure": "IN PRACTICE",
+    "focus-on-strength": "STRENGTHS",
+    "agreed-evidence": "STRENGTHS",
+    "depth-of-analysis": "LIFELINE",
+    "development-edge": "LIFELINE",
+    "fundamental-drivers": "STRENGTHS",
+    "career-directions": "IN PRACTICE",
+  };
+  const postTypeMap: Record<string, string> = {
+    "personal-testimony": "REFLECTIONS",
+    "personal-reflections": "REFLECTIONS",
+    "comparison": "IN PRACTICE",
+    "recent-experiences": "IN PRACTICE",
+    "changed-worldview": "REFLECTIONS",
+    "first-career-seeker": "IN PRACTICE",
+    "work-returner": "IN PRACTICE",
+    "made-redundant": "REFLECTIONS",
+    "approaching-retirement": "LIFELINE",
+  };
+  return aspectMap[aspectId] ?? postTypeMap[postTypeId] ?? "LIFEWORK";
+}
 
 // ─── Taxonomy ────────────────────────────────────────────────────────────────
 
@@ -193,26 +242,28 @@ Write the post now.`;
     .mutation(async ({ input }) => {
       const postTypeLabel = POST_TYPES.find(p => p.id === input.postType)!.label;
       const aspectLabel = LIFEWORK_ASPECTS.find(a => a.id === input.aspect)!.label;
+      const categoryLabel = getCategoryLabel(input.postType, input.aspect);
 
-      // Ask the LLM to generate 3 distinct image prompts based on the post content
+      // Step 1: Ask the LLM to generate 3 distinct PHOTO-ONLY prompts (960×890 inner photo)
       const promptResponse = await invokeLLM({
         messages: [
           {
             role: "system",
-            content: `You are a creative director generating image prompts for LinkedIn posts about career coaching and the Lifework methodology.
+            content: `You are a creative director generating inner photograph prompts for a branded LinkedIn image template.
 
-You will be given a LinkedIn post and its topic. Generate exactly 3 distinct image prompts for accompanying visuals.
+The final image will be a 1080×1080 square with a navy blue frame and a branded footer strip. You are generating ONLY the inner photograph (960×890px) — no text, no logos, no overlays will appear inside the photo itself.
 
-Each prompt should:
-- Be suitable for a professional LinkedIn audience
-- Avoid showing faces or identifiable people (use silhouettes, hands, abstract representations, or objects)
-- Evoke the emotional and intellectual tone of the post
-- Be visually distinct from the other two prompts — vary the approach: one could be abstract/conceptual, one more literal/scene-based, one typographic or symbolic
-- Use a warm, professional colour palette that complements navy blue and gold
-- Be 2–3 sentences long, specific enough to guide image generation
-- NOT mention Lifework, Pennington Hennessy, or any brand name
+Generate exactly 3 distinct photograph prompts. Each must:
+- Feel like one careful human photographer, not stock, not obviously AI
+- Subject: a real person in thought or mid-activity, hands at work, an everyday environment (desk, window, doorway, path), or a small object with personal meaning. Avoid laptops-on-desks, handshakes, conference rooms, anything that reads "stock business".
+- Light: natural, soft, warm. Window or side light. Not flat studio.
+- Colour: muted, slightly desaturated, warmth in the highlights — as if lightly graded. Must read clearly inside a navy frame.
+- Composition: loose, observational, asymmetric. Negative space welcomed. Documentary, not advertising.
+- Avoid: AI tells, saturated tropical colours, gradient backgrounds, dramatic vignettes, any overlay graphics.
+- Be 2–3 sentences long and specific enough to guide image generation.
+- The three prompts must differ meaningfully in subject and composition.
 
-Respond with a JSON object: { "prompts": ["prompt1", "prompt2", "prompt3"] }`,
+Respond with JSON only (no markdown fences): { "prompts": ["prompt1", "prompt2", "prompt3"] }`,
           },
           {
             role: "user",
@@ -221,49 +272,86 @@ Respond with a JSON object: { "prompts": ["prompt1", "prompt2", "prompt3"] }`,
 Post text:
 ${input.postText}
 
-Generate 3 image prompts.`,
+Generate 3 photograph prompts for the inner photo area.`,
           },
         ],
-        response_format: {
-          type: "json_schema",
-          json_schema: {
-            name: "image_prompts",
-            strict: true,
-            schema: {
-              type: "object",
-              properties: {
-                prompts: {
-                  type: "array",
-                  items: { type: "string" },
-                  description: "Exactly 3 image generation prompts",
-                },
-              },
-              required: ["prompts"],
-              additionalProperties: false,
-            },
-          },
-        },
       });
 
       const rawContent = (promptResponse.choices[0]?.message?.content as string ?? "").trim();
-      // Strip markdown code fences that Anthropic sometimes adds despite instructions
+      console.log("[blogWriter.generateImages] LLM raw:", rawContent.substring(0, 400));
       const jsonContent = rawContent.replace(/^```(?:json)?\s*/i, "").replace(/\s*```\s*$/i, "").trim();
-      const parsed = JSON.parse(jsonContent) as { prompts: string[] };
-      const imagePrompts = parsed.prompts.slice(0, 3);
+      let parsed: { prompts: string[] };
+      try {
+        parsed = JSON.parse(jsonContent) as { prompts: string[] };
+      } catch (parseErr) {
+        console.error("[blogWriter.generateImages] JSON parse failed:", parseErr);
+        throw new Error(`Image prompt generation failed: could not parse LLM response`);
+      }
+      const photoPrompts = parsed.prompts.slice(0, 3);
+      console.log("[blogWriter.generateImages] Photo prompts:", photoPrompts);
 
-      // Generate all 3 images in parallel
-      const imageResults = await Promise.allSettled(
-        imagePrompts.map(prompt => generateImage({ prompt }))
+      // Step 2: Generate 3 inner photos in parallel via the image API
+      const photoResults = await Promise.allSettled(
+        photoPrompts.map(prompt => generateImage({ prompt }))
       );
 
-      const images = imageResults.map((result, i) => ({
+      // Step 3: For each successfully generated photo, download it and run the compositor
+      const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "lifework-img-"));
+
+      const compositeResults = await Promise.allSettled(
+        photoResults.map(async (photoResult, i) => {
+          if (photoResult.status === "rejected") {
+            throw new Error(`Photo ${i+1} generation failed: ${photoResult.reason}`);
+          }
+          const photoUrl = photoResult.value.url;
+          if (!photoUrl) throw new Error(`Photo ${i+1} returned no URL`);
+
+          // Download the photo to a temp file
+          const photoResp = await fetch(photoUrl);
+          if (!photoResp.ok) throw new Error(`Failed to download photo ${i+1}: ${photoResp.status}`);
+          const photoBuffer = Buffer.from(await photoResp.arrayBuffer());
+          const photoTmpPath = path.join(tmpDir, `photo_${i+1}.png`);
+          fs.writeFileSync(photoTmpPath, photoBuffer);
+
+          // Run the Python compositor
+          const outputPath = path.join(tmpDir, `navy_frame_${i+1}.png`);
+          await execFileAsync("python3.11", [
+            COMPOSE_SCRIPT,
+            photoTmpPath,
+            TANGRAM_PATH,
+            SERIF_FONT,
+            SANS_FONT,
+            categoryLabel,
+            outputPath,
+          ]);
+
+          // Upload the composited image to S3
+          const compositeBuffer = fs.readFileSync(outputPath);
+          const { url } = await storagePut(
+            `blog-images/${Date.now()}-${i+1}.png`,
+            compositeBuffer,
+            "image/png"
+          );
+          console.log(`[blogWriter.generateImages] Composite ${i+1} uploaded: ${url?.substring(0,60)}`);
+          return url;
+        })
+      );
+
+      // Clean up temp files
+      try { fs.rmSync(tmpDir, { recursive: true, force: true }); } catch {}
+
+      const images = compositeResults.map((result, i) => ({
         index: i + 1,
-        prompt: imagePrompts[i],
-        url: result.status === "fulfilled" ? result.value.url ?? null : null,
-        error: result.status === "rejected" ? String(result.reason) : null,
+        prompt: photoPrompts[i],
+        url: result.status === "fulfilled" ? result.value ?? null : null,
+        error: result.status === "rejected" ? String((result as PromiseRejectedResult).reason) : null,
       }));
 
-      return { images };
+      if (images.every(img => img.url === null)) {
+        throw new Error("All image generations failed");
+      }
+
+      return { images, categoryLabel };
     }),
 
   // Expose the taxonomy to the frontend
