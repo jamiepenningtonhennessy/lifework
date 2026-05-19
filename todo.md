@@ -1435,3 +1435,8 @@
 - [x] Wire up loading state and rendered output below the selection area
 - [x] Add route /lifework/blog-writer to App.tsx
 - [x] Write vitest for the blog writer taxonomy contract (6 tests pass)
+
+## Safari / Mac compatibility fixes
+
+- [x] Fix Alistair conversation download on Safari: append anchor to DOM before click, defer URL.revokeObjectURL by 1s
+- [x] Fix Alistair conversation upload on Safari: switch FileReader from readAsText to readAsArrayBuffer to prevent base64 corruption

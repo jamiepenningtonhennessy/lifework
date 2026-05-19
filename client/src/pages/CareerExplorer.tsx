@@ -271,8 +271,12 @@ export default function CareerExplorer() {
       const a = document.createElement("a");
       a.href = url;
       a.download = `alistair-conversation-${new Date().toISOString().slice(0, 10)}.alistair`;
+      // Append to DOM before clicking — required for Safari/Mac to trigger the download
+      document.body.appendChild(a);
       a.click();
-      URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+      // Defer revoke so Safari has time to initiate the download before the URL is released
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
       setSaveDialogOpen(false);
       setSavePin("");
       setSavePin2("");
@@ -291,12 +295,16 @@ export default function CareerExplorer() {
     if (!file) return;
     const reader = new FileReader();
     reader.onload = (ev) => {
-      const content = ev.target?.result as string;
-      setPendingFile(content.trim());
+      // Read as ArrayBuffer and manually convert to base64 so Safari does not
+      // corrupt the binary data by applying a text encoding during readAsText.
+      const buffer = ev.target?.result as ArrayBuffer;
+      const bytes = new Uint8Array(buffer);
+      const b64 = btoa(Array.from(bytes).map((b) => String.fromCharCode(b)).join(""));
+      setPendingFile(b64);
       setUploadPin("");
       setUploadDialogOpen(true);
     };
-    reader.readAsText(file);
+    reader.readAsArrayBuffer(file);
     // Reset input so same file can be re-selected
     e.target.value = "";
   };
