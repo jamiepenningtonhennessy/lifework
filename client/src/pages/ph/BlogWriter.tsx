@@ -17,6 +17,7 @@ export default function BlogWriter() {
   const [generatedPost, setGeneratedPost] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const [generatedImages, setGeneratedImages] = useState<Array<{ index: number; prompt: string; url: string | null; error: string | null }> | null>(null);
+  const [copiedImageIndex, setCopiedImageIndex] = useState<number | null>(null);
 
   const { data: taxonomy } = trpc.blogWriter.getTaxonomy.useQuery();
 
@@ -46,6 +47,14 @@ export default function BlogWriter() {
       postText: generatedPost,
       postType: selectedPostType as any,
       aspect: selectedAspect as any,
+    });
+  }
+
+  function handleCopyImageUrl(url: string, index: number) {
+    navigator.clipboard.writeText(url).then(() => {
+      setCopiedImageIndex(index);
+      toast.success("Image URL copied — paste directly into LinkedIn");
+      setTimeout(() => setCopiedImageIndex(null), 2500);
     });
   }
 
@@ -316,18 +325,33 @@ export default function BlogWriter() {
                             className="w-full rounded-xl"
                             style={{ display: "block" }}
                           />
-                          <button
-                            onClick={() => handleDownloadImage(img.url!, img.index)}
-                            className="absolute top-3 right-3 flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-                            style={{
-                              background: "rgba(10,22,40,0.75)",
-                              color: "white",
-                              backdropFilter: "blur(4px)",
-                            }}
-                            title="Download image"
-                          >
-                            <Download className="w-3 h-3" /> Download
-                          </button>
+                          <div className="absolute top-3 right-3 flex flex-col gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <button
+                              onClick={() => handleCopyImageUrl(img.url!, img.index)}
+                              className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-full"
+                              style={{
+                                background: copiedImageIndex === img.index ? "rgba(201,151,58,0.85)" : "rgba(10,22,40,0.75)",
+                                color: "white",
+                                backdropFilter: "blur(4px)",
+                              }}
+                              title="Copy image URL for LinkedIn"
+                            >
+                              {copiedImageIndex === img.index ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
+                              {copiedImageIndex === img.index ? "Copied!" : "Copy URL"}
+                            </button>
+                            <button
+                              onClick={() => handleDownloadImage(img.url!, img.index)}
+                              className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-full"
+                              style={{
+                                background: "rgba(10,22,40,0.75)",
+                                color: "white",
+                                backdropFilter: "blur(4px)",
+                              }}
+                              title="Download image"
+                            >
+                              <Download className="w-3 h-3" /> Download
+                            </button>
+                          </div>
                         </>
                       ) : (
                         <div
