@@ -245,7 +245,10 @@ Generate 3 image prompts.`,
         },
       });
 
-      const parsed = JSON.parse(promptResponse.choices[0]?.message?.content as string) as { prompts: string[] };
+      const rawContent = (promptResponse.choices[0]?.message?.content as string ?? "").trim();
+      // Strip markdown code fences that Anthropic sometimes adds despite instructions
+      const jsonContent = rawContent.replace(/^```(?:json)?\s*/i, "").replace(/\s*```\s*$/i, "").trim();
+      const parsed = JSON.parse(jsonContent) as { prompts: string[] };
       const imagePrompts = parsed.prompts.slice(0, 3);
 
       // Generate all 3 images in parallel
