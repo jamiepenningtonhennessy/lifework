@@ -18,18 +18,11 @@ import { promisify } from "util";
 import * as fs from "fs";
 import * as path from "path";
 import * as os from "os";
-import { fileURLToPath } from "url";
-
 const execFileAsync = promisify(execFile);
 
-// ESM-compatible __dirname
-const __filename = fileURLToPath(import.meta.url);
-const __dirnameESM = path.dirname(__filename);
-
-// Paths to compositing assets
-// __dirnameESM = server/routers/ at runtime, so go up two levels to project root
-const COMPOSE_SCRIPT = path.join(__dirnameESM, "..", "scripts", "compose_navy_frame.py");
-const TANGRAM_PATH = path.join(__dirnameESM, "..", "..", "..", "webdev-static-assets", "tangram.png");
+// Absolute paths — tsx resolves import.meta.url to the project root, not the file location
+const COMPOSE_SCRIPT = "/home/ubuntu/plum-trees/server/scripts/compose_navy_frame.py";
+const TANGRAM_PATH = "/home/ubuntu/webdev-static-assets/tangram.png";
 const SERIF_FONT = "/usr/share/fonts/truetype/noto/NotoSerif-Regular.ttf";
 const SANS_FONT = "/usr/share/fonts/truetype/noto/NotoSans-Regular.ttf";
 
