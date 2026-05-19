@@ -25,6 +25,16 @@ const COMPOSE_SCRIPT = "/home/ubuntu/plum-trees/server/scripts/compose_navy_fram
 const TANGRAM_PATH = "/home/ubuntu/webdev-static-assets/tangram.png";
 const SERIF_FONT = "/usr/share/fonts/truetype/noto/NotoSerif-Regular.ttf";
 const SANS_FONT = "/usr/share/fonts/truetype/noto/NotoSans-Regular.ttf";
+// Use explicit python3.11 binary path and strip any venv env vars that would cause
+// the 3.11 binary to load PIL from the wrong (3.13) venv, causing SRE module mismatch
+const PYTHON_BIN = "/usr/bin/python3.11";
+const CLEAN_PYTHON_ENV = (() => {
+  const env = { ...process.env };
+  delete env.PYTHONPATH;
+  delete env.PYTHONHOME;
+  delete env.VIRTUAL_ENV;
+  return env;
+})();
 
 // Map post type + aspect to a category label for the bottom rail
 function getCategoryLabel(postTypeId: string, aspectId: string): string {
@@ -283,21 +293,18 @@ Generate 3 photograph prompts for the inner photo area.`,
       const photoPrompts = parsed.prompts.slice(0, 3);
       console.log("[blogWriter.generateImages] Photo prompts:", photoPrompts);
 
-      // Step 2: Generate 3 inner photos in parallel via the image API
-      const photoResults = await Promise.allSettled(
-        photoPrompts.map(prompt => generateImage({ prompt }))
-      );
-
-      // Step 3: For each successfully generated photo, download it and run the compositor
+      // Step 2: Generate photos sequentially to avoid timeout and reduce peak load
+      console.log("[blogWriter.generateImages] Step 2: generating photos sequentially");
       const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "lifework-img-"));
 
-      const compositeResults = await Promise.allSettled(
-        photoResults.map(async (photoResult, i) => {
-          if (photoResult.status === "rejected") {
-            throw new Error(`Photo ${i+1} generation failed: ${photoResult.reason}`);
-          }
-          const photoUrl = photoResult.value.url;
+      const compositeResults: PromiseSettledResult<string>[] = [];
+      for (let i = 0; i < photoPrompts.length; i++) {
+        try {
+          console.log(`[blogWriter.generateImages] Generating photo ${i+1}/3...`);
+          const photoResult = await generateImage({ prompt: photoPrompts[i] });
+          const photoUrl = photoResult.url;
           if (!photoUrl) throw new Error(`Photo ${i+1} returned no URL`);
+          console.log(`[blogWriter.generateImages] Photo ${i+1} generated: ${photoUrl.substring(0,60)}`);
 
           // Download the photo to a temp file
           const photoResp = await fetch(photoUrl);
@@ -305,10 +312,12 @@ Generate 3 photograph prompts for the inner photo area.`,
           const photoBuffer = Buffer.from(await photoResp.arrayBuffer());
           const photoTmpPath = path.join(tmpDir, `photo_${i+1}.png`);
           fs.writeFileSync(photoTmpPath, photoBuffer);
+          console.log(`[blogWriter.generateImages] Photo ${i+1} downloaded (${photoBuffer.length} bytes)`);
 
           // Run the Python compositor
           const outputPath = path.join(tmpDir, `navy_frame_${i+1}.png`);
-          await execFileAsync("python3.11", [
+          console.log(`[blogWriter.generateImages] Running compositor for photo ${i+1}...`);
+          const { stdout: compOut, stderr: compErr } = await execFileAsync(PYTHON_BIN, [
             COMPOSE_SCRIPT,
             photoTmpPath,
             TANGRAM_PATH,
@@ -316,19 +325,25 @@ Generate 3 photograph prompts for the inner photo area.`,
             SANS_FONT,
             categoryLabel,
             outputPath,
-          ]);
+          ], { env: CLEAN_PYTHON_ENV });
+          if (compErr) console.warn(`[blogWriter.generateImages] Compositor stderr ${i+1}:`, compErr);
+          if (compOut) console.log(`[blogWriter.generateImages] Compositor stdout ${i+1}:`, compOut);
 
           // Upload the composited image to S3
           const compositeBuffer = fs.readFileSync(outputPath);
+          console.log(`[blogWriter.generateImages] Uploading composite ${i+1} (${compositeBuffer.length} bytes)...`);
           const { url } = await storagePut(
             `blog-images/${Date.now()}-${i+1}.png`,
             compositeBuffer,
             "image/png"
           );
           console.log(`[blogWriter.generateImages] Composite ${i+1} uploaded: ${url?.substring(0,60)}`);
-          return url;
-        })
-      );
+          compositeResults.push({ status: "fulfilled", value: url });
+        } catch (err) {
+          console.error(`[blogWriter.generateImages] Image ${i+1} failed:`, err);
+          compositeResults.push({ status: "rejected", reason: err });
+        }
+      }
 
       // Clean up temp files
       try { fs.rmSync(tmpDir, { recursive: true, force: true }); } catch {}

@@ -305,57 +305,37 @@ export default function BlogWriter() {
                   <p className="text-sm">Generating 3 images — this takes 20–40 seconds…</p>
                 </div>
               ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
+                <div className="flex flex-col gap-6">
                   {generatedImages?.map((img) => (
-                    <div key={img.index} className="flex flex-col gap-2">
-                      <div
-                        className="relative rounded-xl overflow-hidden group"
-                        style={{
-                          aspectRatio: "1.91/1",
-                          background: "rgba(0,0,0,0.05)",
-                          border: "1px solid rgba(0,0,0,0.08)",
-                        }}
-                      >
-                        {img.url ? (
-                          <>
-                            <img
-                              src={img.url}
-                              alt={`Image option ${img.index}`}
-                              className="w-full h-full object-cover"
-                            />
-                            <button
-                              onClick={() => handleDownloadImage(img.url!, img.index)}
-                              className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
-                              style={{ background: "rgba(10,22,40,0.55)" }}
-                              title="Download image"
-                            >
-                              <Download className="w-6 h-6" style={{ color: "white" }} />
-                            </button>
-                          </>
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center">
-                            <span className="text-xs" style={{ color: "rgba(0,0,0,0.35)" }}>Generation failed</span>
-                          </div>
-                        )}
-                      </div>
-                      <p
-                        className="text-xs leading-relaxed"
-                        style={{ color: "rgba(0,0,0,0.45)", fontStyle: "italic" }}
-                      >
-                        {img.prompt}
-                      </p>
-                      {img.url && (
-                        <button
-                          onClick={() => handleDownloadImage(img.url!, img.index)}
-                          className="flex items-center gap-1.5 text-xs self-start px-3 py-1.5 rounded-full transition-all"
-                          style={{
-                            background: "rgba(201,151,58,0.1)",
-                            color: "var(--lw-gold)",
-                            border: "1px solid rgba(201,151,58,0.25)",
-                          }}
+                    <div key={img.index} className="relative group">
+                      {img.url ? (
+                        <>
+                          <img
+                            src={img.url}
+                            alt={`Image option ${img.index}`}
+                            className="w-full rounded-xl"
+                            style={{ display: "block" }}
+                          />
+                          <button
+                            onClick={() => handleDownloadImage(img.url!, img.index)}
+                            className="absolute top-3 right-3 flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                            style={{
+                              background: "rgba(10,22,40,0.75)",
+                              color: "white",
+                              backdropFilter: "blur(4px)",
+                            }}
+                            title="Download image"
+                          >
+                            <Download className="w-3 h-3" /> Download
+                          </button>
+                        </>
+                      ) : (
+                        <div
+                          className="w-full rounded-xl flex items-center justify-center"
+                          style={{ aspectRatio: "1/1", background: "rgba(0,0,0,0.05)", border: "1px solid rgba(0,0,0,0.08)" }}
                         >
-                          <Download className="w-3 h-3" /> Download
-                        </button>
+                          <span className="text-xs" style={{ color: "rgba(0,0,0,0.35)" }}>Generation failed</span>
+                        </div>
                       )}
                     </div>
                   ))}
