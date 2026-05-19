@@ -314,15 +314,12 @@ export default function ClientDashboard() {
         }}
       >
         <div className="container flex items-center justify-between h-14">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center">
             <img
-              src="https://d2xsxph8kpxj0f.cloudfront.net/107696804/kFbbE6kqNApXGDFpQJUGV7/phsquare_98c01de4.jpg"
-              alt="Pennington Hennessy"
-              className="w-7 h-7 object-cover"
+              src="https://d2xsxph8kpxj0f.cloudfront.net/107696804/kFbbE6kqNApXGDFpQJUGV7/lifework-logo-onnavy_1f7a4c72.png"
+              alt="Lifework"
+              className="h-8 w-auto object-contain"
             />
-            <span className="font-serif font-semibold" style={{ color: "white" }}>
-              Lifework
-            </span>
           </div>
           <div className="flex items-center gap-2">
             {user?.role === "admin" && (

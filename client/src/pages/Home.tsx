@@ -72,12 +72,12 @@ export default function Home() {
       <nav style={{ background: "var(--lw-navy)", borderBottom: "1px solid rgba(201,151,58,0.25)" }}
         className="sticky top-0 z-50">
         <div className="container flex items-center justify-between h-16">
-          <div className="flex items-center gap-3">
-            <img src="https://d2xsxph8kpxj0f.cloudfront.net/107696804/kFbbE6kqNApXGDFpQJUGV7/phsquare_98c01de4.jpg"
-              alt="Pennington Hennessy" className="w-8 h-8 object-cover" />
-            <span style={{ color: "white", fontFamily: "'Playfair Display', serif", fontWeight: 600, fontSize: "1.1rem", letterSpacing: "0.02em" }}>
-              Lifework
-            </span>
+          <div className="flex items-center">
+            <img
+              src="https://d2xsxph8kpxj0f.cloudfront.net/107696804/kFbbE6kqNApXGDFpQJUGV7/lifework-logo-onnavy_1f7a4c72.png"
+              alt="Lifework"
+              className="h-9 w-auto object-contain"
+            />
           </div>
           <div className="flex items-center gap-3">
             {isAuthenticated ? (
@@ -397,12 +397,12 @@ export default function Home() {
       {/* ── Footer ── */}
       <footer style={{ background: "var(--lw-navy)", borderTop: "1px solid rgba(201,151,58,0.2)" }} className="py-8">
         <div className="container flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <img src="https://d2xsxph8kpxj0f.cloudfront.net/107696804/kFbbE6kqNApXGDFpQJUGV7/phsquare_98c01de4.jpg"
-              alt="Pennington Hennessy" className="w-6 h-6 object-cover" />
-            <span style={{ color: "rgba(255,255,255,0.6)", fontSize: "0.85rem", fontFamily: "'Playfair Display', serif" }}>
-              Lifework
-            </span>
+          <div className="flex items-center">
+            <img
+              src="https://d2xsxph8kpxj0f.cloudfront.net/107696804/kFbbE6kqNApXGDFpQJUGV7/lifework-logo-onnavy_1f7a4c72.png"
+              alt="Lifework"
+              className="h-7 w-auto object-contain"
+            />
           </div>
           <div className="flex flex-col sm:flex-row items-center gap-3 sm:gap-6">
             <p style={{ fontSize: "0.75rem", color: "rgba(255,255,255,0.4)" }}>

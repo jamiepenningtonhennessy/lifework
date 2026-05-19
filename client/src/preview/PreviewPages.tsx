@@ -369,8 +369,11 @@ export function PreviewClientDashboard() {
       <div className="sticky top-10 z-10" style={{ background: "var(--lw-navy)", borderBottom: "1px solid rgba(201,151,58,0.25)" }}>
         <div className="container flex items-center justify-between h-14">
           <div className="flex items-center gap-2">
-            <img src="https://d2xsxph8kpxj0f.cloudfront.net/107696804/kFbbE6kqNApXGDFpQJUGV7/phsquare_98c01de4.jpg" alt="PH" className="w-7 h-7 object-cover" />
-            <span className="font-serif font-semibold" style={{ color: "white" }}>Lifework</span>
+            <img
+              src="https://d2xsxph8kpxj0f.cloudfront.net/107696804/kFbbE6kqNApXGDFpQJUGV7/lifework-logo-onnavy_1f7a4c72.png"
+              alt="Lifework"
+              className="h-8 w-auto object-contain"
+            />
           </div>
           <div className="flex items-center gap-3">
             <span className="text-sm hidden sm:block" style={{ color: "rgba(255,255,255,0.6)" }}>{fullName}</span>
