@@ -7,7 +7,7 @@ Canvas: 1080×1080px
 - Outer frame: navy #1a2744, full bleed
 - Inner photo: 960×890px at (60, 60)
 - Bottom rail: 130px tall navy strip at y=950
-  - Left: tangram mark (36×36) + "Lifework" wordmark in serif, cream #f5f0e8, 60px from left
+  - Left: tangram mark (56×56) + "Lifework" wordmark in serif, cream #f5f0e8, 60px from left
   - Right: category label in uppercase sans, cream #f5f0e8, 78% opacity, 60px from right
 """
 import sys
@@ -28,9 +28,10 @@ PHOTO_W, PHOTO_H = 960, 890
 RAIL_H = 130
 RAIL_Y = CANVAS_H - RAIL_H  # 950
 
-MARK_SIZE = 36
-WORDMARK_CAP = 32  # approx cap height in px — use font size ~42 for this cap height
-LABEL_SIZE = 18    # px for uppercase label (~12px cap height)
+# Increased sizes to match reference image
+MARK_SIZE = 56          # was 36 — larger tangram square
+WORDMARK_FONT_SIZE = 58 # was 42 — larger "Lifework" wordmark
+LABEL_FONT_SIZE = 26    # was 18 — larger category label
 
 def compose(photo_path, tangram_path, serif_font_path, sans_font_path, category_label, output_path):
     # 1. Create navy canvas
@@ -41,7 +42,7 @@ def compose(photo_path, tangram_path, serif_font_path, sans_font_path, category_
     photo = photo.resize((PHOTO_W, PHOTO_H), Image.LANCZOS)
     canvas.paste(photo, (MARGIN, MARGIN))
 
-    # 3. Load tangram mark and resize to 36×36
+    # 3. Load tangram mark and resize to MARK_SIZE
     tangram = Image.open(tangram_path).convert('RGBA')
     tangram = tangram.resize((MARK_SIZE, MARK_SIZE), Image.LANCZOS)
     # Paste tangram onto canvas in bottom rail, vertically centred
@@ -52,13 +53,13 @@ def compose(photo_path, tangram_path, serif_font_path, sans_font_path, category_
     # 4. Draw "Lifework" wordmark in serif font
     draw = ImageDraw.Draw(canvas)
     try:
-        serif_font = ImageFont.truetype(serif_font_path, size=42)
+        serif_font = ImageFont.truetype(serif_font_path, size=WORDMARK_FONT_SIZE)
     except Exception:
         serif_font = ImageFont.load_default()
 
     wordmark_text = "Lifework"
-    # Position wordmark to the right of the tangram mark with 10px gap
-    wordmark_x = mark_x + MARK_SIZE + 10
+    # Position wordmark to the right of the tangram mark with 14px gap
+    wordmark_x = mark_x + MARK_SIZE + 14
     # Vertically centre the text in the rail
     bbox = draw.textbbox((0, 0), wordmark_text, font=serif_font)
     text_h = bbox[3] - bbox[1]
@@ -67,7 +68,7 @@ def compose(photo_path, tangram_path, serif_font_path, sans_font_path, category_
 
     # 5. Draw category label in uppercase sans, right-aligned, 78% opacity
     try:
-        sans_font = ImageFont.truetype(sans_font_path, size=LABEL_SIZE)
+        sans_font = ImageFont.truetype(sans_font_path, size=LABEL_FONT_SIZE)
     except Exception:
         sans_font = ImageFont.load_default()
 

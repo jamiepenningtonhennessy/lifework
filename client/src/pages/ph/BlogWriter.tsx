@@ -305,7 +305,7 @@ export default function BlogWriter() {
                   <p className="text-sm">Generating 3 images — this takes 20–40 seconds…</p>
                 </div>
               ) : (
-                <div className="flex flex-col gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                   {generatedImages?.map((img) => (
                     <div key={img.index} className="relative group">
                       {img.url ? (
