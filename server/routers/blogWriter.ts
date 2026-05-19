@@ -20,6 +20,10 @@ export const POST_TYPES = [
   { id: "comparison", label: "Comparison with other tools" },
   { id: "recent-experiences", label: "Recent experiences with clients or colleagues" },
   { id: "changed-worldview", label: "Changed world view" },
+  { id: "first-career-seeker", label: "First career seeker" },
+  { id: "work-returner", label: "Work returner" },
+  { id: "made-redundant", label: "Made redundant" },
+  { id: "approaching-retirement", label: "Approaching retirement" },
 ] as const;
 
 export const LIFEWORK_ASPECTS = [
@@ -77,6 +81,14 @@ const POST_TYPE_INSTRUCTIONS: Record<PostTypeId, string> = {
   "recent-experiences": `Frame this as a brief account of something the writer observed recently — with a client, a colleague, or in a coaching conversation. Protect client confidentiality (no names, no identifying details). The story should illustrate a specific insight about the Lifework process.`,
 
   "changed-worldview": `Frame this as a before-and-after account — how the writer's understanding of careers, strengths, or human potential shifted as a result of working with or through Lifework. Be specific about what changed and why.`,
+
+  "first-career-seeker": `Frame this post for someone at the very start of their working life — a graduate, school leaver, or young professional who has not yet settled into a career direction. Write as a coach addressing the specific anxieties, pressures, and opportunities of this stage: the noise of external expectations, the difficulty of self-knowledge at 21, and the value of starting from what genuinely energises rather than what looks good on paper. The tone should be encouraging without being patronising.`,
+
+  "work-returner": `Frame this post for someone returning to work after a significant break — whether for caring responsibilities, illness, redundancy, or a deliberate pause. Write as a coach who understands the particular challenges of this moment: the loss of professional identity, the fear of being out of date, and the opportunity to re-enter on different terms. Acknowledge the emotional reality of the transition before offering the analytical perspective.`,
+
+  "made-redundant": `Frame this post for someone who has recently been made redundant. Write as a coach who takes the emotional weight of redundancy seriously — the shock, the identity disruption, the temptation to rush into the first available role — before making the case for using this moment to think more carefully about what they actually want. The tone should be honest and grounded, not relentlessly upbeat.`,
+
+  "approaching-retirement": `Frame this post for someone in their late fifties or early sixties who is beginning to think about the transition out of full-time work. Write as a coach who understands that this transition is as much about identity and purpose as it is about finance or logistics. Address the question of what comes next — not as a wind-down but as a potential reorientation toward what has always mattered most. The tone should be thoughtful and unhurried.`,
 };
 
 // ─── Aspect context ───────────────────────────────────────────────────────────
