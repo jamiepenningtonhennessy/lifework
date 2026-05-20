@@ -1,0 +1,136 @@
+{
+  "query": "\nSELECT \n  cp.id, cp.firstName, cp.lastName,\n  COUNT(a.id) as totalAchievements,\n  SUM(CASE WHEN a.sageEnrichment IS NOT NULL AND LENGTH(TRIM(a.sageEnrichment)) > 0 THEN 1 ELSE 0 END) as enrichedAchievements\nFROM client_profiles cp\nLEFT JOIN achievements a ON a.clientId = cp.id\nGROUP BY cp.id\nHAVING totalAchievements >= 15\nORDER BY cp.id;\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 32u3a1hNYuu9Gj3.7d2282893346 --database kFbbE6kqNApXGDFpQJUGV7 --execute \nSELECT \n  cp.id, cp.firstName, cp.lastName,\n  COUNT(a.id) as totalAchievements,\n  SUM(CASE WHEN a.sageEnrichment IS NOT NULL AND LENGTH(TRIM(a.sageEnrichment)) > 0 THEN 1 ELSE 0 END) as enrichedAchievements\nFROM client_profiles cp\nLEFT JOIN achievements a ON a.clientId = cp.id\nGROUP BY cp.id\nHAVING totalAchievements >= 15\nORDER BY cp.id;\n",
+  "rows": [
+    {
+      "id": "1",
+      "firstName": "Jamie",
+      "lastName": "Pennington",
+      "totalAchievements": "36",
+      "enrichedAchievements": "21"
+    },
+    {
+      "id": "60001",
+      "firstName": "Mark",
+      "lastName": "Brandon",
+      "totalAchievements": "23",
+      "enrichedAchievements": "0"
+    },
+    {
+      "id": "120001",
+      "firstName": "Claire",
+      "lastName": "Eldridge",
+      "totalAchievements": "25",
+      "enrichedAchievements": "0"
+    },
+    {
+      "id": "150001",
+      "firstName": "Patrick",
+      "lastName": "Raggett",
+      "totalAchievements": "31",
+      "enrichedAchievements": "0"
+    },
+    {
+      "id": "180001",
+      "firstName": "Martin",
+      "lastName": "Bragg",
+      "totalAchievements": "24",
+      "enrichedAchievements": "0"
+    },
+    {
+      "id": "210001",
+      "firstName": "Martin",
+      "lastName": "Wilson",
+      "totalAchievements": "20",
+      "enrichedAchievements": "20"
+    },
+    {
+      "id": "270001",
+      "firstName": "Mike",
+      "lastName": "Clark",
+      "totalAchievements": "32",
+      "enrichedAchievements": "0"
+    },
+    {
+      "id": "300001",
+      "firstName": "Gavin",
+      "lastName": "Wallen",
+      "totalAchievements": "21",
+      "enrichedAchievements": "0"
+    },
+    {
+      "id": "360001",
+      "firstName": "Liam",
+      "lastName": "Holohan",
+      "totalAchievements": "32",
+      "enrichedAchievements": "0"
+    },
+    {
+      "id": "390001",
+      "firstName": "Jane",
+      "lastName": "Harris",
+      "totalAchievements": "23",
+      "enrichedAchievements": "21"
+    },
+    {
+      "id": "450001",
+      "firstName": "Neil",
+      "lastName": "Denny",
+      "totalAchievements": "28",
+      "enrichedAchievements": "7"
+    },
+    {
+      "id": "540001",
+      "firstName": "Brian",
+      "lastName": "Rea",
+      "totalAchievements": "26",
+      "enrichedAchievements": "24"
+    },
+    {
+      "id": "630001",
+      "firstName": "Keith",
+      "lastName": "Hobson",
+      "totalAchievements": "21",
+      "enrichedAchievements": "21"
+    },
+    {
+      "id": "660001",
+      "firstName": "Mercedes",
+      "lastName": "NULL",
+      "totalAchievements": "21",
+      "enrichedAchievements": "0"
+    },
+    {
+      "id": "690001",
+      "firstName": "Caitlin",
+      "lastName": "NULL",
+      "totalAchievements": "24",
+      "enrichedAchievements": "24"
+    },
+    {
+      "id": "750001",
+      "firstName": "Michael",
+      "lastName": "Phillips",
+      "totalAchievements": "26",
+      "enrichedAchievements": "26"
+    },
+    {
+      "id": "810001",
+      "firstName": "Amber",
+      "lastName": "NULL",
+      "totalAchievements": "23",
+      "enrichedAchievements": "13"
+    },
+    {
+      "id": "840001",
+      "firstName": "Maz",
+      "lastName": "NULL",
+      "totalAchievements": "20",
+      "enrichedAchievements": "20"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tfirstName\tlastName\ttotalAchievements\tenrichedAchievements\n1\tJamie\tPennington\t36\t21\n60001\tMark\tBrandon\t23\t0\n120001\tClaire\tEldridge\t25\t0\n150001\tPatrick\tRaggett\t31\t0\n180001\tMartin\tBragg\t24\t0\n210001\tMartin\tWilson\t20\t20\n270001\tMike\tClark\t32\t0\n300001\tGavin\tWallen\t21\t0\n360001\tLiam\tHolohan\t32\t0\n390001\tJane\tHarris\t23\t21\n450001\tNeil\tDenny\t28\t7\n540001\tBrian\tRea\t26\t24\n630001\tKeith\tHobson\t21\t21\n660001\tMercedes\tNULL\t21\t0\n690001\tCaitlin\tNULL\t24\t24\n750001\tMichael\tPhillips\t26\t26\n810001\tAmber\tNULL\t23\t13\n840001\tMaz\tNULL\t20\t20\n",
+  "stderr": "",
+  "execution_time_ms": 1073
+}

@@ -93,6 +93,16 @@ export function ChatToPeter({
     { enabled: isOpen && !isPreview }
   );
 
+  // For life_history, fetch enrichment progress so we can gate the Save button
+  const { data: enrichmentStatus } = trpc.profile.getEnrichmentStatus.useQuery(
+    undefined,
+    { enabled: isOpen && !isPreview && section === "life_history" }
+  );
+  const SAGE_REQUIRED = 20;
+  const sageEnriched = enrichmentStatus?.enriched ?? 0;
+  const sageRequired = enrichmentStatus?.required ?? SAGE_REQUIRED;
+  const enrichmentMet = section !== "life_history" || sageEnriched >= sageRequired;
+
   // Load existing session when panel opens
   useEffect(() => {
     if (sessions && sessions.length > 0) {
@@ -105,7 +115,7 @@ export function ChatToPeter({
         } catch {
           setMessages([]);
         }
-        setIsSummarised(!!latest.summary);
+        setIsSummarised(!!latest.isComplete);
       }
     }
   }, [sessions, section]);
@@ -321,6 +331,7 @@ export function ChatToPeter({
   const MIN_MESSAGES_TO_SAVE = 4;
 
   // In preview mode, hide the Save & finish / Reset buttons (no DB session)
+  // For life_history, only show Save when enrichment threshold is met
   const showSaveButton = !isPreview && messages.length >= MIN_MESSAGES_TO_SAVE && !isSummarised;
   const showResetButton = !isPreview && messages.length > 0;
 
@@ -388,10 +399,27 @@ export function ChatToPeter({
                   <Button
                     size="sm"
                     variant="ghost"
-                    className="text-xs h-7 px-2.5 gap-1.5 text-emerald-700 hover:text-emerald-800 hover:bg-emerald-50"
-                    onClick={() => sessionId && generateSummary.mutate({ sessionId })}
+                    className={`text-xs h-7 px-2.5 gap-1.5 ${
+                      enrichmentMet
+                        ? "text-emerald-700 hover:text-emerald-800 hover:bg-emerald-50"
+                        : "text-amber-600 hover:text-amber-700 hover:bg-amber-50"
+                    }`}
+                    onClick={() => {
+                      if (!enrichmentMet) {
+                        toast.warning(
+                          `Sage has explored ${sageEnriched} of ${sageRequired} events so far. Keep the conversation going — you need ${sageRequired - sageEnriched} more before saving.`,
+                          { duration: 5000 }
+                        );
+                        return;
+                      }
+                      if (sessionId) generateSummary.mutate({ sessionId });
+                    }}
                     disabled={generateSummary.isPending}
-                    title="Save this conversation to your profile — do this when you have finished chatting with Sage"
+                    title={
+                      enrichmentMet
+                        ? "Save this conversation to your profile — do this when you have finished chatting with Sage"
+                        : `${sageRequired - sageEnriched} more events needed before you can save`
+                    }
                   >
                     {generateSummary.isPending ? (
                       <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -399,6 +427,11 @@ export function ChatToPeter({
                       <>
                         <BookmarkCheck className="w-3.5 h-3.5" />
                         Save &amp; finish
+                        {!enrichmentMet && (
+                          <span className="ml-0.5 text-[10px] font-normal opacity-80">
+                            ({sageRequired - sageEnriched} more)
+                          </span>
+                        )}
                       </>
                     )}
                   </Button>

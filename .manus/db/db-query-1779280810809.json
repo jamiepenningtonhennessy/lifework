@@ -1,0 +1,19 @@
+{
+  "query": "\nSELECT \n  id, section, isComplete, \n  summary IS NOT NULL as hasSummary,\n  JSON_LENGTH(messages) as messageCount,\n  createdAt, updatedAt\nFROM chat_sessions\nWHERE clientId = 810001\nORDER BY createdAt;\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 32u3a1hNYuu9Gj3.7d2282893346 --database kFbbE6kqNApXGDFpQJUGV7 --execute \nSELECT \n  id, section, isComplete, \n  summary IS NOT NULL as hasSummary,\n  JSON_LENGTH(messages) as messageCount,\n  createdAt, updatedAt\nFROM chat_sessions\nWHERE clientId = 810001\nORDER BY createdAt;\n",
+  "rows": [
+    {
+      "id": "870001",
+      "section": "life_history",
+      "isComplete": "1",
+      "hasSummary": "1",
+      "messageCount": "71",
+      "createdAt": "2026-05-20 10:32:07",
+      "updatedAt": "2026-05-20 11:16:27"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tsection\tisComplete\thasSummary\tmessageCount\tcreatedAt\tupdatedAt\n870001\tlife_history\t1\t1\t71\t2026-05-20 10:32:07\t2026-05-20 11:16:27\n",
+  "stderr": "",
+  "execution_time_ms": 372
+}
