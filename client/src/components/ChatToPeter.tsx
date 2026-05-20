@@ -405,13 +405,6 @@ export function ChatToPeter({
                         : "text-amber-600 hover:text-amber-700 hover:bg-amber-50"
                     }`}
                     onClick={() => {
-                      if (!enrichmentMet) {
-                        toast.warning(
-                          `Sage has explored ${sageEnriched} of ${sageRequired} events so far. Keep the conversation going — you need ${sageRequired - sageEnriched} more before saving.`,
-                          { duration: 5000 }
-                        );
-                        return;
-                      }
                       if (sessionId) generateSummary.mutate({ sessionId });
                     }}
                     disabled={generateSummary.isPending}

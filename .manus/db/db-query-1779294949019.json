@@ -1,0 +1,14 @@
+{
+  "query": "\nSELECT \n  COUNT(*) as total,\n  SUM(CASE WHEN sageEnrichment IS NOT NULL AND LENGTH(TRIM(sageEnrichment)) > 0 THEN 1 ELSE 0 END) as enriched\nFROM achievements\nWHERE clientId = 810001;\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 32u3a1hNYuu9Gj3.7d2282893346 --database kFbbE6kqNApXGDFpQJUGV7 --execute \nSELECT \n  COUNT(*) as total,\n  SUM(CASE WHEN sageEnrichment IS NOT NULL AND LENGTH(TRIM(sageEnrichment)) > 0 THEN 1 ELSE 0 END) as enriched\nFROM achievements\nWHERE clientId = 810001;\n",
+  "rows": [
+    {
+      "total": "23",
+      "enriched": "20"
+    }
+  ],
+  "messages": [],
+  "stdout": "total\tenriched\n23\t20\n",
+  "stderr": "",
+  "execution_time_ms": 1022
+}

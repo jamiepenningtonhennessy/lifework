@@ -2722,8 +2722,8 @@ const chatPeterRouter = router({
         await updateClientProfile(profile.id, { sageStatus: "completed" });
       }
 
-      // Automatically re-run Sage enrichment so achievement records pick up
-      // the new conversation content without requiring a manual counsellor action.
+      // Re-run enrichment after save (non-blocking) so achievement records pick
+      // up any new conversation content for the counsellor dashboard.
       runSageEnrichment(profile.id).catch(() => {
         // Non-fatal — enrichment can be triggered manually from the counsellor dashboard
       });
