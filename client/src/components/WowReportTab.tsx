@@ -41,6 +41,10 @@ import {
   Presentation,
   Lock,
   Unlock,
+  FlaskConical,
+  ChevronRight,
+  Clock3,
+  X,
 } from "lucide-react";
 import { toast } from "sonner";
 import { Streamdown } from "streamdown";
@@ -167,6 +171,8 @@ export default function WowReportTab({ clientId, clientName }: WowReportTabProps
   const [selectedReportType, setSelectedReportType] = useState<WowReportType>("standard");
   const [selectedWritingStyle, setSelectedWritingStyle] = useState<"house" | "mark" | "clive-james" | "michael-lewis" | "oliver-sacks" | "william-zinsser">("house");
   const [sageOpen, setSageOpen] = useState(false);
+  const [showTrace, setShowTrace] = useState(false);
+  const [selectedTraceRunId, setSelectedTraceRunId] = useState<string | null>(null);
   const pollIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const msgIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
@@ -176,6 +182,16 @@ export default function WowReportTab({ clientId, clientName }: WowReportTabProps
   const { data: reportData } = trpc.wowReport.get.useQuery(
     { clientId },
     { refetchInterval: false }
+  );
+
+  // Trace log queries
+  const { data: traceRuns } = trpc.wowReport.getTraceRuns.useQuery(
+    { clientId },
+    { enabled: showTrace }
+  );
+  const { data: traceEntries } = trpc.wowReport.getTraceRun.useQuery(
+    { runId: selectedTraceRunId! },
+    { enabled: !!selectedTraceRunId }
   );
 
   // Generate mutation — fires and forgets, then we start polling
@@ -1195,6 +1211,15 @@ export default function WowReportTab({ clientId, clientName }: WowReportTabProps
                       Rewrite in New Style
                     </Button>
                   )}
+                  <Button
+                    variant="outline"
+                    className="border-[var(--lw-navy)]/30 text-[var(--lw-navy)] hover:bg-[var(--lw-navy)]/5 text-sm"
+                    onClick={() => setShowTrace(v => !v)}
+                    title="View the generation trace — what data and prompts were sent to each LLM call"
+                  >
+                    <FlaskConical className="w-4 h-4 mr-2" />
+                    {showTrace ? "Hide Trace" : "View Trace"}
+                  </Button>
                 </div>
               </CardContent>
             </Card>
@@ -1256,6 +1281,113 @@ export default function WowReportTab({ clientId, clientName }: WowReportTabProps
             </Button>
           </CardContent>
         </Card>
+      )}
+
+      {/* ── Generation Trace Panel ───────────────────────────────────────── */}
+      {showTrace && (
+        <Card className="border-[var(--lw-navy)]/20 mt-2">
+          <CardHeader className="pb-2 pt-4 px-4">
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-sm font-semibold text-[var(--lw-navy)] flex items-center gap-2">
+                <FlaskConical className="w-4 h-4" />
+                Generation Trace Log
+              </CardTitle>
+              <Button variant="ghost" size="sm" className="h-6 w-6 p-0" onClick={() => { setShowTrace(false); setSelectedTraceRunId(null); }}>
+                <X className="w-3 h-3" />
+              </Button>
+            </div>
+            <p className="text-xs text-muted-foreground mt-1">
+              Each row is one generation run. Click a run to see the exact data and prompts sent to the AI for each section.
+            </p>
+          </CardHeader>
+          <CardContent className="px-4 pb-4">
+            {!traceRuns || traceRuns.length === 0 ? (
+              <p className="text-xs text-muted-foreground italic">
+                No trace logs yet. Generate a report to capture the first trace.
+              </p>
+            ) : (
+              <div className="flex flex-col gap-2">
+                {traceRuns.map((run: any) => (
+                  <button
+                    key={run.runId}
+                    onClick={() => setSelectedTraceRunId(prev => prev === run.runId ? null : run.runId)}
+                    className="w-full text-left rounded border border-[var(--lw-navy)]/15 px-3 py-2 hover:bg-[var(--lw-navy)]/5 transition-colors"
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <Clock3 className="w-3 h-3 text-muted-foreground" />
+                        <span className="text-xs font-medium text-[var(--lw-navy)]">
+                          {new Date(run.createdAt).toLocaleString()}
+                        </span>
+                        <Badge variant="outline" className="text-[10px] px-1.5 py-0 border-[var(--lw-gold)]/40 text-[var(--lw-navy)]">
+                          {run.writingStyle ?? "house"}
+                        </Badge>
+                        <Badge variant="outline" className="text-[10px] px-1.5 py-0 border-[var(--lw-gold)]/40 text-[var(--lw-navy)]">
+                          {run.sectionCount} sections
+                        </Badge>
+                      </div>
+                      <ChevronRight className={`w-3 h-3 text-muted-foreground transition-transform ${selectedTraceRunId === run.runId ? "rotate-90" : ""}`} />
+                    </div>
+                  </button>
+                ))}
+
+                {/* Expanded trace entries */}
+                {selectedTraceRunId && traceEntries && (
+                  <div className="mt-2 flex flex-col gap-3">
+                    {(traceEntries as any[]).map((entry: any) => (
+                      <TraceEntry key={entry.id} entry={entry} />
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
+    </div>
+  );
+}
+
+// ── Trace Entry Component ────────────────────────────────────────────────────
+function TraceEntry({ entry }: { entry: any }) {
+  const [expanded, setExpanded] = useState<"context" | "prompt" | "output" | null>(null);
+  const durationSec = entry.durationMs ? (entry.durationMs / 1000).toFixed(1) : null;
+  return (
+    <div className="rounded border border-[var(--lw-navy)]/15 overflow-hidden">
+      <button
+        className="w-full text-left px-3 py-2 flex items-center justify-between hover:bg-[var(--lw-navy)]/5 transition-colors"
+        onClick={() => setExpanded(null)}
+      >
+        <div className="flex items-center gap-2">
+          <span className="text-xs font-semibold text-[var(--lw-navy)]">{entry.sectionLabel}</span>
+          {durationSec && (
+            <span className="text-[10px] text-muted-foreground">{durationSec}s</span>
+          )}
+        </div>
+      </button>
+      <div className="px-3 pb-3 flex gap-2 flex-wrap">
+        {(["context", "prompt", "output"] as const).map(tab => (
+          <button
+            key={tab}
+            onClick={() => setExpanded(prev => prev === tab ? null : tab)}
+            className={`text-[11px] px-2 py-0.5 rounded border transition-colors ${
+              expanded === tab
+                ? "bg-[var(--lw-navy)] text-white border-[var(--lw-navy)]"
+                : "border-[var(--lw-navy)]/20 text-[var(--lw-navy)] hover:bg-[var(--lw-navy)]/5"
+            }`}
+          >
+            {tab === "context" ? "Client Data" : tab === "prompt" ? "System Prompt" : "AI Output"}
+          </button>
+        ))}
+      </div>
+      {expanded && (
+        <div className="px-3 pb-3">
+          <pre className="text-[11px] bg-[var(--lw-cream)] rounded p-3 overflow-auto max-h-80 whitespace-pre-wrap break-words border border-[var(--lw-gold)]/20 font-mono leading-relaxed">
+            {expanded === "context" ? entry.contextSent
+              : expanded === "prompt" ? entry.promptSent
+              : entry.rawOutput}
+          </pre>
+        </div>
       )}
     </div>
   );

@@ -38,6 +38,9 @@ import {
   getAnalysisReport,
   upsertAnalysisReport,
   clearAllWowPdfUrls,
+  insertReportGenerationLog,
+  getReportGenerationRuns,
+  getReportGenerationLogsByRunId,
 } from "../db";
 
 // pdfmake is CJS-only; use createRequire so it works in the ESM server context
@@ -388,7 +391,8 @@ function getVariantPrompts(type: WowReportType, ctx: string, sys: string): {
   };
 }
 
-async function generateWowSections(clientId: number, reportType: WowReportType = "standard", writingStyle: WritingStyle = "house"): Promise<WowReportSections> {
+async function generateWowSections(clientId: number, reportType: WowReportType = "standard", writingStyle: WritingStyle = "house", runId?: string): Promise<WowReportSections> {
+  const _runId = runId ?? crypto.randomUUID();
   const { clientName, clientFullName, pronouns, contextText, viaRanked, domainScores, facetScores } = await buildClientContext(clientId);
   // pronouns is a string like "they/them/their" or "he/him/his" or "she/her/her"
   const pronounParts = pronouns.split("/");
@@ -505,6 +509,41 @@ Write directly to the client using "you" and "your" throughout. Do NOT include a
   // Life History Pattern always uses the canonical house-style output.
   // Mark Brandon rewrite is applied post-generation by rewriteSectionsForMark().
   const lifeHistoryPattern = canonicalLifeHistory;
+
+  // Trace the canonical life history (Step 1) immediately
+  const _lhT0 = Date.now();
+  insertReportGenerationLog({
+    clientId,
+    runId: _runId,
+    writingStyle,
+    reportType,
+    sectionKey: "lifeHistoryPattern",
+    sectionLabel: "Life History Pattern (Canonical)",
+    promptSent: CANONICAL_SYSTEM_PROMPT ?? "(canonical stage 1 system prompt)",
+    contextSent: LIFE_HISTORY_PROMPT ?? "(canonical stage 1 user prompt)",
+    rawOutput: canonicalLifeHistory,
+    durationMs: Date.now() - _lhT0,
+  }).catch(() => {});
+
+  // Trace helper — wraps callLLMWithTimeout and saves a log entry (non-blocking)
+  async function tracedCall(sectionKey: string, sectionLabel: string, sysPrompt: string, userPrompt: string, timeoutMs?: number): Promise<string> {
+    const t0 = Date.now();
+    const result = await callLLMWithTimeout(sysPrompt, userPrompt, timeoutMs);
+    insertReportGenerationLog({
+      clientId,
+      runId: _runId,
+      writingStyle,
+      reportType,
+      sectionKey,
+      sectionLabel,
+      promptSent: sysPrompt,
+      contextSent: userPrompt,
+      rawOutput: result,
+      durationMs: Date.now() - t0,
+    }).catch(() => {});
+    return result;
+  }
+
   // Step 2: Run remaining 7 sections in parallel — each with its own 90s timeout
   const [
     summary,
@@ -515,33 +554,33 @@ Write directly to the client using "you" and "your" throughout. Do NOT include a
     developmentEdge,
     coachingQuestions,
   ] = await Promise.all([
-    callLLMWithTimeout(effectiveSys,
+    tracedCall("summary", "Lifework Summary", effectiveSys,
       `${ctx}\n\nWrite the Lifework Summary — the opening portrait of this client. This is the most important paragraph in the report: the first thing they read, and the statement that should make them feel immediately and precisely seen.\n\nSTRUCTURE:\n\nParagraph 1 (4-5 lines): Begin with "You are..." and write a single direct, evidence-grounded portrait. Name the core theme that runs from the earliest experiences to today. Reference 2-3 specific achievements or moments from the life history. Name the 2-3 character strengths that are most active in the evidence. End with a sentence that captures the single most distinctive thing about this person as a professional.\n\nThen write: "From what you have told us, we can see:"\n\nThen 5-6 tight bullet points, each one a specific, evidence-grounded observation about this person's pattern, motivation, or working style. Each bullet should be one complete sentence. No generalities — every bullet should be something that could only be written about this specific person.\n\nDo NOT include any introductory paragraph. Begin immediately with "You are...". Do NOT use hollow superlatives. Do NOT write more than one opening paragraph before the bullets.`
     ),
-    callLLMWithTimeout(effectiveSys,
+    tracedCall("via", "Character Strengths (VIA)", effectiveSys,
       `${ctx}\n\n--- CANONICAL LIFE HISTORY ANALYSIS (authoritative interpretation — use this when assessing strength evidence and Identity Salience) ---\n${lifeHistoryPattern}\n--- END CANONICAL LIFE HISTORY ANALYSIS ---\n\nWrite the Character Strengths chapter of the Lifework report. Write directly to the client using "you" and "your" throughout. Do NOT write any introductory paragraph before the first heading.\n\nIMPORTANT: When assessing which achievements show evidence of each strength and when judging Identity Salience, use the canonical life history analysis above — not just the raw achievement list. The canonical analysis has already identified the recurring themes; your job is to cross-reference those patterns against the VIA strengths.\n\n## The Evidence Table\nProduce a markdown table with EXACTLY these six columns:\n| Strength | VIA Definition | Survey Rank | Freq (of N) | Identity Salience | Achievements with evidence |\n|---|---|---|---|---|---|\n\nCRITICAL: The separator row MUST use plain ASCII hyphens (-) only. No en-dashes, em-dashes, or other typographic characters in the separator row.\n\nRules:\n- Strength: the strength name\n- VIA Definition: a plain-language definition — 1 concise sentence, not clinical wording\n- Survey Rank: its rank in the VIA results (1 = highest)\n- Freq (of N): count of fulfilling achievements in the life history showing clear evidence of this strength\n- Identity Salience: LOW / MEDIUM / HIGH / VERY HIGH — informed by the canonical life history analysis above, not just the raw achievement titles\n- Achievements with evidence: specific achievement names where the evidence is clearest, comma-separated\n\nInclude ALL top 5 VIA strengths. No prose before or after the table in this section.\n\n## The Key Findings\nWrite 3 short paragraphs (4-5 lines each). Each paragraph that names a divergence MUST begin with a bold lead sentence: **[Strength] (rank N) is doing more work than [Strength] (rank N).**\n\nThe paragraphs must:\n- Name the most analytically significant divergence: which strength has the highest frequency in fulfilling moments but a lower survey rank?\n- Identify any strength where frequency and identity salience diverge: high frequency + low salience = trained behaviour. Low frequency but pivotal moments + high salience = deepest organising value.\n- Where the evidence warrants it, quote the specific life history detail that proves the point (use italics: *"exact words"*).\n\nClose with: "From what you have told us, we can see:" followed by 3-4 tight bullets naming the key strength findings.\n\nFinal line: one sentence that captures the most important insight this analysis reveals — something the survey rank alone would not have shown.`
     ),
-    callLLMWithTimeout(effectiveSys,
+    tracedCall("personality", "Personality Profile", effectiveSys,
       `${ctx}\n\nWrite the Personality Profile chapter of the Lifework report. Write directly to the client using "you" and "your" throughout. Do NOT write any introductory paragraph before the first heading. Begin immediately with ## What the Psychometrics Show.\n\n## What the Psychometrics Show\nA PURE psychometric portrait. Interpret the Big Five scores on their own terms — as if you had not read the life history. For each of the five domains (Openness, Conscientiousness, Extraversion, Agreeableness, Neuroticism), write 2 sentences that:\n- State what the score means in plain language\n- Name what this score predicts about working style, stress responses, and environments where you thrive or struggle\n\nDo NOT reference the life history in this section.\n\nClose with: "From what you have told us, we can see:" followed by 3-4 tight bullets summarising the psychometric portrait.\n\n## Where the Two Pictures Meet\nCompare the psychometric portrait with the life history evidence. For each domain where there is a divergence, write one short paragraph (4-5 lines) that:\n- Names the divergence type: high score + low life history evidence (capacity not yet expressed), or low score + high life history evidence (deliberate effort, not natural ease)\n- States plainly what this means in career terms\n\nSkip domains where the two sources simply agree. Focus on divergences.\n\n## What This Means\nOne short paragraph (4-5 lines): the single most important insight that emerges from comparing the two pictures. What does the client now know about themselves that neither source alone could have revealed?`
     ),
-    callLLMWithTimeout(effectiveInsightsSys, insightsData),
+    tracedCall("behavioural", "Behavioural Style", effectiveInsightsSys, insightsData),
 (() => {
       const { careerDirectionsPrompt } = getVariantPrompts(reportType, ctx, sys);
-      return callLLMWithTimeout(effectiveSys,
+      return tracedCall("career", "Career Directions", effectiveSys,
         careerDirectionsPrompt ??
         `${ctx}\n\nWrite the Career Directions chapter. Write directly to the client using "you" and "your" throughout. Begin IMMEDIATELY with the first direction — no introductory paragraph, no preamble.\n\nYou MUST write EXACTLY 3 career directions — no more, no fewer. Do not stop after 2. All 3 must be present in your response. For each:\n- Name it as a ## heading (e.g. ## Strategic Leadership in Complex Organisations)\n- Write 2 short paragraphs (4-5 lines each):\n  - Paragraph 1: Why this direction fits your specific combination of life history, character strengths, and personality. Name specific evidence.\n  - Paragraph 2: What it could look like in practice. Name 2-3 concrete role types or environments.\n\nThese should feel tailored and specific — not generic job titles. Each direction should be something that could only be written for this person.\n\nClose with: "From what you have told us, we can see:" followed by 3 tight bullets naming the key career fit factors.`
       );
     })(),
     (() => {
       const { developmentEdgePrompt } = getVariantPrompts(reportType, ctx, sys);
-      return callLLMWithTimeout(effectiveSys,
+      return tracedCall("development", "Development Edge", effectiveSys,
         developmentEdgePrompt ??
         `${ctx}\n\nWrite the Development Edge chapter. Write directly to the client using "you" and "your" throughout. Begin IMMEDIATELY with the first development area — no introductory paragraph.\n\nYou MUST write EXACTLY 3 development edges — no more, no fewer. Do not stop after 1 or 2. All 3 must be present in your response. For each:\n- Name it precisely as a ## heading (e.g. ## The Visibility Gap)\n- Write 2 short paragraphs (4-5 lines each):\n  - Paragraph 1: What the evidence shows. Connect it directly to specific life history moments, psychometric scores, or both.\n  - Paragraph 2: What it costs in career terms if left unaddressed. Be direct. Do not soften.\n\nFrame these as analytical observations, not encouragements. The goal is to name the gap clearly enough that the client recognises it and understands why it matters.\n\nClose with: "From what you have told us, we can see:" followed by 2-3 tight bullets naming the core development findings.`
       );
     })(),
     (() => {
       const { conclusionsPrompt } = getVariantPrompts(reportType, ctx, sys);
-      return callLLMWithTimeout(effectiveSys,
+      return tracedCall("conclusions", "Conclusions", effectiveSys,
         conclusionsPrompt ??
         `${ctx}\n\nWrite the Conclusions chapter. This is the synthesis chapter — it draws together everything the report has uncovered. Write directly to the client using "you" and "your" throughout. Do NOT write any introductory paragraph. Begin immediately with ## Past.\n\n## Past\n2 short paragraphs (4-5 lines each):\n- Name the 2-3 seed themes present in the earliest recorded experiences\n- Show how these themes have reproduced across the decades. Reference specific achievements by name.\n- Identify the single most consistent thread from earliest experiences to today\n\n## Present\n2 short paragraphs (4-5 lines each):\n- Name the 3 most distinctive character strengths and what makes them powerful in combination\n- State plainly what kind of professional you are at your best, drawing on personality profile and behavioural style\n\n## Future\n2 short paragraphs (4-5 lines each):\n- Name the 2-3 most compelling career directions and why they fit specifically\n- Name the 1-2 development edges that, if addressed, would most expand your options\n- End with a forward-looking statement connecting the seed themes from Past to the future directions\n\n## Tell Me About Yourself\nIntroduce with exactly this sentence: "The following is a suggested answer to the interview question 'Tell me about yourself' — drawn from everything your Lifework analysis has revealed:"\n\nThen write the following structure in the first person (to be spoken by the client):\n\nParagraph 1: Open with "I am fundamentally driven by:" then immediately follow with three bullet points (one line each) naming the three core drivers precisely — one short phrase each, drawn directly from the evidence. Specific and distinctive, not generic virtues. Then add 1-2 sentences describing what these drivers have shaped the client for — the kinds of roles, environments, or problems where they do their best work.\n\nParagraph 2 (2-3 sentences): A forward-looking statement. What should future roles draw on? What should they offer? End with a single sentence of intent.\n\nThe whole piece should be readable in under 60 seconds. Every sentence must earn its place.`
       );
@@ -2545,7 +2584,8 @@ async function runGenerationJob(clientId: number, reportType: WowReportType = "s
     } as Parameters<typeof upsertAnalysisReport>[0]);
     // Generate sections via LLM (parallel, 7 calls)
     console.log(`[WOW Report] runGenerationJob starting for client ${clientId}`);
-    const houseSections = await generateWowSections(clientId, reportType, "house");
+    const _traceRunId = crypto.randomUUID();
+    const houseSections = await generateWowSections(clientId, reportType, "house", _traceRunId);
     // If Mark style is selected, run the post-processing rewrite stage
     const sections = writingStyle === "mark"
       ? await rewriteSectionsForMark(houseSections, houseSections.clientName)
@@ -2767,5 +2807,19 @@ export const wowReportRouter = router({
     .mutation(async () => {
       const cleared = await clearAllWowPdfUrls();
       return { cleared };
+    }),
+
+  /** List all generation trace runs for a client (most recent first). */
+  getTraceRuns: counselorProcedure
+    .input(z.object({ clientId: z.number() }))
+    .query(async ({ input }) => {
+      return getReportGenerationRuns(input.clientId);
+    }),
+
+  /** Get all section logs for a specific trace run. */
+  getTraceRun: counselorProcedure
+    .input(z.object({ runId: z.string() }))
+    .query(async ({ input }) => {
+      return getReportGenerationLogsByRunId(input.runId);
     }),
 });

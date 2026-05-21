@@ -22,6 +22,7 @@ import {
   type ChatSession,
   type CareerExplorerSession,
   type CoachingAnnex,
+  reportGenerationLogs,
 } from "../drizzle/schema";
 import { ENV } from "./_core/env";
 
@@ -782,4 +783,88 @@ export async function clearAllWowPdfUrls(): Promise<number> {
     .set({ wowReportPdfUrl: null })
     .where(isNotNull(analysisReports.wowReportPdfUrl));
   return (result as any)[0]?.affectedRows ?? 0;
+}
+
+// ─── Report Generation Trace Logs ─────────────────────────────────────────
+export async function insertReportGenerationLog(data: {
+  clientId: number;
+  runId: string;
+  writingStyle: string;
+  reportType: string;
+  sectionKey: string;
+  sectionLabel: string;
+  promptSent: string;
+  contextSent?: string;
+  rawOutput: string;
+  houseStyleOutput?: string;
+  durationMs?: number;
+}): Promise<void> {
+  const db = await getDb();
+  if (!db) return;
+  try {
+    await db.insert(reportGenerationLogs).values({
+      clientId: data.clientId,
+      runId: data.runId,
+      writingStyle: data.writingStyle,
+      reportType: data.reportType,
+      sectionKey: data.sectionKey,
+      sectionLabel: data.sectionLabel,
+      promptSent: data.promptSent.slice(0, 65000),
+      contextSent: data.contextSent ? data.contextSent.slice(0, 65000) : null,
+      rawOutput: data.rawOutput.slice(0, 65000),
+      houseStyleOutput: data.houseStyleOutput ? data.houseStyleOutput.slice(0, 65000) : null,
+      durationMs: data.durationMs ?? null,
+    });
+  } catch (err) {
+    console.warn("[Trace] Failed to insert generation log:", err);
+  }
+}
+
+export async function getReportGenerationRuns(clientId: number): Promise<Array<{
+  runId: string;
+  writingStyle: string;
+  reportType: string;
+  createdAt: Date;
+  sectionCount: number;
+}>> {
+  const db = await getDb();
+  if (!db) return [];
+  const rows = await db
+    .select()
+    .from(reportGenerationLogs)
+    .where(eq(reportGenerationLogs.clientId, clientId))
+    .orderBy(desc(reportGenerationLogs.createdAt));
+  const runsMap = new Map<string, typeof rows[0]>();
+  const countMap = new Map<string, number>();
+  for (const row of rows) {
+    if (!runsMap.has(row.runId)) runsMap.set(row.runId, row);
+    countMap.set(row.runId, (countMap.get(row.runId) ?? 0) + 1);
+  }
+  return Array.from(runsMap.entries()).map(([runId, first]) => ({
+    runId,
+    writingStyle: first.writingStyle,
+    reportType: first.reportType,
+    createdAt: first.createdAt,
+    sectionCount: countMap.get(runId) ?? 0,
+  }));
+}
+
+export async function getReportGenerationLogsByRunId(runId: string): Promise<Array<{
+  id: number;
+  sectionKey: string;
+  sectionLabel: string;
+  promptSent: string;
+  contextSent: string | null;
+  rawOutput: string;
+  houseStyleOutput: string | null;
+  durationMs: number | null;
+  createdAt: Date;
+}>> {
+  const db = await getDb();
+  if (!db) return [];
+  return db
+    .select()
+    .from(reportGenerationLogs)
+    .where(eq(reportGenerationLogs.runId, runId))
+    .orderBy(reportGenerationLogs.id);
 }

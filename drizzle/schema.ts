@@ -405,3 +405,24 @@ export const counsellorPin = mysqlTable("counsellor_pin", {
 });
 
 export type CounsellorPin = typeof counsellorPin.$inferSelect;
+
+// ─── Report Generation Trace Logs ─────────────────────────────────────────
+// One row per section per report generation run.
+// Stores the full context sent to the LLM and the raw output returned.
+export const reportGenerationLogs = mysqlTable("report_generation_logs", {
+  id: int("id").autoincrement().primaryKey(),
+  clientId: int("clientId").notNull(),
+  runId: varchar("runId", { length: 64 }).notNull(),       // UUID shared across all sections in one run
+  writingStyle: varchar("writingStyle", { length: 64 }).notNull().default("house"),
+  reportType: varchar("reportType", { length: 64 }).notNull().default("standard"),
+  sectionKey: varchar("sectionKey", { length: 64 }).notNull(), // e.g. "summary", "lifeHistoryPattern"
+  sectionLabel: varchar("sectionLabel", { length: 128 }).notNull(), // human-readable label
+  promptSent: text("promptSent").notNull(),                // full prompt text sent to LLM
+  contextSent: text("contextSent"),                        // the client data context block
+  rawOutput: text("rawOutput").notNull(),                  // raw LLM response
+  houseStyleOutput: text("houseStyleOutput"),              // house-style draft (before style rewrite)
+  durationMs: int("durationMs"),                           // how long the LLM call took
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+export type ReportGenerationLog = typeof reportGenerationLogs.$inferSelect;
+export type InsertReportGenerationLog = typeof reportGenerationLogs.$inferInsert;

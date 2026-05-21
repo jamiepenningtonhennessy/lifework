@@ -162,6 +162,13 @@
       "when": 1777361508235,
       "tag": "0022_striped_wong",
       "breakpoints": true
+    },
+    {
+      "idx": 23,
+      "version": "5",
+      "when": 1779354192171,
+      "tag": "0023_futuristic_pride",
+      "breakpoints": true
     }
   ]
 }
