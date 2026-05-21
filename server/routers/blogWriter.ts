@@ -220,30 +220,48 @@ Write the post now.`;
       postText: z.string().min(50),
       postType: z.enum(POST_TYPES.map(p => p.id) as [PostTypeId, ...PostTypeId[]]),
       aspect: z.enum(LIFEWORK_ASPECTS.map(a => a.id) as [AspectId, ...AspectId[]]),
+      register: z.enum(["A", "B"]).default("A"),
     }))
     .mutation(async ({ input }) => {
       const postTypeLabel = POST_TYPES.find(p => p.id === input.postType)!.label;
       const aspectLabel = LIFEWORK_ASPECTS.find(a => a.id === input.aspect)!.label;
       const categoryLabel = getCategoryLabel(input.postType, input.aspect);
+      const register = input.register ?? "A";
+
+      const registerSpec = register === "A" ? `
+## Register A — Warm Cinematic
+Subject: a real person in their environment (at a workbench, in a doorway, near a window), or hands mid-activity (writing, holding, making), or an everyday environment loaded with personal meaning. Never: laptops on desks, handshakes, conference rooms, stock-business clichés.
+Light: natural, warm, directional. Window or golden-hour. Side-lit or back-lit. Shadow is welcomed.
+Colour grade: warm, slightly faded film stock (Kodak Portra register). Deep blacks, warm highlights, true skin tones. Light vignette.
+Composition: loose, observational, asymmetric. Negative space welcomed.
+References: Gregory Heisler, Joey L, mid-period Annie Leibovitz editorial portraiture. (For guidance, not imitation.)` : `
+## Register B — Painterly Quiet
+Subject: observed, not staged. A person half-glimpsed through window or doorway. A hand resting on something. Light falling across an object. The kind of moment you'd usually walk past.
+Light: soft, diffuse, slightly cool. Overcast, fogged glass, shade, dawn. Not dramatic.
+Colour grade: muted, gentle contrast, slightly cool. Colour present but quiet — a faded blue, soft green, the suggestion of warmth rather than warmth itself.
+Composition: fragmentary, partial. A corner, a slice, an edge. Feels caught, not shown.
+References: Saul Leiter, Rinko Kawauchi (austere), Wolfgang Tillmans.`;
+
+      const universalNegative = `Avoid: AI tells (extra fingers, extra teeth, plastic skin, glowing edges, garbled letterforms, broken hands); saturated tropical colour palettes; gradient backgrounds; emojis or graphic overlays inside the photo; corporate stock clichés (handshakes, conference rooms, laptops on desks, headshots against grey backdrops); heavy Instagram filter looks; lens flares as decoration; AI watermarks or signatures.`;
 
       // Step 1: Ask the LLM to generate 3 distinct PHOTO-ONLY prompts (960×890 inner photo)
       const promptResponse = await invokeLLM({
         messages: [
           {
             role: "system",
-            content: `You are a creative director generating inner photograph prompts for a branded LinkedIn image template.
+            content: `You are a creative director generating inner photograph prompts for a branded LinkedIn image template called Lifework.
 
-The final image will be a 1080×1080 square with a navy blue frame and a branded footer strip. You are generating ONLY the inner photograph (960×890px) — no text, no logos, no overlays will appear inside the photo itself.
+The final image will be a 1080×1080 square with a navy blue (#1a2744) frame and a branded footer strip. You are generating ONLY the inner photograph (960×890px) — no text, no logos, no overlays will appear inside the photo itself.
 
-Generate exactly 3 distinct photograph prompts. Each must:
-- Feel like one careful human photographer, not stock, not obviously AI
-- Subject: a real person in thought or mid-activity, hands at work, an everyday environment (desk, window, doorway, path), or a small object with personal meaning. Avoid laptops-on-desks, handshakes, conference rooms, anything that reads "stock business".
-- Light: natural, soft, warm. Window or side light. Not flat studio.
-- Colour: muted, slightly desaturated, warmth in the highlights — as if lightly graded. Must read clearly inside a navy frame.
-- Composition: loose, observational, asymmetric. Negative space welcomed. Documentary, not advertising.
-- Avoid: AI tells, saturated tropical colours, gradient backgrounds, dramatic vignettes, any overlay graphics.
-- Be 2–3 sentences long and specific enough to guide image generation.
-- The three prompts must differ meaningfully in subject and composition.
+Generate exactly 3 distinct photograph prompts following the register specification below. Each prompt must:
+- Be 2–3 sentences long and specific enough to guide image generation
+- Differ meaningfully from the other two in subject and composition
+- Follow the register style precisely
+- Produce an image that reads clearly inside a navy frame
+
+${registerSpec}
+
+${universalNegative}
 
 Respond with JSON only (no markdown fences): { "prompts": ["prompt1", "prompt2", "prompt3"] }`,
           },
@@ -254,7 +272,7 @@ Respond with JSON only (no markdown fences): { "prompts": ["prompt1", "prompt2",
 Post text:
 ${input.postText}
 
-Generate 3 photograph prompts for the inner photo area.`,
+Generate 3 photograph prompts for the inner photo area using Register ${register}.`,
           },
         ],
       });

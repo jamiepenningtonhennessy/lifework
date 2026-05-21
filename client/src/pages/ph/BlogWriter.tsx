@@ -18,6 +18,7 @@ export default function BlogWriter() {
   const [copied, setCopied] = useState(false);
   const [generatedImages, setGeneratedImages] = useState<Array<{ index: number; prompt: string; url: string | null; error: string | null }> | null>(null);
   const [copiedImageIndex, setCopiedImageIndex] = useState<number | null>(null);
+  const [selectedRegister, setSelectedRegister] = useState<"A" | "B">("A");
 
   const { data: taxonomy } = trpc.blogWriter.getTaxonomy.useQuery();
 
@@ -47,6 +48,7 @@ export default function BlogWriter() {
       postText: generatedPost,
       postType: selectedPostType as any,
       aspect: selectedAspect as any,
+      register: selectedRegister,
     });
   }
 
@@ -257,8 +259,32 @@ export default function BlogWriter() {
 
         {/* Image generation button — shown once a post exists */}
         {generatedPost && (
-          <div className="flex items-center gap-4 mb-10">
-            <Button
+          <div className="flex flex-col gap-4 mb-10">
+            {/* Register selector */}
+            <div className="flex items-center gap-3">
+              <span className="text-xs font-medium tracking-wide uppercase" style={{ color: "rgba(0,0,0,0.45)", letterSpacing: "0.1em" }}>Photo style</span>
+              <div className="flex rounded-lg overflow-hidden" style={{ border: "1px solid rgba(201,151,58,0.35)" }}>
+                {(["A", "B"] as const).map((reg) => (
+                  <button
+                    key={reg}
+                    onClick={() => setSelectedRegister(reg)}
+                    className="px-4 py-1.5 text-xs font-medium transition-colors"
+                    style={{
+                      background: selectedRegister === reg ? "var(--lw-navy)" : "transparent",
+                      color: selectedRegister === reg ? "white" : "var(--lw-navy)",
+                      borderRight: reg === "A" ? "1px solid rgba(201,151,58,0.35)" : "none",
+                    }}
+                  >
+                    {reg === "A" ? "Warm Cinematic" : "Painterly Quiet"}
+                  </button>
+                ))}
+              </div>
+              <span className="text-xs" style={{ color: "rgba(0,0,0,0.35)" }}>
+                {selectedRegister === "A" ? "Warm, directional light — Heisler / Leibovitz register" : "Soft, fragmentary — Saul Leiter / Kawauchi register"}
+              </span>
+            </div>
+            <div className="flex items-center gap-4">
+              <Button
               onClick={handleGenerateImages}
               disabled={generateImagesMutation.isPending}
               className="gap-2 px-8 py-3 text-sm font-medium tracking-wide"
@@ -282,6 +308,7 @@ export default function BlogWriter() {
                 Creates 3 distinct LinkedIn-sized image options to accompany your post
               </p>
             )}
+            </div>
           </div>
         )}
 
