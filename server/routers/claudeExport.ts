@@ -684,20 +684,52 @@ export async function buildClaudeExportJson(clientId: number): Promise<Record<st
   const ch2Page1Paras = lhHasSections
     ? (lhSections[0]?.paragraphs ?? [])
     : lhAllParas.slice(0, Math.ceil(lhAllParas.length / 2));
-  const ch2Page1SectionH = lhHasSections ? (lhSections[1]?.heading ?? "") : "";
-  const ch2Page1SectionParas = lhHasSections ? (lhSections[1]?.paragraphs ?? []) : [];
+  // Detect whether the LLM used a two-level heading structure:
+  //   ## Recurring Motifs  (no direct paragraphs — dropped by extractAllSections)
+  //   ### The Logic That Feels Like Play  (paragraphs here)
+  //   ### The Systems You Build for Others
+  //   ...
+  // In that case lhSections[1] is the first ### subsection, not the ## group heading.
+  // We collect ALL sibling ### subsections as the "Recurring themes" content.
+  // Stop collecting when we hit a "What the pattern reveals" / "ESF" section.
+  const _isSubsectionStructure = lhHasSections &&
+    // heuristic: if lhSections has 4+ entries and none of them is named "recurring"
+    // it's likely the ## group heading was dropped (had no direct paragraphs)
+    lhSections.length >= 4 &&
+    !lhSections.some(s => s.heading.toLowerCase().includes("recurring"));
+
+  const ch2Page1SectionH = lhHasSections ? "Recurring themes" : "";
+  const ch2Page1SectionParas: string[] = (() => {
+    if (!lhHasSections) return [];
+    if (_isSubsectionStructure) {
+      // Collect all subsection paragraphs until we hit a "reveals" / "ESF" section
+      const all: string[] = [];
+      for (let i = 1; i < lhSections.length; i++) {
+        const h = lhSections[i].heading.toLowerCase();
+        if (h.includes("pattern reveals") || h.includes("what the pattern") ||
+            h.includes("reveals") || h.includes("esf") || h.includes("findings")) break;
+        all.push(...lhSections[i].paragraphs);
+      }
+      return all;
+    }
+    // Normal structure: lhSections[1] is the ## Recurring Motifs section with direct paragraphs
+    return lhSections[1]?.paragraphs ?? [];
+  })();
 
   // Page 2: second named section (or second half of flat paragraphs — strictly non-overlapping)
-  const ch2Page2SectionH = lhHasSections
-    ? (lhSections[2]?.heading ?? "Recurring themes")
-    : "Recurring themes";
-  const _ch2Page2ParasRaw = lhHasSections
-    ? (
-        lhSections[2]?.paragraphs?.length ? lhSections[2].paragraphs :
-        lhSections[3]?.paragraphs?.length ? lhSections[3].paragraphs :
-        lhAllParas.slice(Math.ceil(lhAllParas.length / 2))
-      )
-    : lhAllParas.slice(Math.ceil(lhAllParas.length / 2));
+  // When subsection structure was used, page 2 paragraphs are already included in page 1 section.
+  const ch2Page2SectionH = _isSubsectionStructure ? "" : (
+    lhHasSections ? (lhSections[2]?.heading ?? "Recurring themes") : "Recurring themes"
+  );
+  const _ch2Page2ParasRaw = _isSubsectionStructure
+    ? [] // all recurring content already on page 1
+    : lhHasSections
+      ? (
+          lhSections[2]?.paragraphs?.length ? lhSections[2].paragraphs :
+          lhSections[3]?.paragraphs?.length ? lhSections[3].paragraphs :
+          lhAllParas.slice(Math.ceil(lhAllParas.length / 2))
+        )
+      : lhAllParas.slice(Math.ceil(lhAllParas.length / 2));
   // Final deduplication guard: strip any paragraph that already appeared on page 1
   const _ch2Page1Set = new Set([...ch2Page1Paras, ...ch2Page1SectionParas]);
   const ch2Page2Paras = _ch2Page2ParasRaw.filter(p => !_ch2Page1Set.has(p));
@@ -909,7 +941,7 @@ export async function buildClaudeExportJson(clientId: number): Promise<Record<st
       LEDE: ch2Page1Paras[0] ?? "",
       PAGE1_PARAGRAPHS: ch2Page1Paras.slice(1, 4),
       PAGE1_SECTION_H: ch2Page1SectionH,
-      PAGE1_SECTION_PARAS: ch2Page1SectionParas.slice(0, 3),
+      PAGE1_SECTION_PARAS: ch2Page1SectionParas.slice(0, 6),
       PAGE2_SECTION_H: ch2Page2SectionH,
       PAGE2_PARAGRAPHS: ch2Page2Paras,
       KEYFIND: {
