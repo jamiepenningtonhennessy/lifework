@@ -4,16 +4,27 @@ import { PHNav } from "@/components/PHNav";
 import { PHFooter } from "@/components/PHFooter";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { Loader2, Copy, Check, RefreshCw, ImageIcon, Download } from "lucide-react";
+import { Loader2, Copy, Check, RefreshCw, ImageIcon, Download, PenLine, Upload } from "lucide-react";
 
 type PostTypeId = string;
 type AspectId = string;
 type VoiceId = string;
+type Mode = "generate" | "own";
 
 export default function BlogWriter() {
+  const [mode, setMode] = useState<Mode>("generate");
+
+  // Generate-mode state
   const [selectedPostType, setSelectedPostType] = useState<PostTypeId | null>(null);
   const [selectedAspect, setSelectedAspect] = useState<AspectId | null>(null);
   const [selectedVoice, setSelectedVoice] = useState<VoiceId>("house");
+
+  // Own-post mode state
+  const [ownPostText, setOwnPostText] = useState<string>("");
+  const [ownPostType, setOwnPostType] = useState<PostTypeId | null>(null);
+  const [ownAspect, setOwnAspect] = useState<AspectId | null>(null);
+
+  // Shared output state
   const [generatedPost, setGeneratedPost] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const [generatedImages, setGeneratedImages] = useState<Array<{ index: number; prompt: string; url: string | null; error: string | null }> | null>(null);
@@ -25,7 +36,7 @@ export default function BlogWriter() {
   const generateMutation = trpc.blogWriter.generate.useMutation({
     onSuccess: (data) => {
       setGeneratedPost(data.post);
-      setGeneratedImages(null); // reset images when post is regenerated
+      setGeneratedImages(null);
       window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
     },
     onError: () => toast.error("Failed to generate post. Please try again."),
@@ -41,13 +52,18 @@ export default function BlogWriter() {
     onError: () => toast.error("Failed to generate images. Please try again."),
   });
 
+  // Derived: the active post text (either generated or own)
+  const activePostText = mode === "generate" ? generatedPost : (ownPostText.trim() || null);
+  const activePostType = mode === "generate" ? selectedPostType : ownPostType;
+  const activeAspect = mode === "generate" ? selectedAspect : ownAspect;
+
   function handleGenerateImages() {
-    if (!generatedPost || !selectedPostType || !selectedAspect) return;
+    if (!activePostText || !activePostType || !activeAspect) return;
     setGeneratedImages(null);
     generateImagesMutation.mutate({
-      postText: generatedPost,
-      postType: selectedPostType as any,
-      aspect: selectedAspect as any,
+      postText: activePostText,
+      postType: activePostType as any,
+      aspect: activeAspect as any,
       register: selectedRegister,
     });
   }
@@ -71,10 +87,12 @@ export default function BlogWriter() {
   }
 
   const canGenerate = selectedPostType !== null && selectedAspect !== null && selectedVoice !== null;
+  const canGenerateImagesOwn = ownPostText.trim().length > 50 && ownPostType !== null && ownAspect !== null;
 
   function handleGenerate() {
     if (!canGenerate) return;
     setGeneratedPost(null);
+    setGeneratedImages(null);
     generateMutation.mutate({
       postType: selectedPostType as any,
       aspect: selectedAspect as any,
@@ -83,12 +101,24 @@ export default function BlogWriter() {
   }
 
   function handleCopy() {
-    if (!generatedPost) return;
-    navigator.clipboard.writeText(generatedPost).then(() => {
+    const text = activePostText;
+    if (!text) return;
+    navigator.clipboard.writeText(text).then(() => {
       setCopied(true);
       toast.success("Copied to clipboard");
       setTimeout(() => setCopied(false), 2000);
     });
+  }
+
+  function handleModeSwitch(newMode: Mode) {
+    setMode(newMode);
+    setGeneratedImages(null);
+    if (newMode === "generate") {
+      // keep generatedPost from previous generate session
+    } else {
+      // switching to own-post mode — clear generated post display
+      setGeneratedPost(null);
+    }
   }
 
   const postTypes = taxonomy?.postTypes ?? [];
@@ -120,145 +150,287 @@ export default function BlogWriter() {
             Blog Writing Machine
           </h1>
           <p style={{ color: "rgba(255,255,255,0.65)", maxWidth: "38rem", lineHeight: 1.7, fontSize: "0.95rem" }}>
-            Choose a post type, a Lifework topic, and a writing voice. The machine will write a
-            LinkedIn-ready post of around 300 words for you to publish on your own account.
+            Write a new LinkedIn post with AI assistance, or bring your own pre-written post and generate a branded image to go with it.
           </p>
+
+          {/* Mode toggle */}
+          <div className="flex gap-2 mt-6">
+            <button
+              onClick={() => handleModeSwitch("generate")}
+              className="flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-medium transition-all"
+              style={{
+                background: mode === "generate" ? "var(--lw-gold)" : "rgba(255,255,255,0.08)",
+                color: mode === "generate" ? "white" : "rgba(255,255,255,0.65)",
+                border: mode === "generate" ? "2px solid var(--lw-gold)" : "2px solid rgba(255,255,255,0.15)",
+              }}
+            >
+              <PenLine className="w-3.5 h-3.5" />
+              Write a new post
+            </button>
+            <button
+              onClick={() => handleModeSwitch("own")}
+              className="flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-medium transition-all"
+              style={{
+                background: mode === "own" ? "var(--lw-gold)" : "rgba(255,255,255,0.08)",
+                color: mode === "own" ? "white" : "rgba(255,255,255,0.65)",
+                border: mode === "own" ? "2px solid var(--lw-gold)" : "2px solid rgba(255,255,255,0.15)",
+              }}
+            >
+              <Upload className="w-3.5 h-3.5" />
+              Use my own post
+            </button>
+          </div>
         </div>
       </section>
 
-      {/* Main selection area */}
+      {/* Main area */}
       <main className="flex-1 container max-w-5xl py-10">
 
-        {/* Selection grid */}
-        <div className="grid md:grid-cols-2 gap-8 mb-8">
+        {/* ── GENERATE MODE ── */}
+        {mode === "generate" && (
+          <>
+            {/* Selection grid */}
+            <div className="grid md:grid-cols-2 gap-8 mb-8">
 
-          {/* Column 1: Post type */}
-          <div>
-            <h2
-              className="font-serif font-semibold mb-1"
-              style={{ color: "var(--lw-navy)", fontSize: "1rem" }}
-            >
-              Type of post
-            </h2>
-            <p className="text-xs mb-4" style={{ color: "rgba(0,0,0,0.45)" }}>
-              Select one
-            </p>
-            <div className="space-y-2">
-              {postTypes.map((pt) => (
-                <button
-                  key={pt.id}
-                  onClick={() => setSelectedPostType(pt.id)}
-                  className="w-full text-left px-4 py-3 rounded-lg text-sm font-medium transition-all"
-                  style={{
-                    background: selectedPostType === pt.id ? "var(--lw-navy)" : "white",
-                    color: selectedPostType === pt.id ? "white" : "var(--lw-navy)",
-                    border: selectedPostType === pt.id
-                      ? "2px solid var(--lw-navy)"
-                      : "2px solid rgba(0,0,0,0.08)",
-                    boxShadow: selectedPostType === pt.id ? "0 2px 8px rgba(0,0,0,0.12)" : "none",
-                  }}
+              {/* Column 1: Post type */}
+              <div>
+                <h2
+                  className="font-serif font-semibold mb-1"
+                  style={{ color: "var(--lw-navy)", fontSize: "1rem" }}
                 >
-                  {pt.label}
-                </button>
-              ))}
-            </div>
-          </div>
+                  Type of post
+                </h2>
+                <p className="text-xs mb-4" style={{ color: "rgba(0,0,0,0.45)" }}>
+                  Select one
+                </p>
+                <div className="space-y-2">
+                  {postTypes.map((pt) => (
+                    <button
+                      key={pt.id}
+                      onClick={() => setSelectedPostType(pt.id)}
+                      className="w-full text-left px-4 py-3 rounded-lg text-sm font-medium transition-all"
+                      style={{
+                        background: selectedPostType === pt.id ? "var(--lw-navy)" : "white",
+                        color: selectedPostType === pt.id ? "white" : "var(--lw-navy)",
+                        border: selectedPostType === pt.id
+                          ? "2px solid var(--lw-navy)"
+                          : "2px solid rgba(0,0,0,0.08)",
+                        boxShadow: selectedPostType === pt.id ? "0 2px 8px rgba(0,0,0,0.12)" : "none",
+                      }}
+                    >
+                      {pt.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
 
-          {/* Column 2: Lifework aspect */}
-          <div>
-            <h2
-              className="font-serif font-semibold mb-1"
-              style={{ color: "var(--lw-navy)", fontSize: "1rem" }}
-            >
-              Aspect of Lifework
-            </h2>
-            <p className="text-xs mb-4" style={{ color: "rgba(0,0,0,0.45)" }}>
-              Select one
-            </p>
-            <div className="space-y-2">
-              {aspects.map((asp) => (
-                <button
-                  key={asp.id}
-                  onClick={() => setSelectedAspect(asp.id)}
-                  className="w-full text-left px-4 py-3 rounded-lg text-sm font-medium transition-all"
-                  style={{
-                    background: selectedAspect === asp.id ? "var(--lw-navy)" : "white",
-                    color: selectedAspect === asp.id ? "white" : "var(--lw-navy)",
-                    border: selectedAspect === asp.id
-                      ? "2px solid var(--lw-navy)"
-                      : "2px solid rgba(0,0,0,0.08)",
-                    boxShadow: selectedAspect === asp.id ? "0 2px 8px rgba(0,0,0,0.12)" : "none",
-                  }}
+              {/* Column 2: Lifework aspect */}
+              <div>
+                <h2
+                  className="font-serif font-semibold mb-1"
+                  style={{ color: "var(--lw-navy)", fontSize: "1rem" }}
                 >
-                  {asp.label}
-                </button>
-              ))}
+                  Aspect of Lifework
+                </h2>
+                <p className="text-xs mb-4" style={{ color: "rgba(0,0,0,0.45)" }}>
+                  Select one
+                </p>
+                <div className="space-y-2">
+                  {aspects.map((asp) => (
+                    <button
+                      key={asp.id}
+                      onClick={() => setSelectedAspect(asp.id)}
+                      className="w-full text-left px-4 py-3 rounded-lg text-sm font-medium transition-all"
+                      style={{
+                        background: selectedAspect === asp.id ? "var(--lw-navy)" : "white",
+                        color: selectedAspect === asp.id ? "white" : "var(--lw-navy)",
+                        border: selectedAspect === asp.id
+                          ? "2px solid var(--lw-navy)"
+                          : "2px solid rgba(0,0,0,0.08)",
+                        boxShadow: selectedAspect === asp.id ? "0 2px 8px rgba(0,0,0,0.12)" : "none",
+                      }}
+                    >
+                      {asp.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
 
-        {/* Voice selector */}
-        <div className="mb-8">
-          <h2
-            className="font-serif font-semibold mb-1"
-            style={{ color: "var(--lw-navy)", fontSize: "1rem" }}
-          >
-            Writing voice
-          </h2>
-          <p className="text-xs mb-4" style={{ color: "rgba(0,0,0,0.45)" }}>
-            Select one
-          </p>
-          <div className="flex flex-wrap gap-2">
-            {voices.map((v) => (
-              <button
-                key={v.id}
-                onClick={() => setSelectedVoice(v.id)}
-                className="px-5 py-2.5 rounded-full text-sm font-medium transition-all"
+            {/* Voice selector */}
+            <div className="mb-8">
+              <h2
+                className="font-serif font-semibold mb-1"
+                style={{ color: "var(--lw-navy)", fontSize: "1rem" }}
+              >
+                Writing voice
+              </h2>
+              <p className="text-xs mb-4" style={{ color: "rgba(0,0,0,0.45)" }}>
+                Select one
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {voices.map((v) => (
+                  <button
+                    key={v.id}
+                    onClick={() => setSelectedVoice(v.id)}
+                    className="px-5 py-2.5 rounded-full text-sm font-medium transition-all"
+                    style={{
+                      background: selectedVoice === v.id ? "var(--lw-gold)" : "white",
+                      color: selectedVoice === v.id ? "white" : "var(--lw-navy)",
+                      border: selectedVoice === v.id
+                        ? "2px solid var(--lw-gold)"
+                        : "2px solid rgba(0,0,0,0.08)",
+                      boxShadow: selectedVoice === v.id ? "0 2px 8px rgba(201,151,58,0.3)" : "none",
+                    }}
+                  >
+                    {v.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Generate button */}
+            <div className="flex items-center gap-4 mb-10">
+              <Button
+                onClick={handleGenerate}
+                disabled={!canGenerate || generateMutation.isPending}
+                className="gap-2 px-8 py-3 text-sm font-medium tracking-wide"
                 style={{
-                  background: selectedVoice === v.id ? "var(--lw-gold)" : "white",
-                  color: selectedVoice === v.id ? "white" : "var(--lw-navy)",
-                  border: selectedVoice === v.id
-                    ? "2px solid var(--lw-gold)"
-                    : "2px solid rgba(0,0,0,0.08)",
-                  boxShadow: selectedVoice === v.id ? "0 2px 8px rgba(201,151,58,0.3)" : "none",
+                  background: canGenerate ? "var(--lw-gold)" : "rgba(0,0,0,0.12)",
+                  color: canGenerate ? "white" : "rgba(0,0,0,0.35)",
+                  border: "none",
+                  opacity: generateMutation.isPending ? 0.7 : 1,
                 }}
               >
-                {v.label}
-              </button>
-            ))}
+                {generateMutation.isPending ? (
+                  <><Loader2 className="w-4 h-4 animate-spin" /> Writing post…</>
+                ) : generatedPost ? (
+                  <><RefreshCw className="w-4 h-4" /> Regenerate</>
+                ) : (
+                  "Write post"
+                )}
+              </Button>
+              {!canGenerate && (
+                <p className="text-xs" style={{ color: "rgba(0,0,0,0.4)" }}>
+                  Select a post type and a Lifework aspect to continue
+                </p>
+              )}
+            </div>
+          </>
+        )}
+
+        {/* ── OWN POST MODE ── */}
+        {mode === "own" && (
+          <div className="mb-10">
+            <div
+              className="rounded-2xl overflow-hidden mb-8"
+              style={{
+                border: "1px solid rgba(201,151,58,0.25)",
+                boxShadow: "0 4px 24px rgba(0,0,0,0.07)",
+              }}
+            >
+              <div
+                className="px-6 py-4"
+                style={{ background: "var(--lw-navy)", borderBottom: "2px solid var(--lw-gold)" }}
+              >
+                <span className="font-serif font-semibold text-sm" style={{ color: "white" }}>
+                  Paste your post
+                </span>
+              </div>
+              <div className="p-6" style={{ background: "white" }}>
+                <textarea
+                  value={ownPostText}
+                  onChange={(e) => { setOwnPostText(e.target.value); setGeneratedImages(null); }}
+                  placeholder="Paste your pre-written LinkedIn post here…"
+                  rows={10}
+                  className="w-full resize-none rounded-lg px-4 py-3 text-sm leading-relaxed outline-none transition-all"
+                  style={{
+                    fontFamily: "Georgia, serif",
+                    color: "var(--lw-navy)",
+                    background: "rgba(0,0,0,0.02)",
+                    border: "1.5px solid rgba(0,0,0,0.1)",
+                    lineHeight: 1.8,
+                  }}
+                  onFocus={(e) => { e.currentTarget.style.borderColor = "var(--lw-gold)"; }}
+                  onBlur={(e) => { e.currentTarget.style.borderColor = "rgba(0,0,0,0.1)"; }}
+                />
+                {ownPostText.trim().length > 0 && (
+                  <p className="text-xs mt-2" style={{ color: "rgba(0,0,0,0.35)" }}>
+                    {ownPostText.trim().split(/\s+/).filter(Boolean).length} words
+                  </p>
+                )}
+              </div>
+            </div>
+
+            {/* Post type + aspect selectors for own-post mode */}
+            <div className="grid md:grid-cols-2 gap-8 mb-6">
+              <div>
+                <h2
+                  className="font-serif font-semibold mb-1"
+                  style={{ color: "var(--lw-navy)", fontSize: "1rem" }}
+                >
+                  Type of post
+                </h2>
+                <p className="text-xs mb-4" style={{ color: "rgba(0,0,0,0.45)" }}>
+                  Used for the image footer label — select the closest match
+                </p>
+                <div className="space-y-2">
+                  {postTypes.map((pt) => (
+                    <button
+                      key={pt.id}
+                      onClick={() => setOwnPostType(pt.id)}
+                      className="w-full text-left px-4 py-3 rounded-lg text-sm font-medium transition-all"
+                      style={{
+                        background: ownPostType === pt.id ? "var(--lw-navy)" : "white",
+                        color: ownPostType === pt.id ? "white" : "var(--lw-navy)",
+                        border: ownPostType === pt.id
+                          ? "2px solid var(--lw-navy)"
+                          : "2px solid rgba(0,0,0,0.08)",
+                        boxShadow: ownPostType === pt.id ? "0 2px 8px rgba(0,0,0,0.12)" : "none",
+                      }}
+                    >
+                      {pt.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <h2
+                  className="font-serif font-semibold mb-1"
+                  style={{ color: "var(--lw-navy)", fontSize: "1rem" }}
+                >
+                  Aspect of Lifework
+                </h2>
+                <p className="text-xs mb-4" style={{ color: "rgba(0,0,0,0.45)" }}>
+                  Used for the image footer label — select the closest match
+                </p>
+                <div className="space-y-2">
+                  {aspects.map((asp) => (
+                    <button
+                      key={asp.id}
+                      onClick={() => setOwnAspect(asp.id)}
+                      className="w-full text-left px-4 py-3 rounded-lg text-sm font-medium transition-all"
+                      style={{
+                        background: ownAspect === asp.id ? "var(--lw-navy)" : "white",
+                        color: ownAspect === asp.id ? "white" : "var(--lw-navy)",
+                        border: ownAspect === asp.id
+                          ? "2px solid var(--lw-navy)"
+                          : "2px solid rgba(0,0,0,0.08)",
+                        boxShadow: ownAspect === asp.id ? "0 2px 8px rgba(0,0,0,0.12)" : "none",
+                      }}
+                    >
+                      {asp.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
           </div>
-        </div>
+        )}
 
-        {/* Generate button */}
-        <div className="flex items-center gap-4 mb-10">
-          <Button
-            onClick={handleGenerate}
-            disabled={!canGenerate || generateMutation.isPending}
-            className="gap-2 px-8 py-3 text-sm font-medium tracking-wide"
-            style={{
-              background: canGenerate ? "var(--lw-gold)" : "rgba(0,0,0,0.12)",
-              color: canGenerate ? "white" : "rgba(0,0,0,0.35)",
-              border: "none",
-              opacity: generateMutation.isPending ? 0.7 : 1,
-            }}
-          >
-            {generateMutation.isPending ? (
-              <><Loader2 className="w-4 h-4 animate-spin" /> Writing post…</>
-            ) : generatedPost ? (
-              <><RefreshCw className="w-4 h-4" /> Regenerate</>
-            ) : (
-              "Write post"
-            )}
-          </Button>
-          {!canGenerate && (
-            <p className="text-xs" style={{ color: "rgba(0,0,0,0.4)" }}>
-              Select a post type and a Lifework aspect to continue
-            </p>
-          )}
-        </div>
-
-        {/* Image generation button — shown once a post exists */}
-        {generatedPost && (
+        {/* ── IMAGE GENERATION (shared between both modes) ── */}
+        {((mode === "generate" && generatedPost) || (mode === "own" && canGenerateImagesOwn)) && (
           <div className="flex flex-col gap-4 mb-10">
             {/* Register selector */}
             <div className="flex items-center gap-3">
@@ -285,31 +457,40 @@ export default function BlogWriter() {
             </div>
             <div className="flex items-center gap-4">
               <Button
-              onClick={handleGenerateImages}
-              disabled={generateImagesMutation.isPending}
-              className="gap-2 px-8 py-3 text-sm font-medium tracking-wide"
-              style={{
-                background: "var(--lw-navy)",
-                color: "white",
-                border: "none",
-                opacity: generateImagesMutation.isPending ? 0.7 : 1,
-              }}
-            >
-              {generateImagesMutation.isPending ? (
-                <><Loader2 className="w-4 h-4 animate-spin" /> Generating images…</>
-              ) : generatedImages ? (
-                <><RefreshCw className="w-4 h-4" /> Regenerate images</>
-              ) : (
-                <><ImageIcon className="w-4 h-4" /> Generate 3 image options</>
+                onClick={handleGenerateImages}
+                disabled={generateImagesMutation.isPending}
+                className="gap-2 px-8 py-3 text-sm font-medium tracking-wide"
+                style={{
+                  background: "var(--lw-navy)",
+                  color: "white",
+                  border: "none",
+                  opacity: generateImagesMutation.isPending ? 0.7 : 1,
+                }}
+              >
+                {generateImagesMutation.isPending ? (
+                  <><Loader2 className="w-4 h-4 animate-spin" /> Generating images…</>
+                ) : generatedImages ? (
+                  <><RefreshCw className="w-4 h-4" /> Regenerate images</>
+                ) : (
+                  <><ImageIcon className="w-4 h-4" /> Generate 3 image options</>
+                )}
+              </Button>
+              {!generatedImages && !generateImagesMutation.isPending && (
+                <p className="text-xs" style={{ color: "rgba(0,0,0,0.4)" }}>
+                  Creates 3 distinct LinkedIn-sized image options to accompany your post
+                </p>
               )}
-            </Button>
-            {!generatedImages && !generateImagesMutation.isPending && (
-              <p className="text-xs" style={{ color: "rgba(0,0,0,0.4)" }}>
-                Creates 3 distinct LinkedIn-sized image options to accompany your post
-              </p>
-            )}
             </div>
           </div>
+        )}
+
+        {/* Hint for own-post mode when post is too short or missing category */}
+        {mode === "own" && ownPostText.trim().length > 0 && !canGenerateImagesOwn && (
+          <p className="text-xs mb-6" style={{ color: "rgba(0,0,0,0.4)" }}>
+            {ownPostText.trim().length <= 50
+              ? "Post is too short — paste the full text to continue."
+              : "Select a post type and a Lifework aspect to generate images."}
+          </p>
         )}
 
         {/* Generated images output */}
@@ -321,7 +502,6 @@ export default function BlogWriter() {
               boxShadow: "0 4px 24px rgba(0,0,0,0.07)",
             }}
           >
-            {/* Images header */}
             <div
               className="flex items-center justify-between px-6 py-4"
               style={{ background: "var(--lw-navy)", borderBottom: "2px solid var(--lw-gold)" }}
@@ -396,8 +576,8 @@ export default function BlogWriter() {
           </div>
         )}
 
-        {/* Generated post output */}
-        {(generatedPost || generateMutation.isPending) && (
+        {/* Generated post output — only shown in generate mode */}
+        {mode === "generate" && (generatedPost || generateMutation.isPending) && (
           <div
             className="rounded-2xl overflow-hidden"
             style={{
@@ -405,7 +585,6 @@ export default function BlogWriter() {
               boxShadow: "0 4px 24px rgba(0,0,0,0.07)",
             }}
           >
-            {/* Output header */}
             <div
               className="flex items-center justify-between px-6 py-4"
               style={{ background: "var(--lw-navy)", borderBottom: "2px solid var(--lw-gold)" }}
@@ -439,7 +618,6 @@ export default function BlogWriter() {
               )}
             </div>
 
-            {/* Post content */}
             <div className="px-8 py-8" style={{ background: "white" }}>
               {generateMutation.isPending ? (
                 <div className="flex items-center gap-3" style={{ color: "rgba(0,0,0,0.4)" }}>
@@ -461,7 +639,6 @@ export default function BlogWriter() {
               )}
             </div>
 
-            {/* Footer hint */}
             {generatedPost && (
               <div
                 className="px-8 py-4 text-xs"
