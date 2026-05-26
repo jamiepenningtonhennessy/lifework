@@ -245,6 +245,8 @@ References: Saul Leiter, Rinko Kawauchi (austere), Wolfgang Tillmans.`;
       const universalNegative = `Avoid: AI tells (extra fingers, extra teeth, plastic skin, glowing edges, garbled letterforms, broken hands); saturated tropical colour palettes; gradient backgrounds; emojis or graphic overlays inside the photo; corporate stock clichés (handshakes, conference rooms, laptops on desks, headshots against grey backdrops); heavy Instagram filter looks; lens flares as decoration; AI watermarks or signatures.`;
 
       // Step 1: Ask the LLM to generate 3 distinct PHOTO-ONLY prompts (960×890 inner photo)
+      // Each prompt is assigned a MANDATORY archetype to prevent the LLM defaulting to
+      // the same three clichés (body part / person / notebook) every time.
       const promptResponse = await invokeLLM({
         messages: [
           {
@@ -253,11 +255,24 @@ References: Saul Leiter, Rinko Kawauchi (austere), Wolfgang Tillmans.`;
 
 The final image will be a 1080×1080 square with a navy blue (#1a2744) frame and a branded footer strip. You are generating ONLY the inner photograph (960×890px) — no text, no logos, no overlays will appear inside the photo itself.
 
-Generate exactly 3 distinct photograph prompts following the register specification below. Each prompt must:
-- Be 2–3 sentences long and specific enough to guide image generation
-- Differ meaningfully from the other two in subject and composition
-- Follow the register style precisely
-- Produce an image that reads clearly inside a navy frame
+You must generate exactly 3 prompts. Each prompt is assigned a MANDATORY visual archetype — you cannot deviate from the assigned archetype. The archetypes are designed to force genuine variety.
+
+CRITICAL RULES:
+- Each prompt MUST use its assigned archetype. Do not swap, ignore, or blend archetypes.
+- Read the post text carefully. Every prompt must be directly inspired by a specific idea, image, or metaphor in the post — not a generic representation of the topic.
+- BANNED subjects (may not appear in ANY prompt): notebooks, journals, diaries, open books being written in, hands on keyboards, laptops, phones, coffee cups alone, handshakes, conference rooms, stock-business clichés.
+- No two prompts may share the same primary subject category.
+
+ARCHETYPE ASSIGNMENTS:
+
+Prompt 1 — ENVIRONMENT / PLACE
+Photograph a specific place, space, or setting that embodies the emotional or conceptual core of the post. No people required. The location itself carries the meaning. Examples: a threshold, a workshop, a garden at a particular time of day, an empty room with significant light, a landscape detail, an institutional corridor, a domestic space. The place must be chosen because of something specific in the post text.
+
+Prompt 2 — PERSON IN CONTEXT
+A real person in their environment — not posed, not looking at camera, engaged in an activity or moment of stillness that reflects the post's theme. The activity or setting must be drawn from something specific in the post. The person should feel observed, not performed. Avoid: headshots, direct-to-camera poses, corporate or office settings.
+
+Prompt 3 — OBJECT OR DETAIL WITH NARRATIVE WEIGHT
+A close or medium-close photograph of a single object, material, or physical detail that carries symbolic or narrative resonance with the post. The object must be chosen because of something specific in the post — not a generic prop. Examples: a worn tool, a piece of fabric, a plant at a particular stage, an architectural detail, a surface with texture and history, a natural object. Banned: notebooks, journals, pens writing, coffee cups alone.
 
 ${registerSpec}
 
@@ -272,7 +287,7 @@ Respond with JSON only (no markdown fences): { "prompts": ["prompt1", "prompt2",
 Post text:
 ${input.postText}
 
-Generate 3 photograph prompts for the inner photo area using Register ${register}.`,
+Read the post carefully. Identify three specific ideas, images, or moments in the post that could anchor each archetype. Then write the three prompts — one per archetype — each grounded in something concrete from the post. Use Register ${register}.`,
           },
         ],
       });
