@@ -54,8 +54,9 @@ export default function BlogWriter() {
 
   // Derived: the active post text (either generated or own)
   const activePostText = mode === "generate" ? generatedPost : (ownPostText.trim() || null);
-  const activePostType = mode === "generate" ? selectedPostType : ownPostType;
-  const activeAspect = mode === "generate" ? selectedAspect : ownAspect;
+  // In own-post mode, fall back to a generic category if the coach hasn't selected one
+  const activePostType = mode === "generate" ? selectedPostType : (ownPostType ?? "in-practice");
+  const activeAspect = mode === "generate" ? selectedAspect : (ownAspect ?? "lifework");
 
   function handleGenerateImages() {
     if (!activePostText || !activePostType || !activeAspect) return;
@@ -87,7 +88,7 @@ export default function BlogWriter() {
   }
 
   const canGenerate = selectedPostType !== null && selectedAspect !== null && selectedVoice !== null;
-  const canGenerateImagesOwn = ownPostText.trim().length > 50 && ownPostType !== null && ownAspect !== null;
+  const canGenerateImagesOwn = ownPostText.trim().length > 50;
 
   function handleGenerate() {
     if (!canGenerate) return;
@@ -362,8 +363,18 @@ export default function BlogWriter() {
               </div>
             </div>
 
-            {/* Post type + aspect selectors for own-post mode */}
-            <div className="grid md:grid-cols-2 gap-8 mb-6">
+            {/* Post type + aspect selectors for own-post mode — optional, used only for footer label */}
+            <details className="mb-6">
+              <summary
+                className="text-xs font-medium cursor-pointer select-none"
+                style={{ color: "rgba(0,0,0,0.4)", letterSpacing: "0.04em" }}
+              >
+                Optional: set footer label (post type &amp; Lifework aspect)
+              </summary>
+              <p className="text-xs mt-1 mb-4" style={{ color: "rgba(0,0,0,0.35)" }}>
+                If not set, the image footer will show the default Lifework branding.
+              </p>
+            <div className="grid md:grid-cols-2 gap-8 mt-4">
               <div>
                 <h2
                   className="font-serif font-semibold mb-1"
@@ -372,7 +383,7 @@ export default function BlogWriter() {
                   Type of post
                 </h2>
                 <p className="text-xs mb-4" style={{ color: "rgba(0,0,0,0.45)" }}>
-                  Used for the image footer label — select the closest match
+                  Select the closest match
                 </p>
                 <div className="space-y-2">
                   {postTypes.map((pt) => (
@@ -403,7 +414,7 @@ export default function BlogWriter() {
                   Aspect of Lifework
                 </h2>
                 <p className="text-xs mb-4" style={{ color: "rgba(0,0,0,0.45)" }}>
-                  Used for the image footer label — select the closest match
+                  Select the closest match
                 </p>
                 <div className="space-y-2">
                   {aspects.map((asp) => (
@@ -426,6 +437,7 @@ export default function BlogWriter() {
                 </div>
               </div>
             </div>
+            </details>
           </div>
         )}
 
@@ -484,12 +496,10 @@ export default function BlogWriter() {
           </div>
         )}
 
-        {/* Hint for own-post mode when post is too short or missing category */}
-        {mode === "own" && ownPostText.trim().length > 0 && !canGenerateImagesOwn && (
+        {/* Hint for own-post mode when post is too short */}
+        {mode === "own" && ownPostText.trim().length > 0 && ownPostText.trim().length <= 50 && (
           <p className="text-xs mb-6" style={{ color: "rgba(0,0,0,0.4)" }}>
-            {ownPostText.trim().length <= 50
-              ? "Post is too short — paste the full text to continue."
-              : "Select a post type and a Lifework aspect to generate images."}
+            Post is too short — paste the full text to continue.
           </p>
         )}
 
