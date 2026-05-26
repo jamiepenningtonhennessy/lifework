@@ -55,8 +55,8 @@ export default function BlogWriter() {
   // Derived: the active post text (either generated or own)
   const activePostText = mode === "generate" ? generatedPost : (ownPostText.trim() || null);
   // In own-post mode, fall back to a generic category if the coach hasn't selected one
-  const activePostType = mode === "generate" ? selectedPostType : (ownPostType ?? "in-practice");
-  const activeAspect = mode === "generate" ? selectedAspect : (ownAspect ?? "lifework");
+  const activePostType = mode === "generate" ? selectedPostType : (ownPostType ?? "personal-testimony");
+  const activeAspect = mode === "generate" ? selectedAspect : (ownAspect ?? "reflective-process");
 
   function handleGenerateImages() {
     if (!activePostText || !activePostType || !activeAspect) return;
