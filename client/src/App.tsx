@@ -28,6 +28,7 @@ import { LifeworkLayout } from "./components/LifeworkLayout";
 import DataSecurity from "@/pages/DataSecurity";
 import LifeworkStorybrand from "@/pages/LifeworkStorybrand";
 import LifeworkPricing from "@/pages/LifeworkPricing";
+import LifeworkStandalone from "@/pages/LifeworkStandalone";
 import { CounsellorPinGate } from "./components/CounsellorPinGate";
 import {
   PreviewClientDashboard,
@@ -58,6 +59,8 @@ function Router() {
       <Route path="/lifework-storybrand" component={LifeworkStorybrand} />
       <Route path="/lifework/storybrand" component={LifeworkStorybrand} />
       <Route path="/lifework/pricing" component={LifeworkPricing} />
+      <Route path="/lifework-standalone" component={LifeworkStandalone} />
+      <Route path="/lifework/standalone" component={LifeworkStandalone} />
       <Route path="/ai-coaching" component={AICoaching} />
 
       {/* Results held — shown after completing VIA or IPIP (withheld until Wow Report session) ── */}

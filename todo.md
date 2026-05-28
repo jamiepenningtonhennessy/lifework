@@ -1450,3 +1450,6 @@
 ## QA Simulation Harness
 - [x] End-to-end simulation test (server/e2e-simulation.test.ts): synthetic client "Margaret Holloway" exercises the full pipeline — DB setup, canonical Stage 1, WOW Report (all 8 sections), PDF export, router retrieval, Counsellor Sage briefing, and DB cleanup. 19/19 tests pass.
 - [x] Screen-by-screen UI simulation (e2e/lifework-ui.spec.py): 91/91 checks pass across all 13 client screens, navigation dead-ends, wrong-button traps, and locked states
+
+## Standalone Lifework Landing Page
+- [x] Create /lifework-standalone — full landing page in WOW report cream/navy/gold aesthetic, independent of PH branding (apart from logo), same content as penningtonhennessy.com/lifework
