@@ -581,11 +581,11 @@ const viaRouter = router({
     .input(z.object({ answers: z.record(z.string(), z.number()) }))
     .mutation(async ({ ctx, input }) => {
       const profile = await getOrCreateClientProfile(ctx.user.id);
-      // Gate: client must have entered at least 5 achievements AND Sage must have enriched
-      // all of them (up to 20) before psychometrics can be submitted.
-      // The minimum-5 check prevents the edge case where a client with 0 achievements
+      // Gate: client must have entered at least 20 achievements AND Sage must have enriched
+      // all 20 before psychometrics can be submitted.
+      // The minimum-20 check prevents the edge case where a client with 0 achievements
       // passes the gate because min(0,20)=0 and 0>=0 is trivially true.
-      const PSYCHOMETRICS_MIN_ACHIEVEMENTS = 5;
+      const PSYCHOMETRICS_MIN_ACHIEVEMENTS = 20;
       const { total: viaTotal, enriched: viaEnriched } = await getEnrichmentCounts(profile.id);
       if (viaTotal < PSYCHOMETRICS_MIN_ACHIEVEMENTS) {
         throw new TRPCError({
@@ -632,9 +632,9 @@ const ipipRouter = router({
     .input(z.object({ answers: z.record(z.string(), z.number()) }))
     .mutation(async ({ ctx, input }) => {
       const profile = await getOrCreateClientProfile(ctx.user.id);
-      // Gate: client must have entered at least 5 achievements AND Sage must have enriched
-      // all of them (up to 20) before psychometrics can be submitted.
-      const PSYCHOMETRICS_MIN_ACHIEVEMENTS_IPIP = 5;
+      // Gate: client must have entered at least 20 achievements AND Sage must have enriched
+      // all 20 before psychometrics can be submitted.
+      const PSYCHOMETRICS_MIN_ACHIEVEMENTS_IPIP = 20;
       const { total: ipipTotal, enriched: ipipEnriched } = await getEnrichmentCounts(profile.id);
       if (ipipTotal < PSYCHOMETRICS_MIN_ACHIEVEMENTS_IPIP) {
         throw new TRPCError({
