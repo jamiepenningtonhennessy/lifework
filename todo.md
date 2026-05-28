@@ -1446,3 +1446,6 @@
 - [x] Add `blog.generateImages` tRPC procedure: takes post text + postType + aspect, generates 3 image prompts and calls generateImage for each, returns 3 URLs
 - [x] Add "Generate images" button below the post output in BlogWriter.tsx
 - [x] Show 3 image options in a responsive row with individual download links
+
+## QA Simulation Harness
+- [x] End-to-end simulation test (server/e2e-simulation.test.ts): synthetic client "Margaret Holloway" exercises the full pipeline — DB setup, canonical Stage 1, WOW Report (all 8 sections), PDF export, router retrieval, Counsellor Sage briefing, and DB cleanup. 19/19 tests pass.
