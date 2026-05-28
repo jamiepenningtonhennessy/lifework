@@ -1,0 +1,8 @@
+{
+  "query": "\nSELECT u.id, u.name, u.email,\n       cp.id as client_profile_id,\n       cp.interviewStatus, cp.backgroundStatus,\n       cp.viaStatus, cp.ipipStatus, cp.sageStatus,\n       cp.wowReportStatus, cp.createdAt\nFROM users u\nLEFT JOIN client_profiles cp ON cp.userId = u.id\nWHERE u.name LIKE '%Phipson%' OR u.email LIKE '%phipson%';\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 32u3a1hNYuu9Gj3.7d2282893346 --database kFbbE6kqNApXGDFpQJUGV7 --execute \nSELECT u.id, u.name, u.email,\n       cp.id as client_profile_id,\n       cp.interviewStatus, cp.backgroundStatus,\n       cp.viaStatus, cp.ipipStatus, cp.sageStatus,\n       cp.wowReportStatus, cp.createdAt\nFROM users u\nLEFT JOIN client_profiles cp ON cp.userId = u.id\nWHERE u.name LIKE '%Phipson%' OR u.email LIKE '%phipson%';\n",
+  "returncode": 1,
+  "logs": [
+    "ERROR 1054 (42S22) at line 2: Unknown column 'cp.wowreportstatus' in 'field list'"
+  ]
+}

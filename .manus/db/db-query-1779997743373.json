@@ -1,0 +1,124 @@
+{
+  "query": "\nSELECT id, title, sageEnrichment IS NOT NULL AND LENGTH(sageEnrichment) > 0 as is_enriched,\n       LEFT(sageEnrichment, 50) as enrichment_preview\nFROM achievements\nWHERE clientId = 870001\nORDER BY id;\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 32u3a1hNYuu9Gj3.7d2282893346 --database kFbbE6kqNApXGDFpQJUGV7 --execute \nSELECT id, title, sageEnrichment IS NOT NULL AND LENGTH(sageEnrichment) > 0 as is_enriched,\n       LEFT(sageEnrichment, 50) as enrichment_preview\nFROM achievements\nWHERE clientId = 870001\nORDER BY id;\n",
+  "rows": [
+    {
+      "id": "2160001",
+      "title": "[Early (0-5)] Building forts",
+      "is_enriched": "0",
+      "enrichment_preview": "NULL"
+    },
+    {
+      "id": "2160002",
+      "title": "[Early (0-5)] Building LEGO",
+      "is_enriched": "0",
+      "enrichment_preview": "NULL"
+    },
+    {
+      "id": "2160003",
+      "title": "[Early (0-5)] Making mud projectiles",
+      "is_enriched": "0",
+      "enrichment_preview": "NULL"
+    },
+    {
+      "id": "2190001",
+      "title": "[Early (0-5)] Climbing to the top of any jungle gym",
+      "is_enriched": "0",
+      "enrichment_preview": "NULL"
+    },
+    {
+      "id": "2220001",
+      "title": "[Early (0-5)] Constructing dam walls out of stones and sand in a stream",
+      "is_enriched": "0",
+      "enrichment_preview": "NULL"
+    },
+    {
+      "id": "2250001",
+      "title": "[Mid (6-11)] Learning how to ride my first motorbike",
+      "is_enriched": "0",
+      "enrichment_preview": "NULL"
+    },
+    {
+      "id": "2250002",
+      "title": "[Mid (6-11)] Learning how to shoot a pellet gun",
+      "is_enriched": "0",
+      "enrichment_preview": "NULL"
+    },
+    {
+      "id": "2250003",
+      "title": "[Mid (6-11)] Working with my dad on the farm",
+      "is_enriched": "0",
+      "enrichment_preview": "NULL"
+    },
+    {
+      "id": "2250004",
+      "title": "[Mid (6-11)] Accompanying my dad on long work trips",
+      "is_enriched": "0",
+      "enrichment_preview": "NULL"
+    },
+    {
+      "id": "2280001",
+      "title": "[Mid (6-11)] Excelling academically",
+      "is_enriched": "0",
+      "enrichment_preview": "NULL"
+    },
+    {
+      "id": "2280002",
+      "title": "[Mid (6-11)] Coming in the top 10 national for general knowledge olympiad",
+      "is_enriched": "0",
+      "enrichment_preview": "NULL"
+    },
+    {
+      "id": "2580001",
+      "title": "[Mid (6-11)] Excelling academically",
+      "is_enriched": "0",
+      "enrichment_preview": "NULL"
+    },
+    {
+      "id": "2610001",
+      "title": "[Late (12-18)] Choir and performing arts",
+      "is_enriched": "0",
+      "enrichment_preview": "NULL"
+    },
+    {
+      "id": "2610002",
+      "title": "[Late (12-18)] Learning to play guitar and joining our church band",
+      "is_enriched": "0",
+      "enrichment_preview": "NULL"
+    },
+    {
+      "id": "2640001",
+      "title": "[Late (12-18)] Learning how to build a steam car at a provincial science expo",
+      "is_enriched": "0",
+      "enrichment_preview": "NULL"
+    },
+    {
+      "id": "2640002",
+      "title": "[Late (12-18)] Competing in local Math competitions",
+      "is_enriched": "0",
+      "enrichment_preview": "NULL"
+    },
+    {
+      "id": "2640003",
+      "title": "[Late (12-18)] Taking apart and breaking electronic devices",
+      "is_enriched": "0",
+      "enrichment_preview": "NULL"
+    },
+    {
+      "id": "2670001",
+      "title": "[Late (12-18)] Taking apart electronic devices",
+      "is_enriched": "0",
+      "enrichment_preview": "NULL"
+    },
+    {
+      "id": "2670002",
+      "title": "[Late (12-18)] Adapting to new situations and becoming head boy in a new school",
+      "is_enriched": "0",
+      "enrichment_preview": "NULL"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\ttitle\tis_enriched\tenrichment_preview\n2160001\t[Early (0-5)] Building forts\t0\tNULL\n2160002\t[Early (0-5)] Building LEGO\t0\tNULL\n2160003\t[Early (0-5)] Making mud projectiles\t0\tNULL\n2190001\t[Early (0-5)] Climbing to the top of any jungle gym\t0\tNULL\n2220001\t[Early (0-5)] Constructing dam walls out of stones and sand in a stream\t0\tNULL\n2250001\t[Mid (6-11)] Learning how to ride my first motorbike\t0\tNULL\n2250002\t[Mid (6-11)] Learning how to shoot a pellet gun\t0\tNULL\n2250003\t[Mid (6-11)] Working with my dad on the farm\t0\tNULL\n2250004\t[Mid (6-11)] Accompanying my dad on long work trips\t0\tNULL\n2280001\t[Mid (6-11)] Excelling academically\t0\tNULL\n2280002\t[Mid (6-11)] Coming in the top 10 national for general knowledge olympiad\t0\tNULL\n2580001\t[Mid (6-11)] Excelling academically\t0\tNULL\n2610001\t[Late (12-18)] Choir and performing arts\t0\tNULL\n2610002\t[Late (12-18)] Learning to play guitar and joining our church band\t0\tNULL\n2640001\t[Late (12-18)] Learning how to build a steam car at a provincial science expo\t0\tNULL\n2640002\t[Late (12-18)] Competing in local Math competitions\t0\tNULL\n2640003\t[Late (12-18)] Taking apart and breaking electronic devices\t0\tNULL\n2670001\t[Late (12-18)] Taking apart electronic devices\t0\tNULL\n2670002\t[Late (12-18)] Adapting to new situations and becoming head boy in a new school\t0\tNULL\n",
+  "stderr": "",
+  "execution_time_ms": 1164
+}

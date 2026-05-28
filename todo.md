@@ -1453,3 +1453,6 @@
 
 ## Standalone Lifework Landing Page
 - [x] Create /lifework-standalone — full landing page in WOW report cream/navy/gold aesthetic, independent of PH branding (apart from logo), same content as penningtonhennessy.com/lifework
+
+## Bug Fixes
+- [x] Fix VIA/IPIP gate: require minimum 5 achievements to exist before psychometrics unlock (previously min(0,20)=0 allowed bypass when client had no achievements yet)

@@ -1,0 +1,26 @@
+{
+  "query": "\nSELECT cp.id as client_profile_id, cp.interviewStatus, cp.viaStatus, cp.ipipStatus,\n       COUNT(DISTINCT a.id) as achievement_count,\n       COUNT(DISTINCT im.id) as interview_message_count\nFROM client_profiles cp\nLEFT JOIN achievements a ON a.clientId = cp.id\nLEFT JOIN interview_messages im ON im.clientId = cp.id\nWHERE cp.id IN (870001, 870002)\nGROUP BY cp.id, cp.interviewStatus, cp.viaStatus, cp.ipipStatus;\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 32u3a1hNYuu9Gj3.7d2282893346 --database kFbbE6kqNApXGDFpQJUGV7 --execute \nSELECT cp.id as client_profile_id, cp.interviewStatus, cp.viaStatus, cp.ipipStatus,\n       COUNT(DISTINCT a.id) as achievement_count,\n       COUNT(DISTINCT im.id) as interview_message_count\nFROM client_profiles cp\nLEFT JOIN achievements a ON a.clientId = cp.id\nLEFT JOIN interview_messages im ON im.clientId = cp.id\nWHERE cp.id IN (870001, 870002)\nGROUP BY cp.id, cp.interviewStatus, cp.viaStatus, cp.ipipStatus;\n",
+  "rows": [
+    {
+      "client_profile_id": "870001",
+      "interviewStatus": "not_started",
+      "viaStatus": "completed",
+      "ipipStatus": "completed",
+      "achievement_count": "19",
+      "interview_message_count": "0"
+    },
+    {
+      "client_profile_id": "870002",
+      "interviewStatus": "not_started",
+      "viaStatus": "not_started",
+      "ipipStatus": "not_started",
+      "achievement_count": "0",
+      "interview_message_count": "0"
+    }
+  ],
+  "messages": [],
+  "stdout": "client_profile_id\tinterviewStatus\tviaStatus\tipipStatus\tachievement_count\tinterview_message_count\n870001\tnot_started\tcompleted\tcompleted\t19\t0\n870002\tnot_started\tnot_started\tnot_started\t0\t0\n",
+  "stderr": "",
+  "execution_time_ms": 274
+}
