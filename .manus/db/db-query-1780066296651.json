@@ -1,0 +1,15 @@
+{
+  "query": "\nSELECT \n  COUNT(*) as total_achievements,\n  SUM(CASE WHEN sageEnrichment IS NOT NULL AND sageEnrichment != '' THEN 1 ELSE 0 END) as enriched_count,\n  SUM(CASE WHEN sageEnrichment IS NULL OR sageEnrichment = '' THEN 1 ELSE 0 END) as unenriched_count\nFROM achievements\nWHERE clientId = 1149902;\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 32u3a1hNYuu9Gj3.7d2282893346 --database kFbbE6kqNApXGDFpQJUGV7 --execute \nSELECT \n  COUNT(*) as total_achievements,\n  SUM(CASE WHEN sageEnrichment IS NOT NULL AND sageEnrichment != '' THEN 1 ELSE 0 END) as enriched_count,\n  SUM(CASE WHEN sageEnrichment IS NULL OR sageEnrichment = '' THEN 1 ELSE 0 END) as unenriched_count\nFROM achievements\nWHERE clientId = 1149902;\n",
+  "rows": [
+    {
+      "total_achievements": "30",
+      "enriched_count": "30",
+      "unenriched_count": "0"
+    }
+  ],
+  "messages": [],
+  "stdout": "total_achievements\tenriched_count\tunenriched_count\n30\t30\t0\n",
+  "stderr": "",
+  "execution_time_ms": 261
+}

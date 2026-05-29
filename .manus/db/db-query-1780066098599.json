@@ -1,0 +1,22 @@
+{
+  "query": "\nSELECT u.id as user_id, u.name, u.email, cp.id as profile_id, cp.firstName, cp.lastName, cp.sageStatus, cp.viaStatus, cp.ipipStatus, cp.interviewStatus\nFROM users u\nLEFT JOIN client_profiles cp ON cp.userId = u.id\nWHERE u.name LIKE '%Amanda%' OR u.email LIKE '%amanda%' OR u.email LIKE '%lord%'\nORDER BY u.id DESC;\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 32u3a1hNYuu9Gj3.7d2282893346 --database kFbbE6kqNApXGDFpQJUGV7 --execute \nSELECT u.id as user_id, u.name, u.email, cp.id as profile_id, cp.firstName, cp.lastName, cp.sageStatus, cp.viaStatus, cp.ipipStatus, cp.interviewStatus\nFROM users u\nLEFT JOIN client_profiles cp ON cp.userId = u.id\nWHERE u.name LIKE '%Amanda%' OR u.email LIKE '%amanda%' OR u.email LIKE '%lord%'\nORDER BY u.id DESC;\n",
+  "rows": [
+    {
+      "user_id": "35160001",
+      "name": "Amanda Lord",
+      "email": "amandagreenlord@gmail.com",
+      "profile_id": "1149902",
+      "firstName": "Amanda",
+      "lastName": "NULL",
+      "sageStatus": "completed",
+      "viaStatus": "not_started",
+      "ipipStatus": "not_started",
+      "interviewStatus": "completed"
+    }
+  ],
+  "messages": [],
+  "stdout": "user_id\tname\temail\tprofile_id\tfirstName\tlastName\tsageStatus\tviaStatus\tipipStatus\tinterviewStatus\n35160001\tAmanda Lord\tamandagreenlord@gmail.com\t1149902\tAmanda\tNULL\tcompleted\tnot_started\tnot_started\tcompleted\n",
+  "stderr": "",
+  "execution_time_ms": 268
+}

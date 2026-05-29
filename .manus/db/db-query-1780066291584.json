@@ -1,0 +1,9 @@
+{
+  "query": "\nUPDATE achievements\nSET sageEnrichment = 'Covered in Sage session summary: Amanda demonstrates a consistent drive to identify structural problems and redesign them into logical, coherent solutions. Language and communication are central — she thinks out loud, values intellectual stimulation and the company of equals, and finds deep satisfaction in being understood. She is energised by independence and setting her own agenda, and finds fulfilment in seeing tangible real-world impact from her work.'\nWHERE clientId = 1149902\nAND (sageEnrichment IS NULL OR sageEnrichment = '');\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 32u3a1hNYuu9Gj3.7d2282893346 --database kFbbE6kqNApXGDFpQJUGV7 --execute \nUPDATE achievements\nSET sageEnrichment = 'Covered in Sage session summary: Amanda demonstrates a consistent drive to identify structural problems and redesign them into logical, coherent solutions. Language and communication are central — she thinks out loud, values intellectual stimulation and the company of equals, and finds deep satisfaction in being understood. She is energised by independence and setting her own agenda, and finds fulfilment in seeing tangible real-world impact from her work.'\nWHERE clientId = 1149902\nAND (sageEnrichment IS NULL OR sageEnrichment = '');\n",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 276
+}

@@ -1,0 +1,17 @@
+{
+  "query": "\nSELECT id, section, summary, isComplete, createdAt\nFROM chat_sessions\nWHERE clientId = 1149902\nORDER BY createdAt DESC\nLIMIT 5;\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 32u3a1hNYuu9Gj3.7d2282893346 --database kFbbE6kqNApXGDFpQJUGV7 --execute \nSELECT id, section, summary, isComplete, createdAt\nFROM chat_sessions\nWHERE clientId = 1149902\nORDER BY createdAt DESC\nLIMIT 5;\n",
+  "rows": [
+    {
+      "id": "900001",
+      "section": "life_history",
+      "summary": "The client displays a consistent drive to identify structural or organizational problems and redesign them into more logical, coherent, and inclusive systems. From childhood—lining up dolls into recognizable sequences, which she describes as \"organizing information into logical sequences\"—through to restructuring the parent community at her children's school, she is motivated by clarifying what doesn't work and creating tangible, practical solutions. Language has been central throughout her life: she uses speech cognitively (\"thinking out loud, formulating my thoughts\"), finds deep satisfaction in the physical act of forming words and being understood, and values \"interesting and stimulating conversations\" with intellectual equals. She is energized by independence and the freedom to \"set my own agenda,\" but has learned to work within constraints when they offer meaningful rewards. What she finds fulfilling is not abstract problem-solving but seeing real-world impact: solutions that connect people, structures that function efficiently, and being told directly—as her father did (\"the soul of competence\") and her mother did—that her intervention made a tangible difference. She seeks both intellectual rigor and visible outcomes.",
+      "isComplete": "1",
+      "createdAt": "2026-05-29 14:06:34"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tsection\tsummary\tisComplete\tcreatedAt\n900001\tlife_history\tThe client displays a consistent drive to identify structural or organizational problems and redesign them into more logical, coherent, and inclusive systems. From childhood—lining up dolls into recognizable sequences, which she describes as \"organizing information into logical sequences\"—through to restructuring the parent community at her children's school, she is motivated by clarifying what doesn't work and creating tangible, practical solutions. Language has been central throughout her life: she uses speech cognitively (\"thinking out loud, formulating my thoughts\"), finds deep satisfaction in the physical act of forming words and being understood, and values \"interesting and stimulating conversations\" with intellectual equals. She is energized by independence and the freedom to \"set my own agenda,\" but has learned to work within constraints when they offer meaningful rewards. What she finds fulfilling is not abstract problem-solving but seeing real-world impact: solutions that connect people, structures that function efficiently, and being told directly—as her father did (\"the soul of competence\") and her mother did—that her intervention made a tangible difference. She seeks both intellectual rigor and visible outcomes.\t1\t2026-05-29 14:06:34\n",
+  "stderr": "",
+  "execution_time_ms": 272
+}

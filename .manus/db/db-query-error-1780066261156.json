@@ -1,0 +1,8 @@
+{
+  "query": "\nSELECT id, section, summary, created_at\nFROM chat_sessions\nWHERE client_id = 1149902\nORDER BY created_at DESC\nLIMIT 5;\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 32u3a1hNYuu9Gj3.7d2282893346 --database kFbbE6kqNApXGDFpQJUGV7 --execute \nSELECT id, section, summary, created_at\nFROM chat_sessions\nWHERE client_id = 1149902\nORDER BY created_at DESC\nLIMIT 5;\n",
+  "returncode": 1,
+  "logs": [
+    "ERROR 1054 (42S22) at line 2: Unknown column 'client_id' in 'where clause'"
+  ]
+}
