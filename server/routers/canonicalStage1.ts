@@ -12,6 +12,7 @@
  */
 
 import { invokeLLM } from "../_core/llm";
+import { pseudonymise, PSEUDONYM_TOKEN } from "../shared/pseudonymise";
 import {
   getClientProfileById,
   getAchievements,
@@ -131,10 +132,14 @@ export async function generateAndStoreCanonicalStage1(clientId: number): Promise
 
   if (!profile) throw new Error(`Client profile not found for id ${clientId}`);
 
-  const clientName =
+  const realName =
     [profile.firstName, profile.lastName].filter(Boolean).join(" ") ||
     profile.email ||
     `Client ${clientId}`;
+  // Pseudonymise: replace real name with a neutral token in all LLM prompts.
+  // The real name is never sent to Claude — only "the client" appears in API calls.
+  const { restore: restoreName } = pseudonymise(profile.firstName, profile.lastName);
+  const clientName = PSEUDONYM_TOKEN;
 
   const achievementContext = buildAchievementContext(achievementsList);
 
@@ -188,6 +193,7 @@ export async function generateAndStoreCanonicalStage1(clientId: number): Promise
       : null;
 
   const contextParts: string[] = [
+    // NOTE: clientName is the pseudonym token — real name never sent to Claude.
     `CLIENT: ${clientName}`,
     ...(profile.currentRole ? [`CURRENT ROLE: ${profile.currentRole}`] : []),
     ...(profile.currentOrg ? [`CURRENT ORGANISATION: ${profile.currentOrg}`] : []),
@@ -211,11 +217,15 @@ export async function generateAndStoreCanonicalStage1(clientId: number): Promise
     ],
   });
 
-  const stage1Text = (response.choices[0]?.message?.content as string) ?? "";
-  if (!stage1Text) throw new Error("LLM returned empty canonical Stage 1 output");
+  const rawStage1Text = (response.choices[0]?.message?.content as string) ?? "";
+  if (!rawStage1Text) throw new Error("LLM returned empty canonical Stage 1 output");
+
+  // Restore the real name in the output before storing — the stored canonical
+  // text should use the client's real name for readability in the counsellor UI.
+  const stage1Text = restoreName(rawStage1Text);
 
   await updateCanonicalStage1(clientId, stage1Text);
-  console.log(`[Canonical Stage 1] Generated and stored for client ${clientId}`);
+
   return stage1Text;
 }
 

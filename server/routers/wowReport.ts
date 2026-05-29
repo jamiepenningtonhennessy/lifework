@@ -23,6 +23,7 @@ import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { router, protectedProcedure } from "../_core/trpc";
 import { invokeLLM } from "../_core/llm";
+import { pseudonymise, PSEUDONYM_TOKEN } from "../shared/pseudonymise";
 import { getOrGenerateCanonicalStage1, CANONICAL_SYSTEM_PROMPT, LIFE_HISTORY_PROMPT } from "./canonicalStage1";
 import { storagePut } from "../storage";
 import { generateWheelPng } from "./insightsWheelPng.js";
@@ -95,6 +96,7 @@ async function buildClientContext(clientId: number): Promise<{
   viaRanked: Array<{ name: string; score: number; rank: number; strengthId?: string }>;
   domainScores: Record<string, number>;
   facetScores: Record<string, number>;
+  restoreClientName: (text: string) => string;
 }> {
   const [profile, achievementsList, family, education, career, via, ipip] = await Promise.all([
     getClientProfileById(clientId),
@@ -106,10 +108,11 @@ async function buildClientContext(clientId: number): Promise<{
     getIpipResults(clientId),
   ]);
 
-  if (!profile) throw new TRPCError({ code: "NOT_FOUND", message: "Client not found" });
-
-  const clientName = profile.firstName ?? "the client";
-  const clientFullName = [profile.firstName, profile.lastName].filter(Boolean).join(" ") || "the client";
+   if (!profile) throw new TRPCError({ code: "NOT_FOUND", message: "Client not found" });
+  // Pseudonymise: use neutral token in all LLM prompts; real name only used in PDF rendering.
+  const { restore: restoreClientName } = pseudonymise(profile.firstName, profile.lastName);
+  const clientName = PSEUDONYM_TOKEN;
+  const clientFullName = PSEUDONYM_TOKEN;
   const pronouns = profile.pronouns ?? "they/them";
 
   // Parse VIA
@@ -197,7 +200,7 @@ async function buildClientContext(clientId: number): Promise<{
     }
   }
 
-  return { clientName, clientFullName, pronouns, contextText: lines.join("\n"), viaRanked, domainScores, facetScores };
+  return { clientName, clientFullName, pronouns, contextText: lines.join("\n"), viaRanked, domainScores, facetScores, restoreClientName };
 }
 
 // ─── Helper: Generate all 7 sections via LLM ─────────────────────────────────
@@ -393,7 +396,7 @@ function getVariantPrompts(type: WowReportType, ctx: string, sys: string): {
 
 async function generateWowSections(clientId: number, reportType: WowReportType = "standard", writingStyle: WritingStyle = "house", runId?: string): Promise<WowReportSections> {
   const _runId = runId ?? crypto.randomUUID();
-  const { clientName, clientFullName, pronouns, contextText, viaRanked, domainScores, facetScores } = await buildClientContext(clientId);
+  const { clientName, clientFullName, pronouns, contextText, viaRanked, domainScores, facetScores, restoreClientName } = await buildClientContext(clientId);
   // pronouns is a string like "they/them/their" or "he/him/his" or "she/her/her"
   const pronounParts = pronouns.split("/");
   const subj = pronounParts[0] ?? "they";
@@ -588,22 +591,24 @@ Write directly to the client using "you" and "your" throughout. Do NOT include a
   ]);
 
   console.log(`[WOW Report] All 8 sections generated successfully for client ${clientId}`);
-
+  // Restore the real client name in all generated text sections.
+  // The prompts used the pseudonym token; the stored/rendered output should use the real name.
+  const r = restoreClientName;
   return {
-    clientName,
-    clientFullName,
+    clientName: restoreClientName(clientName),
+    clientFullName: restoreClientName(clientFullName),
     generatedAt: new Date().toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" }),
-    summary,
-    lifeHistoryPattern,
-    viaSection,
-    personalitySection,
-    behaviouralStyle,
+    summary: r(summary),
+    lifeHistoryPattern: r(lifeHistoryPattern),
+    viaSection: r(viaSection),
+    personalitySection: r(personalitySection),
+    behaviouralStyle: r(behaviouralStyle),
     primaryColour,
     secondaryColour,
     jungianType,
-    careerDirections,
-    developmentEdge,
-    coachingQuestions,
+    careerDirections: r(careerDirections),
+    developmentEdge: r(developmentEdge),
+    coachingQuestions: r(coachingQuestions),
     viaRanked,
     domainScores,
     facetScores,

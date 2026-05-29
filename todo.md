@@ -1456,3 +1456,7 @@
 
 ## Bug Fixes
 - [x] Fix VIA/IPIP gate: require minimum 5 achievements to exist before psychometrics unlock (previously min(0,20)=0 allowed bypass when client had no achievements yet)
+
+## Security — Pseudonymisation
+- [x] Raise psychometrics gate minimum to 20 achievements
+- [x] Pseudonymise all LLM prompts: strip client real names before sending to Claude API and restore in generated output. Applied to: wowReport (buildClientContext + all 8 sections), canonicalStage1, VIA analysis, OCEAN analysis, closing annex, counsellorSage (chat + briefing). No PII sent to Anthropic.

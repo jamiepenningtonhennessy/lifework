@@ -15,6 +15,7 @@ import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { router, protectedProcedure } from "../_core/trpc";
 import { invokeLLM } from "../_core/llm";
+import { pseudonymise, PSEUDONYM_TOKEN } from "../shared/pseudonymise";
 import {
   getClientProfileById,
   getAchievements,
@@ -61,7 +62,7 @@ async function buildCounsellorContext(clientId: number): Promise<string> {
 
   if (!profile) throw new TRPCError({ code: "NOT_FOUND", message: "Client not found" });
 
-  const name = [profile.firstName, profile.lastName].filter(Boolean).join(" ") || "the client";
+  const name = PSEUDONYM_TOKEN;
   const lines: string[] = [];
 
   lines.push(`CLIENT: ${name}`);
@@ -224,10 +225,9 @@ export const counsellorSageRouter = router({
     }))
     .mutation(async ({ input }) => {
       const clientContext = await buildCounsellorContext(input.clientId);
-
       const profile = await getClientProfileById(input.clientId);
-      const clientName = profile?.firstName ?? "the client";
-
+      const { restore: restoreChatName } = pseudonymise(profile?.firstName, profile?.lastName);
+      const clientName = PSEUDONYM_TOKEN;
       let systemPrompt = buildSystemPrompt(clientContext, clientName);
       if (input.documentContext) {
         systemPrompt += `\n\n--- UPLOADED DOCUMENT ---\nThe counsellor has shared a document for discussion. Read it carefully and be ready to discuss, analyse, or compare it against the client data above.\n\n${input.documentContext}\n--- END DOCUMENT ---`;
@@ -245,9 +245,10 @@ export const counsellorSageRouter = router({
         max_tokens: 800,
       });
 
-      const reply = (response.choices[0]?.message?.content as string) ?? "I'm sorry, I wasn't able to generate a response. Please try again.";
-
-      return { reply, clientName };
+       const replyRaw = (response.choices[0]?.message?.content as string) ?? "I'm sorry, I wasn't able to generate a response. Please try again.";
+      const reply = restoreChatName(replyRaw);
+      const displayName = profile?.firstName ?? "the client";
+      return { reply, clientName: displayName };
     }),
 
   /**
@@ -259,24 +260,25 @@ export const counsellorSageRouter = router({
     .query(async ({ input }) => {
       const clientContext = await buildCounsellorContext(input.clientId);
       const profile = await getClientProfileById(input.clientId);
-      const clientName = profile?.firstName ?? "the client";
-
+      const { restore: restoreBriefingName } = pseudonymise(profile?.firstName, profile?.lastName);
+      const clientName = PSEUDONYM_TOKEN;
+      const displayNameBriefing = profile?.firstName ?? "the client";
       const systemPrompt = buildSystemPrompt(clientContext, clientName);
-
       const response = await invokeLLM({
         messages: [
           { role: "system", content: systemPrompt },
           {
             role: "user",
-            content: `I am about to meet ${clientName}. Give me a brief pre-session briefing — no more than 3 sentences. Name the single most important theme in this client's data, and one key tension worth being aware of. Be specific and observational. Do not suggest questions or tell me what to ask — I will ask for those separately.`,
+            content: `I am about to meet ${displayNameBriefing}. Give me a brief pre-session briefing — no more than 3 sentences. Name the single most important theme in this client's data, and one key tension worth being aware of. Be specific and observational. Do not suggest questions or tell me what to ask — I will ask for those separately.`,
           },
         ] as any,
         max_tokens: 300,
       });
 
+      const briefingRaw = (response.choices[0]?.message?.content as string) ?? "";
       return {
-        briefing: (response.choices[0]?.message?.content as string) ?? "",
-        clientName,
+        briefing: restoreBriefingName(briefingRaw),
+        clientName: displayNameBriefing,
       };
     }),
 });

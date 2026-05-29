@@ -1,4 +1,5 @@
 import { COOKIE_NAME } from "@shared/const";
+import { pseudonymise, PSEUDONYM_TOKEN } from "./shared/pseudonymise";
 import { wowReportRouter } from "./routers/wowReport";
 import { claudeExportRouter } from "./routers/claudeExport";
 import { getOrGenerateCanonicalStage1, generateAndStoreCanonicalStage1 } from "./routers/canonicalStage1";
@@ -1675,8 +1676,8 @@ Critical analytical principle: the earliest experiences carry the deepest imprin
       ]);
 
       if (!via?.rankedStrengths) throw new TRPCError({ code: "PRECONDITION_FAILED", message: "VIA survey not completed" });
-
-      const clientName = [profile.firstName, profile.lastName].filter(Boolean).join(" ") || "the client";
+      const { restore: restoreViaName } = pseudonymise(profile.firstName, profile.lastName);
+      const clientName = PSEUDONYM_TOKEN;
 
       // Build life history block
       const DECADE_ORDER = ["childhood","teens","twenties","thirties","forties","fifties","sixties_plus"];
@@ -1763,8 +1764,8 @@ ${lifeBlock}` }] });
 
       const S3 = await invokeLLM({ messages: [{ role:"system",content:SYS_VIA },{ role:"user",content:`Apply Stage 5 of the VIA structured analysis framework: move from description to hypothesis.\n\nA well-formed coaching hypothesis has three components: the strength, the conditions in which it is most alive, and the question it opens.\n\n## Questions to Ponder\n\nWrite exactly 5 coaching hypotheses, one for each of the top 5 strengths (${top5Str}).\n\nEach hypothesis MUST:\n1. Open with a 2-3 sentence observation grounded in specific life history evidence — name episodes, quote language where possible\n2. Name the specific CONDITIONS in which this strength is most alive (not just 'you use this strength', but when, with whom, at what scale, in what kind of challenge)\n3. Close with a single, open, genuinely curious question — not a leading question, not a rhetorical question.\n\nFormat each as:\n**[Strength Name]**\n[The hypothesis paragraph and question]\n\n${viaBlock}\n\n${lifeBlock}` }] });
 
-      const combined = (S1?.choices?.[0]?.message?.content ?? "") + "\n\n" + (S2?.choices?.[0]?.message?.content ?? "") + "\n\n" + (S3?.choices?.[0]?.message?.content ?? "");
-
+      const combinedRaw = (S1?.choices?.[0]?.message?.content ?? "") + "\n\n" + (S2?.choices?.[0]?.message?.content ?? "") + "\n\n" + (S3?.choices?.[0]?.message?.content ?? "");
+      const combined = restoreViaName(combinedRaw);
       await upsertAnalysisReport({ clientId: input.clientId, counsellorViaAnalysis: combined, counsellorViaGeneratedAt: Date.now(), generatedAt: new Date() } as any);
       return { analysis: combined, cached: false };
     }),
@@ -1787,8 +1788,8 @@ ${lifeBlock}` }] });
       ]);
 
       if (!ipip?.domainScores) throw new TRPCError({ code: "PRECONDITION_FAILED", message: "OCEAN assessment not completed" });
-
-      const clientName = [profile.firstName, profile.lastName].filter(Boolean).join(" ") || "the client";
+      const { restore: restoreOceanName } = pseudonymise(profile.firstName, profile.lastName);
+      const clientName = PSEUDONYM_TOKEN;
 
       const domainScores: Record<string,number> = (() => { try { const d=ipip.domainScores; return typeof d==="string"?JSON.parse(d):(d as any); } catch { return {}; } })();
       const facetScores: Record<string,number> = (() => { try { const f=ipip.facetScores; return typeof f==="string"?JSON.parse(f):(f as any); } catch { return {}; } })();
@@ -1833,8 +1834,8 @@ ${lifeBlock}` }] });
 
       const O3 = await invokeLLM({ messages: [{ role:"system",content:SYS_OCEAN },{ role:"user",content:`You are a senior career analyst completing the Personality Profile chapter for ${clientName}.\n\nYou have already written:\n- Section 1: The pure psychometric portrait\n- Section 2: Where the two pictures meet\n\nNow write Section 3.\n\nWrite directly to the client using "you" and "your" throughout.\nBegin immediately with ## What This Means — no introductory paragraph.\n\n## What This Means\nOne short paragraph (4–5 lines): the single most important insight that emerges from comparing the two pictures. What does the client now know about themselves that neither source alone could have revealed?\n\nThen write: "If this is true, these things will also be true:" followed by 3–4 tight bullets that name the downstream implications — for career choices, working environment, development, or relationships at work.\n\n${oceanBlock}\n\nLIFE HISTORY SUMMARY (for reference):\n${lifeBlock2.slice(0,3000)}` }] });
 
-      const combined = (O1?.choices?.[0]?.message?.content ?? "") + "\n\n" + (O2?.choices?.[0]?.message?.content ?? "") + "\n\n" + (O3?.choices?.[0]?.message?.content ?? "");
-
+       const oceanRaw = (O1?.choices?.[0]?.message?.content ?? "") + "\n\n" + (O2?.choices?.[0]?.message?.content ?? "") + "\n\n" + (O3?.choices?.[0]?.message?.content ?? "");
+      const combined = restoreOceanName(oceanRaw);
       await upsertAnalysisReport({ clientId: input.clientId, counsellorOceanAnalysis: combined, counsellorOceanGeneratedAt: Date.now(), generatedAt: new Date() } as any);
       return { analysis: combined, cached: false };
     }),
@@ -3309,8 +3310,8 @@ const coachingAnnexRouter = router({
 
       if (!annex?.transcriptText) throw new TRPCError({ code: "BAD_REQUEST", message: "No transcript uploaded" });
 
-      const clientName = profile?.firstName ? `${profile.firstName} ${profile.lastName ?? ""}`.trim() : "the client";
-
+       const { restore: restoreAnnexName } = pseudonymise(profile?.firstName, profile?.lastName);
+      const clientName = PSEUDONYM_TOKEN;
       const achievementsCtx = achievements.length > 0
         ? achievements.map(a => {
             const base = `[${a.decade}] ${a.title} (${a.esf ?? "untagged"}): ${a.description ?? ""}`;
@@ -3379,7 +3380,8 @@ Now write the five-section closing annex for ${clientName}.`;
         max_tokens: 1200,
       });
 
-      const draftAnnex = response.choices[0]?.message?.content as string;
+      const draftAnnexRaw = response.choices[0]?.message?.content as string;
+      const draftAnnex = restoreAnnexName(draftAnnexRaw);
       await upsertCoachingAnnex({ clientId: input.clientId, draftAnnex, status: "draft" });
       return { draftAnnex };
     }),
