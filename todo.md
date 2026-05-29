@@ -1460,3 +1460,7 @@
 ## Security — Pseudonymisation
 - [x] Raise psychometrics gate minimum to 20 achievements
 - [x] Pseudonymise all LLM prompts: strip client real names before sending to Claude API and restore in generated output. Applied to: wowReport (buildClientContext + all 8 sections), canonicalStage1, VIA analysis, OCEAN analysis, closing annex, counsellorSage (chat + briefing). No PII sent to Anthropic.
+
+## PDF Renderer Bug Fixes
+- [x] Fix sectionBlock null guard: empty/null sections now render a visible placeholder instead of silently producing a blank page (root cause of Amanda Lord's missing Life History Pattern section — PDF was generated before canonical Stage 1 completed)
+- [x] Amanda Lord's report rebuilt successfully (15:20 today) — all 8 sections present including Life History Pattern

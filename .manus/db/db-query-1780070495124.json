@@ -1,0 +1,17 @@
+{
+  "query": "\nSELECT \n  JSON_UNQUOTE(JSON_EXTRACT(wowReportJson, '$.lifeHistoryPattern')) IS NULL as is_null,\n  LENGTH(JSON_UNQUOTE(JSON_EXTRACT(wowReportJson, '$.lifeHistoryPattern'))) as content_length,\n  LEFT(JSON_UNQUOTE(JSON_EXTRACT(wowReportJson, '$.lifeHistoryPattern')), 300) as preview\nFROM analysis_reports\nWHERE clientId = 1149902;\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 32u3a1hNYuu9Gj3.7d2282893346 --database kFbbE6kqNApXGDFpQJUGV7 --execute \nSELECT \n  JSON_UNQUOTE(JSON_EXTRACT(wowReportJson, '$.lifeHistoryPattern')) IS NULL as is_null,\n  LENGTH(JSON_UNQUOTE(JSON_EXTRACT(wowReportJson, '$.lifeHistoryPattern'))) as content_length,\n  LEFT(JSON_UNQUOTE(JSON_EXTRACT(wowReportJson, '$.lifeHistoryPattern')), 300) as preview\nFROM analysis_reports\nWHERE clientId = 1149902;\n",
+  "rows": [
+    {
+      "is_null": "0",
+      "content_length": "5057",
+      "preview": "## 2. Life History — The Pattern"
+    }
+  ],
+  "messages": [
+    "The pattern starts early. You were moving, speaking, organising, and thinking out loud before you were six. Learning to swim at five gave you mastery over your body; constant chatter, even to yourself, was how you built thoughts. By seven, your dolls weren't just to"
+  ],
+  "stdout": "is_null\tcontent_length\tpreview\n0\t5057\t## 2. Life History — The Pattern\n\nThe pattern starts early. You were moving, speaking, organising, and thinking out loud before you were six. Learning to swim at five gave you mastery over your body; constant chatter, even to yourself, was how you built thoughts. By seven, your dolls weren't just to\n",
+  "stderr": "",
+  "execution_time_ms": 269
+}

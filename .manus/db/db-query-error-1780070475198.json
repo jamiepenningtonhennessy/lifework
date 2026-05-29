@@ -1,0 +1,8 @@
+{
+  "query": "\nSELECT \n  JSON_UNQUOTE(JSON_EXTRACT(wow_report_json, '$.lifeHistoryPattern')) IS NULL as is_null,\n  LENGTH(JSON_UNQUOTE(JSON_EXTRACT(wow_report_json, '$.lifeHistoryPattern'))) as length,\n  LEFT(JSON_UNQUOTE(JSON_EXTRACT(wow_report_json, '$.lifeHistoryPattern')), 300) as preview\nFROM analysis_reports ar\nJOIN client_profiles cp ON ar.client_id = cp.id\nJOIN users u ON cp.user_id = u.id\nWHERE u.name LIKE '%Amanda%' OR u.email LIKE '%amanda%'\nLIMIT 1;\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 32u3a1hNYuu9Gj3.7d2282893346 --database kFbbE6kqNApXGDFpQJUGV7 --execute \nSELECT \n  JSON_UNQUOTE(JSON_EXTRACT(wow_report_json, '$.lifeHistoryPattern')) IS NULL as is_null,\n  LENGTH(JSON_UNQUOTE(JSON_EXTRACT(wow_report_json, '$.lifeHistoryPattern'))) as length,\n  LEFT(JSON_UNQUOTE(JSON_EXTRACT(wow_report_json, '$.lifeHistoryPattern')), 300) as preview\nFROM analysis_reports ar\nJOIN client_profiles cp ON ar.client_id = cp.id\nJOIN users u ON cp.user_id = u.id\nWHERE u.name LIKE '%Amanda%' OR u.email LIKE '%amanda%'\nLIMIT 1;\n",
+  "returncode": 1,
+  "logs": [
+    "ERROR 1054 (42S22) at line 2: Unknown column 'ar.client_id' in 'on clause'"
+  ]
+}

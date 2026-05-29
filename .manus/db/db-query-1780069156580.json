@@ -1,0 +1,17 @@
+{
+  "query": "\nSELECT \n  ar.id,\n  ar.wowReportStatus,\n  ar.wowReportError,\n  JSON_KEYS(ar.wowReportJson) as section_keys,\n  LENGTH(ar.wowReportJson) as json_length\nFROM analysis_reports ar\nJOIN client_profiles cp ON ar.clientId = cp.id\nJOIN users u ON cp.userId = u.id\nWHERE u.name LIKE '%Amanda%' OR u.name LIKE '%Lord%'\nLIMIT 5;\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 32u3a1hNYuu9Gj3.7d2282893346 --database kFbbE6kqNApXGDFpQJUGV7 --execute \nSELECT \n  ar.id,\n  ar.wowReportStatus,\n  ar.wowReportError,\n  JSON_KEYS(ar.wowReportJson) as section_keys,\n  LENGTH(ar.wowReportJson) as json_length\nFROM analysis_reports ar\nJOIN client_profiles cp ON ar.clientId = cp.id\nJOIN users u ON cp.userId = u.id\nWHERE u.name LIKE '%Amanda%' OR u.name LIKE '%Lord%'\nLIMIT 5;\n",
+  "rows": [
+    {
+      "id": "3750001",
+      "wowReportStatus": "done",
+      "wowReportError": "NULL",
+      "section_keys": "[\"behaviouralStyle\", \"careerDirections\", \"clientFullName\", \"clientName\", \"coachingQuestions\", \"developmentEdge\", \"domainScores\", \"facetScores\", \"generatedAt\", \"jungianType\", \"lifeHistoryPattern\", \"personalitySection\", \"primaryColour\", \"reportType\", \"secondaryColour\", \"summary\", \"viaRanked\", \"viaSection\"]",
+      "json_length": "25197"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\twowReportStatus\twowReportError\tsection_keys\tjson_length\n3750001\tdone\tNULL\t[\"behaviouralStyle\", \"careerDirections\", \"clientFullName\", \"clientName\", \"coachingQuestions\", \"developmentEdge\", \"domainScores\", \"facetScores\", \"generatedAt\", \"jungianType\", \"lifeHistoryPattern\", \"personalitySection\", \"primaryColour\", \"reportType\", \"secondaryColour\", \"summary\", \"viaRanked\", \"viaSection\"]\t25197\n",
+  "stderr": "",
+  "execution_time_ms": 292
+}

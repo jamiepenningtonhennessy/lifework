@@ -1629,11 +1629,14 @@ async function renderWowPdf(sections: WowReportSections, writingStyle: WritingSt
     return result;
   };
   const isMark = writingStyle === "mark";
-  const sectionBlock = (title: string, content: string) => [
+  const sectionBlock = (title: string, content: string | null | undefined) => [
     { text: "", pageBreak: "before" },
     heading(title),
     divider(),
-    ...markdownToPdfContent(content, isMark),
+    ...(content && content.trim().length > 0
+      ? markdownToPdfContent(content, isMark)
+      : [para("[This section is being prepared \u2014 please ask your counsellor to rebuild the report.]", { color: "#999999", italics: true })]
+    ),
   ];
 
   // ── Bar chart helper — nested 2-cell table with fillColor (no canvas, no Unicode glyphs) ──

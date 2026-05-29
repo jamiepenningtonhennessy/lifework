@@ -1,0 +1,13 @@
+{
+  "query": "\nSELECT \n  ar.id,\n  ar.wowReportStatus,\n  LEFT(JSON_UNQUOTE(JSON_EXTRACT(ar.wowReportJson, '$.lifeHistoryPattern')), 500) as lifeHistoryPattern_preview,\n  LEFT(JSON_UNQUOTE(JSON_EXTRACT(ar.wowReportJson, '$.summary')), 200) as summary_preview\nFROM analysis_reports ar\nJOIN client_profiles cp ON ar.clientId = cp.id\nJOIN users u ON cp.userId = u.id\nWHERE u.name LIKE '%Amanda%' OR u.name LIKE '%Lord%'\nLIMIT 1;\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 32u3a1hNYuu9Gj3.7d2282893346 --database kFbbE6kqNApXGDFpQJUGV7 --execute \nSELECT \n  ar.id,\n  ar.wowReportStatus,\n  LEFT(JSON_UNQUOTE(JSON_EXTRACT(ar.wowReportJson, '$.lifeHistoryPattern')), 500) as lifeHistoryPattern_preview,\n  LEFT(JSON_UNQUOTE(JSON_EXTRACT(ar.wowReportJson, '$.summary')), 200) as summary_preview\nFROM analysis_reports ar\nJOIN client_profiles cp ON ar.clientId = cp.id\nJOIN users u ON cp.userId = u.id\nWHERE u.name LIKE '%Amanda%' OR u.name LIKE '%Lord%'\nLIMIT 1;\n",
+  "rows": [],
+  "messages": [
+    "3750001\tdone\t## 2. Life History — The Pattern",
+    "You were already building your world before most children could tie their shoelaces. By five, you'd mastered swimming, discovering the satisfaction of control and practice. By seven, your dolls weren't just dolls; they were props in your structured scenarios: planes, schools, scenes where you were the architect. You used language to think, constantly chatting to clarify what was forming in your mind.",
+    "Your family was polite, resilient, and emotionally reserved. \tYou're an architect. Not of buildings, but of systems and experiences. From childhood dolls to businesses like apartfrom and headstarted CIC, you build, organise, and refine. It's a fundamental drive,"
+  ],
+  "stdout": "id\twowReportStatus\tlifeHistoryPattern_preview\tsummary_preview\n3750001\tdone\t## 2. Life History — The Pattern\n\nYou were already building your world before most children could tie their shoelaces. By five, you'd mastered swimming, discovering the satisfaction of control and practice. By seven, your dolls weren't just dolls; they were props in your structured scenarios: planes, schools, scenes where you were the architect. You used language to think, constantly chatting to clarify what was forming in your mind.\n\nYour family was polite, resilient, and emotionally reserved. \tYou're an architect. Not of buildings, but of systems and experiences. From childhood dolls to businesses like apartfrom and headstarted CIC, you build, organise, and refine. It's a fundamental drive,\n",
+  "stderr": "",
+  "execution_time_ms": 280
+}
