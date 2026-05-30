@@ -343,7 +343,7 @@ describe("deriveWheelPosition", () => {
 });
 
 // ─── Import buildLifeHistoryPages directly (now exported) ────────────────────
-import { buildLifeHistoryPages } from "./routers/claudeExport.js";
+import { buildLifeHistoryPages, parseFourPillars } from "./routers/claudeExport.js";
 
 describe("buildLifeHistoryPages", () => {
   const makeAchievement = (decade: string, id = 1) => ({
@@ -416,5 +416,75 @@ describe("buildLifeHistoryPages", () => {
     const pages = buildLifeHistoryPages(achievements);
     expect(pages[0].pageNum).toBe("17");
     expect(pages[1].pageNum).toBe("18");
+  });
+});
+
+// ─── parseFourPillars ────────────────────────────────────────────────────────
+describe("parseFourPillars", () => {
+  const SAMPLE = `
+## Places — Where Energy Was High
+Learning: You consistently thrive in environments that combine intellectual rigour with creative latitude.
+
+During your time at the BBC, you described the newsroom as the place where you felt most alive.
+
+Your account of the Nairobi project reveals the same pattern: a complex environment with high stakes and genuine autonomy.
+
+## People — Who You Work Best With
+Learning: You do your best work alongside people who combine domain expertise with genuine curiosity.
+
+Your description of the team at McKinsey is revealing: what you valued was not seniority but the quality of thinking.
+
+## The Combination
+> You are most fully yourself when the environment is complex, the people are intellectually alive, and the problem is genuinely unsolved.
+
+The practical question this raises is not 'what field should I work in?' but rather: what kind of problem, in what kind of organisation, with what kind of team?
+
+*Based on Savickas, M.L. (2011). Career Counseling. APA.*
+`;
+
+  it("parses pillar headings", () => {
+    const result = parseFourPillars(SAMPLE);
+    expect(result.pillars).toHaveLength(2);
+    expect(result.pillars[0].heading).toBe("Places \u2014 Where Energy Was High");
+    expect(result.pillars[1].heading).toBe("People \u2014 Who You Work Best With");
+  });
+
+  it("extracts learning sentences from each pillar", () => {
+    const result = parseFourPillars(SAMPLE);
+    expect(result.pillars[0].learning).toContain("intellectual rigour");
+    expect(result.pillars[1].learning).toContain("domain expertise");
+  });
+
+  it("extracts example paragraphs from each pillar", () => {
+    const result = parseFourPillars(SAMPLE);
+    expect(result.pillars[0].examples.length).toBeGreaterThan(0);
+    expect(result.pillars[0].examples[0]).toContain("BBC");
+  });
+
+  it("extracts the combination synthesis", () => {
+    const result = parseFourPillars(SAMPLE);
+    expect(result.combination.synthesis).toContain("most fully yourself");
+  });
+
+  it("extracts the combination practical question", () => {
+    const result = parseFourPillars(SAMPLE);
+    expect(result.combination.practical_question).toContain("what kind of problem");
+  });
+
+  it("extracts the citation", () => {
+    const result = parseFourPillars(SAMPLE);
+    expect(result.citation).toContain("Savickas");
+  });
+
+  it("returns empty pillars for empty input", () => {
+    const result = parseFourPillars("");
+    expect(result.pillars).toHaveLength(0);
+    expect(result.combination.synthesis).toBe("");
+    expect(result.citation).toBe("");
+  });
+
+  it("HAS_CONTENT is truthy when pillars are present", () => {
+    const result = parseFourPillars(SAMPLE);
+    expect(result.pillars.length > 0).toBe(true);
   });
 });

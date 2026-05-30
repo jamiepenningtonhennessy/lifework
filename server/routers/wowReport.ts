@@ -583,9 +583,159 @@ Write directly to the client using "you" and "your" throughout. Do NOT include a
         `${ctx}\n\nWrite the Development Edge chapter. Write directly to the client using "you" and "your" throughout. Begin IMMEDIATELY with the first development area — no introductory paragraph.\n\nYou MUST write EXACTLY 3 development edges — no more, no fewer. Do not stop after 1 or 2. All 3 must be present in your response. For each:\n- Name it precisely as a ## heading (e.g. ## The Visibility Gap)\n- Write 2 short paragraphs (4-5 lines each):\n  - Paragraph 1: What the evidence shows. Connect it directly to specific life history moments, psychometric scores, or both.\n  - Paragraph 2: What it costs in career terms if left unaddressed. Be direct. Do not soften.\n\nFrame these as analytical observations, not encouragements. The goal is to name the gap clearly enough that the client recognises it and understands why it matters.\n\nClose with: "From what you have told us, we can see:" followed by 2-3 tight bullets naming the core development findings.`
       );
     })(),
-    tracedCall("fourPillars", "4 Pillars of Fulfilment", effectiveSys,
-      `${ctx}\n\n--- CANONICAL LIFE HISTORY ANALYSIS (authoritative interpretation — use this as the primary source of pattern evidence) ---\n${lifeHistoryPattern}\n--- END CANONICAL LIFE HISTORY ANALYSIS ---\n\nWrite the 4 Pillars of Fulfilment chapter of the Lifework report. This chapter applies the Savickas career construction framework to identify the four conditions under which this person consistently experiences energy, engagement, and meaning.\n\nThe four pillars are:\n- **Places** — the environments and settings where energy was highest\n- **People** — the kinds of people present, and in what role\n- **Problems** — the nature of the challenge that engaged them most\n- **Procedures** — how they characteristically went about their work\n\nINSTRUCTIONS:\n\nFor each pillar, write:\n1. A ## heading naming the pillar (e.g. ## Places — Where Energy Was High)\n2. A single bold sentence beginning with "Learning:" that states the core insight in one direct, evidence-grounded sentence\n3. Two short paragraphs (3-4 lines each) — each one a specific example from the life history that illustrates the learning. Use italics for direct quotes from the achievement descriptions where available. Do NOT repeat examples between pillars.\n\nAfter the four pillars, write a ## The Combination section:\n- One blockquote paragraph (use > markdown) that synthesises all four pillars into a single description of the conditions under which this person is most alive. Bold the key phrases.\n- One short paragraph (3-4 lines) that states the practical question this analysis raises — not "what field should I work in" but the specific question that follows from this person's particular combination of pillars.\n\nCRITICAL RULES:\n- Draw primarily from the raw achievement data and the canonical life history analysis above\n- Where the raw evidence and the canonical interpretation differ, name the tension rather than resolving it artificially\n- Write directly to the client using "you" and "your" throughout\n- Do NOT include any introductory paragraph before the first ## heading\n- Do NOT use hollow superlatives or management jargon\n- Keep the whole section tight — this is a single-page chapter, not a full analysis\n- British spellings throughout`
-    ),
+    (async () => {
+      const t0 = Date.now();
+      const apiUrl = (process.env.BUILT_IN_FORGE_API_URL ?? "https://forge.manus.im").replace(/\/$/, "");
+      const apiKey = process.env.BUILT_IN_FORGE_API_KEY ?? "";
+      const fpUserPrompt = `${ctx}\n\n--- CANONICAL LIFE HISTORY ANALYSIS (authoritative interpretation — use this as the primary source of pattern evidence) ---\n${lifeHistoryPattern}\n--- END CANONICAL LIFE HISTORY ANALYSIS ---\n\nYou are writing the 4 Pillars of Fulfilment chapter of the Lifework report for this client. Apply the Savickas career construction framework to identify the four conditions under which this person consistently experiences energy, engagement, and meaning.\n\nFor each of the four pillars (Places, People, Problems, Procedures), provide:\n- heading: the exact pillar heading (e.g. "Places — Where Energy Was High")\n- learning: a single direct sentence (no "Learning:" prefix — that will be added) stating the core insight, grounded in evidence\n- example1: a short paragraph (3-4 lines) — a specific example from the life history illustrating the learning. Use direct quotes from achievement descriptions where available.\n- example2: a second short paragraph (3-4 lines) — a different specific example. Do NOT repeat examples between pillars.\n\nFor the combination section:\n- synthesis: a single paragraph that synthesises all four pillars into a description of the conditions under which this person is most alive. Bold the key phrases using **bold**.\n- practical_question: a single paragraph (3-4 lines) stating the practical question this analysis raises — not "what field should I work in" but the specific question that follows from this person's particular combination of pillars.\n\nCRITICAL RULES:\n- Draw primarily from the raw achievement data and the canonical life history analysis above\n- Write directly to the client using "you" and "your" throughout\n- Do NOT use hollow superlatives or management jargon\n- British spellings throughout`;
+      const fpResp = await fetch(`${apiUrl}/v1/chat/completions`, {
+        method: "POST",
+        headers: { "content-type": "application/json", authorization: `Bearer ${apiKey}` },
+        body: JSON.stringify({
+          model: "gemini-2.5-flash",
+          messages: [
+            { role: "system", content: effectiveSys },
+            { role: "user", content: fpUserPrompt },
+          ],
+          max_tokens: 4096,
+          response_format: {
+            type: "json_schema",
+            json_schema: {
+              name: "four_pillars",
+              strict: true,
+              schema: {
+                type: "object",
+                properties: {
+                  places: {
+                    type: "object",
+                    properties: {
+                      heading: { type: "string" },
+                      learning: { type: "string" },
+                      example1: { type: "string" },
+                      example2: { type: "string" },
+                    },
+                    required: ["heading", "learning", "example1", "example2"],
+                    additionalProperties: false,
+                  },
+                  people: {
+                    type: "object",
+                    properties: {
+                      heading: { type: "string" },
+                      learning: { type: "string" },
+                      example1: { type: "string" },
+                      example2: { type: "string" },
+                    },
+                    required: ["heading", "learning", "example1", "example2"],
+                    additionalProperties: false,
+                  },
+                  problems: {
+                    type: "object",
+                    properties: {
+                      heading: { type: "string" },
+                      learning: { type: "string" },
+                      example1: { type: "string" },
+                      example2: { type: "string" },
+                    },
+                    required: ["heading", "learning", "example1", "example2"],
+                    additionalProperties: false,
+                  },
+                  procedures: {
+                    type: "object",
+                    properties: {
+                      heading: { type: "string" },
+                      learning: { type: "string" },
+                      example1: { type: "string" },
+                      example2: { type: "string" },
+                    },
+                    required: ["heading", "learning", "example1", "example2"],
+                    additionalProperties: false,
+                  },
+                  combination: {
+                    type: "object",
+                    properties: {
+                      synthesis: { type: "string" },
+                      practical_question: { type: "string" },
+                    },
+                    required: ["synthesis", "practical_question"],
+                    additionalProperties: false,
+                  },
+                },
+                required: ["places", "people", "problems", "procedures", "combination"],
+                additionalProperties: false,
+              },
+            },
+          },
+        }),
+      });
+      if (!fpResp.ok) {
+        const txt = await fpResp.text();
+        throw new Error(`fourPillars LLM error ${fpResp.status}: ${txt.substring(0, 200)}`);
+      }
+      const fpData = await fpResp.json() as { choices: Array<{ message: { content: string } }> };
+      const fpRaw = fpData.choices[0]?.message?.content ?? "{}";
+      const fp = JSON.parse(fpRaw) as {
+        places: { heading: string; learning: string; example1: string; example2: string };
+        people: { heading: string; learning: string; example1: string; example2: string };
+        problems: { heading: string; learning: string; example1: string; example2: string };
+        procedures: { heading: string; learning: string; example1: string; example2: string };
+        combination: { synthesis: string; practical_question: string };
+      };
+      // Assemble the exact markdown format
+      const assembledFourPillars = [
+        `## ${fp.places.heading}`,
+        ``,
+        `**Learning:** ${fp.places.learning}`,
+        ``,
+        fp.places.example1,
+        ``,
+        fp.places.example2,
+        ``,
+        `## ${fp.people.heading}`,
+        ``,
+        `**Learning:** ${fp.people.learning}`,
+        ``,
+        fp.people.example1,
+        ``,
+        fp.people.example2,
+        ``,
+        `## ${fp.problems.heading}`,
+        ``,
+        `**Learning:** ${fp.problems.learning}`,
+        ``,
+        fp.problems.example1,
+        ``,
+        fp.problems.example2,
+        ``,
+        `## ${fp.procedures.heading}`,
+        ``,
+        `**Learning:** ${fp.procedures.learning}`,
+        ``,
+        fp.procedures.example1,
+        ``,
+        fp.procedures.example2,
+        ``,
+        `## The Combination`,
+        ``,
+        `> ${fp.combination.synthesis}`,
+        ``,
+        fp.combination.practical_question,
+        ``,
+        `*Based on Savickas, M.L. (2011). Career Counseling. APA.*`,
+      ].join("\n");
+      insertReportGenerationLog({
+        clientId,
+        runId: _runId,
+        writingStyle,
+        reportType,
+        sectionKey: "fourPillars",
+        sectionLabel: "4 Pillars of Fulfilment",
+        promptSent: effectiveSys,
+        contextSent: fpUserPrompt,
+        rawOutput: fpRaw,
+        durationMs: Date.now() - t0,
+      }).catch(() => {});
+      return assembledFourPillars;
+    })(),
         (() => {
       const { conclusionsPrompt } = getVariantPrompts(reportType, ctx, sys);
       return tracedCall("conclusions", "Conclusions", effectiveSys,

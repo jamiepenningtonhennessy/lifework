@@ -235,6 +235,86 @@ function extractAllSections(text: string): Array<{ heading: string; paragraphs: 
 }
 
 /**
+ * Parse the fourPillars markdown into a structured object for the HTML report.
+ * Each pillar section has: heading, learning sentence, and example paragraphs.
+ * The Combination section has: synthesis (blockquote) and practical_question.
+ */
+export function parseFourPillars(text: string): {
+  pillars: Array<{ heading: string; learning: string; examples: string[] }>;
+  combination: { synthesis: string; practical_question: string };
+  citation: string;
+} {
+  if (!text) return { pillars: [], combination: { synthesis: "", practical_question: "" }, citation: "" };
+
+  const lines = text.split("\n");
+  const sections: Array<{ heading: string; lines: string[] }> = [];
+  let currentHeading = "";
+  let currentLines: string[] = [];
+
+  for (const line of lines) {
+    if (line.startsWith("## ")) {
+      if (currentHeading || currentLines.length > 0) {
+        sections.push({ heading: currentHeading, lines: [...currentLines] });
+      }
+      currentHeading = line.replace(/^##\s*/, "").trim();
+      currentLines = [];
+    } else {
+      currentLines.push(line);
+    }
+  }
+  if (currentHeading || currentLines.length > 0) {
+    sections.push({ heading: currentHeading, lines: [...currentLines] });
+  }
+
+  const pillars: Array<{ heading: string; learning: string; examples: string[] }> = [];
+  let combination = { synthesis: "", practical_question: "" };
+  let citation = "";
+
+  for (const section of sections) {
+    const headingLower = section.heading.toLowerCase();
+    if (headingLower === "the combination" || headingLower.includes("combination")) {
+      // Extract blockquote (synthesis) and remaining paragraphs (practical question)
+      const blockquoteLines: string[] = [];
+      const otherLines: string[] = [];
+      let inBlockquote = false;
+      for (const l of section.lines) {
+        if (l.trim().startsWith("> ")) {
+          blockquoteLines.push(l.trim().replace(/^>\s*/, ""));
+          inBlockquote = true;
+        } else if (l.trim() === "" && inBlockquote) {
+          inBlockquote = false;
+        } else if (!inBlockquote && l.trim() !== "") {
+          otherLines.push(l.trim());
+        }
+      }
+      combination = {
+        synthesis: stripMarkdownInline(blockquoteLines.join(" ").trim()),
+        practical_question: stripMarkdownInline(otherLines.filter(l => !l.startsWith("*Based on")).join(" ").trim()),
+      };
+      // Extract citation
+      const citLine = section.lines.find(l => l.includes("Savickas") || l.includes("Based on"));
+      if (citLine) citation = stripMarkdownInline(citLine.trim().replace(/^\*|\*$/g, "").trim());
+    } else if (section.heading) {
+      // Pillar section: extract Learning sentence and example paragraphs
+      const paras = splitParagraphs(section.lines.join("\n"));
+      let learning = "";
+      const examples: string[] = [];
+      for (const para of paras) {
+        const stripped = para.trim();
+        if (stripped.toLowerCase().startsWith("learning:")) {
+          learning = stripped.replace(/^\*?\*?[Ll]earning:\*?\*?\s*/, "").trim();
+        } else if (stripped.length > 0) {
+          examples.push(stripped);
+        }
+      }
+      pillars.push({ heading: section.heading, learning, examples });
+    }
+  }
+
+  return { pillars, combination, citation };
+}
+
+/**
  * Extract bullet points from a "From what you have told us, we can see:" block.
  */
 function extractKeyFindings(text: string): string[] {
@@ -953,14 +1033,21 @@ export async function buildClaudeExportJson(clientId: number): Promise<Record<st
         ESF_PARA: ch2KeyFindings.length > 1 ? ch2KeyFindings[ch2KeyFindings.length - 1] : (ch2KeyFindings[0] ?? ""),
       },
     },
-    CH2B: {
-      SECTIONS: extractAllSections(sections.fourPillars ?? "").map(s => ({
-        HEADING: s.heading,
-        PARAGRAPHS: s.paragraphs,
-      })),
-      // Flat paragraphs used for the IF guard (non-empty check)
-      PARAGRAPHS: splitParagraphs(sections.fourPillars ?? ""),
-    },
+    CH2B: (() => {
+      const fp = parseFourPillars(sections.fourPillars ?? "");
+      return {
+        PILLARS: fp.pillars.map(p => ({
+          HEADING: p.heading,
+          LEARNING: p.learning,
+          EXAMPLES: p.examples,
+        })),
+        COMBINATION_SYNTHESIS: fp.combination.synthesis,
+        COMBINATION_QUESTION: fp.combination.practical_question,
+        CITATION: fp.citation || "Based on Savickas, M.L. (2011). Career Counseling. APA.",
+        // Guard for IF check
+        HAS_CONTENT: fp.pillars.length > 0,
+      };
+    })(),
     CH3: {
       LEDE: ch3Lede,
       // KEY_FINDINGS = all paragraphs (pull-quote removed from template)

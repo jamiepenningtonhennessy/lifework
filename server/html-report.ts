@@ -287,6 +287,10 @@ h1.display em { color: var(--gold); font-style: italic; }
 h2.chap-title { font-size: 40px; line-height: 1.1; margin: 14px 0 0; }
 h2.chap-title em { color: var(--gold); font-style: italic; }
 h3.section-h { font-size: 22px; font-weight: 600; margin: 28px 0 10px; color: var(--navy); }
+p.pillar-learning { font-family: var(--serif); font-style: italic; font-size: 16px; color: var(--navy-soft); margin: 0 0 12px; }
+p.pillar-learning strong { font-style: normal; font-weight: 700; color: var(--navy); }
+blockquote.pillar-synthesis { border-left: 3px solid var(--gold); margin: 20px 0 16px; padding: 10px 0 10px 20px; font-family: var(--serif); font-style: italic; font-size: 16px; color: var(--navy-soft); }
+p.pillar-citation { font-size: 12px; color: var(--ink-muted); margin-top: 20px; }
 h4.sub-h { font-size: 14px; font-weight: 600; font-family: var(--sans); letter-spacing: 0.22em; text-transform: uppercase; color: var(--ink-muted); margin: 24px 0 10px; }
 p { margin: 0 0 14px; font-size: 15.5px; line-height: 1.58; color: var(--ink); }
 p.lede { font-family: var(--serif); font-style: italic; font-size: 20px; line-height: 1.4; color: var(--navy-soft); margin: 0 0 22px; }
@@ -621,7 +625,7 @@ const TEMPLATE = `<!doctype html>
 </section>
 
 <!-- ════════ PAGE 5b · CH 2B 4 PILLARS OF FULFILMENT ════════ -->
-{{#IF CH2B.PARAGRAPHS.0}}
+{{#IF CH2B.HAS_CONTENT}}
 <section class="page">
   <header class="ph-top">
     <span class="lockup"><span class="mark"></span>Lifework</span>
@@ -630,12 +634,19 @@ const TEMPLATE = `<!doctype html>
   <div class="ph-body">
     <span class="kicker">Chapter 02b</span>
     <h2 class="chap-title">4 Pillars of <em>Fulfilment.</em></h2>
-    {{#EACH CH2B.SECTIONS}}
+    {{#EACH CH2B.PILLARS}}
     <h3 class="section-h">{{.HEADING}}</h3>
-    {{#EACH .PARAGRAPHS}}
+    {{#IF .LEARNING}}<p class="pillar-learning"><strong>Learning:</strong> {{.LEARNING}}</p>{{/IF}}
+    {{#EACH .EXAMPLES}}
     <p>{{.}}</p>
     {{/EACH}}
     {{/EACH}}
+    {{#IF CH2B.COMBINATION_SYNTHESIS}}
+    <h3 class="section-h">The Combination</h3>
+    <blockquote class="pillar-synthesis">{{CH2B.COMBINATION_SYNTHESIS}}</blockquote>
+    {{#IF CH2B.COMBINATION_QUESTION}}<p>{{CH2B.COMBINATION_QUESTION}}</p>{{/IF}}
+    {{/IF}}
+    {{#IF CH2B.CITATION}}<p class="pillar-citation"><em>{{CH2B.CITATION}}</em></p>{{/IF}}
   </div>
   <footer class="ph-bot">
     <span class="who">{{CLIENT.NAME}}</span>

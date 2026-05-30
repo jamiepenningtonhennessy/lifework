@@ -1464,3 +1464,10 @@
 ## PDF Renderer Bug Fixes
 - [x] Fix sectionBlock null guard: empty/null sections now render a visible placeholder instead of silently producing a blank page (root cause of Amanda Lord's missing Life History Pattern section — PDF was generated before canonical Stage 1 completed)
 - [x] Amanda Lord's report rebuilt successfully (15:20 today) — all 8 sections present including Life History Pattern
+
+## CH 2B — 4 Pillars of Fulfilment HTML Report Section
+- [x] Fix claudeExport.ts syntax error: restore extractAllSections function signature (orphaned body removed)
+- [x] Add parseFourPillars function to claudeExport.ts: parses fourPillars markdown into structured PILLARS/COMBINATION/CITATION payload
+- [x] Update html-report.ts CH2B template: replace old PARAGRAPHS/SECTIONS guards with HAS_CONTENT/PILLARS/COMBINATION_SYNTHESIS/COMBINATION_QUESTION/CITATION
+- [x] Add pillar-learning, pillar-synthesis, pillar-citation CSS styles to html-report.ts inlined CSS
+- [x] Export parseFourPillars from claudeExport.ts and add 8 unit tests to claudeExport.test.ts (all 231 tests pass)
