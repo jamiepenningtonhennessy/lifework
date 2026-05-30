@@ -1,0 +1,8 @@
+{
+  "query": "SELECT ar.lifeHistoryPattern, ar.behaviouralStyle, ar.summary FROM analysis_reports ar WHERE ar.clientId = 1149902 ORDER BY ar.createdAt DESC LIMIT 1;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 32u3a1hNYuu9Gj3.7d2282893346 --database kFbbE6kqNApXGDFpQJUGV7 --execute SELECT ar.lifeHistoryPattern, ar.behaviouralStyle, ar.summary FROM analysis_reports ar WHERE ar.clientId = 1149902 ORDER BY ar.createdAt DESC LIMIT 1;",
+  "returncode": 1,
+  "logs": [
+    "ERROR 1054 (42S22) at line 1: Unknown column 'ar.lifehistorypattern' in 'field list'"
+  ]
+}

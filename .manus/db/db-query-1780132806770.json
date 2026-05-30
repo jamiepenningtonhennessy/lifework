@@ -1,0 +1,34 @@
+{
+  "query": "SELECT a.title, a.description, a.age, a.sageEnrichment FROM achievements a WHERE a.clientId = 1149902 AND a.decade = 'twenties' ORDER BY a.age ASC;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 32u3a1hNYuu9Gj3.7d2282893346 --database kFbbE6kqNApXGDFpQJUGV7 --execute SELECT a.title, a.description, a.age, a.sageEnrichment FROM achievements a WHERE a.clientId = 1149902 AND a.decade = 'twenties' ORDER BY a.age ASC;",
+  "rows": [
+    {
+      "title": "Travelling and absorbing knowledge",
+      "description": "Travelling though south america, learning italian",
+      "age": "16",
+      "sageEnrichment": "She had studied South American literature at school which was geographically grounded, did extensive research about where she wanted to visit, and was able to set her own agenda entirely independently, using her school Spanish to communicate and then applying it to learn Italian as a similar language."
+    },
+    {
+      "title": "working",
+      "description": "learning about the world of work, and also adulthood",
+      "age": "16",
+      "sageEnrichment": "Covered in Sage session summary: Amanda demonstrates a consistent drive to identify structural problems and redesign them into logical, coherent solutions. Language and communication are central — she thinks out loud, values intellectual stimulation and the company of equals, and finds deep satisfaction in being understood. She is energised by independence and setting her own agenda, and finds fulfilment in seeing tangible real-world impact from her work."
+    },
+    {
+      "title": "University",
+      "description": "understanding where I fitted into the social and academic hierarchy at university",
+      "age": "19",
+      "sageEnrichment": "Unlike school with its strict timetables and supervised tasks, university's freedom required her to mindfully balance social life, work, sport, food, and sleep with a new group of high-achieving individuals. She found herself navigating ambiguity to figure out where the intellectual level was and where she fit in, along with everyone else thrown into the deep end. Once she found her intellectual equals who were also supportive and warm company, it became a time of interesting and stimulating conversations."
+    },
+    {
+      "title": "studying",
+      "description": "working really hard at academic studies and really enjoying it, but not achieving top marks",
+      "age": "19",
+      "sageEnrichment": "Covered in Sage session summary: Amanda demonstrates a consistent drive to identify structural problems and redesign them into logical, coherent solutions. Language and communication are central — she thinks out loud, values intellectual stimulation and the company of equals, and finds deep satisfaction in being understood. She is energised by independence and setting her own agenda, and finds fulfilment in seeing tangible real-world impact from her work."
+    }
+  ],
+  "messages": [],
+  "stdout": "title\tdescription\tage\tsageEnrichment\nTravelling and absorbing knowledge\tTravelling though south america, learning italian\t16\tShe had studied South American literature at school which was geographically grounded, did extensive research about where she wanted to visit, and was able to set her own agenda entirely independently, using her school Spanish to communicate and then applying it to learn Italian as a similar language.\nworking\tlearning about the world of work, and also adulthood\t16\tCovered in Sage session summary: Amanda demonstrates a consistent drive to identify structural problems and redesign them into logical, coherent solutions. Language and communication are central — she thinks out loud, values intellectual stimulation and the company of equals, and finds deep satisfaction in being understood. She is energised by independence and setting her own agenda, and finds fulfilment in seeing tangible real-world impact from her work.\nUniversity\tunderstanding where I fitted into the social and academic hierarchy at university\t19\tUnlike school with its strict timetables and supervised tasks, university's freedom required her to mindfully balance social life, work, sport, food, and sleep with a new group of high-achieving individuals. She found herself navigating ambiguity to figure out where the intellectual level was and where she fit in, along with everyone else thrown into the deep end. Once she found her intellectual equals who were also supportive and warm company, it became a time of interesting and stimulating conversations.\nstudying\tworking really hard at academic studies and really enjoying it, but not achieving top marks\t19\tCovered in Sage session summary: Amanda demonstrates a consistent drive to identify structural problems and redesign them into logical, coherent solutions. Language and communication are central — she thinks out loud, values intellectual stimulation and the company of equals, and finds deep satisfaction in being understood. She is energised by independence and setting her own agenda, and finds fulfilment in seeing tangible real-world impact from her work.\n",
+  "stderr": "",
+  "execution_time_ms": 262
+}

@@ -473,6 +473,7 @@ describe("Lifework End-to-End Pipeline Simulation", () => {
       const requiredSections = [
         "summary",
         "lifeHistoryPattern",
+        "fourPillars",
         "viaSection",
         "personalitySection",
         "behaviouralStyle",
@@ -536,7 +537,7 @@ describe("Lifework End-to-End Pipeline Simulation", () => {
       const sections = result.sections as Record<string, unknown> | null;
       // Keys from the WowReportSections interface in wowReport.ts
       const required = [
-        "summary", "lifeHistoryPattern", "viaSection",
+        "summary", "lifeHistoryPattern", "fourPillars", "viaSection",
         "personalitySection", "behaviouralStyle", "careerDirections",
         "developmentEdge", "coachingQuestions",
       ];

@@ -1,0 +1,8 @@
+{
+  "query": "SELECT u.id, u.name, u.email, cp.id as profile_id FROM users u LEFT JOIN client_profiles cp ON cp.user_id = u.id WHERE u.name LIKE '%Jamie%' OR u.name LIKE '%Pennington%' OR u.email LIKE '%pennington%' OR u.email LIKE '%jamie%' LIMIT 5;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 32u3a1hNYuu9Gj3.7d2282893346 --database kFbbE6kqNApXGDFpQJUGV7 --execute SELECT u.id, u.name, u.email, cp.id as profile_id FROM users u LEFT JOIN client_profiles cp ON cp.user_id = u.id WHERE u.name LIKE '%Jamie%' OR u.name LIKE '%Pennington%' OR u.email LIKE '%pennington%' OR u.email LIKE '%jamie%' LIMIT 5;",
+  "returncode": 1,
+  "logs": [
+    "ERROR 1054 (42S22) at line 1: Unknown column 'cp.user_id' in 'on clause'"
+  ]
+}

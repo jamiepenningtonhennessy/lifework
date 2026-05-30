@@ -1,0 +1,127 @@
+{
+  "query": "SELECT a.title, a.description, a.age, a.decade, a.sageEnrichment, a.esf FROM achievements a WHERE a.clientId = 1 AND a.decade IN ('thirties','forties','fifties','sixties_plus') ORDER BY a.decade, a.age ASC LIMIT 20;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 32u3a1hNYuu9Gj3.7d2282893346 --database kFbbE6kqNApXGDFpQJUGV7 --execute SELECT a.title, a.description, a.age, a.decade, a.sageEnrichment, a.esf FROM achievements a WHERE a.clientId = 1 AND a.decade IN ('thirties','forties','fifties','sixties_plus') ORDER BY a.decade, a.age ASC LIMIT 20;",
+  "rows": [
+    {
+      "title": "Set up Business",
+      "description": "Habing left the Army I decided to set up my own buinsess.  I had worked for 18 months in a law firm, so decided to focus on lawyers.  Initaially worked with a collegaue, but we parted on good terms.  Business was good, and work was enjoyable,",
+      "age": "44",
+      "decade": "forties",
+      "sageEnrichment": "NULL",
+      "esf": "satisfying"
+    },
+    {
+      "title": "Bought current house",
+      "description": "We decided to move house - open to where.  Decided that betwen our respective parents made sense.  saw house and agreed that it was both far too big yet just what we wanted.  Waited over  a year for it to complete, but increasingly knew it was right.",
+      "age": "45",
+      "decade": "forties",
+      "sageEnrichment": "NULL",
+      "esf": "fulfilling"
+    },
+    {
+      "title": "helped found church",
+      "description": "The church we joined on arrival in our new home broke up.  WE helped found a new church, with one of the previous homegroup leaders.  Enjoyed the sense of calling, plus the possibility of creating something \"that worked\"",
+      "age": "48",
+      "decade": "forties",
+      "sageEnrichment": "NULL",
+      "esf": "fulfilling"
+    },
+    {
+      "title": "Took holidays",
+      "description": "For much of my life we had been unable to take holidays with just my wife and I.  We decided that this should change, and went for a break to Gambia.",
+      "age": "49",
+      "decade": "forties",
+      "sageEnrichment": "NULL",
+      "esf": "satisfying"
+    },
+    {
+      "title": "Started fostering",
+      "description": "Had often considered fostering.  decided this was the right moment to persue it.  Got 2 young girls who have remained family memebrs for 17 years!",
+      "age": "50",
+      "decade": "fifties",
+      "sageEnrichment": "NULL",
+      "esf": "satisfying"
+    },
+    {
+      "title": "Kept on paying the mortgage",
+      "description": "The 2008 recession changed many people's business. Mine took a hit, but we continued to pay very large mortgage payments.",
+      "age": "52",
+      "decade": "fifties",
+      "sageEnrichment": "NULL",
+      "esf": "satisfying"
+    },
+    {
+      "title": "new foster daughter arrived",
+      "description": "Poppy arrived as a very sick two and a half year old. We had to fight very hard to keep her., Which led to a variety of interventions with government at different levels. we eventually won.",
+      "age": "54",
+      "decade": "fifties",
+      "sageEnrichment": "NULL",
+      "esf": "satisfying"
+    },
+    {
+      "title": "Coaching MA",
+      "description": "I had been coaching since 2006. I decided it was a good opportunity to find more detail about the structure of coaching, rather than the practice. Over two years part-time I dug into the theory behind what I was doing, I discovered various other ways of doing it.",
+      "age": "59",
+      "decade": "fifties",
+      "sageEnrichment": "NULL",
+      "esf": "satisfying"
+    },
+    {
+      "title": "Took Fridays off",
+      "description": "For many years I promised that I would work a four-day week. I finally decided to take Fridays off and have managed to keep that time free. This enables my wife and I to spend time together in what is otherwise a full-time 365-day-a-year job.",
+      "age": "62",
+      "decade": "sixties_plus",
+      "sageEnrichment": "NULL",
+      "esf": "NULL"
+    },
+    {
+      "title": "Kept learning.",
+      "description": "When AI arrived I took the opportunity to learn what could be done with it and how I could use it to leverage what I do . I rebuilt my business on the back of AI, via live work and AI scenarios.",
+      "age": "64",
+      "decade": "sixties_plus",
+      "sageEnrichment": "NULL",
+      "esf": "fulfilling"
+    },
+    {
+      "title": "thinking of retirement",
+      "description": "I'm pondering what I would do if I wasn't working with clients.  I like earning money, but it's not a driver",
+      "age": "67",
+      "decade": "sixties_plus",
+      "sageEnrichment": "NULL",
+      "esf": "satisfying"
+    },
+    {
+      "title": "Decided to become Shared Life Cares",
+      "description": "Decided to use the cottage attached to our house (which was previously occupied by my son and daughter-in-law) to house people who could otherwise not live alone. The processes aren't just tedious but fundamentally worthwhile.",
+      "age": "67",
+      "decade": "sixties_plus",
+      "sageEnrichment": "NULL",
+      "esf": "fulfilling"
+    }
+  ],
+  "messages": [
+    "bought first computer\tOwned electric typewriter but realised that computers were the way ahead. Spent £600",
+    "buying computer from Peter Daws. Taught myself DOS, Word processing, databases etc.",
+    "Continued to upgrade equipment, determined to ensure that | was always “ahead of the",
+    "curve” when compared to my contemporaries.\tNULL\tthirties\tThe client found buying and mastering his first computer satisfying because the new technology empowered him to perform tasks independently that previously would have required him to travel to a central computer.\tsatisfying",
+    "MBA\tFirst (and only?) Army Officer to be sponsored to do MBA at LBS. To attend required",
+    "extensive negotiations with Military Survey, and completing it meant writing essays in the",
+    "back of an armoured vehicle during the Gulf War. The MBA taught me the power of good",
+    "questions, and that if | don't understand something there's a good chance it's the fault of",
+    "the explainer! It gave me a specialism and a world-view that none of my contemporaries",
+    "had, and lead to a range of jobs which would have otherwise been beyond me.\t31\tthirties\tThe client found undertaking his MBA fulfilling because it led to a profound realization that demystified the business world, specifically discovering that individuals he had previously perceived as 'omnipotent' were not infallible.\tfulfilling",
+    "gulf war\tPosted to 1 Armoured Division as geographic officer. Discovered that | really could do the",
+    "job I'd been trained for. Much had to be invented as we went along, and | had responsibility",
+    "for both the map supply and terrain analysis for the division. Despite the plans constantly",
+    "changing | always succeeding in getting the maps to the units as required - a huge",
+    "logistical exercise.\t32\tthirties\tThe client found his Gulf War experience satisfying because it affirmed his capability and competence in the specific role he had been trained for, even if he didn't always enjoy being a soldier.\tsatisfying",
+    "left army\tAfter many houses in 11 years of marriage decided to leave Army. Planned it meticulously,",
+    "first moving Church, then moving out of Army accommodation before finally moving jobs.",
+    "Spent previous year being trained by Wilsher Group to become excellent coach and",
+    "facilitator, so left Army confident of way ahead. Left completely - no Regimental ties - to",
+    "ensure that | became a real civilian.\t37\tthirties\tNULL\tfulfilling"
+  ],
+  "stdout": "title\tdescription\tage\tdecade\tsageEnrichment\tesf\nbought first computer\tOwned electric typewriter but realised that computers were the way ahead. Spent £600\nbuying computer from Peter Daws. Taught myself DOS, Word processing, databases etc.\nContinued to upgrade equipment, determined to ensure that | was always “ahead of the\ncurve” when compared to my contemporaries.\tNULL\tthirties\tThe client found buying and mastering his first computer satisfying because the new technology empowered him to perform tasks independently that previously would have required him to travel to a central computer.\tsatisfying\nMBA\tFirst (and only?) Army Officer to be sponsored to do MBA at LBS. To attend required\nextensive negotiations with Military Survey, and completing it meant writing essays in the\nback of an armoured vehicle during the Gulf War. The MBA taught me the power of good\nquestions, and that if | don't understand something there's a good chance it's the fault of\nthe explainer! It gave me a specialism and a world-view that none of my contemporaries\nhad, and lead to a range of jobs which would have otherwise been beyond me.\t31\tthirties\tThe client found undertaking his MBA fulfilling because it led to a profound realization that demystified the business world, specifically discovering that individuals he had previously perceived as 'omnipotent' were not infallible.\tfulfilling\ngulf war\tPosted to 1 Armoured Division as geographic officer. Discovered that | really could do the\njob I'd been trained for. Much had to be invented as we went along, and | had responsibility\nfor both the map supply and terrain analysis for the division. Despite the plans constantly\nchanging | always succeeding in getting the maps to the units as required - a huge\nlogistical exercise.\t32\tthirties\tThe client found his Gulf War experience satisfying because it affirmed his capability and competence in the specific role he had been trained for, even if he didn't always enjoy being a soldier.\tsatisfying\nleft army\tAfter many houses in 11 years of marriage decided to leave Army. Planned it meticulously,\nfirst moving Church, then moving out of Army accommodation before finally moving jobs.\nSpent previous year being trained by Wilsher Group to become excellent coach and\nfacilitator, so left Army confident of way ahead. Left completely - no Regimental ties - to\nensure that | became a real civilian.\t37\tthirties\tNULL\tfulfilling\nSet up Business\tHabing left the Army I decided to set up my own buinsess.  I had worked for 18 months in a law firm, so decided to focus on lawyers.  Initaially worked with a collegaue, but we parted on good terms.  Business was good, and work was enjoyable,\t44\tforties\tNULL\tsatisfying\nBought current house\tWe decided to move house - open to where.  Decided that betwen our respective parents made sense.  saw house and agreed that it was both far too big yet just what we wanted.  Waited over  a year for it to complete, but increasingly knew it was right.\t45\tforties\tNULL\tfulfilling\nhelped found church\tThe church we joined on arrival in our new home broke up.  WE helped found a new church, with one of the previous homegroup leaders.  Enjoyed the sense of calling, plus the possibility of creating something \"that worked\"\t48\tforties\tNULL\tfulfilling\nTook holidays\tFor much of my life we had been unable to take holidays with just my wife and I.  We decided that this should change, and went for a break to Gambia.\t49\tforties\tNULL\tsatisfying\nStarted fostering\tHad often considered fostering.  decided this was the right moment to persue it.  Got 2 young girls who have remained family memebrs for 17 years!\t50\tfifties\tNULL\tsatisfying\nKept on paying the mortgage\tThe 2008 recession changed many people's business. Mine took a hit, but we continued to pay very large mortgage payments.\t52\tfifties\tNULL\tsatisfying\nnew foster daughter arrived\tPoppy arrived as a very sick two and a half year old. We had to fight very hard to keep her., Which led to a variety of interventions with government at different levels. we eventually won.\t54\tfifties\tNULL\tsatisfying\nCoaching MA\tI had been coaching since 2006. I decided it was a good opportunity to find more detail about the structure of coaching, rather than the practice. Over two years part-time I dug into the theory behind what I was doing, I discovered various other ways of doing it.\t59\tfifties\tNULL\tsatisfying\nTook Fridays off\tFor many years I promised that I would work a four-day week. I finally decided to take Fridays off and have managed to keep that time free. This enables my wife and I to spend time together in what is otherwise a full-time 365-day-a-year job.\t62\tsixties_plus\tNULL\tNULL\nKept learning.\tWhen AI arrived I took the opportunity to learn what could be done with it and how I could use it to leverage what I do . I rebuilt my business on the back of AI, via live work and AI scenarios.\t64\tsixties_plus\tNULL\tfulfilling\nthinking of retirement\tI'm pondering what I would do if I wasn't working with clients.  I like earning money, but it's not a driver\t67\tsixties_plus\tNULL\tsatisfying\nDecided to become Shared Life Cares\tDecided to use the cottage attached to our house (which was previously occupied by my son and daughter-in-law) to house people who could otherwise not live alone. The processes aren't just tedious but fundamentally worthwhile.\t67\tsixties_plus\tNULL\tfulfilling\n",
+  "stderr": "",
+  "execution_time_ms": 278
+}

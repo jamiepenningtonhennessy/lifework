@@ -220,6 +220,7 @@ interface WowReportSections {
   careerDirections: string;
   developmentEdge: string;
   coachingQuestions: string;
+  fourPillars: string;
   viaRanked: Array<{ name: string; score: number; rank: number; strengthId?: string }>;
   domainScores: Record<string, number>;
   facetScores: Record<string, number>;
@@ -555,6 +556,7 @@ Write directly to the client using "you" and "your" throughout. Do NOT include a
     behaviouralStyle,
     careerDirections,
     developmentEdge,
+    fourPillars,
     coachingQuestions,
   ] = await Promise.all([
     tracedCall("summary", "Lifework Summary", effectiveSys,
@@ -581,7 +583,10 @@ Write directly to the client using "you" and "your" throughout. Do NOT include a
         `${ctx}\n\nWrite the Development Edge chapter. Write directly to the client using "you" and "your" throughout. Begin IMMEDIATELY with the first development area — no introductory paragraph.\n\nYou MUST write EXACTLY 3 development edges — no more, no fewer. Do not stop after 1 or 2. All 3 must be present in your response. For each:\n- Name it precisely as a ## heading (e.g. ## The Visibility Gap)\n- Write 2 short paragraphs (4-5 lines each):\n  - Paragraph 1: What the evidence shows. Connect it directly to specific life history moments, psychometric scores, or both.\n  - Paragraph 2: What it costs in career terms if left unaddressed. Be direct. Do not soften.\n\nFrame these as analytical observations, not encouragements. The goal is to name the gap clearly enough that the client recognises it and understands why it matters.\n\nClose with: "From what you have told us, we can see:" followed by 2-3 tight bullets naming the core development findings.`
       );
     })(),
-    (() => {
+    tracedCall("fourPillars", "4 Pillars of Fulfilment", effectiveSys,
+      `${ctx}\n\n--- CANONICAL LIFE HISTORY ANALYSIS (authoritative interpretation — use this as the primary source of pattern evidence) ---\n${lifeHistoryPattern}\n--- END CANONICAL LIFE HISTORY ANALYSIS ---\n\nWrite the 4 Pillars of Fulfilment chapter of the Lifework report. This chapter applies the Savickas career construction framework to identify the four conditions under which this person consistently experiences energy, engagement, and meaning.\n\nThe four pillars are:\n- **Places** — the environments and settings where energy was highest\n- **People** — the kinds of people present, and in what role\n- **Problems** — the nature of the challenge that engaged them most\n- **Procedures** — how they characteristically went about their work\n\nINSTRUCTIONS:\n\nFor each pillar, write:\n1. A ## heading naming the pillar (e.g. ## Places — Where Energy Was High)\n2. A single bold sentence beginning with "Learning:" that states the core insight in one direct, evidence-grounded sentence\n3. Two short paragraphs (3-4 lines each) — each one a specific example from the life history that illustrates the learning. Use italics for direct quotes from the achievement descriptions where available. Do NOT repeat examples between pillars.\n\nAfter the four pillars, write a ## The Combination section:\n- One blockquote paragraph (use > markdown) that synthesises all four pillars into a single description of the conditions under which this person is most alive. Bold the key phrases.\n- One short paragraph (3-4 lines) that states the practical question this analysis raises — not "what field should I work in" but the specific question that follows from this person's particular combination of pillars.\n\nCRITICAL RULES:\n- Draw primarily from the raw achievement data and the canonical life history analysis above\n- Where the raw evidence and the canonical interpretation differ, name the tension rather than resolving it artificially\n- Write directly to the client using "you" and "your" throughout\n- Do NOT include any introductory paragraph before the first ## heading\n- Do NOT use hollow superlatives or management jargon\n- Keep the whole section tight — this is a single-page chapter, not a full analysis\n- British spellings throughout`
+    ),
+        (() => {
       const { conclusionsPrompt } = getVariantPrompts(reportType, ctx, sys);
       return tracedCall("conclusions", "Conclusions", effectiveSys,
         conclusionsPrompt ??
@@ -590,7 +595,7 @@ Write directly to the client using "you" and "your" throughout. Do NOT include a
     })(),
   ]);
 
-  console.log(`[WOW Report] All 8 sections generated successfully for client ${clientId}`);
+  console.log(`[WOW Report] All 9 sections generated successfully for client ${clientId}`);
   // Restore the real client name in all generated text sections.
   // The prompts used the pseudonym token; the stored/rendered output should use the real name.
   const r = restoreClientName;
@@ -609,6 +614,7 @@ Write directly to the client using "you" and "your" throughout. Do NOT include a
     careerDirections: r(careerDirections),
     developmentEdge: r(developmentEdge),
     coachingQuestions: r(coachingQuestions),
+    fourPillars: r(fourPillars),
     viaRanked,
     domainScores,
     facetScores,
@@ -632,6 +638,7 @@ async function deduplicateSections(
   const PROSE_KEYS = [
     "summary",
     "lifeHistoryPattern",
+    "fourPillars",
     "viaSection",
     "personalitySection",
     "behaviouralStyle",
@@ -769,6 +776,7 @@ async function rewriteSectionsForMark(
   const proseSections: Array<keyof WowReportSections> = [
     "summary",
     "lifeHistoryPattern",
+    "fourPillars",
     "viaSection",
     "personalitySection",
     "behaviouralStyle",
@@ -913,6 +921,7 @@ async function rewriteSectionsForCliveJames(
   const proseSections: Array<keyof WowReportSections> = [
     "summary",
     "lifeHistoryPattern",
+    "fourPillars",
     "viaSection",
     "personalitySection",
     "behaviouralStyle",
@@ -1062,6 +1071,7 @@ async function rewriteSectionsForMichaelLewis(
   const proseSections: Array<keyof WowReportSections> = [
     "summary",
     "lifeHistoryPattern",
+    "fourPillars",
     "viaSection",
     "personalitySection",
     "behaviouralStyle",
@@ -1225,6 +1235,7 @@ async function rewriteSectionsForOliverSacks(
   const proseSections: Array<keyof WowReportSections> = [
     "summary",
     "lifeHistoryPattern",
+    "fourPillars",
     "viaSection",
     "personalitySection",
     "behaviouralStyle",
@@ -1357,6 +1368,7 @@ async function rewriteSectionsForZinsser(
   const proseSections = [
     "summary",
     "lifeHistoryPattern",
+    "fourPillars",
     "viaSection",
     "personalitySection",
     "behaviouralStyle",
@@ -1836,6 +1848,9 @@ async function renderWowPdf(sections: WowReportSections, writingStyle: WritingSt
 
       // ── Section 2: Life History Pattern ──
       ...sectionBlock("2. Life History Pattern", sections.lifeHistoryPattern),
+
+      // ── Section 2b: 4 Pillars of Fulfilment ──
+      ...sectionBlock("2b. 4 Pillars of Fulfilment", sections.fourPillars),
 
       // ── Section 3: VIA Character Strengths ──
       { text: "", pageBreak: "before" },

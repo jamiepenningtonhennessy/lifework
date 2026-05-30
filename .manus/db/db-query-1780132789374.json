@@ -1,0 +1,38 @@
+{
+  "query": "SELECT a.title, a.description, a.age, a.decade, a.sageEnrichment FROM achievements a WHERE a.clientId = 1149902 AND a.decade IN ('fifties','sixties_plus') ORDER BY a.age ASC;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 32u3a1hNYuu9Gj3.7d2282893346 --database kFbbE6kqNApXGDFpQJUGV7 --execute SELECT a.title, a.description, a.age, a.decade, a.sageEnrichment FROM achievements a WHERE a.clientId = 1149902 AND a.decade IN ('fifties','sixties_plus') ORDER BY a.age ASC;",
+  "rows": [
+    {
+      "title": "looking after parents",
+      "description": "patience and coping and caring",
+      "age": "52",
+      "decade": "fifties",
+      "sageEnrichment": "Her mother told her that when she arrived each day, their day went from black and white into colour, which made her feel the daily visits were deeply appreciated and worthwhile. Her father described her as 'the soul of competence,' and while there were logistics and new systems to institute (like rotas for external carers and hospital visits), she came to realize it was the positive energy she brought that made the real difference."
+    },
+    {
+      "title": "bringing happiness and positive energy to my ill mother",
+      "description": "going every day to see them, helping keep my mother and father's spirits up, providing logistical help where I could",
+      "age": "53",
+      "decade": "fifties",
+      "sageEnrichment": "Covered in Sage session summary: Amanda demonstrates a consistent drive to identify structural problems and redesign them into logical, coherent solutions. Language and communication are central — she thinks out loud, values intellectual stimulation and the company of equals, and finds deep satisfaction in being understood. She is energised by independence and setting her own agenda, and finds fulfilment in seeing tangible real-world impact from her work."
+    },
+    {
+      "title": "Covid",
+      "description": "settling into doing less, having more constraints on my freedom and more caring responsibilities as my parents lived with us",
+      "age": "55",
+      "decade": "fifties",
+      "sageEnrichment": "Covered in Sage session summary: Amanda demonstrates a consistent drive to identify structural problems and redesign them into logical, coherent solutions. Language and communication are central — she thinks out loud, values intellectual stimulation and the company of equals, and finds deep satisfaction in being understood. She is energised by independence and setting her own agenda, and finds fulfilment in seeing tangible real-world impact from her work."
+    },
+    {
+      "title": "Developing the relationship with my children as adults",
+      "description": "taking time and offering guidance and advice, sharing their lives",
+      "age": "58",
+      "decade": "fifties",
+      "sageEnrichment": "Her children are an interesting combination of her and her husband, and they have an excellent, open relationship where they are happy to discuss things and ask her advice as she used to with her own mother. She loves having insight into their lives and feeling that she can help practically or with advice in small ways, being invited into that role of offering structure and guidance rather than imposing it."
+    }
+  ],
+  "messages": [],
+  "stdout": "title\tdescription\tage\tdecade\tsageEnrichment\nlooking after parents\tpatience and coping and caring\t52\tfifties\tHer mother told her that when she arrived each day, their day went from black and white into colour, which made her feel the daily visits were deeply appreciated and worthwhile. Her father described her as 'the soul of competence,' and while there were logistics and new systems to institute (like rotas for external carers and hospital visits), she came to realize it was the positive energy she brought that made the real difference.\nbringing happiness and positive energy to my ill mother\tgoing every day to see them, helping keep my mother and father's spirits up, providing logistical help where I could\t53\tfifties\tCovered in Sage session summary: Amanda demonstrates a consistent drive to identify structural problems and redesign them into logical, coherent solutions. Language and communication are central — she thinks out loud, values intellectual stimulation and the company of equals, and finds deep satisfaction in being understood. She is energised by independence and setting her own agenda, and finds fulfilment in seeing tangible real-world impact from her work.\nCovid\tsettling into doing less, having more constraints on my freedom and more caring responsibilities as my parents lived with us\t55\tfifties\tCovered in Sage session summary: Amanda demonstrates a consistent drive to identify structural problems and redesign them into logical, coherent solutions. Language and communication are central — she thinks out loud, values intellectual stimulation and the company of equals, and finds deep satisfaction in being understood. She is energised by independence and setting her own agenda, and finds fulfilment in seeing tangible real-world impact from her work.\nDeveloping the relationship with my children as adults\ttaking time and offering guidance and advice, sharing their lives\t58\tfifties\tHer children are an interesting combination of her and her husband, and they have an excellent, open relationship where they are happy to discuss things and ask her advice as she used to with her own mother. She loves having insight into their lives and feeling that she can help practically or with advice in small ways, being invited into that role of offering structure and guidance rather than imposing it.\n",
+  "stderr": "",
+  "execution_time_ms": 261
+}

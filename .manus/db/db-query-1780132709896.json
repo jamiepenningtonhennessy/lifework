@@ -1,0 +1,74 @@
+{
+  "query": "SELECT a.title, a.description, a.age, a.decade, a.sageEnrichment, a.esf FROM achievements a WHERE a.clientId = 1149902 AND a.decade IN ('forties','fifties','sixties_plus') ORDER BY a.decade, a.age ASC LIMIT 15;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 32u3a1hNYuu9Gj3.7d2282893346 --database kFbbE6kqNApXGDFpQJUGV7 --execute SELECT a.title, a.description, a.age, a.decade, a.sageEnrichment, a.esf FROM achievements a WHERE a.clientId = 1149902 AND a.decade IN ('forties','fifties','sixties_plus') ORDER BY a.decade, a.age ASC LIMIT 15;",
+  "rows": [
+    {
+      "title": "still seeking something else",
+      "description": "trying things out, looking for more outlets for my creativity",
+      "age": "40",
+      "decade": "forties",
+      "sageEnrichment": "Covered in Sage session summary: Amanda demonstrates a consistent drive to identify structural problems and redesign them into logical, coherent solutions. Language and communication are central — she thinks out loud, values intellectual stimulation and the company of equals, and finds deep satisfaction in being understood. She is energised by independence and setting her own agenda, and finds fulfilment in seeing tangible real-world impact from her work.",
+      "esf": "satisfying"
+    },
+    {
+      "title": "raising children",
+      "description": "juggling ideas with bringing up children and supporting my children",
+      "age": "40",
+      "decade": "forties",
+      "sageEnrichment": "Covered in Sage session summary: Amanda demonstrates a consistent drive to identify structural problems and redesign them into logical, coherent solutions. Language and communication are central — she thinks out loud, values intellectual stimulation and the company of equals, and finds deep satisfaction in being understood. She is energised by independence and setting her own agenda, and finds fulfilment in seeing tangible real-world impact from her work.",
+      "esf": "satisfying"
+    },
+    {
+      "title": "making organisational changes within my childrens' school",
+      "description": "making things better, bringing people together, fixing things whilst remaining in touch with the world my children inhabited",
+      "age": "46",
+      "decade": "forties",
+      "sageEnrichment": "The parents running school fundraising had become an insular clique—a law unto themselves and not inclusive to new parents—resulting in little social cohesion. After being asked to get involved, she saw things that needed changing, so she set up a more formal and organized social structure and reorganized the fundraising to be much more coherent and efficiently organized, opening it up and creating coherence where there had been chaos.",
+      "esf": "satisfying"
+    },
+    {
+      "title": "doing up houses",
+      "description": "creatively and organisationally satisfying to build in reality",
+      "age": "46",
+      "decade": "forties",
+      "sageEnrichment": "She found satisfaction in the combination of imagining solutions to practical problems (like window placement or kitchen organization) along with creative choices and decisions, all resulting in tangible outcomes achieved her own way—problem-solving made physical.",
+      "esf": "satisfying"
+    },
+    {
+      "title": "looking after parents",
+      "description": "patience and coping and caring",
+      "age": "52",
+      "decade": "fifties",
+      "sageEnrichment": "Her mother told her that when she arrived each day, their day went from black and white into colour, which made her feel the daily visits were deeply appreciated and worthwhile. Her father described her as 'the soul of competence,' and while there were logistics and new systems to institute (like rotas for external carers and hospital visits), she came to realize it was the positive energy she brought that made the real difference.",
+      "esf": "satisfying"
+    },
+    {
+      "title": "bringing happiness and positive energy to my ill mother",
+      "description": "going every day to see them, helping keep my mother and father's spirits up, providing logistical help where I could",
+      "age": "53",
+      "decade": "fifties",
+      "sageEnrichment": "Covered in Sage session summary: Amanda demonstrates a consistent drive to identify structural problems and redesign them into logical, coherent solutions. Language and communication are central — she thinks out loud, values intellectual stimulation and the company of equals, and finds deep satisfaction in being understood. She is energised by independence and setting her own agenda, and finds fulfilment in seeing tangible real-world impact from her work.",
+      "esf": "satisfying"
+    },
+    {
+      "title": "Covid",
+      "description": "settling into doing less, having more constraints on my freedom and more caring responsibilities as my parents lived with us",
+      "age": "55",
+      "decade": "fifties",
+      "sageEnrichment": "Covered in Sage session summary: Amanda demonstrates a consistent drive to identify structural problems and redesign them into logical, coherent solutions. Language and communication are central — she thinks out loud, values intellectual stimulation and the company of equals, and finds deep satisfaction in being understood. She is energised by independence and setting her own agenda, and finds fulfilment in seeing tangible real-world impact from her work.",
+      "esf": "satisfying"
+    },
+    {
+      "title": "Developing the relationship with my children as adults",
+      "description": "taking time and offering guidance and advice, sharing their lives",
+      "age": "58",
+      "decade": "fifties",
+      "sageEnrichment": "Her children are an interesting combination of her and her husband, and they have an excellent, open relationship where they are happy to discuss things and ask her advice as she used to with her own mother. She loves having insight into their lives and feeling that she can help practically or with advice in small ways, being invited into that role of offering structure and guidance rather than imposing it.",
+      "esf": "fulfilling"
+    }
+  ],
+  "messages": [],
+  "stdout": "title\tdescription\tage\tdecade\tsageEnrichment\tesf\nstill seeking something else\ttrying things out, looking for more outlets for my creativity\t40\tforties\tCovered in Sage session summary: Amanda demonstrates a consistent drive to identify structural problems and redesign them into logical, coherent solutions. Language and communication are central — she thinks out loud, values intellectual stimulation and the company of equals, and finds deep satisfaction in being understood. She is energised by independence and setting her own agenda, and finds fulfilment in seeing tangible real-world impact from her work.\tsatisfying\nraising children\tjuggling ideas with bringing up children and supporting my children\t40\tforties\tCovered in Sage session summary: Amanda demonstrates a consistent drive to identify structural problems and redesign them into logical, coherent solutions. Language and communication are central — she thinks out loud, values intellectual stimulation and the company of equals, and finds deep satisfaction in being understood. She is energised by independence and setting her own agenda, and finds fulfilment in seeing tangible real-world impact from her work.\tsatisfying\nmaking organisational changes within my childrens' school\tmaking things better, bringing people together, fixing things whilst remaining in touch with the world my children inhabited\t46\tforties\tThe parents running school fundraising had become an insular clique—a law unto themselves and not inclusive to new parents—resulting in little social cohesion. After being asked to get involved, she saw things that needed changing, so she set up a more formal and organized social structure and reorganized the fundraising to be much more coherent and efficiently organized, opening it up and creating coherence where there had been chaos.\tsatisfying\ndoing up houses\tcreatively and organisationally satisfying to build in reality\t46\tforties\tShe found satisfaction in the combination of imagining solutions to practical problems (like window placement or kitchen organization) along with creative choices and decisions, all resulting in tangible outcomes achieved her own way—problem-solving made physical.\tsatisfying\nlooking after parents\tpatience and coping and caring\t52\tfifties\tHer mother told her that when she arrived each day, their day went from black and white into colour, which made her feel the daily visits were deeply appreciated and worthwhile. Her father described her as 'the soul of competence,' and while there were logistics and new systems to institute (like rotas for external carers and hospital visits), she came to realize it was the positive energy she brought that made the real difference.\tsatisfying\nbringing happiness and positive energy to my ill mother\tgoing every day to see them, helping keep my mother and father's spirits up, providing logistical help where I could\t53\tfifties\tCovered in Sage session summary: Amanda demonstrates a consistent drive to identify structural problems and redesign them into logical, coherent solutions. Language and communication are central — she thinks out loud, values intellectual stimulation and the company of equals, and finds deep satisfaction in being understood. She is energised by independence and setting her own agenda, and finds fulfilment in seeing tangible real-world impact from her work.\tsatisfying\nCovid\tsettling into doing less, having more constraints on my freedom and more caring responsibilities as my parents lived with us\t55\tfifties\tCovered in Sage session summary: Amanda demonstrates a consistent drive to identify structural problems and redesign them into logical, coherent solutions. Language and communication are central — she thinks out loud, values intellectual stimulation and the company of equals, and finds deep satisfaction in being understood. She is energised by independence and setting her own agenda, and finds fulfilment in seeing tangible real-world impact from her work.\tsatisfying\nDeveloping the relationship with my children as adults\ttaking time and offering guidance and advice, sharing their lives\t58\tfifties\tHer children are an interesting combination of her and her husband, and they have an excellent, open relationship where they are happy to discuss things and ask her advice as she used to with her own mother. She loves having insight into their lives and feeling that she can help practically or with advice in small ways, being invited into that role of offering structure and guidance rather than imposing it.\tfulfilling\n",
+  "stderr": "",
+  "execution_time_ms": 283
+}

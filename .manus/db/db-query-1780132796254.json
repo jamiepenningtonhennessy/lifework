@@ -1,0 +1,70 @@
+{
+  "query": "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'analysis_reports' LIMIT 20;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 32u3a1hNYuu9Gj3.7d2282893346 --database kFbbE6kqNApXGDFpQJUGV7 --execute SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'analysis_reports' LIMIT 20;",
+  "rows": [
+    {
+      "COLUMN_NAME": "id"
+    },
+    {
+      "COLUMN_NAME": "clientId"
+    },
+    {
+      "COLUMN_NAME": "coreStrengths"
+    },
+    {
+      "COLUMN_NAME": "drivingMotivations"
+    },
+    {
+      "COLUMN_NAME": "preferredEnvironments"
+    },
+    {
+      "COLUMN_NAME": "keySkills"
+    },
+    {
+      "COLUMN_NAME": "careerThemes"
+    },
+    {
+      "COLUMN_NAME": "viaCorrelation"
+    },
+    {
+      "COLUMN_NAME": "careerSuggestions"
+    },
+    {
+      "COLUMN_NAME": "counselorNotes"
+    },
+    {
+      "COLUMN_NAME": "fullReportMarkdown"
+    },
+    {
+      "COLUMN_NAME": "generatedAt"
+    },
+    {
+      "COLUMN_NAME": "createdAt"
+    },
+    {
+      "COLUMN_NAME": "updatedAt"
+    },
+    {
+      "COLUMN_NAME": "coachingSummaryJson"
+    },
+    {
+      "COLUMN_NAME": "coachNotesJson"
+    },
+    {
+      "COLUMN_NAME": "sectionAnalysisJson"
+    },
+    {
+      "COLUMN_NAME": "wowReportJson"
+    },
+    {
+      "COLUMN_NAME": "wowReportPdfUrl"
+    },
+    {
+      "COLUMN_NAME": "wowReportGeneratedAt"
+    }
+  ],
+  "messages": [],
+  "stdout": "COLUMN_NAME\nid\nclientId\ncoreStrengths\ndrivingMotivations\npreferredEnvironments\nkeySkills\ncareerThemes\nviaCorrelation\ncareerSuggestions\ncounselorNotes\nfullReportMarkdown\ngeneratedAt\ncreatedAt\nupdatedAt\ncoachingSummaryJson\ncoachNotesJson\nsectionAnalysisJson\nwowReportJson\nwowReportPdfUrl\nwowReportGeneratedAt\n",
+  "stderr": "",
+  "execution_time_ms": 259
+}

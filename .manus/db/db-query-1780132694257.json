@@ -1,0 +1,170 @@
+{
+  "query": "SELECT a.title, a.description, a.age, a.decade, a.sageEnrichment, a.esf FROM achievements a WHERE a.clientId = 1149902 ORDER BY a.decade, a.age ASC LIMIT 20;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 32u3a1hNYuu9Gj3.7d2282893346 --database kFbbE6kqNApXGDFpQJUGV7 --execute SELECT a.title, a.description, a.age, a.decade, a.sageEnrichment, a.esf FROM achievements a WHERE a.clientId = 1149902 ORDER BY a.decade, a.age ASC LIMIT 20;",
+  "rows": [
+    {
+      "title": "[Mid (6-11)] lined up my dolls as if in a plane or in school",
+      "description": "organising them into a recognisable setting, being in charge",
+      "age": "NULL",
+      "decade": "childhood",
+      "sageEnrichment": "Throughout her life she has enjoyed organizing information into logical sequences, both to understand it better herself and then to communicate the insights to others—a pattern she recognizes even in how she played with dolls as a child.",
+      "esf": "satisfying"
+    },
+    {
+      "title": "[Mid (6-11)] Drawing and colouring",
+      "description": "Had to do it at school and really enjoyed it, but was more about eg choosing colours and staying within the lines or trying to reproduce another picture than doing anything original",
+      "age": "NULL",
+      "decade": "childhood",
+      "sageEnrichment": "Covered in Sage session summary: Amanda demonstrates a consistent drive to identify structural problems and redesign them into logical, coherent solutions. Language and communication are central — she thinks out loud, values intellectual stimulation and the company of equals, and finds deep satisfaction in being understood. She is energised by independence and setting her own agenda, and finds fulfilment in seeing tangible real-world impact from her work.",
+      "esf": "satisfying"
+    },
+    {
+      "title": "[Early (0-5)] Active - always running and moving and trying things out",
+      "description": "Full of energy and curiousity",
+      "age": "NULL",
+      "decade": "childhood",
+      "sageEnrichment": "Covered in Sage session summary: Amanda demonstrates a consistent drive to identify structural problems and redesign them into logical, coherent solutions. Language and communication are central — she thinks out loud, values intellectual stimulation and the company of equals, and finds deep satisfaction in being understood. She is energised by independence and setting her own agenda, and finds fulfilment in seeing tangible real-world impact from her work.",
+      "esf": "fulfilling"
+    },
+    {
+      "title": "[Mid (6-11)] Learning french",
+      "description": "New school so to get involved I had to learn french fast, which I loved.  Still enjoy speaking languages",
+      "age": "NULL",
+      "decade": "childhood",
+      "sageEnrichment": "She loved the physical act of using her mouth to form different words with different pronunciations, and found it deeply satisfying to be understood and to make progress in communication through the new language.",
+      "esf": "fulfilling"
+    },
+    {
+      "title": "[Mid (6-11)] Playing with our puppy",
+      "description": "Very affectionate, enjoyed the tactility of a soft cuddly puppy",
+      "age": "NULL",
+      "decade": "childhood",
+      "sageEnrichment": "Covered in Sage session summary: Amanda demonstrates a consistent drive to identify structural problems and redesign them into logical, coherent solutions. Language and communication are central — she thinks out loud, values intellectual stimulation and the company of equals, and finds deep satisfaction in being understood. She is energised by independence and setting her own agenda, and finds fulfilment in seeing tangible real-world impact from her work.",
+      "esf": "enjoyable"
+    },
+    {
+      "title": "[Early (0-5)] Chatting",
+      "description": "Always chatting, to myself or my toys if necessary.  Always loved words.  Gregarious and outgoing, found it easy to make friends and play with other childrn",
+      "age": "5",
+      "decade": "childhood",
+      "sageEnrichment": "She was thinking out loud while chatting, formulating her thoughts as she spoke—a practice she still finds helpful for organizing her own thinking and clarifying what is forming in her mind.",
+      "esf": "fulfilling"
+    },
+    {
+      "title": "[Early (0-5)] learning to swim, swimming and diving",
+      "description": "Loved the feeling of cool water on my skin and the freedom of moving in the water, competed in swimming galas",
+      "age": "5",
+      "decade": "childhood",
+      "sageEnrichment": "She describes swimming as giving her a sensation of competence as well as freedom, where she could float, swim fast, practice diving in different ways, submerge, turn upside down, and enjoy using her muscles while feeling in control of her body and movement in the water.",
+      "esf": "satisfying"
+    },
+    {
+      "title": "[Early (0-5)] playing with other children in new school in India",
+      "description": "exploring, loving the cultural differences of a new place, shy but loved learning and doing well",
+      "age": "5",
+      "decade": "childhood",
+      "sageEnrichment": "Covered in Sage session summary: Amanda demonstrates a consistent drive to identify structural problems and redesign them into logical, coherent solutions. Language and communication are central — she thinks out loud, values intellectual stimulation and the company of equals, and finds deep satisfaction in being understood. She is energised by independence and setting her own agenda, and finds fulfilment in seeing tangible real-world impact from her work.",
+      "esf": "fulfilling"
+    },
+    {
+      "title": "[Mid (6-11)] reading enid blyton books about boarding school",
+      "description": "Learnt to read early and fast, had lots of imaginary school friends",
+      "age": "7",
+      "decade": "childhood",
+      "sageEnrichment": "Covered in Sage session summary: Amanda demonstrates a consistent drive to identify structural problems and redesign them into logical, coherent solutions. Language and communication are central — she thinks out loud, values intellectual stimulation and the company of equals, and finds deep satisfaction in being understood. She is energised by independence and setting her own agenda, and finds fulfilment in seeing tangible real-world impact from her work.",
+      "esf": "fulfilling"
+    },
+    {
+      "title": "[Mid (6-11)] playing ponies and circuses with schoolfriends",
+      "description": "Loved moving and gymnastics, handstands, cartwheels, always outdoors.  Again very outgoing with other children but preferred to be in charge",
+      "age": "8",
+      "decade": "childhood",
+      "sageEnrichment": "Covered in Sage session summary: Amanda demonstrates a consistent drive to identify structural problems and redesign them into logical, coherent solutions. Language and communication are central — she thinks out loud, values intellectual stimulation and the company of equals, and finds deep satisfaction in being understood. She is energised by independence and setting her own agenda, and finds fulfilment in seeing tangible real-world impact from her work.",
+      "esf": "enjoyable"
+    },
+    {
+      "title": "[Late (12-18)] Settling into new school",
+      "description": "Self-confident and cheerful, excited to be there and learn the ropes in a new place",
+      "age": "12",
+      "decade": "teens",
+      "sageEnrichment": "Covered in Sage session summary: Amanda demonstrates a consistent drive to identify structural problems and redesign them into logical, coherent solutions. Language and communication are central — she thinks out loud, values intellectual stimulation and the company of equals, and finds deep satisfaction in being understood. She is energised by independence and setting her own agenda, and finds fulfilment in seeing tangible real-world impact from her work.",
+      "esf": "fulfilling"
+    },
+    {
+      "title": "[Late (12-18)] Sports",
+      "description": "Competing and using my limbs and my energy",
+      "age": "14",
+      "decade": "teens",
+      "sageEnrichment": "Covered in Sage session summary: Amanda demonstrates a consistent drive to identify structural problems and redesign them into logical, coherent solutions. Language and communication are central — she thinks out loud, values intellectual stimulation and the company of equals, and finds deep satisfaction in being understood. She is energised by independence and setting her own agenda, and finds fulfilment in seeing tangible real-world impact from her work.",
+      "esf": "fulfilling"
+    },
+    {
+      "title": "[Late (12-18)] Reading and learning",
+      "description": "figuring out who I was and where I fitted into the hierarchy of society, absorbing academic and social knowledge",
+      "age": "16",
+      "decade": "teens",
+      "sageEnrichment": "Covered in Sage session summary: Amanda demonstrates a consistent drive to identify structural problems and redesign them into logical, coherent solutions. Language and communication are central — she thinks out loud, values intellectual stimulation and the company of equals, and finds deep satisfaction in being understood. She is energised by independence and setting her own agenda, and finds fulfilment in seeing tangible real-world impact from her work.",
+      "esf": "fulfilling"
+    },
+    {
+      "title": "[Late (12-18)] head girl",
+      "description": "liked being in charge, liked the responsibility, enjoyed the public speaking aspects",
+      "age": "18",
+      "decade": "teens",
+      "sageEnrichment": "What she found fulfilling was the ability to organize and improve things; while she had rules to follow, she was trusted to apply them in ways that made sense to her or to alter the rules if she could persuade teachers her changes were logical. Rather than seeking power, she valued the ability to change things rather than having to abide by illogical rules imposed by others.",
+      "esf": "fulfilling"
+    },
+    {
+      "title": "working",
+      "description": "learning about the world of work, and also adulthood",
+      "age": "16",
+      "decade": "twenties",
+      "sageEnrichment": "Covered in Sage session summary: Amanda demonstrates a consistent drive to identify structural problems and redesign them into logical, coherent solutions. Language and communication are central — she thinks out loud, values intellectual stimulation and the company of equals, and finds deep satisfaction in being understood. She is energised by independence and setting her own agenda, and finds fulfilment in seeing tangible real-world impact from her work.",
+      "esf": "satisfying"
+    },
+    {
+      "title": "Travelling and absorbing knowledge",
+      "description": "Travelling though south america, learning italian",
+      "age": "16",
+      "decade": "twenties",
+      "sageEnrichment": "She had studied South American literature at school which was geographically grounded, did extensive research about where she wanted to visit, and was able to set her own agenda entirely independently, using her school Spanish to communicate and then applying it to learn Italian as a similar language.",
+      "esf": "satisfying"
+    },
+    {
+      "title": "University",
+      "description": "understanding where I fitted into the social and academic hierarchy at university",
+      "age": "19",
+      "decade": "twenties",
+      "sageEnrichment": "Unlike school with its strict timetables and supervised tasks, university's freedom required her to mindfully balance social life, work, sport, food, and sleep with a new group of high-achieving individuals. She found herself navigating ambiguity to figure out where the intellectual level was and where she fit in, along with everyone else thrown into the deep end. Once she found her intellectual equals who were also supportive and warm company, it became a time of interesting and stimulating conversations.",
+      "esf": "satisfying"
+    },
+    {
+      "title": "studying",
+      "description": "working really hard at academic studies and really enjoying it, but not achieving top marks",
+      "age": "19",
+      "decade": "twenties",
+      "sageEnrichment": "Covered in Sage session summary: Amanda demonstrates a consistent drive to identify structural problems and redesign them into logical, coherent solutions. Language and communication are central — she thinks out loud, values intellectual stimulation and the company of equals, and finds deep satisfaction in being understood. She is energised by independence and setting her own agenda, and finds fulfilment in seeing tangible real-world impact from her work.",
+      "esf": "NULL"
+    },
+    {
+      "title": "experimenting with different areas of work",
+      "description": "wanting to learn new skills and better use of existing skills that the bar didnt value",
+      "age": "30",
+      "decade": "thirties",
+      "sageEnrichment": "She found the bar very academic, solo, not creative or sociable, and wanted to be more proactive. She experimented by trying to fashion solutions to problems she encountered in her own life that weren't being solved: Apartfrom helped young professionals make better use of their limited leisure time, while funditfrog helped new parents find what they needed whilst also donating to charity.",
+      "esf": "fulfilling"
+    },
+    {
+      "title": "Entrepreneurship",
+      "description": "starting to want more freedom and a broader interaction with the world of work",
+      "age": "31",
+      "decade": "thirties",
+      "sageEnrichment": "Covered in Sage session summary: Amanda demonstrates a consistent drive to identify structural problems and redesign them into logical, coherent solutions. Language and communication are central — she thinks out loud, values intellectual stimulation and the company of equals, and finds deep satisfaction in being understood. She is energised by independence and setting her own agenda, and finds fulfilment in seeing tangible real-world impact from her work.",
+      "esf": "fulfilling"
+    }
+  ],
+  "messages": [],
+  "stdout": "title\tdescription\tage\tdecade\tsageEnrichment\tesf\n[Mid (6-11)] lined up my dolls as if in a plane or in school\torganising them into a recognisable setting, being in charge\tNULL\tchildhood\tThroughout her life she has enjoyed organizing information into logical sequences, both to understand it better herself and then to communicate the insights to others—a pattern she recognizes even in how she played with dolls as a child.\tsatisfying\n[Mid (6-11)] Drawing and colouring\tHad to do it at school and really enjoyed it, but was more about eg choosing colours and staying within the lines or trying to reproduce another picture than doing anything original\tNULL\tchildhood\tCovered in Sage session summary: Amanda demonstrates a consistent drive to identify structural problems and redesign them into logical, coherent solutions. Language and communication are central — she thinks out loud, values intellectual stimulation and the company of equals, and finds deep satisfaction in being understood. She is energised by independence and setting her own agenda, and finds fulfilment in seeing tangible real-world impact from her work.\tsatisfying\n[Early (0-5)] Active - always running and moving and trying things out\tFull of energy and curiousity\tNULL\tchildhood\tCovered in Sage session summary: Amanda demonstrates a consistent drive to identify structural problems and redesign them into logical, coherent solutions. Language and communication are central — she thinks out loud, values intellectual stimulation and the company of equals, and finds deep satisfaction in being understood. She is energised by independence and setting her own agenda, and finds fulfilment in seeing tangible real-world impact from her work.\tfulfilling\n[Mid (6-11)] Learning french\tNew school so to get involved I had to learn french fast, which I loved.  Still enjoy speaking languages\tNULL\tchildhood\tShe loved the physical act of using her mouth to form different words with different pronunciations, and found it deeply satisfying to be understood and to make progress in communication through the new language.\tfulfilling\n[Mid (6-11)] Playing with our puppy\tVery affectionate, enjoyed the tactility of a soft cuddly puppy\tNULL\tchildhood\tCovered in Sage session summary: Amanda demonstrates a consistent drive to identify structural problems and redesign them into logical, coherent solutions. Language and communication are central — she thinks out loud, values intellectual stimulation and the company of equals, and finds deep satisfaction in being understood. She is energised by independence and setting her own agenda, and finds fulfilment in seeing tangible real-world impact from her work.\tenjoyable\n[Early (0-5)] Chatting\tAlways chatting, to myself or my toys if necessary.  Always loved words.  Gregarious and outgoing, found it easy to make friends and play with other childrn\t5\tchildhood\tShe was thinking out loud while chatting, formulating her thoughts as she spoke—a practice she still finds helpful for organizing her own thinking and clarifying what is forming in her mind.\tfulfilling\n[Early (0-5)] learning to swim, swimming and diving\tLoved the feeling of cool water on my skin and the freedom of moving in the water, competed in swimming galas\t5\tchildhood\tShe describes swimming as giving her a sensation of competence as well as freedom, where she could float, swim fast, practice diving in different ways, submerge, turn upside down, and enjoy using her muscles while feeling in control of her body and movement in the water.\tsatisfying\n[Early (0-5)] playing with other children in new school in India\texploring, loving the cultural differences of a new place, shy but loved learning and doing well\t5\tchildhood\tCovered in Sage session summary: Amanda demonstrates a consistent drive to identify structural problems and redesign them into logical, coherent solutions. Language and communication are central — she thinks out loud, values intellectual stimulation and the company of equals, and finds deep satisfaction in being understood. She is energised by independence and setting her own agenda, and finds fulfilment in seeing tangible real-world impact from her work.\tfulfilling\n[Mid (6-11)] reading enid blyton books about boarding school\tLearnt to read early and fast, had lots of imaginary school friends\t7\tchildhood\tCovered in Sage session summary: Amanda demonstrates a consistent drive to identify structural problems and redesign them into logical, coherent solutions. Language and communication are central — she thinks out loud, values intellectual stimulation and the company of equals, and finds deep satisfaction in being understood. She is energised by independence and setting her own agenda, and finds fulfilment in seeing tangible real-world impact from her work.\tfulfilling\n[Mid (6-11)] playing ponies and circuses with schoolfriends\tLoved moving and gymnastics, handstands, cartwheels, always outdoors.  Again very outgoing with other children but preferred to be in charge\t8\tchildhood\tCovered in Sage session summary: Amanda demonstrates a consistent drive to identify structural problems and redesign them into logical, coherent solutions. Language and communication are central — she thinks out loud, values intellectual stimulation and the company of equals, and finds deep satisfaction in being understood. She is energised by independence and setting her own agenda, and finds fulfilment in seeing tangible real-world impact from her work.\tenjoyable\n[Late (12-18)] Settling into new school\tSelf-confident and cheerful, excited to be there and learn the ropes in a new place\t12\tteens\tCovered in Sage session summary: Amanda demonstrates a consistent drive to identify structural problems and redesign them into logical, coherent solutions. Language and communication are central — she thinks out loud, values intellectual stimulation and the company of equals, and finds deep satisfaction in being understood. She is energised by independence and setting her own agenda, and finds fulfilment in seeing tangible real-world impact from her work.\tfulfilling\n[Late (12-18)] Sports\tCompeting and using my limbs and my energy\t14\tteens\tCovered in Sage session summary: Amanda demonstrates a consistent drive to identify structural problems and redesign them into logical, coherent solutions. Language and communication are central — she thinks out loud, values intellectual stimulation and the company of equals, and finds deep satisfaction in being understood. She is energised by independence and setting her own agenda, and finds fulfilment in seeing tangible real-world impact from her work.\tfulfilling\n[Late (12-18)] Reading and learning\tfiguring out who I was and where I fitted into the hierarchy of society, absorbing academic and social knowledge\t16\tteens\tCovered in Sage session summary: Amanda demonstrates a consistent drive to identify structural problems and redesign them into logical, coherent solutions. Language and communication are central — she thinks out loud, values intellectual stimulation and the company of equals, and finds deep satisfaction in being understood. She is energised by independence and setting her own agenda, and finds fulfilment in seeing tangible real-world impact from her work.\tfulfilling\n[Late (12-18)] head girl\tliked being in charge, liked the responsibility, enjoyed the public speaking aspects\t18\tteens\tWhat she found fulfilling was the ability to organize and improve things; while she had rules to follow, she was trusted to apply them in ways that made sense to her or to alter the rules if she could persuade teachers her changes were logical. Rather than seeking power, she valued the ability to change things rather than having to abide by illogical rules imposed by others.\tfulfilling\nworking\tlearning about the world of work, and also adulthood\t16\ttwenties\tCovered in Sage session summary: Amanda demonstrates a consistent drive to identify structural problems and redesign them into logical, coherent solutions. Language and communication are central — she thinks out loud, values intellectual stimulation and the company of equals, and finds deep satisfaction in being understood. She is energised by independence and setting her own agenda, and finds fulfilment in seeing tangible real-world impact from her work.\tsatisfying\nTravelling and absorbing knowledge\tTravelling though south america, learning italian\t16\ttwenties\tShe had studied South American literature at school which was geographically grounded, did extensive research about where she wanted to visit, and was able to set her own agenda entirely independently, using her school Spanish to communicate and then applying it to learn Italian as a similar language.\tsatisfying\nUniversity\tunderstanding where I fitted into the social and academic hierarchy at university\t19\ttwenties\tUnlike school with its strict timetables and supervised tasks, university's freedom required her to mindfully balance social life, work, sport, food, and sleep with a new group of high-achieving individuals. She found herself navigating ambiguity to figure out where the intellectual level was and where she fit in, along with everyone else thrown into the deep end. Once she found her intellectual equals who were also supportive and warm company, it became a time of interesting and stimulating conversations.\tsatisfying\nstudying\tworking really hard at academic studies and really enjoying it, but not achieving top marks\t19\ttwenties\tCovered in Sage session summary: Amanda demonstrates a consistent drive to identify structural problems and redesign them into logical, coherent solutions. Language and communication are central — she thinks out loud, values intellectual stimulation and the company of equals, and finds deep satisfaction in being understood. She is energised by independence and setting her own agenda, and finds fulfilment in seeing tangible real-world impact from her work.\tNULL\nexperimenting with different areas of work\twanting to learn new skills and better use of existing skills that the bar didnt value\t30\tthirties\tShe found the bar very academic, solo, not creative or sociable, and wanted to be more proactive. She experimented by trying to fashion solutions to problems she encountered in her own life that weren't being solved: Apartfrom helped young professionals make better use of their limited leisure time, while funditfrog helped new parents find what they needed whilst also donating to charity.\tfulfilling\nEntrepreneurship\tstarting to want more freedom and a broader interaction with the world of work\t31\tthirties\tCovered in Sage session summary: Amanda demonstrates a consistent drive to identify structural problems and redesign them into logical, coherent solutions. Language and communication are central — she thinks out loud, values intellectual stimulation and the company of equals, and finds deep satisfaction in being understood. She is energised by independence and setting her own agenda, and finds fulfilment in seeing tangible real-world impact from her work.\tfulfilling\n",
+  "stderr": "",
+  "execution_time_ms": 402
+}

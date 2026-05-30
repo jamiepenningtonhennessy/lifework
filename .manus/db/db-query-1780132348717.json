@@ -1,0 +1,34 @@
+{
+  "query": "SELECT u.id, u.name, u.email, cp.id as profile_id, cp.firstName, cp.lastName FROM users u LEFT JOIN client_profiles cp ON cp.userId = u.id WHERE u.name LIKE '%Jamie%' OR u.name LIKE '%Pennington%' OR u.email LIKE '%pennington%' OR u.email LIKE '%jamie%' LIMIT 5;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 32u3a1hNYuu9Gj3.7d2282893346 --database kFbbE6kqNApXGDFpQJUGV7 --execute SELECT u.id, u.name, u.email, cp.id as profile_id, cp.firstName, cp.lastName FROM users u LEFT JOIN client_profiles cp ON cp.userId = u.id WHERE u.name LIKE '%Jamie%' OR u.name LIKE '%Pennington%' OR u.email LIKE '%pennington%' OR u.email LIKE '%jamie%' LIMIT 5;",
+  "rows": [
+    {
+      "id": "1",
+      "name": "Jamie Pennington",
+      "email": "jamie@penningtonhennessy.com",
+      "profile_id": "1",
+      "firstName": "Jamie",
+      "lastName": "Pennington"
+    },
+    {
+      "id": "330055",
+      "name": "Jamie Pennington",
+      "email": "penningtonhennessy@gmail.com",
+      "profile_id": "30001",
+      "firstName": "Jamie",
+      "lastName": "NULL"
+    },
+    {
+      "id": "14970011",
+      "name": "fitness.penningtonhennessy+user1",
+      "email": "fitness.penningtonhennessy+user1@gmail.com",
+      "profile_id": "NULL",
+      "firstName": "NULL",
+      "lastName": "NULL"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\temail\tprofile_id\tfirstName\tlastName\n1\tJamie Pennington\tjamie@penningtonhennessy.com\t1\tJamie\tPennington\n330055\tJamie Pennington\tpenningtonhennessy@gmail.com\t30001\tJamie\tNULL\n14970011\tfitness.penningtonhennessy+user1\tfitness.penningtonhennessy+user1@gmail.com\tNULL\tNULL\tNULL\n",
+  "stderr": "",
+  "execution_time_ms": 377
+}
