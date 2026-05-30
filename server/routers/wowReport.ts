@@ -259,37 +259,53 @@ async function callLLMWithTimeout(
   userPrompt: string,
   timeoutMs = 90_000
 ): Promise<string> {
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), timeoutMs);
-  try {
-    const apiUrl = (process.env.BUILT_IN_FORGE_API_URL ?? "https://forge.manus.im").replace(/\/$/, "");
-    const apiKey = process.env.BUILT_IN_FORGE_API_KEY ?? "";
-    const resp = await fetch(`${apiUrl}/v1/chat/completions`, {
-      method: "POST",
-      headers: {
-        "content-type": "application/json",
-        authorization: `Bearer ${apiKey}`,
-      },
-      body: JSON.stringify({
-        model: "gemini-2.5-flash",
-        messages: [
-          { role: "system", content: systemPrompt },
-          { role: "user", content: userPrompt },
-        ],
-        max_tokens: 4096,
-      }),
-      signal: controller.signal,
-    });
-    if (!resp.ok) {
-      const txt = await resp.text();
-      throw new Error(`LLM error ${resp.status}: ${txt.substring(0, 200)}`);
+  const apiUrl = (process.env.BUILT_IN_FORGE_API_URL ?? "https://forge.manus.im").replace(/\/$/, "");
+  const apiKey = process.env.BUILT_IN_FORGE_API_KEY ?? "";
+  const MAX_RETRIES = 4;
+  const BASE_DELAY_MS = 8_000; // 8 s initial backoff for 429
+  for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), timeoutMs);
+    try {
+      const resp = await fetch(`${apiUrl}/v1/chat/completions`, {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+          authorization: `Bearer ${apiKey}`,
+        },
+        body: JSON.stringify({
+          model: "gemini-2.5-flash",
+          messages: [
+            { role: "system", content: systemPrompt },
+            { role: "user", content: userPrompt },
+          ],
+          max_tokens: 4096,
+        }),
+        signal: controller.signal,
+      });
+      clearTimeout(timer);
+      if (resp.status === 429 && attempt < MAX_RETRIES) {
+        // Rate-limited: wait with exponential backoff then retry
+        const retryAfterHeader = resp.headers.get("retry-after");
+        const waitMs = retryAfterHeader
+          ? parseInt(retryAfterHeader, 10) * 1000
+          : BASE_DELAY_MS * Math.pow(2, attempt);
+        await new Promise(res => setTimeout(res, waitMs));
+        continue;
+      }
+      if (!resp.ok) {
+        const txt = await resp.text();
+        throw new Error(`LLM error ${resp.status}: ${txt.substring(0, 200)}`);
+      }
+      const data = await resp.json() as { choices: Array<{ message: { content: string } }> };
+      const raw = data.choices[0]?.message?.content ?? "";
+      return sanitiseMarkdownTables(raw);
+    } catch (err) {
+      clearTimeout(timer);
+      throw err;
     }
-    const data = await resp.json() as { choices: Array<{ message: { content: string } }> };
-    const raw = data.choices[0]?.message?.content ?? "";
-    return sanitiseMarkdownTables(raw);
-  } finally {
-    clearTimeout(timer);
   }
+  throw new Error("LLM error 429: rate limit exceeded after retries");
 }
 
 // ─── Report type variants ────────────────────────────────────────────────────
@@ -588,17 +604,21 @@ Write directly to the client using "you" and "your" throughout. Do NOT include a
       const apiUrl = (process.env.BUILT_IN_FORGE_API_URL ?? "https://forge.manus.im").replace(/\/$/, "");
       const apiKey = process.env.BUILT_IN_FORGE_API_KEY ?? "";
       const fpUserPrompt = `${ctx}\n\n--- CANONICAL LIFE HISTORY ANALYSIS (authoritative interpretation — use this as the primary source of pattern evidence) ---\n${lifeHistoryPattern}\n--- END CANONICAL LIFE HISTORY ANALYSIS ---\n\nYou are writing the Four Conditions of Fulfilment chapter of the Lifework report for this client. This chapter applies the Savickas career construction framework to identify the four conditions under which this person consistently experiences energy, engagement, and meaning.\n\nThe chapter has a strict, fixed structure. You must produce exactly four pillars in this order: Places, People, Problems, Procedures.\n\nFor each of the four pillars, provide:\n- heading: use EXACTLY these headings (do not vary them):\n  places heading: "PLACES — Where Energy Was High"\n  people heading: "PEOPLE — Who Was Present, and in What Role"\n  problems heading: "PROBLEMS — The Nature of the Challenge"\n  procedures heading: "PROCEDURES — How the Work Was Done"\n- learning: a single direct sentence stating the core insight for that pillar, grounded in evidence from the life history. This will be prefixed with "Learning:" in the report — do NOT include the word "Learning:" in your response.\n- example1: a paragraph (3-5 sentences) — a specific, named example from the life history illustrating the learning. Use direct quotes from achievement descriptions where available. Name the specific event, age, or context.\n- example2: a second paragraph (3-5 sentences) — a different specific example from a different period of the life. Do NOT repeat the same event used in example1 or in other pillars.\n\nFor the combination section:\n- synthesis: a single paragraph beginning "You are most alive when..." that synthesises all four pillars into a description of the precise conditions under which this person is most fully themselves. Do NOT use bold markers.\n- practical_question: a single paragraph (3-5 sentences) stating the practical question this analysis raises. It must begin with "The practical question is not..." and reframe the career question in terms specific to this person's combination of pillars.\n\nCRITICAL RULES:\n- Draw primarily from the raw achievement data and the canonical life history analysis above\n- Write directly to the client using "you" and "your" throughout\n- Each pillar must be grounded in named, specific examples — no generalisations\n- Do NOT repeat the same example across different pillars\n- Do NOT use hollow superlatives, management jargon, or abstract claims\n- British spellings throughout\n- The four pillars must be genuinely distinct — Places is about environments, People is about relationships and roles, Problems is about the nature of challenges, Procedures is about method and working style`;
-      const fpResp = await fetch(`${apiUrl}/v1/chat/completions`, {
-        method: "POST",
-        headers: { "content-type": "application/json", authorization: `Bearer ${apiKey}` },
-        body: JSON.stringify({
-          model: "gemini-2.5-flash",
-          messages: [
-            { role: "system", content: effectiveSys },
-            { role: "user", content: fpUserPrompt },
-          ],
-          max_tokens: 4096,
-          response_format: {
+      const FP_MAX_RETRIES = 4;
+      const FP_BASE_DELAY_MS = 8_000;
+      let fpResp!: Response;
+      for (let fpAttempt = 0; fpAttempt <= FP_MAX_RETRIES; fpAttempt++) {
+        fpResp = await fetch(`${apiUrl}/v1/chat/completions`, {
+          method: "POST",
+          headers: { "content-type": "application/json", authorization: `Bearer ${apiKey}` },
+          body: JSON.stringify({
+            model: "gemini-2.5-flash",
+            messages: [
+              { role: "system", content: effectiveSys },
+              { role: "user", content: fpUserPrompt },
+            ],
+            max_tokens: 4096,
+            response_format: {
             type: "json_schema",
             json_schema: {
               name: "four_pillars",
@@ -665,8 +685,18 @@ Write directly to the client using "you" and "your" throughout. Do NOT include a
               },
             },
           },
-        }),
-      });
+          }),
+        });
+        if (fpResp.status === 429 && fpAttempt < FP_MAX_RETRIES) {
+          const retryAfterHeader = fpResp.headers.get("retry-after");
+          const waitMs = retryAfterHeader
+            ? parseInt(retryAfterHeader, 10) * 1000
+            : FP_BASE_DELAY_MS * Math.pow(2, fpAttempt);
+          await new Promise(res => setTimeout(res, waitMs));
+          continue;
+        }
+        break; // success or non-429 error — exit retry loop
+      }
       if (!fpResp.ok) {
         const txt = await fpResp.text();
         throw new Error(`fourPillars LLM error ${fpResp.status}: ${txt.substring(0, 200)}`);
