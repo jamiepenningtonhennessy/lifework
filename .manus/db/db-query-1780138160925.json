@@ -1,0 +1,61 @@
+{
+  "query": "\nSELECT sectionKey, sectionLabel, durationMs, LEFT(rawOutput, 100) as output_preview, createdAt\nFROM report_generation_logs\nWHERE clientId = 1149902\nORDER BY createdAt DESC\nLIMIT 20;\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 32u3a1hNYuu9Gj3.7d2282893346 --database kFbbE6kqNApXGDFpQJUGV7 --execute \nSELECT sectionKey, sectionLabel, durationMs, LEFT(rawOutput, 100) as output_preview, createdAt\nFROM report_generation_logs\nWHERE clientId = 1149902\nORDER BY createdAt DESC\nLIMIT 20;\n",
+  "rows": [
+    {
+      "sectionKey": "summary",
+      "sectionLabel": "Lifework Summary",
+      "durationMs": "2805",
+      "output_preview": "You are a natural leader and builder, driven by an insatiable **Curiosity** and **Love of Learning**",
+      "createdAt": "2026-05-30 10:45:12"
+    },
+    {
+      "sectionKey": "summary",
+      "sectionLabel": "Lifework Summary",
+      "durationMs": "2435",
+      "output_preview": "You are an individual driven by an insatiable **Curiosity** and **Love of Learning**, consistently s",
+      "createdAt": "2026-05-30 10:21:17"
+    }
+  ],
+  "messages": [
+    "behavioural\tBehavioural Style\t7730\t## Colour Energy Profile",
+    "Let's talk about your core energies. Your Insights Discovery profile highl\t2026-05-30 10:45:17",
+    "career\tCareer Directions\t4975\t## Creating and Scaling Systems for Social Impact",
+    "You consistently demonstrate a powerful drive to \t2026-05-30 10:45:14",
+    "personality\tPersonality Profile\t4676\t## What the Psychometrics Show",
+    "Your **Openness** score of 75th percentile indicates you are highly i\t2026-05-30 10:45:14",
+    "development\tDevelopment Edge\t4051\t## The Unresolved Search for \"What I Could Really Excel At\"",
+    "You consistently describe a search for \t2026-05-30 10:45:13",
+    "fourPillars\t4 Pillars of Fulfilment\t4333\t## Places — Where Energy Was High",
+    "**Learning:** You thrive in environments where you can impose int\t2026-05-30 10:45:13",
+    "via\tCharacter Strengths (VIA)\t3876\t## The Evidence Table",
+    "| Strength | VIA Definition | Survey Rank | Freq (of N) | Identity Salience | \t2026-05-30 10:45:13",
+    "conclusions\tConclusions\t4191\t## Past",
+    "From your earliest memories, two distinct themes emerge: a deep satisfaction in **organising\t2026-05-30 10:45:13",
+    "lifeHistoryPattern\tLife History Pattern (Canonical)\t0\t## The Opening Bars",
+    "You have been drawn to structured freedom since you first learned to swim at fi\t2026-05-30 10:45:09",
+    "behavioural\tBehavioural Style\t6235\t## Colour Energy Profile",
+    "Let's talk about your colour energies, because they tell a fascinating sto\t2026-05-30 10:21:21",
+    "conclusions\tConclusions\t3890\t## Past",
+    "From your earliest memories, you show a consistent drive to **organise and lead**. At age 5,\t2026-05-30 10:21:19",
+    "fourPillars\t4 Pillars of Fulfilment\t3969\t## Places — Where Energy Was High",
+    "**Learning:** You thrive in environments where you can independen\t2026-05-30 10:21:19",
+    "via\tCharacter Strengths (VIA)\t3877\t## The Evidence Table",
+    "| Strength | VIA Definition | Survey Rank | Freq (of N) | Identity Salience |\t2026-05-30 10:21:19",
+    "development\tDevelopment Edge\t4597\t## The Unresolved Search for a Sustainable Model",
+    "You have repeatedly built businesses from the grou\t2026-05-30 10:21:19",
+    "career\tCareer Directions\t4138\t## Architecting New Ventures",
+    "You consistently demonstrate a powerful drive to build and structure f\t2026-05-30 10:21:19",
+    "personality\tPersonality Profile\t4351\t## What the Psychometrics Show",
+    "Your **Openness** score of 75th percentile indicates you are highly i\t2026-05-30 10:21:19",
+    "lifeHistoryPattern\tLife History Pattern (Canonical)\t0\t## The Opening Bars",
+    "You have been drawn to structured freedom since you first learned to swim at fi\t2026-05-30 10:21:15",
+    "behavioural\tBehavioural Style\t5912\t## Colour Energy Profile",
+    "Let's talk about your core energies. Your primary energy is Sunshine Yello\t2026-05-30 10:17:53",
+    "personality\tPersonality Profile\t4336\t## What the Psychometrics Show",
+    "Your **Openness** score of 75th percentile indicates you are highly i\t2026-05-30 10:17:52"
+  ],
+  "stdout": "sectionKey\tsectionLabel\tdurationMs\toutput_preview\tcreatedAt\nbehavioural\tBehavioural Style\t7730\t## Colour Energy Profile\n\nLet's talk about your core energies. Your Insights Discovery profile highl\t2026-05-30 10:45:17\ncareer\tCareer Directions\t4975\t## Creating and Scaling Systems for Social Impact\n\nYou consistently demonstrate a powerful drive to \t2026-05-30 10:45:14\npersonality\tPersonality Profile\t4676\t## What the Psychometrics Show\nYour **Openness** score of 75th percentile indicates you are highly i\t2026-05-30 10:45:14\ndevelopment\tDevelopment Edge\t4051\t## The Unresolved Search for \"What I Could Really Excel At\"\n\nYou consistently describe a search for \t2026-05-30 10:45:13\nfourPillars\t4 Pillars of Fulfilment\t4333\t## Places — Where Energy Was High\n\n**Learning:** You thrive in environments where you can impose int\t2026-05-30 10:45:13\nvia\tCharacter Strengths (VIA)\t3876\t## The Evidence Table\n| Strength | VIA Definition | Survey Rank | Freq (of N) | Identity Salience | \t2026-05-30 10:45:13\nconclusions\tConclusions\t4191\t## Past\nFrom your earliest memories, two distinct themes emerge: a deep satisfaction in **organising\t2026-05-30 10:45:13\nsummary\tLifework Summary\t2805\tYou are a natural leader and builder, driven by an insatiable **Curiosity** and **Love of Learning**\t2026-05-30 10:45:12\nlifeHistoryPattern\tLife History Pattern (Canonical)\t0\t## The Opening Bars\n\nYou have been drawn to structured freedom since you first learned to swim at fi\t2026-05-30 10:45:09\nbehavioural\tBehavioural Style\t6235\t## Colour Energy Profile\n\nLet's talk about your colour energies, because they tell a fascinating sto\t2026-05-30 10:21:21\nconclusions\tConclusions\t3890\t## Past\nFrom your earliest memories, you show a consistent drive to **organise and lead**. At age 5,\t2026-05-30 10:21:19\nfourPillars\t4 Pillars of Fulfilment\t3969\t## Places — Where Energy Was High\n\n**Learning:** You thrive in environments where you can independen\t2026-05-30 10:21:19\nvia\tCharacter Strengths (VIA)\t3877\t## The Evidence Table\n\n| Strength | VIA Definition | Survey Rank | Freq (of N) | Identity Salience |\t2026-05-30 10:21:19\ndevelopment\tDevelopment Edge\t4597\t## The Unresolved Search for a Sustainable Model\n\nYou have repeatedly built businesses from the grou\t2026-05-30 10:21:19\ncareer\tCareer Directions\t4138\t## Architecting New Ventures\n\nYou consistently demonstrate a powerful drive to build and structure f\t2026-05-30 10:21:19\npersonality\tPersonality Profile\t4351\t## What the Psychometrics Show\nYour **Openness** score of 75th percentile indicates you are highly i\t2026-05-30 10:21:19\nsummary\tLifework Summary\t2435\tYou are an individual driven by an insatiable **Curiosity** and **Love of Learning**, consistently s\t2026-05-30 10:21:17\nlifeHistoryPattern\tLife History Pattern (Canonical)\t0\t## The Opening Bars\n\nYou have been drawn to structured freedom since you first learned to swim at fi\t2026-05-30 10:21:15\nbehavioural\tBehavioural Style\t5912\t## Colour Energy Profile\n\nLet's talk about your core energies. Your primary energy is Sunshine Yello\t2026-05-30 10:17:53\npersonality\tPersonality Profile\t4336\t## What the Psychometrics Show\nYour **Openness** score of 75th percentile indicates you are highly i\t2026-05-30 10:17:52\n",
+  "stderr": "",
+  "execution_time_ms": 274
+}

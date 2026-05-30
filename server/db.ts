@@ -384,10 +384,14 @@ export async function upsertAnalysisReport(
 ) {
   const db = await getDb();
   if (!db) throw new Error("DB not available");
+  // Exclude `id` from the update set — MySQL silently ignores PK updates in
+  // ON DUPLICATE KEY UPDATE, which causes the row to appear unchanged even when
+  // data has changed (updatedAt stays stale, wowReportPdfUrl not overwritten).
+  const { id: _id, ...updateSet } = data as typeof data & { id?: number };
   await db
     .insert(analysisReports)
     .values(data)
-    .onDuplicateKeyUpdate({ set: data });
+    .onDuplicateKeyUpdate({ set: updateSet });
 }
 
 /** Store (or overwrite) the canonical Stage 1 Dependable Strengths output for a client. */

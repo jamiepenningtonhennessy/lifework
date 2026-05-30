@@ -1,0 +1,17 @@
+{
+  "query": "\nSELECT wowReportStatus, wowReportError, \n  JSON_KEYS(wowReportJson) as json_keys,\n  LEFT(wowReportPdfUrl, 80) as pdf_url,\n  updatedAt\nFROM analysis_reports\nWHERE clientId = 1149902\nLIMIT 1;\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 32u3a1hNYuu9Gj3.7d2282893346 --database kFbbE6kqNApXGDFpQJUGV7 --execute \nSELECT wowReportStatus, wowReportError, \n  JSON_KEYS(wowReportJson) as json_keys,\n  LEFT(wowReportPdfUrl, 80) as pdf_url,\n  updatedAt\nFROM analysis_reports\nWHERE clientId = 1149902\nLIMIT 1;\n",
+  "rows": [
+    {
+      "wowReportStatus": "done",
+      "wowReportError": "NULL",
+      "json_keys": "[\"behaviouralStyle\", \"careerDirections\", \"clientFullName\", \"clientName\", \"coachingQuestions\", \"developmentEdge\", \"domainScores\", \"facetScores\", \"fourPillars\", \"generatedAt\", \"jungianType\", \"lifeHistoryPattern\", \"personalitySection\", \"primaryColour\", \"reportType\", \"secondaryColour\", \"summary\", \"viaRanked\", \"viaSection\"]",
+      "pdf_url": "https://d2xsxph8kpxj0f.cloudfront.net/107696804/kFbbE6kqNApXGDFpQJUGV7/wow-repor",
+      "updatedAt": "2026-05-30 10:21:03"
+    }
+  ],
+  "messages": [],
+  "stdout": "wowReportStatus\twowReportError\tjson_keys\tpdf_url\tupdatedAt\ndone\tNULL\t[\"behaviouralStyle\", \"careerDirections\", \"clientFullName\", \"clientName\", \"coachingQuestions\", \"developmentEdge\", \"domainScores\", \"facetScores\", \"fourPillars\", \"generatedAt\", \"jungianType\", \"lifeHistoryPattern\", \"personalitySection\", \"primaryColour\", \"reportType\", \"secondaryColour\", \"summary\", \"viaRanked\", \"viaSection\"]\thttps://d2xsxph8kpxj0f.cloudfront.net/107696804/kFbbE6kqNApXGDFpQJUGV7/wow-repor\t2026-05-30 10:21:03\n",
+  "stderr": "",
+  "execution_time_ms": 275
+}

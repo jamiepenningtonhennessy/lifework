@@ -1,0 +1,8 @@
+{
+  "query": "\nSELECT section_key, section_label, duration_ms, LEFT(raw_output, 100) as output_preview, created_at\nFROM report_generation_logs\nWHERE client_id = 1149902\nORDER BY created_at DESC\nLIMIT 20;\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 32u3a1hNYuu9Gj3.7d2282893346 --database kFbbE6kqNApXGDFpQJUGV7 --execute \nSELECT section_key, section_label, duration_ms, LEFT(raw_output, 100) as output_preview, created_at\nFROM report_generation_logs\nWHERE client_id = 1149902\nORDER BY created_at DESC\nLIMIT 20;\n",
+  "returncode": 1,
+  "logs": [
+    "ERROR 1054 (42S22) at line 2: Unknown column 'client_id' in 'where clause'"
+  ]
+}
