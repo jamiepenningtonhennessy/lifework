@@ -1,0 +1,28 @@
+{
+  "query": "SELECT LEFT(JSON_UNQUOTE(JSON_EXTRACT(wowReportJson, '$.fourPillars')), 2000) as fourPillars_text FROM analysis_reports WHERE clientId = 1149902 LIMIT 1;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 32u3a1hNYuu9Gj3.7d2282893346 --database kFbbE6kqNApXGDFpQJUGV7 --execute SELECT LEFT(JSON_UNQUOTE(JSON_EXTRACT(wowReportJson, '$.fourPillars')), 2000) as fourPillars_text FROM analysis_reports WHERE clientId = 1149902 LIMIT 1;",
+  "rows": [
+    {
+      "fourPillars_text": "## The Blueprint: Where You Come Alive"
+    },
+    {
+      "fourPillars_text": "You thrive on newness. Cultural difference. The swift integration into fresh social and intellectual landscapes. At five, in a new Indian school, you found deep satisfaction exploring cultural differences, despite your shyness. At sixteen, tearing through South America, learning Italian, you were \"extremely busy socially and at work\" – a high-energy response to dynamic, unfamiliar settings."
+    },
+    {
+      "fourPillars_text": "You're energised by intellectual equals, by stimulating conversation. And by those who genuinely value your guidance and positive energy. University only became fulfilling once you'd navigated the hierarchy and found supportive, warm company. That's when the \"interesting and stimulating conversations\" began. Later, developing relationships with your adult children, offering advice they sought and valued, brought deep satisfaction."
+    },
+    {
+      "fourPillars_text": "The problems that draw you in? Incoherent systems. You want to redesign them into logical, practical solutions with tangible, real-world impact. At forty-six, you fixed organisational chaos at your children's school, bringing people together. That's making things better within a community you cared about. Your work with Headstarted CIC, building a system to help young people choose careers, is a perfect example. You saw a structural problem and designed a logical solution for schools and children."
+    },
+    {
+      "fourPillars_text": "You work best by thinking out loud, by organising information into coherent structures, then communicating them clearly. At five, you were \"always chatting, to myself or my toys if necessary.\" That's not just childhood chatter; it's your fundamental thought process, your need to form words and make yourself clear. Later, as a lecturer at Paris University, organising your learning into coherent lectures was highly satisfying. Structuring complex information, then delivering it clearly – that was a highlight."
+    },
+    {
+      "fourPillars_text": "You're most alive in new or culturally distinct environments, engaging intellectual equals who value your input"
+    }
+  ],
+  "messages": [],
+  "stdout": "fourPillars_text\n## The Blueprint: Where You Come Alive\n\nYou thrive on newness. Cultural difference. The swift integration into fresh social and intellectual landscapes. At five, in a new Indian school, you found deep satisfaction exploring cultural differences, despite your shyness. At sixteen, tearing through South America, learning Italian, you were \"extremely busy socially and at work\" – a high-energy response to dynamic, unfamiliar settings.\n\nYou're energised by intellectual equals, by stimulating conversation. And by those who genuinely value your guidance and positive energy. University only became fulfilling once you'd navigated the hierarchy and found supportive, warm company. That's when the \"interesting and stimulating conversations\" began. Later, developing relationships with your adult children, offering advice they sought and valued, brought deep satisfaction.\n\nThe problems that draw you in? Incoherent systems. You want to redesign them into logical, practical solutions with tangible, real-world impact. At forty-six, you fixed organisational chaos at your children's school, bringing people together. That's making things better within a community you cared about. Your work with Headstarted CIC, building a system to help young people choose careers, is a perfect example. You saw a structural problem and designed a logical solution for schools and children.\n\nYou work best by thinking out loud, by organising information into coherent structures, then communicating them clearly. At five, you were \"always chatting, to myself or my toys if necessary.\" That's not just childhood chatter; it's your fundamental thought process, your need to form words and make yourself clear. Later, as a lecturer at Paris University, organising your learning into coherent lectures was highly satisfying. Structuring complex information, then delivering it clearly – that was a highlight.\n\nYou're most alive in new or culturally distinct environments, engaging intellectual equals who value your input\n",
+  "stderr": "",
+  "execution_time_ms": 275
+}

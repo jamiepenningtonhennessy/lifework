@@ -818,7 +818,6 @@ async function deduplicateSections(
   const PROSE_KEYS = [
     "summary",
     "lifeHistoryPattern",
-    "fourPillars",
     "viaSection",
     "personalitySection",
     "behaviouralStyle",
@@ -953,10 +952,11 @@ async function rewriteSectionsForMark(
   console.log(`[WOW Report] Rewriting all sections in Mark Brandon style for ${clientName}`);
 
   // Sections to rewrite (prose only — structured data fields are passed through unchanged)
+  // NOTE: fourPillars is excluded — it has a fixed analytical structure (4 pillars + combination)
+  // that must never be rewritten as free prose by style functions.
   const proseSections: Array<keyof WowReportSections> = [
     "summary",
     "lifeHistoryPattern",
-    "fourPillars",
     "viaSection",
     "personalitySection",
     "behaviouralStyle",
@@ -1098,10 +1098,11 @@ async function rewriteSectionsForCliveJames(
 ): Promise<WowReportSections> {
   console.log(`[WOW Report] Rewriting all sections in Clive James voice for ${clientName}`);
 
+  // NOTE: fourPillars is excluded — it has a fixed analytical structure (4 pillars + combination)
+  // that must never be rewritten as free prose by style functions.
   const proseSections: Array<keyof WowReportSections> = [
     "summary",
     "lifeHistoryPattern",
-    "fourPillars",
     "viaSection",
     "personalitySection",
     "behaviouralStyle",
@@ -1248,10 +1249,11 @@ async function rewriteSectionsForMichaelLewis(
 ): Promise<WowReportSections> {
   console.log(`[WOW Report] Rewriting all sections in Michael Lewis voice for ${clientName}`);
 
+  // NOTE: fourPillars is excluded — it has a fixed analytical structure (4 pillars + combination)
+  // that must never be rewritten as free prose by style functions.
   const proseSections: Array<keyof WowReportSections> = [
     "summary",
     "lifeHistoryPattern",
-    "fourPillars",
     "viaSection",
     "personalitySection",
     "behaviouralStyle",
@@ -1412,10 +1414,11 @@ async function rewriteSectionsForOliverSacks(
 ): Promise<WowReportSections> {
   console.log(`[WOW Report] Rewriting all sections in Oliver Sacks voice for ${clientName}`);
 
+  // NOTE: fourPillars is excluded — it has a fixed analytical structure (4 pillars + combination)
+  // that must never be rewritten as free prose by style functions.
   const proseSections: Array<keyof WowReportSections> = [
     "summary",
     "lifeHistoryPattern",
-    "fourPillars",
     "viaSection",
     "personalitySection",
     "behaviouralStyle",
@@ -1545,10 +1548,11 @@ async function rewriteSectionsForZinsser(
   sections: WowReportSections,
   clientName: string,
 ): Promise<WowReportSections> {
+  // NOTE: fourPillars is excluded — it has a fixed analytical structure (4 pillars + combination)
+  // that must never be rewritten as free prose by style functions.
   const proseSections = [
     "summary",
     "lifeHistoryPattern",
-    "fourPillars",
     "viaSection",
     "personalitySection",
     "behaviouralStyle",

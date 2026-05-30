@@ -1477,3 +1477,9 @@
 - [x] Update parseFourPillars to recognise the exact 4-pillar headings and Combination section (headingAllcaps + headingSubtitle split, plain-paragraph synthesis)
 - [x] Update html-report.ts CH2B template to match the docx layout (ALLCAPS heading + em-dash subtitle, Learning label, examples, then Combination section with ruled separator)
 - [x] Update unit tests for parseFourPillars to reflect new format (10 tests, all pass)
+
+## CH2B — Four Conditions of Fulfilment: Rewrite Exclusion Fix
+
+- [x] Identified root cause: all 5 style rewrite functions (Mark, Clive James, Michael Lewis, Oliver Sacks, Zinsser) were overwriting the structured fourPillars markdown with free-prose narrative
+- [x] Removed "fourPillars" from proseSections arrays in all 5 rewrite functions and the shared deduplicateSections PROSE_KEYS
+- [x] fourPillars now passes through all style rewrites unchanged, preserving the PLACES/PEOPLE/PROBLEMS/PROCEDURES structure

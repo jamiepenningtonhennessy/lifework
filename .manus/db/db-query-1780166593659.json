@@ -1,0 +1,33 @@
+{
+  "query": "SELECT LEFT(rawOutput, 800) as raw_output_preview, durationMs, createdAt FROM report_generation_logs WHERE clientId = 1149902 AND sectionKey = 'fourPillars' ORDER BY createdAt DESC LIMIT 2;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 32u3a1hNYuu9Gj3.7d2282893346 --database kFbbE6kqNApXGDFpQJUGV7 --execute SELECT LEFT(rawOutput, 800) as raw_output_preview, durationMs, createdAt FROM report_generation_logs WHERE clientId = 1149902 AND sectionKey = 'fourPillars' ORDER BY createdAt DESC LIMIT 2;",
+  "rows": [
+    {
+      "raw_output_preview": "    \"example2\": \"Your experience at age sixteen, travelling through South America and learning Italian, was satisfying because it immersed you in new cultures and languages. You were \\\"extremely busy socially and at work\\\", indicating a high energy level in these dynamic, unfami",
+      "durationMs": "4885",
+      "createdAt": "2026-05-30 18:41:28"
+    },
+    {
+      "raw_output_preview": "  ",
+      "durationMs": "4427",
+      "createdAt": "2026-05-30 18:37:58"
+    }
+  ],
+  "messages": [
+    "{",
+    "  \"places\": {",
+    "    \"heading\": \"PLACES — Where Energy Was High\",",
+    "    \"learning\": \"You thrive in environments that offer newness, cultural difference, and the opportunity to quickly learn and integrate into a new social and intellectual hierarchy.\",",
+    "    \"example1\": \"At age five, playing with other children in a new school in India, you found fulfilment in exploring and loving the cultural differences of a new place. This early experience of adapting to a novel environment, despite being shy, was deeply satisfying.\",",
+    "{",
+    "  \"places\": {",
+    "    \"heading\": \"PLACES — Where Energy Was High\",",
+    "    \"learning\": \"You thrive in environments that offer newness, cultural difference, and the opportunity to quickly learn and integrate into a new social and intellectual hierarchy.\",",
+    "    \"example1\": \"At age five, playing with other children in a new school in India, you found fulfilment in exploring and loving the cultural differences of a new place. This early experience of adapting to new environments and learning quickly was deeply satisfying.\",",
+    "    \"example2\": \"Your university experience at Cambridge was fulfilling once you navigated the social and academic hierarchy, finding intellectual equals and engaging in stimulating conversations. You needed to understand where you fitted in before you could truly thrive.\"",
+    "  },"
+  ],
+  "stdout": "raw_output_preview\tdurationMs\tcreatedAt\n{\n  \"places\": {\n    \"heading\": \"PLACES — Where Energy Was High\",\n    \"learning\": \"You thrive in environments that offer newness, cultural difference, and the opportunity to quickly learn and integrate into a new social and intellectual hierarchy.\",\n    \"example1\": \"At age five, playing with other children in a new school in India, you found fulfilment in exploring and loving the cultural differences of a new place. This early experience of adapting to a novel environment, despite being shy, was deeply satisfying.\",\n    \"example2\": \"Your experience at age sixteen, travelling through South America and learning Italian, was satisfying because it immersed you in new cultures and languages. You were \\\"extremely busy socially and at work\\\", indicating a high energy level in these dynamic, unfami\t4885\t2026-05-30 18:41:28\n{\n  \"places\": {\n    \"heading\": \"PLACES — Where Energy Was High\",\n    \"learning\": \"You thrive in environments that offer newness, cultural difference, and the opportunity to quickly learn and integrate into a new social and intellectual hierarchy.\",\n    \"example1\": \"At age five, playing with other children in a new school in India, you found fulfilment in exploring and loving the cultural differences of a new place. This early experience of adapting to new environments and learning quickly was deeply satisfying.\",\n    \"example2\": \"Your university experience at Cambridge was fulfilling once you navigated the social and academic hierarchy, finding intellectual equals and engaging in stimulating conversations. You needed to understand where you fitted in before you could truly thrive.\"\n  },\n  \t4427\t2026-05-30 18:37:58\n",
+  "stderr": "",
+  "execution_time_ms": 270
+}
