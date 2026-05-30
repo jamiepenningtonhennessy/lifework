@@ -1,0 +1,25 @@
+{
+  "query": "SHOW TABLES LIKE '%client%'; SHOW TABLES LIKE '%profile%';",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 32u3a1hNYuu9Gj3.7d2282893346 --database kFbbE6kqNApXGDFpQJUGV7 --execute SHOW TABLES LIKE '%client%'; SHOW TABLES LIKE '%profile%';",
+  "rows": [
+    {
+      "Tables_in_kFbbE6kqNApXGDFpQJUGV7 (%client%)": "client_profiles"
+    },
+    {
+      "Tables_in_kFbbE6kqNApXGDFpQJUGV7 (%client%)": "historical_clients"
+    },
+    {
+      "Tables_in_kFbbE6kqNApXGDFpQJUGV7 (%client%)": "parallel_client_matches"
+    },
+    {
+      "Tables_in_kFbbE6kqNApXGDFpQJUGV7 (%client%)": "Tables_in_kFbbE6kqNApXGDFpQJUGV7 (%profile%)"
+    },
+    {
+      "Tables_in_kFbbE6kqNApXGDFpQJUGV7 (%client%)": "client_profiles"
+    }
+  ],
+  "messages": [],
+  "stdout": "Tables_in_kFbbE6kqNApXGDFpQJUGV7 (%client%)\nclient_profiles\nhistorical_clients\nparallel_client_matches\nTables_in_kFbbE6kqNApXGDFpQJUGV7 (%profile%)\nclient_profiles\n",
+  "stderr": "",
+  "execution_time_ms": 262
+}

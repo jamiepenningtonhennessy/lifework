@@ -146,6 +146,21 @@ async function startServer() {
     }
   }
 
+  // Reset any analysisStatus values stuck at 'in_progress' from a previous server crash/restart
+  try {
+    const db = await getDb();
+    if (db) {
+      const { clientProfiles } = await import("../../drizzle/schema");
+      const { eq } = await import("drizzle-orm");
+      await db.update(clientProfiles)
+        .set({ analysisStatus: "not_started" })
+        .where(eq(clientProfiles.analysisStatus, "in_progress"));
+      console.log("[startup] Cleared any stuck in_progress analysisStatus values");
+    }
+  } catch (e) {
+    console.warn("[startup] Could not clear stuck analysisStatus values:", e);
+  }
+
   server.listen(port, () => {
     console.log(`Server running on http://localhost:${port}/`);
   });
