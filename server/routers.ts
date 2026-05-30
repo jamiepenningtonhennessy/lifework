@@ -1302,8 +1302,14 @@ IMPORTANT: Be concise. Each summary: 2-3 sentences max (under 60 words). Each ex
       // Get client's userId to run analysis on their behalf
       const profile = await getClientProfileById(input.clientId);
       if (!profile) throw new TRPCError({ code: "NOT_FOUND" });
+      // If already running, don't start a second job
+      if (profile.analysisStatus === "in_progress") {
+        return { started: false, alreadyRunning: true };
+      }
       await updateClientProfile(profile.id, { analysisStatus: "in_progress" });
-
+      // Fire and forget — return immediately, run analysis in background
+      void (async () => {
+        try {
       const [messages, achievementsList, family, education, career, via, ipip] =
         await Promise.all([
           getInterviewMessages(profile.id),
@@ -1395,8 +1401,25 @@ Be specific, warm, and insightful. Use examples from their actual story.`;
         generatedAt: new Date(),
       });
 
-       await updateClientProfile(profile.id, { analysisStatus: "completed" });
-      return { success: true };
+      await updateClientProfile(profile.id, { analysisStatus: "completed" });
+        } catch (err) {
+          console.error(`[triggerAnalysis] Failed for client ${profile.id}:`, err);
+          await updateClientProfile(profile.id, { analysisStatus: "not_started" });
+        }
+      })();
+      return { started: true };
+    }),
+  getAnalysisStatus: counselorProcedure
+    .input(z.object({ clientId: z.number() }))
+    .query(async ({ input }) => {
+      const profile = await getClientProfileById(input.clientId);
+      if (!profile) throw new TRPCError({ code: "NOT_FOUND" });
+      const report = await getAnalysisReport(input.clientId);
+      return {
+        analysisStatus: profile.analysisStatus as "not_started" | "in_progress" | "completed",
+        hasReport: !!report?.fullReportMarkdown,
+        generatedAt: report?.generatedAt ?? null,
+      };
     }),
   // ─── Coach Notes ────────────────────────────────────────────────────────────
   saveCoachNotes: counselorProcedure

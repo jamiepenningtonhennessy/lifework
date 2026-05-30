@@ -1,0 +1,15 @@
+{
+  "query": "SELECT wowReportStatus, updatedAt, LEFT(wowReportPdfUrl, 120) as pdf_url FROM analysis_reports WHERE clientId = 1149902;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 32u3a1hNYuu9Gj3.7d2282893346 --database kFbbE6kqNApXGDFpQJUGV7 --execute SELECT wowReportStatus, updatedAt, LEFT(wowReportPdfUrl, 120) as pdf_url FROM analysis_reports WHERE clientId = 1149902;",
+  "rows": [
+    {
+      "wowReportStatus": "done",
+      "updatedAt": "2026-05-30 11:10:24",
+      "pdf_url": "https://d2xsxph8kpxj0f.cloudfront.net/107696804/kFbbE6kqNApXGDFpQJUGV7/wow-reports/client-1149902-1780139521544.pdf"
+    }
+  ],
+  "messages": [],
+  "stdout": "wowReportStatus\tupdatedAt\tpdf_url\ndone\t2026-05-30 11:10:24\thttps://d2xsxph8kpxj0f.cloudfront.net/107696804/kFbbE6kqNApXGDFpQJUGV7/wow-reports/client-1149902-1780139521544.pdf\n",
+  "stderr": "",
+  "execution_time_ms": 1052
+}

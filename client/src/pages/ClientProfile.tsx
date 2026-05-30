@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -60,12 +60,59 @@ export default function ClientProfile() {
   const { data: viaData } = trpc.via.getQuestions.useQuery();
   const strengthsMap = new Map(viaData?.strengths.map((s) => [s.id, s]) ?? []);
 
+  // ── Analysis polling state ──────────────────────────────────────────────────
+  const [isAnalysisPolling, setIsAnalysisPolling] = useState(false);
+  const analysisPollRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  const { data: analysisStatus } = trpc.counselor.getAnalysisStatus.useQuery(
+    { clientId },
+    { enabled: isAuthenticated && user?.role === "admin" && !!clientId, refetchInterval: false }
+  );
+
+  const stopAnalysisPolling = () => {
+    setIsAnalysisPolling(false);
+    if (analysisPollRef.current) clearInterval(analysisPollRef.current);
+  };
+
+  const startAnalysisPolling = () => {
+    setIsAnalysisPolling(true);
+    analysisPollRef.current = setInterval(async () => {
+      const fresh = await utils.counselor.getAnalysisStatus.fetch({ clientId });
+      if (fresh.analysisStatus === "completed") {
+        stopAnalysisPolling();
+        utils.counselor.getClientProfile.invalidate({ clientId });
+        utils.counselor.getAnalysisStatus.invalidate({ clientId });
+        toast.success("Analysis generated successfully.");
+      } else if (fresh.analysisStatus === "not_started") {
+        // Reset to not_started means it failed
+        stopAnalysisPolling();
+        toast.error("Analysis generation failed. Please try again.");
+      }
+    }, 5000);
+  };
+
+  // Resume polling if we mount and analysis is already in progress
+  useEffect(() => {
+    if (analysisStatus?.analysisStatus === "in_progress" && !isAnalysisPolling) {
+      startAnalysisPolling();
+    }
+  }, [analysisStatus?.analysisStatus]);
+
+  // Clean up on unmount
+  useEffect(() => {
+    return () => stopAnalysisPolling();
+  }, []);
+
   const triggerAnalysis = trpc.counselor.triggerAnalysis.useMutation({
-    onSuccess: () => {
-      toast.success("Analysis generated successfully.");
-      utils.counselor.getClientProfile.invalidate({ clientId });
+    onSuccess: (result) => {
+      if ((result as any).alreadyRunning) {
+        toast.info("Analysis is already being generated — please wait.");
+        startAnalysisPolling();
+        return;
+      }
+      startAnalysisPolling();
     },
-    onError: () => toast.error("Failed to generate analysis."),
+    onError: () => toast.error("Failed to start analysis generation."),
   });
 
   const saveNotes = trpc.counselor.saveNotes.useMutation({
@@ -239,15 +286,15 @@ export default function ClientProfile() {
               <Button
                 size="sm"
                 onClick={() => triggerAnalysis.mutate({ clientId })}
-                disabled={triggerAnalysis.isPending}
+                disabled={triggerAnalysis.isPending || isAnalysisPolling}
                 className="gap-1 bg-[var(--lw-gold)] hover:bg-[oklch(0.60 0.13 72)] text-white"
               >
-                {triggerAnalysis.isPending ? (
+                {(triggerAnalysis.isPending || isAnalysisPolling) ? (
                   <Loader2 className="w-3.5 h-3.5 animate-spin" />
                 ) : (
                   <RefreshCw className="w-3.5 h-3.5" />
                 )}
-                {data?.report ? "Regenerate Analysis" : "Generate Analysis"}
+                {isAnalysisPolling ? "Generating…" : data?.report ? "Regenerate Analysis" : "Generate Analysis"}
               </Button>
             </div>
           )}
@@ -841,11 +888,11 @@ export default function ClientProfile() {
                   <p className="text-muted-foreground mb-4">No analysis report generated yet.</p>
                   <Button
                     onClick={() => triggerAnalysis.mutate({ clientId })}
-                    disabled={triggerAnalysis.isPending}
+                    disabled={triggerAnalysis.isPending || isAnalysisPolling}
                     className="bg-[var(--lw-gold)] hover:bg-[oklch(0.60 0.13 72)] text-white gap-2"
                   >
-                    {triggerAnalysis.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Brain className="w-4 h-4" />}
-                    Generate Analysis
+                    {(triggerAnalysis.isPending || isAnalysisPolling) ? <Loader2 className="w-4 h-4 animate-spin" /> : <Brain className="w-4 h-4" />}
+                    {isAnalysisPolling ? "Generating…" : "Generate Analysis"}
                   </Button>
                 </div>
               ) : (

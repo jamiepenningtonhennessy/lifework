@@ -1,0 +1,16 @@
+{
+  "query": "\nSELECT \n  wowReportStatus,\n  updatedAt,\n  LEFT(wowReportPdfUrl, 120) as pdf_url,\n  LEFT(JSON_EXTRACT(wowReportJson, '$.fourPillars'), 200) as fourPillars_preview\nFROM analysis_reports\nWHERE clientId = 1149902;\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 32u3a1hNYuu9Gj3.7d2282893346 --database kFbbE6kqNApXGDFpQJUGV7 --execute \nSELECT \n  wowReportStatus,\n  updatedAt,\n  LEFT(wowReportPdfUrl, 120) as pdf_url,\n  LEFT(JSON_EXTRACT(wowReportJson, '$.fourPillars'), 200) as fourPillars_preview\nFROM analysis_reports\nWHERE clientId = 1149902;\n",
+  "rows": [
+    {
+      "wowReportStatus": "done",
+      "updatedAt": "2026-05-30 11:00:47",
+      "pdf_url": "https://d2xsxph8kpxj0f.cloudfront.net/107696804/kFbbE6kqNApXGDFpQJUGV7/wow-reports/client-1149902-1780138979722.pdf",
+      "fourPillars_preview": "\"## Your Operating System\\n\\nYou thrive where you can impose intellectual order on existing structures, whether they're physical or conceptual. From lining up dolls \\\"as if in a plane or in school\\\" a"
+    }
+  ],
+  "messages": [],
+  "stdout": "wowReportStatus\tupdatedAt\tpdf_url\tfourPillars_preview\ndone\t2026-05-30 11:00:47\thttps://d2xsxph8kpxj0f.cloudfront.net/107696804/kFbbE6kqNApXGDFpQJUGV7/wow-reports/client-1149902-1780138979722.pdf\t\"## Your Operating System\\n\\nYou thrive where you can impose intellectual order on existing structures, whether they're physical or conceptual. From lining up dolls \\\"as if in a plane or in school\\\" a\n",
+  "stderr": "",
+  "execution_time_ms": 296
+}
