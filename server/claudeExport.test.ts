@@ -449,6 +449,14 @@ The practical question this raises is not 'what field should I work in?' but rat
     expect(result.pillars[1].heading).toBe("People \u2014 Who You Work Best With");
   });
 
+  it("splits heading into ALLCAPS and subtitle", () => {
+    const result = parseFourPillars(SAMPLE);
+    expect(result.pillars[0].headingAllcaps).toBe("PLACES");
+    expect(result.pillars[0].headingSubtitle).toBe("Where Energy Was High");
+    expect(result.pillars[1].headingAllcaps).toBe("PEOPLE");
+    expect(result.pillars[1].headingSubtitle).toBe("Who You Work Best With");
+  });
+
   it("extracts learning sentences from each pillar", () => {
     const result = parseFourPillars(SAMPLE);
     expect(result.pillars[0].learning).toContain("intellectual rigour");
@@ -481,6 +489,13 @@ The practical question this raises is not 'what field should I work in?' but rat
     expect(result.pillars).toHaveLength(0);
     expect(result.combination.synthesis).toBe("");
     expect(result.citation).toBe("");
+  });
+
+  it("headingAllcaps is empty string for heading without em-dash", () => {
+    const simple = `## PLACES\n\nLearning: You thrive in open spaces.\n\nExample paragraph here.\n`;
+    const result = parseFourPillars(simple);
+    expect(result.pillars[0].headingAllcaps).toBe("PLACES");
+    expect(result.pillars[0].headingSubtitle).toBe("");
   });
 
   it("HAS_CONTENT is truthy when pillars are present", () => {

@@ -587,7 +587,7 @@ Write directly to the client using "you" and "your" throughout. Do NOT include a
       const t0 = Date.now();
       const apiUrl = (process.env.BUILT_IN_FORGE_API_URL ?? "https://forge.manus.im").replace(/\/$/, "");
       const apiKey = process.env.BUILT_IN_FORGE_API_KEY ?? "";
-      const fpUserPrompt = `${ctx}\n\n--- CANONICAL LIFE HISTORY ANALYSIS (authoritative interpretation — use this as the primary source of pattern evidence) ---\n${lifeHistoryPattern}\n--- END CANONICAL LIFE HISTORY ANALYSIS ---\n\nYou are writing the 4 Pillars of Fulfilment chapter of the Lifework report for this client. Apply the Savickas career construction framework to identify the four conditions under which this person consistently experiences energy, engagement, and meaning.\n\nFor each of the four pillars (Places, People, Problems, Procedures), provide:\n- heading: the exact pillar heading (e.g. "Places — Where Energy Was High")\n- learning: a single direct sentence (no "Learning:" prefix — that will be added) stating the core insight, grounded in evidence\n- example1: a short paragraph (3-4 lines) — a specific example from the life history illustrating the learning. Use direct quotes from achievement descriptions where available.\n- example2: a second short paragraph (3-4 lines) — a different specific example. Do NOT repeat examples between pillars.\n\nFor the combination section:\n- synthesis: a single paragraph that synthesises all four pillars into a description of the conditions under which this person is most alive. Bold the key phrases using **bold**.\n- practical_question: a single paragraph (3-4 lines) stating the practical question this analysis raises — not "what field should I work in" but the specific question that follows from this person's particular combination of pillars.\n\nCRITICAL RULES:\n- Draw primarily from the raw achievement data and the canonical life history analysis above\n- Write directly to the client using "you" and "your" throughout\n- Do NOT use hollow superlatives or management jargon\n- British spellings throughout`;
+      const fpUserPrompt = `${ctx}\n\n--- CANONICAL LIFE HISTORY ANALYSIS (authoritative interpretation — use this as the primary source of pattern evidence) ---\n${lifeHistoryPattern}\n--- END CANONICAL LIFE HISTORY ANALYSIS ---\n\nYou are writing the Four Conditions of Fulfilment chapter of the Lifework report for this client. This chapter applies the Savickas career construction framework to identify the four conditions under which this person consistently experiences energy, engagement, and meaning.\n\nThe chapter has a strict, fixed structure. You must produce exactly four pillars in this order: Places, People, Problems, Procedures.\n\nFor each of the four pillars, provide:\n- heading: use EXACTLY these headings (do not vary them):\n  places heading: "PLACES — Where Energy Was High"\n  people heading: "PEOPLE — Who Was Present, and in What Role"\n  problems heading: "PROBLEMS — The Nature of the Challenge"\n  procedures heading: "PROCEDURES — How the Work Was Done"\n- learning: a single direct sentence stating the core insight for that pillar, grounded in evidence from the life history. This will be prefixed with "Learning:" in the report — do NOT include the word "Learning:" in your response.\n- example1: a paragraph (3-5 sentences) — a specific, named example from the life history illustrating the learning. Use direct quotes from achievement descriptions where available. Name the specific event, age, or context.\n- example2: a second paragraph (3-5 sentences) — a different specific example from a different period of the life. Do NOT repeat the same event used in example1 or in other pillars.\n\nFor the combination section:\n- synthesis: a single paragraph beginning "You are most alive when..." that synthesises all four pillars into a description of the precise conditions under which this person is most fully themselves. Do NOT use bold markers.\n- practical_question: a single paragraph (3-5 sentences) stating the practical question this analysis raises. It must begin with "The practical question is not..." and reframe the career question in terms specific to this person's combination of pillars.\n\nCRITICAL RULES:\n- Draw primarily from the raw achievement data and the canonical life history analysis above\n- Write directly to the client using "you" and "your" throughout\n- Each pillar must be grounded in named, specific examples — no generalisations\n- Do NOT repeat the same example across different pillars\n- Do NOT use hollow superlatives, management jargon, or abstract claims\n- British spellings throughout\n- The four pillars must be genuinely distinct — Places is about environments, People is about relationships and roles, Problems is about the nature of challenges, Procedures is about method and working style`;
       const fpResp = await fetch(`${apiUrl}/v1/chat/completions`, {
         method: "POST",
         headers: { "content-type": "application/json", authorization: `Bearer ${apiKey}` },
@@ -682,33 +682,33 @@ Write directly to the client using "you" and "your" throughout. Do NOT include a
       };
       // Assemble the exact markdown format
       const assembledFourPillars = [
-        `## ${fp.places.heading}`,
+        `## PLACES — Where Energy Was High`,
         ``,
-        `**Learning:** ${fp.places.learning}`,
+        `Learning: ${fp.places.learning}`,
         ``,
         fp.places.example1,
         ``,
         fp.places.example2,
         ``,
-        `## ${fp.people.heading}`,
+        `## PEOPLE — Who Was Present, and in What Role`,
         ``,
-        `**Learning:** ${fp.people.learning}`,
+        `Learning: ${fp.people.learning}`,
         ``,
         fp.people.example1,
         ``,
         fp.people.example2,
         ``,
-        `## ${fp.problems.heading}`,
+        `## PROBLEMS — The Nature of the Challenge`,
         ``,
-        `**Learning:** ${fp.problems.learning}`,
+        `Learning: ${fp.problems.learning}`,
         ``,
         fp.problems.example1,
         ``,
         fp.problems.example2,
         ``,
-        `## ${fp.procedures.heading}`,
+        `## PROCEDURES — How the Work Was Done`,
         ``,
-        `**Learning:** ${fp.procedures.learning}`,
+        `Learning: ${fp.procedures.learning}`,
         ``,
         fp.procedures.example1,
         ``,
@@ -716,11 +716,11 @@ Write directly to the client using "you" and "your" throughout. Do NOT include a
         ``,
         `## The Combination`,
         ``,
-        `> ${fp.combination.synthesis}`,
+        fp.combination.synthesis,
         ``,
         fp.combination.practical_question,
         ``,
-        `*Based on Savickas, M.L. (2011). Career Counseling. APA.*`,
+        `Based on Savickas, M.L. (2011). Career Counseling. APA.`,
       ].join("\n");
       insertReportGenerationLog({
         clientId,

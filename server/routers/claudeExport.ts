@@ -236,11 +236,13 @@ function extractAllSections(text: string): Array<{ heading: string; paragraphs: 
 
 /**
  * Parse the fourPillars markdown into a structured object for the HTML report.
- * Each pillar section has: heading, learning sentence, and example paragraphs.
- * The Combination section has: synthesis (blockquote) and practical_question.
+ * Each pillar section has: heading (full), headingAllcaps (e.g. "PLACES"), headingSubtitle (e.g. "Where Energy Was High"),
+ * learning sentence, and example paragraphs.
+ * The Combination section has: synthesis and practical_question (both plain paragraphs).
+ * Citation is a plain text line.
  */
 export function parseFourPillars(text: string): {
-  pillars: Array<{ heading: string; learning: string; examples: string[] }>;
+  pillars: Array<{ heading: string; headingAllcaps: string; headingSubtitle: string; learning: string; examples: string[] }>;
   combination: { synthesis: string; practical_question: string };
   citation: string;
 } {
@@ -266,48 +268,58 @@ export function parseFourPillars(text: string): {
     sections.push({ heading: currentHeading, lines: [...currentLines] });
   }
 
-  const pillars: Array<{ heading: string; learning: string; examples: string[] }> = [];
+  const pillars: Array<{ heading: string; headingAllcaps: string; headingSubtitle: string; learning: string; examples: string[] }> = [];
   let combination = { synthesis: "", practical_question: "" };
   let citation = "";
 
   for (const section of sections) {
     const headingLower = section.heading.toLowerCase();
     if (headingLower === "the combination" || headingLower.includes("combination")) {
-      // Extract blockquote (synthesis) and remaining paragraphs (practical question)
-      const blockquoteLines: string[] = [];
-      const otherLines: string[] = [];
-      let inBlockquote = false;
-      for (const l of section.lines) {
-        if (l.trim().startsWith("> ")) {
-          blockquoteLines.push(l.trim().replace(/^>\s*/, ""));
-          inBlockquote = true;
-        } else if (l.trim() === "" && inBlockquote) {
-          inBlockquote = false;
-        } else if (!inBlockquote && l.trim() !== "") {
-          otherLines.push(l.trim());
-        }
-      }
+      // Combination section: two plain paragraphs (synthesis + practical question)
+      const paras = splitParagraphs(section.lines.join("\n"));
+      const nonCitation = paras.filter(p => !p.includes("Savickas") && !p.startsWith("Based on"));
       combination = {
-        synthesis: stripMarkdownInline(blockquoteLines.join(" ").trim()),
-        practical_question: stripMarkdownInline(otherLines.filter(l => !l.startsWith("*Based on")).join(" ").trim()),
+        synthesis: stripMarkdownInline((nonCitation[0] ?? "").trim()),
+        practical_question: stripMarkdownInline((nonCitation[1] ?? "").trim()),
       };
       // Extract citation
       const citLine = section.lines.find(l => l.includes("Savickas") || l.includes("Based on"));
       if (citLine) citation = stripMarkdownInline(citLine.trim().replace(/^\*|\*$/g, "").trim());
     } else if (section.heading) {
-      // Pillar section: extract Learning sentence and example paragraphs
+      // Pillar section: split heading into ALLCAPS part and subtitle
+      // Expected format: "PLACES — Where Energy Was High" or "Places — Where Energy Was High"
+      const dashIdx = section.heading.indexOf("—");
+      const headingAllcaps = dashIdx >= 0
+        ? section.heading.slice(0, dashIdx).trim().toUpperCase()
+        : section.heading.toUpperCase();
+      const headingSubtitle = dashIdx >= 0
+        ? section.heading.slice(dashIdx + 1).trim()
+        : "";
+
+      // Extract Learning sentence and example paragraphs
       const paras = splitParagraphs(section.lines.join("\n"));
       let learning = "";
       const examples: string[] = [];
       for (const para of paras) {
         const stripped = para.trim();
         if (stripped.toLowerCase().startsWith("learning:")) {
-          learning = stripped.replace(/^\*?\*?[Ll]earning:\*?\*?\s*/, "").trim();
+          learning = stripMarkdownInline(stripped.replace(/^\*?\*?[Ll]earning:\*?\*?\s*/, "").trim());
         } else if (stripped.length > 0) {
-          examples.push(stripped);
+          examples.push(stripMarkdownInline(stripped));
         }
       }
-      pillars.push({ heading: section.heading, learning, examples });
+      pillars.push({ heading: section.heading, headingAllcaps, headingSubtitle, learning, examples });
+    }
+  }
+
+  // If citation not found in Combination, look for it at the end of the text
+  if (!citation) {
+    const lastLines = text.split("\n").reverse();
+    for (const l of lastLines) {
+      if (l.includes("Savickas") || l.includes("Based on")) {
+        citation = stripMarkdownInline(l.trim().replace(/^\*|\*$/g, "").trim());
+        break;
+      }
     }
   }
 
@@ -1038,6 +1050,8 @@ export async function buildClaudeExportJson(clientId: number): Promise<Record<st
       return {
         PILLARS: fp.pillars.map(p => ({
           HEADING: p.heading,
+          HEADING_ALLCAPS: p.headingAllcaps,
+          HEADING_SUBTITLE: p.headingSubtitle,
           LEARNING: p.learning,
           EXAMPLES: p.examples,
         })),

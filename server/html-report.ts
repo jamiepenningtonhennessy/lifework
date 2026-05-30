@@ -287,9 +287,15 @@ h1.display em { color: var(--gold); font-style: italic; }
 h2.chap-title { font-size: 40px; line-height: 1.1; margin: 14px 0 0; }
 h2.chap-title em { color: var(--gold); font-style: italic; }
 h3.section-h { font-size: 22px; font-weight: 600; margin: 28px 0 10px; color: var(--navy); }
-p.pillar-learning { font-family: var(--serif); font-style: italic; font-size: 16px; color: var(--navy-soft); margin: 0 0 12px; }
-p.pillar-learning strong { font-style: normal; font-weight: 700; color: var(--navy); }
-blockquote.pillar-synthesis { border-left: 3px solid var(--gold); margin: 20px 0 16px; padding: 10px 0 10px 20px; font-family: var(--serif); font-style: italic; font-size: 16px; color: var(--navy-soft); }
+/* Pillar heading: ALLCAPS part bold navy, em-dash subtitle in smaller weight */
+h3.pillar-h { font-family: var(--sans); font-size: 13px; font-weight: 700; letter-spacing: 0.22em; text-transform: uppercase; color: var(--navy); margin: 32px 0 0; }
+h3.pillar-h span.pillar-subtitle { font-weight: 400; letter-spacing: 0.05em; text-transform: none; color: var(--navy-soft); font-size: 13px; }
+/* Learning line: italic serif, "Learning:" label in roman */
+p.pillar-learning { font-family: var(--serif); font-style: italic; font-size: 16px; color: var(--navy-soft); margin: 8px 0 12px; }
+p.pillar-learning span.learning-label { font-style: normal; font-weight: 700; color: var(--navy); }
+/* Combination section */
+h3.combination-h { font-family: var(--sans); font-size: 13px; font-weight: 700; letter-spacing: 0.22em; text-transform: uppercase; color: var(--navy); margin: 36px 0 12px; border-top: 1px solid var(--rule); padding-top: 24px; }
+p.combination-synthesis { font-family: var(--serif); font-style: italic; font-size: 16px; color: var(--navy-soft); margin: 0 0 14px; }
 p.pillar-citation { font-size: 12px; color: var(--ink-muted); margin-top: 20px; }
 h4.sub-h { font-size: 14px; font-weight: 600; font-family: var(--sans); letter-spacing: 0.22em; text-transform: uppercase; color: var(--ink-muted); margin: 24px 0 10px; }
 p { margin: 0 0 14px; font-size: 15.5px; line-height: 1.58; color: var(--ink); }
@@ -629,21 +635,22 @@ const TEMPLATE = `<!doctype html>
 <section class="page">
   <header class="ph-top">
     <span class="lockup"><span class="mark"></span>Lifework</span>
-    <span>Chapter 2b · 4 Pillars of Fulfilment</span>
+    <span>Chapter 2b · Four Conditions of Fulfilment</span>
   </header>
   <div class="ph-body">
     <span class="kicker">Chapter 02b</span>
-    <h2 class="chap-title">4 Pillars of <em>Fulfilment.</em></h2>
+    <h2 class="chap-title">Four Conditions of <em>Fulfilment.</em></h2>
+    <p style="font-family:var(--serif);font-style:italic;font-size:15px;color:var(--navy-soft);margin:0 0 20px;">Mark Savickas argues that the richest career intelligence is not in what a person did, but in what was present when they felt most alive doing it. Four lenses — Places, People, Problems, Procedures — reveal the conditions under which energy, engagement, and meaning consistently appear.</p>
     {{#EACH CH2B.PILLARS}}
-    <h3 class="section-h">{{.HEADING}}</h3>
-    {{#IF .LEARNING}}<p class="pillar-learning"><strong>Learning:</strong> {{.LEARNING}}</p>{{/IF}}
+    <h3 class="pillar-h">{{.HEADING_ALLCAPS}}{{#IF .HEADING_SUBTITLE}} <span class="pillar-subtitle">— {{.HEADING_SUBTITLE}}</span>{{/IF}}</h3>
+    {{#IF .LEARNING}}<p class="pillar-learning"><span class="learning-label">Learning:</span> {{.LEARNING}}</p>{{/IF}}
     {{#EACH .EXAMPLES}}
     <p>{{.}}</p>
     {{/EACH}}
     {{/EACH}}
     {{#IF CH2B.COMBINATION_SYNTHESIS}}
-    <h3 class="section-h">The Combination</h3>
-    <blockquote class="pillar-synthesis">{{CH2B.COMBINATION_SYNTHESIS}}</blockquote>
+    <h3 class="combination-h">The Combination</h3>
+    <p class="combination-synthesis">{{CH2B.COMBINATION_SYNTHESIS}}</p>
     {{#IF CH2B.COMBINATION_QUESTION}}<p>{{CH2B.COMBINATION_QUESTION}}</p>{{/IF}}
     {{/IF}}
     {{#IF CH2B.CITATION}}<p class="pillar-citation"><em>{{CH2B.CITATION}}</em></p>{{/IF}}

@@ -1471,3 +1471,9 @@
 - [x] Update html-report.ts CH2B template: replace old PARAGRAPHS/SECTIONS guards with HAS_CONTENT/PILLARS/COMBINATION_SYNTHESIS/COMBINATION_QUESTION/CITATION
 - [x] Add pillar-learning, pillar-synthesis, pillar-citation CSS styles to html-report.ts inlined CSS
 - [x] Export parseFourPillars from claudeExport.ts and add 8 unit tests to claudeExport.test.ts (all 231 tests pass)
+
+## CH 2B — 4 Pillars Format Rewrite
+- [x] Rewrite CH2B LLM prompt: produce exactly 4 named pillars (PLACES, PEOPLE, PROBLEMS, PROCEDURES) each with Learning sentence + example paragraphs, followed by The Combination section (synthesis paragraph + practical question paragraph) + citation
+- [x] Update parseFourPillars to recognise the exact 4-pillar headings and Combination section (headingAllcaps + headingSubtitle split, plain-paragraph synthesis)
+- [x] Update html-report.ts CH2B template to match the docx layout (ALLCAPS heading + em-dash subtitle, Learning label, examples, then Combination section with ruled separator)
+- [x] Update unit tests for parseFourPillars to reflect new format (10 tests, all pass)
