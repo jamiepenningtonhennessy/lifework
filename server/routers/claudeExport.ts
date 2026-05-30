@@ -954,6 +954,11 @@ export async function buildClaudeExportJson(clientId: number): Promise<Record<st
       },
     },
     CH2B: {
+      SECTIONS: extractAllSections(sections.fourPillars ?? "").map(s => ({
+        HEADING: s.heading,
+        PARAGRAPHS: s.paragraphs,
+      })),
+      // Flat paragraphs used for the IF guard (non-empty check)
       PARAGRAPHS: splitParagraphs(sections.fourPillars ?? ""),
     },
     CH3: {

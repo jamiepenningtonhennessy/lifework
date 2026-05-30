@@ -630,8 +630,11 @@ const TEMPLATE = `<!doctype html>
   <div class="ph-body">
     <span class="kicker">Chapter 02b</span>
     <h2 class="chap-title">4 Pillars of <em>Fulfilment.</em></h2>
-    {{#EACH CH2B.PARAGRAPHS}}
+    {{#EACH CH2B.SECTIONS}}
+    <h3 class="section-h">{{.HEADING}}</h3>
+    {{#EACH .PARAGRAPHS}}
     <p>{{.}}</p>
+    {{/EACH}}
     {{/EACH}}
   </div>
   <footer class="ph-bot">
