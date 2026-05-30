@@ -388,10 +388,14 @@ export async function upsertAnalysisReport(
   // ON DUPLICATE KEY UPDATE, which causes the row to appear unchanged even when
   // data has changed (updatedAt stays stale, wowReportPdfUrl not overwritten).
   const { id: _id, ...updateSet } = data as typeof data & { id?: number };
-  await db
+  const clientIdForLog = (data as { clientId?: number }).clientId;
+  console.log(`[upsertAnalysisReport] Saving for clientId=${clientIdForLog}, keys=${Object.keys(updateSet).join(',')}, pdfUrl=${(updateSet as Record<string,unknown>).wowReportPdfUrl ?? 'n/a'}`);
+  const result = await db
     .insert(analysisReports)
     .values(data)
     .onDuplicateKeyUpdate({ set: updateSet });
+  console.log(`[upsertAnalysisReport] Done for clientId=${clientIdForLog}, affectedRows=${(result as unknown as {affectedRows?: number}[])[0]?.affectedRows ?? 'unknown'}`);
+  return result;
 }
 
 /** Store (or overwrite) the canonical Stage 1 Dependable Strengths output for a client. */

@@ -1,0 +1,9 @@
+{
+  "query": "UPDATE analysis_reports SET wowReportPdfUrl = 'https://d2xsxph8kpxj0f.cloudfront.net/107696804/kFbbE6kqNApXGDFpQJUGV7/wow-reports/client-1149902-1780141143510.pdf' WHERE clientId = 1149902;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 32u3a1hNYuu9Gj3.7d2282893346 --database kFbbE6kqNApXGDFpQJUGV7 --execute UPDATE analysis_reports SET wowReportPdfUrl = 'https://d2xsxph8kpxj0f.cloudfront.net/107696804/kFbbE6kqNApXGDFpQJUGV7/wow-reports/client-1149902-1780141143510.pdf' WHERE clientId = 1149902;",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 261
+}

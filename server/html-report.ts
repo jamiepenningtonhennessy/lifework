@@ -620,6 +620,27 @@ const TEMPLATE = `<!doctype html>
   </footer>
 </section>
 
+<!-- ════════ PAGE 5b · CH 2B 4 PILLARS OF FULFILMENT ════════ -->
+{{#IF CH2B.PARAGRAPHS.0}}
+<section class="page">
+  <header class="ph-top">
+    <span class="lockup"><span class="mark"></span>Lifework</span>
+    <span>Chapter 2b · 4 Pillars of Fulfilment</span>
+  </header>
+  <div class="ph-body">
+    <span class="kicker">Chapter 02b</span>
+    <h2 class="chap-title">4 Pillars of <em>Fulfilment.</em></h2>
+    {{#EACH CH2B.PARAGRAPHS}}
+    <p>{{.}}</p>
+    {{/EACH}}
+  </div>
+  <footer class="ph-bot">
+    <span class="who">{{CLIENT.NAME}}</span>
+    <span class="pageno">{{BRAND.COMPANY}} · <span class="cur">05b</span></span>
+  </footer>
+</section>
+{{/IF}}
+
 <!-- ════════ PAGE 6 · CH 3 VIA — RANKING ════════ -->
 <section class="page">
   <header class="ph-top">

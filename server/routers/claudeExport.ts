@@ -575,6 +575,7 @@ export async function buildClaudeExportJson(clientId: number): Promise<Record<st
     careerDirections: string;
     developmentEdge: string;
     coachingQuestions: string;
+    fourPillars?: string;
     viaRanked: Array<{ name: string; score: number; rank: number }>;
     domainScores: Record<string, number>;
     facetScores: Record<string, number>;
@@ -951,6 +952,9 @@ export async function buildClaudeExportJson(clientId: number): Promise<Record<st
         // Last paragraph is the ESF distribution sentence
         ESF_PARA: ch2KeyFindings.length > 1 ? ch2KeyFindings[ch2KeyFindings.length - 1] : (ch2KeyFindings[0] ?? ""),
       },
+    },
+    CH2B: {
+      PARAGRAPHS: splitParagraphs(sections.fourPillars ?? ""),
     },
     CH3: {
       LEDE: ch3Lede,
