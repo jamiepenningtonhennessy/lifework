@@ -7,8 +7,13 @@ import {
 } from "./routers/blogWriter";
 
 describe("Blog Writing Machine — taxonomy contract", () => {
-  it("exports at least 5 post types", () => {
-    expect(POST_TYPES.length).toBeGreaterThanOrEqual(5);
+  it("exports at least 13 post types including Lifework-specific archetypes", () => {
+    expect(POST_TYPES.length).toBeGreaterThanOrEqual(13);
+    const ids = POST_TYPES.map((p) => p.id);
+    expect(ids).toContain("process-explainer");
+    expect(ids).toContain("myth-correction");
+    expect(ids).toContain("report-insight");
+    expect(ids).toContain("human-and-ai");
   });
 
   it("exports at least 10 Lifework aspects", () => {
@@ -60,5 +65,21 @@ describe("Blog Writing Machine — taxonomy contract", () => {
     expect(LIFEWORK_BLOG_CANON).toContain("Future");
     expect(LIFEWORK_BLOG_CANON).toContain("Wow Report");
     expect(LIFEWORK_BLOG_CANON).toContain("compass, not a prescription");
+  });
+
+  it("canon contains correct AI/counsellor relationship language", () => {
+    // Must not imply AI is sovereign; must include human synthesis
+    expect(LIFEWORK_BLOG_CANON).toContain("Sage");
+    expect(LIFEWORK_BLOG_CANON).toContain("counsellor");
+    expect(LIFEWORK_BLOG_CANON).toContain("lenses, not labels");
+  });
+
+  it("all new Lifework-specific post types have non-empty labels", () => {
+    const newTypes = ["process-explainer", "myth-correction", "report-insight", "human-and-ai"];
+    for (const id of newTypes) {
+      const found = POST_TYPES.find((p) => p.id === id);
+      expect(found, `Post type '${id}' should exist`).toBeDefined();
+      expect(found!.label.length).toBeGreaterThan(0);
+    }
   });
 });

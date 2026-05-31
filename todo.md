@@ -1483,3 +1483,13 @@
 - [x] Identified root cause: all 5 style rewrite functions (Mark, Clive James, Michael Lewis, Oliver Sacks, Zinsser) were overwriting the structured fourPillars markdown with free-prose narrative
 - [x] Removed "fourPillars" from proseSections arrays in all 5 rewrite functions and the shared deduplicateSections PROSE_KEYS
 - [x] fourPillars now passes through all style rewrites unchanged, preserving the PLACES/PEOPLE/PROBLEMS/PROCEDURES structure
+
+## Blog Writer — Lifework Canon Integration
+
+- [ ] Add LIFEWORK_BLOG_CANON constant to blogWriter.ts with the full canon text
+- [ ] Inject canon into the generation system prompt so every post is grounded in Lifework methodology
+- [ ] Add hard-constraint rules to the system prompt (no overclaiming, no AI-as-oracle, no invented testimonials)
+- [ ] Add quality-control self-check step to the generation prompt
+- [ ] Add Lifework-specific post archetypes to POST_TYPES taxonomy (process-explainer, myth-correction, report-insight, human-and-ai)
+- [ ] Enhance ASPECT_CONTEXT entries with canon-accurate language for all 11 aspects
+- [ ] Update blogWriter.test.ts to enforce canon knowledge is present and exported

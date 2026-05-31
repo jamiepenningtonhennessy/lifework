@@ -56,6 +56,10 @@ export const POST_TYPES = [
   { id: "work-returner", label: "Work returner" },
   { id: "made-redundant", label: "Made redundant" },
   { id: "approaching-retirement", label: "Approaching retirement" },
+  { id: "process-explainer", label: "Process explainer" },
+  { id: "myth-correction", label: "Myth correction" },
+  { id: "report-insight", label: "Report insight" },
+  { id: "human-and-ai", label: "Human and AI clarification" },
 ] as const;
 
 export const LIFEWORK_ASPECTS = [
@@ -167,32 +171,40 @@ const POST_TYPE_INSTRUCTIONS: Record<PostTypeId, string> = {
   "made-redundant": `Frame this post for someone who has recently been made redundant. Write as a coach who takes the emotional weight of redundancy seriously — the shock, the identity disruption, the temptation to rush into the first available role — before making the case for using this moment to think more carefully about what they actually want. The tone should be honest and grounded, not relentlessly upbeat.`,
 
   "approaching-retirement": `Frame this post for someone in their late fifties or early sixties who is beginning to think about the transition out of full-time work. Write as a coach who understands that this transition is as much about identity and purpose as it is about finance or logistics. Address the question of what comes next — not as a wind-down but as a potential reorientation toward what has always mattered most. The tone should be thoughtful and unhurried.`,
+
+  "process-explainer": `Explain one specific part of the Lifework journey in plain, accurate English — what it is, why it exists, and what it reveals. The aim is to demystify the process for someone who has not been through it. Choose one element: the life-history interview, the Emotions/Skills/Values frame, the VIA Character Strengths survey, the Big Five/IPIP-NEO profile, Sage's reflective questioning, or the counsellor synthesis. Do not try to explain everything at once. Be precise about what that element does and does not do. The tone should be clear, confident, and non-promotional.`,
+
+  "myth-correction": `Challenge one common misconception about career change, career assessment, or career coaching — and use Lifework's actual method as the corrective. Name the myth clearly and fairly before dismantling it. The contrast should be specific: what most tools do versus what Lifework does differently. Avoid vague superiority claims. Ground the correction in a real feature of the Lifework process. The tone should be honest, direct, and intellectually confident without being dismissive.`,
+
+  "report-insight": `Explain what the Lifework Wow Report is — and, just as importantly, what it is not. It is not a personality verdict, not a computer-generated job list, not a test result. It is an interpretive synthesis of life-history evidence, achievement stories, psychometric lenses, reflective dialogue, and counsellor judgement. Describe one specific element of the report — the life-history pattern, the character strengths analysis, the development edge, or the career directions — and explain what it offers the reader. The tone should be thoughtful and precise.`,
+
+  "human-and-ai": `Clarify the relationship between Sage (the AI career coach) and the human counsellor in the Lifework process. Sage helps the client reflect, organise material, and notice the pattern; the counsellor performs the human work of synthesis, challenge, interpretation, and care. The post should be honest about what AI does well in this context and clear about what it cannot replace. Avoid both AI-scepticism and AI-hype. The tone should be measured, accurate, and reassuring to thoughtful professionals who may be uncertain about the role of AI in a coaching context.`,
 };
 
 // ─── Aspect context ───────────────────────────────────────────────────────────
 
 const ASPECT_CONTEXT: Record<AspectId, string> = {
-  "reflective-process": `The Lifework process requires the participant to reflect carefully on their whole life — not just their career — and to revisit experiences they may not have thought about for years. This reflective work is unusual in career coaching and is central to the quality of the analysis that follows.`,
+  "reflective-process": `The Lifework life-history interview is not a CV review. It explores moments of achievement and aliveness across the person's whole life — childhood, education, early work, later career, family life, community roles, creative pursuits, difficult transitions. The interpretive frame is Emotions, Skills, and Values: what the person felt, what they actually did, what skills appeared, what values were expressed, and what conditions allowed them to be at their best. These details become evidence for recurring patterns. The reflective work is unusual in career coaching and is central to the quality of everything that follows.`,
 
-  "psychometric-underpinnings": `Lifework draws on two well-established psychometric frameworks: the VIA Character Strengths Survey (developed by Martin Seligman and Christopher Peterson as part of positive psychology) and the Big Five personality model (OCEAN), using the IPIP-NEO instrument. These are combined with a structured life history analysis rooted in Bernard Haldane's Dependable Strengths methodology.`,
+  "psychometric-underpinnings": `Lifework uses two validated psychometric frameworks as lenses, not labels. The VIA Character Strengths Survey (Martin Seligman and Christopher Peterson, positive psychology) and the Big Five personality model (OCEAN), using the IPIP-NEO instrument, are applied after the life-history work — not instead of it. They are supplementary views on the same underlying evidence: they may confirm, challenge, sharpen, or complicate the patterns already visible in the achievement stories. Questionnaires can be useful lenses; they are not the foundation.`,
 
-  "personal-feedback": `One of the distinctive features of Lifework is that all psychometric results are held back from the participant until they are presented in a live coaching session. This means the data is always contextualised by the counsellor, who can relate it to the participant's own life history and help them understand what the numbers actually mean for them specifically.`,
+  "personal-feedback": `One of the distinctive features of Lifework is that all psychometric results are withheld from the participant until they are presented in a live counselling session. This means the data is always contextualised by the counsellor, who can relate it to the participant's own life history and help them understand what the numbers actually mean for them specifically. The result is not a self-administered score but a counsellor-mediated conversation grounded in the person's own evidence.`,
 
-  "ai-in-process": `Lifework uses AI — specifically a large language model — to conduct the initial life history interview (through a tool called Sage) and to generate the first draft of the analysis report. The AI works from the participant's own words and the psychometric data, and the counsellor then reviews, edits, and presents the report in a live session.`,
+  "ai-in-process": `Lifework uses AI in a specific and bounded way. Sage, the AI career coach, reads what the client has written and asks reflective questions that help the client notice the pattern in their own evidence. Sage does not deliver a verdict. It helps the client reflect, organise material, and surface questions. The counsellor then performs the human work of synthesis, challenge, interpretation, and care — bringing the evidence together in the Wow Report and the live session. AI helps ask better questions; human judgement brings the pattern together.`,
 
-  "report-structure": `The Lifework WOW Report is structured around several analytical chapters: a portrait of who the person is, a life history pattern analysis, a character strengths analysis, a personality profile, a behavioural style assessment, a development edge section (where the pattern may have worked against the person), and a set of career directions grounded in the evidence.`,
+  "report-structure": `The Lifework Wow Report is not a personality report, not a computer-generated assessment, and not a list of suggested jobs. It is an interpretive synthesis that draws together the person's life-history evidence, recurring strengths, Emotions/Skills/Values patterns, psychometric lenses, Sage reflections, and counsellor judgement. Its chapters address who the person is, the pattern of their life history, their character strengths, their personality profile, their behavioural style, their development edge (where the pattern may have worked against them), and career directions grounded in the evidence. The report is a compass, not a prescription.`,
 
-  "focus-on-strength": `Lifework is explicitly strength-based: it starts from what the person has found genuinely enjoyable, satisfying, and fulfilling — not from what they are merely competent at, or what the job market currently rewards. The underlying belief, from Bernard Haldane's work, is that motivated strengths — things a person does well and loves doing — are the most reliable predictor of future success and satisfaction.`,
+  "focus-on-strength": `Lifework begins from what the person has found genuinely enjoyable, satisfying, and fulfilling — not from what they are merely competent at, or what the job market currently rewards. The distinction between competence and energising strength is central: being good at something does not mean it gives life. Bernard Haldane's Dependable Strengths tradition holds that motivated strengths — things a person does well and loves doing — are the most reliable predictor of future success and satisfaction. Your most dependable strengths often appear in the stories where you were most alive and effective.`,
 
-  "agreed-evidence": `A key feature of the Lifework process is that the life history analysis is built from evidence that the participant themselves has provided and confirmed. The AI summarises what it has heard; the participant confirms or corrects it. The final analysis is therefore grounded in agreed evidence, not in the counsellor's interpretation of a questionnaire.`,
+  "agreed-evidence": `A key feature of Lifework is that the life-history analysis is built from evidence the participant themselves has provided and confirmed. The process asks what the person felt, what they actually did, what skills appeared, and what values were expressed — then builds the analysis from those agreed facts. The final report is therefore grounded in agreed evidence, not in the counsellor's interpretation of a questionnaire. The report starts from what you have actually done, not from who a test says you are.`,
 
-  "depth-of-analysis": `The Lifework report goes considerably deeper than most career assessments. It analyses not just psychometric scores but the pattern of a whole life — what the person has consistently found rewarding across very different contexts, from childhood to the present day. The combination of life history, character strengths, personality facets (not just domain scores), and behavioural style produces a multi-layered picture that most single-instrument tools cannot match.`,
+  "depth-of-analysis": `The Lifework report analyses not just psychometric scores but the pattern of a whole life — what the person has consistently found rewarding across very different contexts, from childhood to the present day. Most career assessments work from a single instrument administered on a single day. Lifework combines life-history achievement work, the Emotions/Skills/Values frame, VIA Character Strengths, Big Five personality facets (not just domain scores), Sage reflections, and counsellor synthesis. The result is a multi-layered picture that looks for the threads that keep reappearing when the person is at their best.`,
 
-  "development-edge": `The development edge section of the Lifework report addresses something most career tools avoid: the ways in which the participant's own strengths and patterns may have worked against them at times. This is not a deficit model — it is an honest account of how a strength, over-applied or applied in the wrong context, can become a limitation.`,
+  "development-edge": `The development edge section of the Lifework report addresses something most career tools avoid: the ways in which the participant's own strengths and patterns may have worked against them at times. This is not a deficit model. It is an honest account of how a strength, over-applied or applied in the wrong context, can become a limitation. Understanding the development edge is not about fixing a weakness; it is about seeing the full shape of the pattern — including where it has occasionally created friction, blind spots, or unintended consequences.`,
 
-  "fundamental-drivers": `The Lifework analysis identifies the fundamental drivers that have shaped the participant's choices and satisfactions across their whole life — the underlying motivations that persist across very different roles and contexts. Understanding these drivers helps the participant make better decisions about what to pursue and what to avoid.`,
+  "fundamental-drivers": `The Lifework analysis identifies the fundamental drivers that have shaped the participant's choices and satisfactions across their whole life — the underlying motivations that persist across very different roles and contexts. These are not personality labels or trait scores. They are patterns extracted from real achievement stories: the recurring conditions under which the person has been most energised, most effective, and most fully themselves. Understanding these drivers helps the participant make better decisions about what to pursue and what to avoid.`,
 
-  "career-directions": `The career directions section of the Lifework report translates the analysis into specific, evidence-grounded recommendations about roles, sectors, and working environments that are likely to suit the participant. These are not generic suggestions — they are derived directly from the participant's own life history pattern, character strengths, and personality profile.`,
+  "career-directions": `The career directions section of the Lifework report translates the analysis into specific, evidence-grounded hypotheses about roles, sectors, and working environments that are likely to suit the participant. These are not generic suggestions derived from a questionnaire. They are working hypotheses — possible directions to test, not orders to obey — derived directly from the participant's own life history pattern, character strengths, personality profile, and the conditions under which they have consistently done their best work.`,
 };
 
 // ─── Router ───────────────────────────────────────────────────────────────────
@@ -245,7 +257,14 @@ No preamble in your response — output only the post text.`;
 Post type: ${postTypeLabel}
 Voice: ${voiceLabel}
 
-Before drafting, choose one concrete Lifework anchor from the canon and make sure the post would not make sense without that Lifework knowledge. Then write the post now.`;
+Before drafting, silently work through these steps:
+1. Select one audience: graduate/school leaver; mid-career professional; returner; approaching retirement; thoughtful professional (lawyer, consultant, etc.); or general reflective reader.
+2. Select one message pillar: life already lived; strength versus competence; lenses not labels; returner's strength; retirement as expression; counsellor synthesis; compass not prescription.
+3. Select one Lifework journey element as the concrete anchor: life-history interview; Emotions/Skills/Values; VIA Character Strengths; Big Five/IPIP-NEO; Sage's reflective questioning; counsellor synthesis; or the Wow Report.
+4. Draft the post so it would not make sense without that specific Lifework knowledge.
+5. Check: does it overclaim, use deterministic language, or invent examples? If so, revise.
+6. Check: does it sound like Pennington Hennessy — reflective, precise, humane, quietly confident — rather than a generic LinkedIn influencer? If not, revise.
+Then write the post now.`;
 
       const response = await invokeLLM({
         messages: [
@@ -326,7 +345,8 @@ Notice: specific materials, specific light direction and quality, specific momen
 CRITICAL RULES:
 - Each prompt MUST use its assigned archetype.
 - Every prompt must be anchored in a SPECIFIC idea, image, or metaphor from the post — not a generic representation of the topic.
-- BANNED subjects (in any prompt): notebooks, journals, diaries, open books being written in, hands on keyboards, laptops, phones, coffee cups alone, handshakes, conference rooms, stock-business clichés, motivational-poster aesthetics.
+- BANNED subjects (in any prompt): notebooks, journals, diaries, open books being written in, hands on keyboards, laptops, phones, coffee cups alone, handshakes, conference rooms, stock-business clichés, motivational-poster aesthetics, ladders into clouds, people standing at crossroads, puzzle pieces, glowing brains, corporate headshots against grey backdrops.
+- PREFERRED Lifework visual motifs (use when they fit the post): a compass on warm paper or cream cloth; fine threads or lines connecting documents or moments; a quiet study or counselling room with warm light; a bridge or threshold between spaces; an annotated map or document with handwritten marks; warm paper, navy ink, restrained gold accents; editorial composition with generous negative space. These motifs should feel earned by the post, not forced.
 - No two prompts may share the same primary subject.
 - Each prompt should be 3–5 sentences. Specific. Sensory. Cinematic.
 
