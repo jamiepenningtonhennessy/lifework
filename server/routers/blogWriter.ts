@@ -315,8 +315,45 @@ References: Saul Leiter, Rinko Kawauchi (austere), Wolfgang Tillmans.`;
       const universalNegative = `Avoid: AI tells (extra fingers, extra teeth, plastic skin, glowing edges, garbled letterforms, broken hands); saturated tropical colour palettes; gradient backgrounds; emojis or graphic overlays inside the photo; corporate stock clichés (handshakes, conference rooms, laptops on desks, headshots against grey backdrops); heavy Instagram filter looks; lens flares as decoration; AI watermarks or signatures.`;
 
       // Step 1: Ask the LLM to generate 3 distinct PHOTO-ONLY prompts (960×890 inner photo)
-      // Each prompt is assigned a MANDATORY archetype to prevent the LLM defaulting to
-      // the same three clichés (body part / person / notebook) every time.
+      // Archetypes are drawn randomly from a pool of 7 so the combination changes every call.
+      const ARCHETYPE_POOL = [
+        {
+          name: "ENVIRONMENT / PLACE",
+          instruction: `A specific place or space that embodies the emotional or conceptual core of the post. No people required — the location itself carries the meaning. Choose a place because of something specific in the post: a threshold, a workshop, a garden at a particular hour, a room with significant light, a landscape detail, a domestic space with history. Describe the exact light, the time of day, what is in the frame and what is not.`,
+        },
+        {
+          name: "PERSON IN CONTEXT",
+          instruction: `A real person in their environment — not posed, not looking at camera, caught in a moment of activity or stillness that reflects the post's theme. The activity or setting must come from something specific in the post. The person should feel observed, not performed. Describe their age range, what they are doing, the setting, the light, the emotional register. Avoid: headshots, direct-to-camera, corporate or office settings.`,
+        },
+        {
+          name: "OBJECT OR DETAIL WITH NARRATIVE WEIGHT",
+          instruction: `A close or medium-close photograph of a single object, material, or physical detail that carries symbolic resonance with the post. The object must be chosen because of something specific in the post — not a generic prop. Describe the object precisely: its material, age, condition, the light falling on it, what surrounds it. Banned: notebooks, journals, pens writing, coffee cups alone.`,
+        },
+        {
+          name: "TRANSITION / THRESHOLD",
+          instruction: `A moment caught between two states — a door ajar, a person mid-step, a light changing, a season turning, a space half-cleared or half-filled. The image should feel like something is about to shift, or has just shifted. It must be grounded in a specific idea or metaphor from the post. Describe the exact moment, the light, the physical detail that makes the threshold visible. No people required, but a person mid-movement is allowed.`,
+        },
+        {
+          name: "ABSENCE / TRACE",
+          instruction: `A space where someone was, or where something happened, but is now empty or still. The image carries meaning through what is not there: an empty chair in a particular light, a coat on a hook, a half-finished task left on a surface, a path that has been walked. The absence must connect to a specific idea in the post. Describe the space, the light, the object or trace that makes the absence legible.`,
+        },
+        {
+          name: "TEXTURE / MATERIAL SURFACE",
+          instruction: `An extreme close-up or macro photograph of a surface, material, or texture that carries the emotional or conceptual register of the post. This is not about an object's function but about its surface: the grain of old wood, the weave of worn cloth, the patina of brass, the texture of aged paper, the roughness of stone. Choose the material because of something specific in the post. Describe the light, the angle, the exact quality of the surface.`,
+        },
+        {
+          name: "LIGHT / TIME OF DAY",
+          instruction: `A photograph in which the quality of light at a specific hour is the primary subject — not what is lit, but the light itself. Early morning haze, the last ten minutes of golden hour, the blue of pre-dawn, the flat grey of an overcast afternoon, the warm spill of a single lamp into darkness. The light must embody the emotional register of the post. Describe the exact hour, the direction and quality of the light, what it falls on, and what it leaves in shadow.`,
+        },
+      ];
+
+      // Shuffle and pick 3 archetypes for this call
+      const shuffled = [...ARCHETYPE_POOL].sort(() => Math.random() - 0.5);
+      const selectedArchetypes = shuffled.slice(0, 3);
+      const archetypeBlock = selectedArchetypes
+        .map((a, i) => `Prompt ${i + 1} — ${a.name}\n${a.instruction}`)
+        .join("\n\n");
+
       const promptResponse = await invokeLLM({
         messages: [
           {
@@ -354,14 +391,7 @@ CRITICAL RULES:
 
 ARCHETYPE ASSIGNMENTS:
 
-Prompt 1 — ENVIRONMENT / PLACE
-A specific place or space that embodies the emotional or conceptual core of the post. No people required — the location itself carries the meaning. Choose a place because of something specific in the post: a threshold, a workshop, a garden at a particular hour, a room with significant light, a landscape detail, a domestic space with history. Describe the exact light, the time of day, what is in the frame and what is not.
-
-Prompt 2 — PERSON IN CONTEXT
-A real person in their environment — not posed, not looking at camera, caught in a moment of activity or stillness that reflects the post's theme. The activity or setting must come from something specific in the post. The person should feel observed, not performed. Describe their age range, what they are doing, the setting, the light, the emotional register. Avoid: headshots, direct-to-camera, corporate or office settings.
-
-Prompt 3 — OBJECT OR DETAIL WITH NARRATIVE WEIGHT
-A close or medium-close photograph of a single object, material, or physical detail that carries symbolic resonance with the post. The object must be chosen because of something specific in the post — not a generic prop. Describe the object precisely: its material, age, condition, the light falling on it, what surrounds it. Banned: notebooks, journals, pens writing, coffee cups alone.
+${archetypeBlock}
 
 ${registerSpec}
 
