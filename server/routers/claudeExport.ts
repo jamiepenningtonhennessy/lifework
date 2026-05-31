@@ -1047,7 +1047,23 @@ export async function buildClaudeExportJson(clientId: number): Promise<Record<st
     },
     CH2B: (() => {
       const fp = parseFourPillars(sections.fourPillars ?? "");
+      // Build a lookup by the canonical pillar keyword (PLACES, PEOPLE, PROBLEMS, PROCEDURES)
+      const pillarMap: Record<string, typeof fp.pillars[0] | undefined> = {};
+      for (const p of fp.pillars) {
+        const key = p.headingAllcaps.split(/\s+/)[0].toUpperCase();
+        pillarMap[key] = p;
+      }
+      const mapPillar = (p: typeof fp.pillars[0] | undefined) =>
+        p
+          ? { HEADING_ALLCAPS: p.headingAllcaps, HEADING_SUBTITLE: p.headingSubtitle, LEARNING: p.learning, EXAMPLES: p.examples }
+          : undefined;
       return {
+        // Named per-pillar keys for the two-page split template
+        PILLAR_PLACES:     mapPillar(pillarMap["PLACES"]),
+        PILLAR_PEOPLE:     mapPillar(pillarMap["PEOPLE"]),
+        PILLAR_PROBLEMS:   mapPillar(pillarMap["PROBLEMS"]),
+        PILLAR_PROCEDURES: mapPillar(pillarMap["PROCEDURES"]),
+        // Legacy array kept for backward compatibility
         PILLARS: fp.pillars.map(p => ({
           HEADING: p.heading,
           HEADING_ALLCAPS: p.headingAllcaps,

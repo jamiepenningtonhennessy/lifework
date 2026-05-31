@@ -630,7 +630,7 @@ const TEMPLATE = `<!doctype html>
   </footer>
 </section>
 
-<!-- ════════ PAGE 5b · CH 2B 4 PILLARS OF FULFILMENT ════════ -->
+<!-- ════════ PAGE 5b · CH 2B FOUR CONDITIONS (i) — PLACES + PEOPLE ════════ -->
 {{#IF CH2B.HAS_CONTENT}}
 <section class="page">
   <header class="ph-top">
@@ -641,13 +641,41 @@ const TEMPLATE = `<!doctype html>
     <span class="kicker">Chapter 02b</span>
     <h2 class="chap-title">Four Conditions of <em>Fulfilment.</em></h2>
     <p style="font-family:var(--serif);font-style:italic;font-size:15px;color:var(--navy-soft);margin:0 0 20px;">Mark Savickas argues that the richest career intelligence is not in what a person did, but in what was present when they felt most alive doing it. Four lenses — Places, People, Problems, Procedures — reveal the conditions under which energy, engagement, and meaning consistently appear.</p>
-    {{#EACH CH2B.PILLARS}}
-    <h3 class="pillar-h">{{.HEADING_ALLCAPS}}{{#IF .HEADING_SUBTITLE}} <span class="pillar-subtitle">— {{.HEADING_SUBTITLE}}</span>{{/IF}}</h3>
-    {{#IF .LEARNING}}<p class="pillar-learning"><span class="learning-label">Learning:</span> {{.LEARNING}}</p>{{/IF}}
-    {{#EACH .EXAMPLES}}
-    <p>{{.}}</p>
-    {{/EACH}}
-    {{/EACH}}
+    {{#IF CH2B.PILLAR_PLACES}}
+    <h3 class="pillar-h">{{CH2B.PILLAR_PLACES.HEADING_ALLCAPS}}{{#IF CH2B.PILLAR_PLACES.HEADING_SUBTITLE}} <span class="pillar-subtitle">— {{CH2B.PILLAR_PLACES.HEADING_SUBTITLE}}</span>{{/IF}}</h3>
+    {{#IF CH2B.PILLAR_PLACES.LEARNING}}<p class="pillar-learning"><span class="learning-label">Learning:</span> {{CH2B.PILLAR_PLACES.LEARNING}}</p>{{/IF}}
+    {{#EACH CH2B.PILLAR_PLACES.EXAMPLES}}<p>{{.}}</p>{{/EACH}}
+    {{/IF}}
+    {{#IF CH2B.PILLAR_PEOPLE}}
+    <h3 class="pillar-h">{{CH2B.PILLAR_PEOPLE.HEADING_ALLCAPS}}{{#IF CH2B.PILLAR_PEOPLE.HEADING_SUBTITLE}} <span class="pillar-subtitle">— {{CH2B.PILLAR_PEOPLE.HEADING_SUBTITLE}}</span>{{/IF}}</h3>
+    {{#IF CH2B.PILLAR_PEOPLE.LEARNING}}<p class="pillar-learning"><span class="learning-label">Learning:</span> {{CH2B.PILLAR_PEOPLE.LEARNING}}</p>{{/IF}}
+    {{#EACH CH2B.PILLAR_PEOPLE.EXAMPLES}}<p>{{.}}</p>{{/EACH}}
+    {{/IF}}
+  </div>
+  <footer class="ph-bot">
+    <span class="who">{{CLIENT.NAME}}</span>
+    <span class="pageno">{{BRAND.COMPANY}} · <span class="cur">05b</span></span>
+  </footer>
+</section>
+
+<!-- ════════ PAGE 5c · CH 2B FOUR CONDITIONS (ii) — PROBLEMS + PROCEDURES + COMBINATION ════════ -->
+<section class="page">
+  <header class="ph-top">
+    <span class="lockup"><span class="mark"></span>Lifework</span>
+    <span>Chapter 2b · Four Conditions of Fulfilment</span>
+  </header>
+  <div class="ph-body">
+    <span class="kicker">Chapter 02b · continued</span>
+    {{#IF CH2B.PILLAR_PROBLEMS}}
+    <h3 class="pillar-h">{{CH2B.PILLAR_PROBLEMS.HEADING_ALLCAPS}}{{#IF CH2B.PILLAR_PROBLEMS.HEADING_SUBTITLE}} <span class="pillar-subtitle">— {{CH2B.PILLAR_PROBLEMS.HEADING_SUBTITLE}}</span>{{/IF}}</h3>
+    {{#IF CH2B.PILLAR_PROBLEMS.LEARNING}}<p class="pillar-learning"><span class="learning-label">Learning:</span> {{CH2B.PILLAR_PROBLEMS.LEARNING}}</p>{{/IF}}
+    {{#EACH CH2B.PILLAR_PROBLEMS.EXAMPLES}}<p>{{.}}</p>{{/EACH}}
+    {{/IF}}
+    {{#IF CH2B.PILLAR_PROCEDURES}}
+    <h3 class="pillar-h">{{CH2B.PILLAR_PROCEDURES.HEADING_ALLCAPS}}{{#IF CH2B.PILLAR_PROCEDURES.HEADING_SUBTITLE}} <span class="pillar-subtitle">— {{CH2B.PILLAR_PROCEDURES.HEADING_SUBTITLE}}</span>{{/IF}}</h3>
+    {{#IF CH2B.PILLAR_PROCEDURES.LEARNING}}<p class="pillar-learning"><span class="learning-label">Learning:</span> {{CH2B.PILLAR_PROCEDURES.LEARNING}}</p>{{/IF}}
+    {{#EACH CH2B.PILLAR_PROCEDURES.EXAMPLES}}<p>{{.}}</p>{{/EACH}}
+    {{/IF}}
     {{#IF CH2B.COMBINATION_SYNTHESIS}}
     <h3 class="combination-h">The Combination</h3>
     <p class="combination-synthesis">{{CH2B.COMBINATION_SYNTHESIS}}</p>
@@ -657,7 +685,7 @@ const TEMPLATE = `<!doctype html>
   </div>
   <footer class="ph-bot">
     <span class="who">{{CLIENT.NAME}}</span>
-    <span class="pageno">{{BRAND.COMPANY}} · <span class="cur">05b</span></span>
+    <span class="pageno">{{BRAND.COMPANY}} · <span class="cur">05c</span></span>
   </footer>
 </section>
 {{/IF}}
