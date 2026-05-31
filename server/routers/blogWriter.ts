@@ -85,6 +85,52 @@ export type PostTypeId = typeof POST_TYPES[number]["id"];
 export type AspectId = typeof LIFEWORK_ASPECTS[number]["id"];
 export type BlogVoiceId = typeof BLOG_VOICES[number]["id"];
 
+
+// ─── Lifework canon for marketing writing ───────────────────────────────────────
+
+export const LIFEWORK_BLOG_CANON = `LIFEWORK CANON — mandatory source knowledge:
+
+1. One-sentence definition:
+Lifework is a Pennington Hennessy career-analysis journey that helps people discover the patterns of strength, motivation, value, and fit already visible in the life they have lived, then use those patterns as a compass for future work.
+
+2. Intellectual root:
+Lifework is rooted in Bernard Haldane's Dependable Strengths tradition. The core premise is that a person's most dependable strengths are revealed in real achievement stories — the moments where they were energised, effective, absorbed, useful, courageous, creative, or most fully themselves.
+
+3. The governing distinction:
+Lifework is not primarily a questionnaire, a job-matching algorithm, or a personality labelling exercise. It begins with lived evidence. Psychometrics are lenses, not labels. The report is a compass, not a prescription.
+
+4. The journey:
+- Past: a structured life-history interview explores achievements decade by decade. This is not a CV review. It looks for recurring patterns in Emotions, Skills, and Values.
+- Present: VIA Character Strengths and Big Five/IPIP-NEO are used as validated lenses on the life-history evidence. They confirm, complicate, sharpen, or challenge what the story already shows.
+- Future: Sage, the AI career coach, asks reflective questions that help the client notice the pattern. The counsellor then brings the evidence together in human synthesis.
+
+5. The Wow Report:
+The Lifework Wow Report is not a test result and not a computer-generated verdict. It is an interpretive synthesis of life-history evidence, achievement stories, recurring strengths, values, psychometric lenses, Sage reflections, and counsellor judgement. Its purpose is to offer working hypotheses, possible directions, useful conditions, and a clearer compass for future choices.
+
+6. What every post must do:
+Every post must be grounded in at least one concrete Lifework feature: life-history achievement work, Dependable Strengths, Emotions/Skills/Values, VIA Character Strengths, Big Five/IPIP-NEO, Sage's reflective questioning, counsellor synthesis, or the Wow Report. If a draft could have been written by a generic career coach without knowledge of Lifework, it has failed.
+
+7. Preferred language:
+Use words such as pattern, evidence, compass, thread, fit, energy, value, strengths, aliveness, congruence, next chapter, working hypotheses, choices, conditions, and direction.
+
+8. Forbidden or weak language:
+Avoid diagnosis, destiny, perfect job, guaranteed answer, algorithmic certainty, hidden passion, hack, unlock your dream career, test result, and any claim that AI tells the person what to do.
+
+9. AI and human judgement:
+Sage helps the client notice the pattern; the counsellor helps the client make sense of it. Never imply that AI replaces the counsellor or delivers an oracle-like answer.
+
+10. Voice:
+Write with reflective, humane, professional restraint. The voice should be precise, literate, quietly confident, and useful to thoughtful professionals. Avoid hype, motivational shouting, generic LinkedIn influencer language, and sales-funnel pressure.`;
+
+const LIFEWORK_BLOG_QUALITY_CHECK = `FINAL QUALITY CHECK — silently revise before output if needed:
+- Does the post clearly reflect Lifework's actual method, not generic career coaching?
+- Does it use at least one real Lifework journey element?
+- Does it treat lived achievement as evidence?
+- Does it describe psychometrics as lenses rather than labels?
+- Does it avoid claiming or implying that AI produces a deterministic answer?
+- If the Wow Report is mentioned, is it described as synthesis and compass rather than a test result?
+- Does it sound reflective, precise, humane, professional, and non-hyped?`;
+
 // ─── Voice system prompts ─────────────────────────────────────────────────────
 
 const VOICE_PROMPTS: Record<BlogVoiceId, string> = {
@@ -169,10 +215,12 @@ export const blogWriterRouter = router({
 
       const systemPrompt = `You are writing a LinkedIn post for a career coach who uses the Lifework methodology developed by Pennington Hennessy.
 
+${LIFEWORK_BLOG_CANON}
+
 VOICE:
 ${voicePrompt}
 
-LIFEWORK CONTEXT — what you know about the topic:
+LIFEWORK TOPIC CONTEXT — use this as the specific angle for this post:
 ${aspectContext}
 
 POST FRAMING:
@@ -183,18 +231,21 @@ LINKEDIN FORMAT RULES:
 - No hashtags.
 - No emojis.
 - No bullet points unless they carry genuinely distinct information that would be clumsy in prose.
-- Write in the first person throughout.
-- Do not name Pennington Hennessy, Lifework, or any specific tool by name — write as if describing your own practice and experience.
+- Write primarily in the first person where the selected post type is personal or reflective; otherwise write from the coach's considered point of view.
+- You may name Lifework, the Wow Report, Sage, VIA Character Strengths, Big Five/IPIP-NEO, or Dependable Strengths when doing so makes the post more accurate and concrete. Do not force all of them into one post.
 - Do not use the phrase "game-changer" or any similar cliché.
 - Do not end with a call to action ("DM me", "link in bio", etc.).
 - End with a single short sentence that lands the point cleanly.
-- No preamble in your response — output only the post text.`;
+
+${LIFEWORK_BLOG_QUALITY_CHECK}
+
+No preamble in your response — output only the post text.`;
 
       const userPrompt = `Write a LinkedIn post about: ${aspectLabel}
 Post type: ${postTypeLabel}
 Voice: ${voiceLabel}
 
-Write the post now.`;
+Before drafting, choose one concrete Lifework anchor from the canon and make sure the post would not make sense without that Lifework knowledge. Then write the post now.`;
 
       const response = await invokeLLM({
         messages: [

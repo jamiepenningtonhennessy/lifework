@@ -3,6 +3,7 @@ import {
   POST_TYPES,
   LIFEWORK_ASPECTS,
   BLOG_VOICES,
+  LIFEWORK_BLOG_CANON,
 } from "./routers/blogWriter";
 
 describe("Blog Writing Machine — taxonomy contract", () => {
@@ -50,5 +51,14 @@ describe("Blog Writing Machine — taxonomy contract", () => {
       expect(typeof v.label).toBe("string");
       expect(v.label.length).toBeGreaterThan(0);
     }
+  });
+
+  it("exports a Lifework canon with journey and report knowledge", () => {
+    expect(LIFEWORK_BLOG_CANON).toContain("Dependable Strengths");
+    expect(LIFEWORK_BLOG_CANON).toContain("Past");
+    expect(LIFEWORK_BLOG_CANON).toContain("Present");
+    expect(LIFEWORK_BLOG_CANON).toContain("Future");
+    expect(LIFEWORK_BLOG_CANON).toContain("Wow Report");
+    expect(LIFEWORK_BLOG_CANON).toContain("compass, not a prescription");
   });
 });
