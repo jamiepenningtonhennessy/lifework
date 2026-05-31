@@ -207,6 +207,40 @@ const ASPECT_CONTEXT: Record<AspectId, string> = {
   "career-directions": `The career directions section of the Lifework report translates the analysis into specific, evidence-grounded hypotheses about roles, sectors, and working environments that are likely to suit the participant. These are not generic suggestions derived from a questionnaire. They are working hypotheses — possible directions to test, not orders to obey — derived directly from the participant's own life history pattern, character strengths, personality profile, and the conditions under which they have consistently done their best work.`,
 };
 
+// ─── External Article Fetcher ───────────────────────────────────────────────
+
+/**
+ * Fetch a public URL and extract readable plain text from the HTML.
+ * Returns up to 3000 characters so the LLM context stays manageable.
+ * Returns null if the fetch fails or the content is not useful.
+ */
+async function fetchArticleText(url: string): Promise<string | null> {
+  try {
+    const resp = await fetch(url, {
+      headers: { "User-Agent": "Mozilla/5.0 (compatible; LifeworkBlogBot/1.0)" },
+      signal: AbortSignal.timeout(8000),
+    });
+    if (!resp.ok) return null;
+    const html = await resp.text();
+    // Strip script/style blocks first
+    const noScript = html
+      .replace(/<script[\s\S]*?<\/script>/gi, " ")
+      .replace(/<style[\s\S]*?<\/style>/gi, " ")
+      .replace(/<[^>]+>/g, " ")
+      .replace(/&nbsp;/gi, " ")
+      .replace(/&amp;/gi, "&")
+      .replace(/&lt;/gi, "<")
+      .replace(/&gt;/gi, ">")
+      .replace(/&quot;/gi, '"')
+      .replace(/\s{2,}/g, " ")
+      .trim();
+    // Return first 3000 chars — enough for the LLM to extract the key argument
+    return noScript.slice(0, 3000) || null;
+  } catch {
+    return null;
+  }
+}
+
 // ─── Router ───────────────────────────────────────────────────────────────────
 
 export const blogWriterRouter = router({
@@ -215,6 +249,7 @@ export const blogWriterRouter = router({
       postType: z.enum(POST_TYPES.map(p => p.id) as [PostTypeId, ...PostTypeId[]]),
       aspect: z.enum(LIFEWORK_ASPECTS.map(a => a.id) as [AspectId, ...AspectId[]]),
       voice: z.enum(BLOG_VOICES.map(v => v.id) as [BlogVoiceId, ...BlogVoiceId[]]),
+      sourceUrl: z.string().url().optional(),
     }))
     .mutation(async ({ input }) => {
       const postTypeLabel = POST_TYPES.find(p => p.id === input.postType)!.label;
@@ -224,6 +259,29 @@ export const blogWriterRouter = router({
       const voicePrompt = VOICE_PROMPTS[input.voice];
       const postTypeInstruction = POST_TYPE_INSTRUCTIONS[input.postType];
       const aspectContext = ASPECT_CONTEXT[input.aspect];
+
+      // Fetch external article text if a URL was provided
+      let articleBlock = "";
+      if (input.sourceUrl) {
+        const articleText = await fetchArticleText(input.sourceUrl);
+        if (articleText) {
+          articleBlock = `
+
+EXTERNAL SOURCE:
+The following text is extracted from an article the author wants to reference: ${input.sourceUrl}
+
+---
+${articleText}
+---
+
+INSTRUCTIONS FOR USING THE EXTERNAL SOURCE:
+- Read the article carefully and identify the single most relevant argument, finding, or observation that connects to the Lifework topic.
+- Weave that specific point into the post as a genuine reference — not a generic "this article made me think..." opener, but a precise engagement with something the article actually says.
+- You may quote a short phrase (under 15 words) or paraphrase the key point.
+- Include the URL as a reference at the end of the post, on its own line, in the format: Source: [URL]
+- If the article does not contain anything genuinely relevant to the Lifework topic, ignore it and write the post without a source reference.`;
+        }
+      }
 
       const systemPrompt = `You are writing a LinkedIn post for a career coach who uses the Lifework methodology developed by Pennington Hennessy.
 
@@ -249,7 +307,7 @@ LINKEDIN FORMAT RULES:
 - Do not end with a call to action ("DM me", "link in bio", etc.).
 - End with a single short sentence that lands the point cleanly.
 
-${LIFEWORK_BLOG_QUALITY_CHECK}
+${LIFEWORK_BLOG_QUALITY_CHECK}${articleBlock}
 
 No preamble in your response — output only the post text.`;
 

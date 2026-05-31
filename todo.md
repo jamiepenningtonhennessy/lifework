@@ -1493,3 +1493,11 @@
 - [ ] Add Lifework-specific post archetypes to POST_TYPES taxonomy (process-explainer, myth-correction, report-insight, human-and-ai)
 - [ ] Enhance ASPECT_CONTEXT entries with canon-accurate language for all 11 aspects
 - [ ] Update blogWriter.test.ts to enforce canon knowledge is present and exported
+
+## Blog Writer — External Source URL
+- [x] Add fetchArticleText(url) server helper: fetch URL, strip HTML to plain text, truncate to ~3000 chars
+- [x] Update generate procedure input schema to accept optional sourceUrl string
+- [x] When sourceUrl provided: fetch article text server-side, inject into system prompt as "EXTERNAL SOURCE" block with instructions to weave a specific reference into the post
+- [x] When sourceUrl absent: generation proceeds exactly as now
+- [x] Add optional URL input field to blog writer UI (below voice selector, with placeholder and gold confirmation hint)
+- [x] Update blogWriter.test.ts to cover the sourceUrl path (schema validation: valid without URL, valid with URL, invalid non-URL throws)

@@ -24,6 +24,9 @@ export default function BlogWriter() {
   const [ownPostType, setOwnPostType] = useState<PostTypeId | null>(null);
   const [ownAspect, setOwnAspect] = useState<AspectId | null>(null);
 
+  // Optional source URL
+  const [sourceUrl, setSourceUrl] = useState<string>("");
+
   // Shared output state
   const [generatedPost, setGeneratedPost] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
@@ -94,10 +97,12 @@ export default function BlogWriter() {
     if (!canGenerate) return;
     setGeneratedPost(null);
     setGeneratedImages(null);
+    const trimmedUrl = sourceUrl.trim();
     generateMutation.mutate({
       postType: selectedPostType as any,
       aspect: selectedAspect as any,
       voice: selectedVoice as any,
+      ...(trimmedUrl ? { sourceUrl: trimmedUrl } : {}),
     });
   }
 
@@ -288,6 +293,39 @@ export default function BlogWriter() {
                   </button>
                 ))}
               </div>
+            </div>
+
+            {/* Optional source URL */}
+            <div className="mb-8">
+              <h2
+                className="font-serif font-semibold mb-1"
+                style={{ color: "var(--lw-navy)", fontSize: "1rem" }}
+              >
+                Reference a live article
+              </h2>
+              <p className="text-xs mb-3" style={{ color: "rgba(0,0,0,0.45)" }}>
+                Optional — paste a URL and the post will weave in a specific point from the article.
+              </p>
+              <input
+                type="url"
+                value={sourceUrl}
+                onChange={(e) => setSourceUrl(e.target.value)}
+                placeholder="https://example.com/article (optional)"
+                className="w-full rounded-lg px-4 py-3 text-sm outline-none transition-all"
+                style={{
+                  background: "white",
+                  border: "1.5px solid rgba(0,0,0,0.1)",
+                  color: "var(--lw-navy)",
+                  maxWidth: "36rem",
+                }}
+                onFocus={(e) => { e.currentTarget.style.borderColor = "var(--lw-gold)"; }}
+                onBlur={(e) => { e.currentTarget.style.borderColor = "rgba(0,0,0,0.1)"; }}
+              />
+              {sourceUrl.trim() && (
+                <p className="text-xs mt-2" style={{ color: "rgba(201,151,58,0.85)" }}>
+                  Article will be fetched and referenced in the post.
+                </p>
+              )}
             </div>
 
             {/* Generate button */}
