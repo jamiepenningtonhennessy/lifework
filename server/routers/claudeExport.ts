@@ -674,6 +674,29 @@ export async function buildClaudeExportJson(clientId: number): Promise<Record<st
     reportType: string;
   };
 
+  // Normalise any section that may have been stored as a JSON array instead of a plain string.
+  // Older reports stored prose sections as string[], not string. Join with double-newline so
+  // extractAllSections() can detect ## headings correctly.
+  const normSection = (v: unknown): string => {
+    if (typeof v === "string") return v;
+    if (Array.isArray(v)) return (v as string[]).join("\n\n");
+    return String(v ?? "");
+  };
+  const normSections = {
+    ...sections,
+    lifeHistoryPattern: normSection(sections.lifeHistoryPattern),
+    viaSection: normSection(sections.viaSection),
+    personalitySection: normSection(sections.personalitySection),
+    behaviouralStyle: normSection(sections.behaviouralStyle),
+    careerDirections: normSection(sections.careerDirections),
+    developmentEdge: normSection(sections.developmentEdge),
+    coachingQuestions: normSection(sections.coachingQuestions),
+    summary: normSection(sections.summary),
+    fourPillars: normSection(sections.fourPillars),
+  };
+  // Use normSections for all downstream processing
+  Object.assign(sections, normSections);
+
   const clientFullName = sections.clientFullName ?? [profile.firstName, profile.lastName].filter(Boolean).join(" ") ?? "Client";
   const clientFirstName = profile.firstName ?? clientFullName.split(" ")[0] ?? "Client";
 

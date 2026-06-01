@@ -1,0 +1,21 @@
+{
+  "query": "SELECT \n  CHAR_LENGTH(JSON_UNQUOTE(JSON_EXTRACT(wowReportJson, '$.lifeHistoryPattern'))) as lhp_length,\n  LEFT(JSON_UNQUOTE(JSON_EXTRACT(wowReportJson, '$.lifeHistoryPattern')), 800) as lhp_start\nFROM analysis_reports WHERE clientId = 870001 LIMIT 1;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 32u3a1hNYuu9Gj3.7d2282893346 --database kFbbE6kqNApXGDFpQJUGV7 --execute SELECT \n  CHAR_LENGTH(JSON_UNQUOTE(JSON_EXTRACT(wowReportJson, '$.lifeHistoryPattern'))) as lhp_length,\n  LEFT(JSON_UNQUOTE(JSON_EXTRACT(wowReportJson, '$.lifeHistoryPattern')), 800) as lhp_start\nFROM analysis_reports WHERE clientId = 870001 LIMIT 1;",
+  "rows": [
+    {
+      "lhp_length": "4537",
+      "lhp_start": "## The Opening Bars"
+    }
+  ],
+  "messages": [
+    "Your earliest achievements reveal a consistent drive to build and test limits. At age five, you constructed complex forts and dam walls, pushing structures to their breaking point. This is not merely about building, but about an engineering-minded curiosity to understand what is possible.",
+    "Growing up on a farm, you were given early opportunities to master new skills and take on responsibility. Learning to ride a motorbike at age six, and later working with your dad, shows a pattern of moving from personal mastery to being trusted with significant tasks and influence within your family and community.",
+    "From what you have told us, we can see:",
+    "*   A foundational drive to build and construct.",
+    "*   A persistent curiosity about how things work and how far they can be pushed.",
+    "*"
+  ],
+  "stdout": "lhp_length\tlhp_start\n4537\t## The Opening Bars\n\nYour earliest achievements reveal a consistent drive to build and test limits. At age five, you constructed complex forts and dam walls, pushing structures to their breaking point. This is not merely about building, but about an engineering-minded curiosity to understand what is possible.\n\nGrowing up on a farm, you were given early opportunities to master new skills and take on responsibility. Learning to ride a motorbike at age six, and later working with your dad, shows a pattern of moving from personal mastery to being trusted with significant tasks and influence within your family and community.\n\nFrom what you have told us, we can see:\n*   A foundational drive to build and construct.\n*   A persistent curiosity about how things work and how far they can be pushed.\n*\n",
+  "stderr": "",
+  "execution_time_ms": 267
+}

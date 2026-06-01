@@ -1,0 +1,88 @@
+{
+  "query": "SELECT JSON_UNQUOTE(JSON_EXTRACT(wowReportJson, '$.lifeHistoryPattern')) as lhp FROM analysis_reports WHERE clientId = 870001 LIMIT 1;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 32u3a1hNYuu9Gj3.7d2282893346 --database kFbbE6kqNApXGDFpQJUGV7 --execute SELECT JSON_UNQUOTE(JSON_EXTRACT(wowReportJson, '$.lifeHistoryPattern')) as lhp FROM analysis_reports WHERE clientId = 870001 LIMIT 1;",
+  "rows": [
+    {
+      "lhp": "## The Opening Bars"
+    },
+    {
+      "lhp": "Your earliest achievements reveal a consistent drive to build and test limits. At age five, you constructed complex forts and dam walls, pushing structures to their breaking point. This is not merely about building, but about an engineering-minded curiosity to understand what is possible."
+    },
+    {
+      "lhp": "Growing up on a farm, you were given early opportunities to master new skills and take on responsibility. Learning to ride a motorbike at age six, and later working with your dad, shows a pattern of moving from personal mastery to being trusted with significant tasks and influence within your family and community."
+    },
+    {
+      "lhp": "From what you have told us, we can see:"
+    },
+    {
+      "lhp": "*   A foundational drive to build and construct."
+    },
+    {
+      "lhp": "*   A persistent curiosity about how things work and how far they can be pushed."
+    },
+    {
+      "lhp": "*   An early pattern of mastering skills and earning trust."
+    },
+    {
+      "lhp": "## Recurring Motifs"
+    },
+    {
+      "lhp": "### The Drive to Build and Systematize"
+    },
+    {
+      "lhp": "From age five, you were building complex forts and dam walls, driven by a desire to test limits and understand structural integrity. This early enjoyment of construction and systems thinking later translated into building LEGO sets by following instructions, finding satisfaction in the completed build."
+    },
+    {
+      "lhp": "This foundational drive resurfaced in your twenties when you became the technical lead for the school administration system, leveraging your technological savviness. In your thirties, you founded an online learning business, creating \"top-notch programmes\" and developing frameworks. Most recently, at age 43, you are building \"The Matter of Meaning,\" creating frameworks to enable meaningful work, demonstrating a lifelong commitment to constructing effective systems."
+    },
+    {
+      "lhp": "### The Pursuit of Mastery and Influence"
+    },
+    {
+      "lhp": "At age six, learning to ride a motorbike progressed from mastering a new skill to being trusted to take your sister out. This pattern of moving from personal competence to trusted influence is also evident in your early academic success, excelling in a national general knowledge olympiad at age nine and in local Math competitions at age 15."
+    },
+    {
+      "lhp": "Your career trajectory consistently shows you moving into roles of increasing influence. From leading youth and worship ministries in your twenties to becoming Head of Science in your thirties, you have consistently sought and achieved positions where you can shape outcomes and guide others. Others have observed your \"pioneering conviction\" and \"respect\" for the work you do, both inside and outside the classroom."
+    },
+    {
+      "lhp": "### The Adaptive Contributor"
+    },
+    {
+      "lhp": "Your move to a new high school at age 17, and your subsequent selection as Head Boy, highlights your capacity to quickly adapt to new environments and gain the trust and respect of peers and teachers. This ability to \"move from outsider to insider\" by finding where you can genuinely contribute is a recurring theme."
+    },
+    {
+      "lhp": "This adaptive capacity was crucial when you stepped out of teaching to start an online learning business in your thirties, despite not being a \"natural entrepreneur.\" You learned to succeed through iterative learning, refining proposals and acquiring new skills under pressure. This same resilience is evident in your work with Flipping Education NPC, where you delivered support despite financial challenges."
+    },
+    {
+      "lhp": "## What the Pattern Reveals"
+    },
+    {
+      "lhp": "Your life history shows a consistent trajectory of building, leading, and adapting, driven by a deep-seated need to create tangible impact and foster meaningful connections. You consistently translate complex ideas into actionable frameworks, whether in physical structures, educational programs, or community initiatives."
+    },
+    {
+      "lhp": "The balance of your ESF experiences reveals that your deepest motivational drivers lie in the intersection of challenge and impact. You are fulfilled when you are not just mastering a skill, but when that mastery allows you to create something enduring or to positively influence others. Your satisfaction often comes from the process of overcoming obstacles and seeing the tangible results of your efforts, especially when those results benefit a wider community."
+    },
+    {
+      "lhp": "From what you have told us, we can see:"
+    },
+    {
+      "lhp": "*   A core identity as a builder of systems and frameworks."
+    },
+    {
+      "lhp": "*   A profound drive to translate abstract concepts into real-world relevance."
+    },
+    {
+      "lhp": "*   A consistent pattern of seeking and earning trust through demonstrated competence and contribution."
+    },
+    {
+      "lhp": "*   A deep satisfaction in creating conditions that enable others to thrive."
+    },
+    {
+      "lhp": "*   A willingness to embrace challenges, learn iteratively, and adapt to achieve desired outcomes."
+    }
+  ],
+  "messages": [],
+  "stdout": "lhp\n## The Opening Bars\n\nYour earliest achievements reveal a consistent drive to build and test limits. At age five, you constructed complex forts and dam walls, pushing structures to their breaking point. This is not merely about building, but about an engineering-minded curiosity to understand what is possible.\n\nGrowing up on a farm, you were given early opportunities to master new skills and take on responsibility. Learning to ride a motorbike at age six, and later working with your dad, shows a pattern of moving from personal mastery to being trusted with significant tasks and influence within your family and community.\n\nFrom what you have told us, we can see:\n*   A foundational drive to build and construct.\n*   A persistent curiosity about how things work and how far they can be pushed.\n*   An early pattern of mastering skills and earning trust.\n\n## Recurring Motifs\n\n### The Drive to Build and Systematize\n\nFrom age five, you were building complex forts and dam walls, driven by a desire to test limits and understand structural integrity. This early enjoyment of construction and systems thinking later translated into building LEGO sets by following instructions, finding satisfaction in the completed build.\n\nThis foundational drive resurfaced in your twenties when you became the technical lead for the school administration system, leveraging your technological savviness. In your thirties, you founded an online learning business, creating \"top-notch programmes\" and developing frameworks. Most recently, at age 43, you are building \"The Matter of Meaning,\" creating frameworks to enable meaningful work, demonstrating a lifelong commitment to constructing effective systems.\n\n### The Pursuit of Mastery and Influence\n\nAt age six, learning to ride a motorbike progressed from mastering a new skill to being trusted to take your sister out. This pattern of moving from personal competence to trusted influence is also evident in your early academic success, excelling in a national general knowledge olympiad at age nine and in local Math competitions at age 15.\n\nYour career trajectory consistently shows you moving into roles of increasing influence. From leading youth and worship ministries in your twenties to becoming Head of Science in your thirties, you have consistently sought and achieved positions where you can shape outcomes and guide others. Others have observed your \"pioneering conviction\" and \"respect\" for the work you do, both inside and outside the classroom.\n\n### The Adaptive Contributor\n\nYour move to a new high school at age 17, and your subsequent selection as Head Boy, highlights your capacity to quickly adapt to new environments and gain the trust and respect of peers and teachers. This ability to \"move from outsider to insider\" by finding where you can genuinely contribute is a recurring theme.\n\nThis adaptive capacity was crucial when you stepped out of teaching to start an online learning business in your thirties, despite not being a \"natural entrepreneur.\" You learned to succeed through iterative learning, refining proposals and acquiring new skills under pressure. This same resilience is evident in your work with Flipping Education NPC, where you delivered support despite financial challenges.\n\n## What the Pattern Reveals\n\nYour life history shows a consistent trajectory of building, leading, and adapting, driven by a deep-seated need to create tangible impact and foster meaningful connections. You consistently translate complex ideas into actionable frameworks, whether in physical structures, educational programs, or community initiatives.\n\nThe balance of your ESF experiences reveals that your deepest motivational drivers lie in the intersection of challenge and impact. You are fulfilled when you are not just mastering a skill, but when that mastery allows you to create something enduring or to positively influence others. Your satisfaction often comes from the process of overcoming obstacles and seeing the tangible results of your efforts, especially when those results benefit a wider community.\n\nFrom what you have told us, we can see:\n*   A core identity as a builder of systems and frameworks.\n*   A profound drive to translate abstract concepts into real-world relevance.\n*   A consistent pattern of seeking and earning trust through demonstrated competence and contribution.\n*   A deep satisfaction in creating conditions that enable others to thrive.\n*   A willingness to embrace challenges, learn iteratively, and adapt to achieve desired outcomes.\n",
+  "stderr": "",
+  "execution_time_ms": 259
+}
