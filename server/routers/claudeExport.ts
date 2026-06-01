@@ -828,14 +828,11 @@ export async function buildClaudeExportJson(clientId: number): Promise<Record<st
       return all;
     }
     // Normal structure: lhSections[1] is the ## Recurring Motifs section.
-    // If it has direct paragraphs, use them.
-    // If it has NO direct paragraphs (the LLM used ### sub-headings under ## Recurring Motifs),
-    // collect paragraphs from all following subsections until we hit a terminal section.
+    // Collect its direct paragraphs (if any) PLUS all following subsection paragraphs
+    // (### sub-headings under ## Recurring Motifs) until we hit a terminal section.
     const recurringSection = lhSections[1];
     if (!recurringSection) return [];
-    if (recurringSection.paragraphs.length > 0) return recurringSection.paragraphs;
-    // No direct paragraphs — collect from subsections that follow
-    const all: string[] = [];
+    const all: string[] = [...recurringSection.paragraphs];
     for (let i = 2; i < lhSections.length; i++) {
       const h = lhSections[i].heading.toLowerCase();
       if (h.includes("pattern reveals") || h.includes("what the pattern") ||
