@@ -1,0 +1,82 @@
+{
+  "query": "SHOW TABLES; SELECT TABLE_NAME FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME LIKE '%report%' OR TABLE_NAME LIKE '%wow%'",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 32u3a1hNYuu9Gj3.7d2282893346 --database kFbbE6kqNApXGDFpQJUGV7 --execute SHOW TABLES; SELECT TABLE_NAME FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME LIKE '%report%' OR TABLE_NAME LIKE '%wow%'",
+  "rows": [
+    {
+      "Tables_in_kFbbE6kqNApXGDFpQJUGV7": "__drizzle_migrations"
+    },
+    {
+      "Tables_in_kFbbE6kqNApXGDFpQJUGV7": "achievements"
+    },
+    {
+      "Tables_in_kFbbE6kqNApXGDFpQJUGV7": "analysis_reports"
+    },
+    {
+      "Tables_in_kFbbE6kqNApXGDFpQJUGV7": "career_explorer_sessions"
+    },
+    {
+      "Tables_in_kFbbE6kqNApXGDFpQJUGV7": "career_history"
+    },
+    {
+      "Tables_in_kFbbE6kqNApXGDFpQJUGV7": "chat_sessions"
+    },
+    {
+      "Tables_in_kFbbE6kqNApXGDFpQJUGV7": "client_profiles"
+    },
+    {
+      "Tables_in_kFbbE6kqNApXGDFpQJUGV7": "coaching_annexes"
+    },
+    {
+      "Tables_in_kFbbE6kqNApXGDFpQJUGV7": "cognitive_screener_results"
+    },
+    {
+      "Tables_in_kFbbE6kqNApXGDFpQJUGV7": "counsellor_pin"
+    },
+    {
+      "Tables_in_kFbbE6kqNApXGDFpQJUGV7": "education_history"
+    },
+    {
+      "Tables_in_kFbbE6kqNApXGDFpQJUGV7": "family_background"
+    },
+    {
+      "Tables_in_kFbbE6kqNApXGDFpQJUGV7": "historical_clients"
+    },
+    {
+      "Tables_in_kFbbE6kqNApXGDFpQJUGV7": "interview_messages"
+    },
+    {
+      "Tables_in_kFbbE6kqNApXGDFpQJUGV7": "ipip_results"
+    },
+    {
+      "Tables_in_kFbbE6kqNApXGDFpQJUGV7": "lead_magnet_downloads"
+    },
+    {
+      "Tables_in_kFbbE6kqNApXGDFpQJUGV7": "leads"
+    },
+    {
+      "Tables_in_kFbbE6kqNApXGDFpQJUGV7": "parallel_client_matches"
+    },
+    {
+      "Tables_in_kFbbE6kqNApXGDFpQJUGV7": "report_generation_logs"
+    },
+    {
+      "Tables_in_kFbbE6kqNApXGDFpQJUGV7": "users"
+    },
+    {
+      "Tables_in_kFbbE6kqNApXGDFpQJUGV7": "via_results"
+    },
+    {
+      "Tables_in_kFbbE6kqNApXGDFpQJUGV7": "TABLE_NAME"
+    },
+    {
+      "Tables_in_kFbbE6kqNApXGDFpQJUGV7": "analysis_reports"
+    },
+    {
+      "Tables_in_kFbbE6kqNApXGDFpQJUGV7": "report_generation_logs"
+    }
+  ],
+  "messages": [],
+  "stdout": "Tables_in_kFbbE6kqNApXGDFpQJUGV7\n__drizzle_migrations\nachievements\nanalysis_reports\ncareer_explorer_sessions\ncareer_history\nchat_sessions\nclient_profiles\ncoaching_annexes\ncognitive_screener_results\ncounsellor_pin\neducation_history\nfamily_background\nhistorical_clients\ninterview_messages\nipip_results\nlead_magnet_downloads\nleads\nparallel_client_matches\nreport_generation_logs\nusers\nvia_results\nTABLE_NAME\nanalysis_reports\nreport_generation_logs\n",
+  "stderr": "",
+  "execution_time_ms": 272
+}

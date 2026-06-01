@@ -1,0 +1,17 @@
+{
+  "query": "SELECT \n  JSON_TYPE(JSON_EXTRACT(wowReportJson, '$.lifeHistoryPattern')) as lhpType,\n  JSON_LENGTH(JSON_EXTRACT(wowReportJson, '$.lifeHistoryPattern')) as lhpLen,\n  LEFT(JSON_UNQUOTE(JSON_EXTRACT(wowReportJson, '$.lifeHistoryPattern')), 200) as lhpPreview\nFROM analysis_reports WHERE clientId = 870001 ORDER BY generatedAt DESC LIMIT 1",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 32u3a1hNYuu9Gj3.7d2282893346 --database kFbbE6kqNApXGDFpQJUGV7 --execute SELECT \n  JSON_TYPE(JSON_EXTRACT(wowReportJson, '$.lifeHistoryPattern')) as lhpType,\n  JSON_LENGTH(JSON_EXTRACT(wowReportJson, '$.lifeHistoryPattern')) as lhpLen,\n  LEFT(JSON_UNQUOTE(JSON_EXTRACT(wowReportJson, '$.lifeHistoryPattern')), 200) as lhpPreview\nFROM analysis_reports WHERE clientId = 870001 ORDER BY generatedAt DESC LIMIT 1",
+  "rows": [
+    {
+      "lhpType": "STRING",
+      "lhpLen": "1",
+      "lhpPreview": "## The Opening Bars"
+    }
+  ],
+  "messages": [
+    "Your earliest achievements reveal a consistent drive to build and test limits. At age five, you constructed complex forts and dam walls, pushing structures to their breaking point"
+  ],
+  "stdout": "lhpType\tlhpLen\tlhpPreview\nSTRING\t1\t## The Opening Bars\n\nYour earliest achievements reveal a consistent drive to build and test limits. At age five, you constructed complex forts and dam walls, pushing structures to their breaking point\n",
+  "stderr": "",
+  "execution_time_ms": 276
+}

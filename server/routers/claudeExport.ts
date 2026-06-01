@@ -795,7 +795,6 @@ export async function buildClaudeExportJson(clientId: number): Promise<Record<st
   // Require at least 3 sections (intro + 2 named sections) for section-based splitting;
   // with fewer sections the paragraphs are just pooled in lhSections[0] and we must split by index.
   const lhHasSections = lhSections.length >= 3;
-
   // Page 1: first named section paragraphs (or first half of flat paragraphs)
   const ch2Page1Paras = lhHasSections
     ? (lhSections[0]?.paragraphs ?? [])
@@ -828,8 +827,22 @@ export async function buildClaudeExportJson(clientId: number): Promise<Record<st
       }
       return all;
     }
-    // Normal structure: lhSections[1] is the ## Recurring Motifs section with direct paragraphs
-    return lhSections[1]?.paragraphs ?? [];
+    // Normal structure: lhSections[1] is the ## Recurring Motifs section.
+    // If it has direct paragraphs, use them.
+    // If it has NO direct paragraphs (the LLM used ### sub-headings under ## Recurring Motifs),
+    // collect paragraphs from all following subsections until we hit a terminal section.
+    const recurringSection = lhSections[1];
+    if (!recurringSection) return [];
+    if (recurringSection.paragraphs.length > 0) return recurringSection.paragraphs;
+    // No direct paragraphs — collect from subsections that follow
+    const all: string[] = [];
+    for (let i = 2; i < lhSections.length; i++) {
+      const h = lhSections[i].heading.toLowerCase();
+      if (h.includes("pattern reveals") || h.includes("what the pattern") ||
+          h.includes("reveals") || h.includes("esf") || h.includes("findings")) break;
+      all.push(...lhSections[i].paragraphs);
+    }
+    return all;
   })();
 
   // Page 2: second named section (or second half of flat paragraphs — strictly non-overlapping)

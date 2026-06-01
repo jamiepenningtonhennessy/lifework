@@ -1,0 +1,20 @@
+{
+  "query": "SELECT \n  LENGTH(JSON_UNQUOTE(JSON_EXTRACT(wowReportJson, '$.lifeHistoryPattern'))) as totalLen,\n  INSTR(JSON_UNQUOTE(JSON_EXTRACT(wowReportJson, '$.lifeHistoryPattern')), '## Recurring') as recurringPos,\n  INSTR(JSON_UNQUOTE(JSON_EXTRACT(wowReportJson, '$.lifeHistoryPattern')), CHAR(10)) as firstNewlinePos,\n  INSTR(JSON_UNQUOTE(JSON_EXTRACT(wowReportJson, '$.lifeHistoryPattern')), CHAR(13)) as firstCRPos,\n  SUBSTRING(JSON_UNQUOTE(JSON_EXTRACT(wowReportJson, '$.lifeHistoryPattern')), 1, 500) as preview500\nFROM analysis_reports WHERE clientId = 870001 ORDER BY generatedAt DESC LIMIT 1",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 32u3a1hNYuu9Gj3.7d2282893346 --database kFbbE6kqNApXGDFpQJUGV7 --execute SELECT \n  LENGTH(JSON_UNQUOTE(JSON_EXTRACT(wowReportJson, '$.lifeHistoryPattern'))) as totalLen,\n  INSTR(JSON_UNQUOTE(JSON_EXTRACT(wowReportJson, '$.lifeHistoryPattern')), '## Recurring') as recurringPos,\n  INSTR(JSON_UNQUOTE(JSON_EXTRACT(wowReportJson, '$.lifeHistoryPattern')), CHAR(10)) as firstNewlinePos,\n  INSTR(JSON_UNQUOTE(JSON_EXTRACT(wowReportJson, '$.lifeHistoryPattern')), CHAR(13)) as firstCRPos,\n  SUBSTRING(JSON_UNQUOTE(JSON_EXTRACT(wowReportJson, '$.lifeHistoryPattern')), 1, 500) as preview500\nFROM analysis_reports WHERE clientId = 870001 ORDER BY generatedAt DESC LIMIT 1",
+  "rows": [
+    {
+      "totalLen": "4537",
+      "recurringPos": "861",
+      "firstNewlinePos": "20",
+      "firstCRPos": "0",
+      "preview500": "## The Opening Bars"
+    }
+  ],
+  "messages": [
+    "Your earliest achievements reveal a consistent drive to build and test limits. At age five, you constructed complex forts and dam walls, pushing structures to their breaking point. This is not merely about building, but about an engineering-minded curiosity to understand what is possible.",
+    "Growing up on a farm, you were given early opportunities to master new skills and take on responsibility. Learning to ride a motorbike at age six, and later working with your dad, shows a "
+  ],
+  "stdout": "totalLen\trecurringPos\tfirstNewlinePos\tfirstCRPos\tpreview500\n4537\t861\t20\t0\t## The Opening Bars\n\nYour earliest achievements reveal a consistent drive to build and test limits. At age five, you constructed complex forts and dam walls, pushing structures to their breaking point. This is not merely about building, but about an engineering-minded curiosity to understand what is possible.\n\nGrowing up on a farm, you were given early opportunities to master new skills and take on responsibility. Learning to ride a motorbike at age six, and later working with your dad, shows a \n",
+  "stderr": "",
+  "execution_time_ms": 280
+}
