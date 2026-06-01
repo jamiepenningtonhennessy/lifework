@@ -208,7 +208,6 @@ const normalizeResponseFormat = ({
 // ---------------------------------------------------------------------------
 
 const DEFAULT_MODEL = "claude-sonnet-4-5";
-const ANTHROPIC_API_URL = "https://api.anthropic.com/v1/messages";
 
 /** Convert an OpenAI-style message array to Anthropic's system + messages format */
 function toAnthropicMessages(messages: Message[]): {
@@ -262,8 +261,12 @@ function toAnthropicMessages(messages: Message[]): {
 }
 
 export async function invokeLLM(params: InvokeParams): Promise<InvokeResult> {
-  const apiKey = ENV.anthropicApiKey;
-  if (!apiKey) throw new Error("ANTHROPIC_API_KEY is not configured");
+  // Route through the Manus Forge proxy (OpenAI-compatible endpoint).
+  // Forge is reachable from both sandbox and Cloud Run; direct Anthropic API
+  // is not reliably reachable from the deployment environment.
+  const forgeApiUrl = ENV.forgeApiUrl;
+  const forgeApiKey = ENV.forgeApiKey;
+  if (!forgeApiUrl || !forgeApiKey) throw new Error("BUILT_IN_FORGE_API_URL / BUILT_IN_FORGE_API_KEY are not configured");
 
   const {
     messages,
@@ -278,126 +281,62 @@ export async function invokeLLM(params: InvokeParams): Promise<InvokeResult> {
     response_format,
   } = params;
 
-  const { system, messages: anthropicMessages } = toAnthropicMessages(messages);
+  // Build OpenAI-compatible payload (Forge accepts OpenAI chat/completions format)
+  const openAiMessages: Array<{ role: string; content: unknown }> = messages.map(m => ({
+    role: m.role,
+    content: m.content,
+  }));
 
   const payload: Record<string, unknown> = {
     model: DEFAULT_MODEL,
     max_tokens: maxTokens ?? max_tokens ?? 8192,
-    messages: anthropicMessages,
+    messages: openAiMessages,
   };
-
-  if (system) payload.system = system;
 
   // Tools
   if (tools && tools.length > 0) {
-    payload.tools = tools.map(t => ({
-      name: t.function.name,
-      description: t.function.description,
-      input_schema: t.function.parameters ?? { type: "object", properties: {} },
-    }));
-
+    payload.tools = tools;
     const tc = normalizeToolChoice(toolChoice || tool_choice, tools);
-    if (tc) {
-      if (tc === "none") payload.tool_choice = { type: "none" };
-      else if (tc === "auto") payload.tool_choice = { type: "auto" };
-      else payload.tool_choice = { type: "tool", name: (tc as ToolChoiceExplicit).function.name };
-    }
+    if (tc) payload.tool_choice = tc;
   }
 
-  // Structured output via JSON schema — use a system prompt injection since
-  // Anthropic does not have a native response_format field.
+  // Structured output
   const normalizedResponseFormat = normalizeResponseFormat({
     responseFormat,
     response_format,
     outputSchema,
     output_schema,
   });
-
-  if (normalizedResponseFormat?.type === "json_schema") {
-    const schemaStr = JSON.stringify(normalizedResponseFormat.json_schema.schema, null, 2);
-    const instruction = `\n\nYou must respond with valid JSON that conforms to this schema:\n${schemaStr}\nRespond with JSON only — no markdown fences, no explanation.`;
-    if (typeof payload.system === "string") {
-      payload.system = (payload.system as string) + instruction;
-    } else {
-      payload.system = instruction.trim();
-    }
-  } else if (normalizedResponseFormat?.type === "json_object") {
-    const instruction = "\n\nYou must respond with valid JSON only — no markdown fences, no explanation.";
-    if (typeof payload.system === "string") {
-      payload.system = (payload.system as string) + instruction;
-    } else {
-      payload.system = instruction.trim();
+  if (normalizedResponseFormat) {
+    if (normalizedResponseFormat.type === "json_schema") {
+      const schemaStr = JSON.stringify(normalizedResponseFormat.json_schema.schema, null, 2);
+      const instruction = `\n\nYou must respond with valid JSON that conforms to this schema:\n${schemaStr}\nRespond with JSON only — no markdown fences, no explanation.`;
+      // Inject into system message or prepend one
+      const sysIdx = openAiMessages.findIndex(m => m.role === "system");
+      if (sysIdx >= 0) {
+        openAiMessages[sysIdx] = { role: "system", content: (openAiMessages[sysIdx].content as string) + instruction };
+      } else {
+        openAiMessages.unshift({ role: "system", content: instruction.trim() });
+      }
+    } else if (normalizedResponseFormat.type === "json_object") {
+      payload.response_format = { type: "json_object" };
     }
   }
 
-  const response = await fetch(ANTHROPIC_API_URL, {
+  const response = await fetch(`${forgeApiUrl}/v1/chat/completions`, {
     method: "POST",
     headers: {
       "content-type": "application/json",
-      "x-api-key": apiKey,
-      "anthropic-version": "2023-06-01",
+      "Authorization": `Bearer ${forgeApiKey}`,
     },
     body: JSON.stringify(payload),
   });
 
   if (!response.ok) {
     const errorText = await response.text();
-    throw new Error(`LLM invoke failed: ${response.status} ${response.statusText} – ${errorText}`);
+    throw new Error(`LLM error ${response.status}: ${errorText}`);
   }
 
-  // Map Anthropic response back to OpenAI-compatible InvokeResult
-  const raw = (await response.json()) as {
-    id: string;
-    model: string;
-    content: Array<{
-      type: string;
-      text?: string;
-      id?: string;
-      name?: string;
-      input?: Record<string, unknown>;
-    }>;
-    stop_reason: string | null;
-    usage: { input_tokens: number; output_tokens: number };
-  };
-
-  // Collect text blocks and tool-use blocks
-  const textBlocks = raw.content.filter(b => b.type === "text");
-  const toolBlocks = raw.content.filter(b => b.type === "tool_use");
-
-  const messageContent: string =
-    textBlocks.map(b => b.text ?? "").join("") || "";
-
-  const toolCalls: ToolCall[] | undefined =
-    toolBlocks.length > 0
-      ? toolBlocks.map(b => ({
-          id: b.id ?? "",
-          type: "function" as const,
-          function: {
-            name: b.name ?? "",
-            arguments: JSON.stringify(b.input ?? {}),
-          },
-        }))
-      : undefined;
-
-  return {
-    id: raw.id,
-    created: Math.floor(Date.now() / 1000),
-    model: raw.model,
-    choices: [
-      {
-        index: 0,
-        message: {
-          role: "assistant",
-          content: messageContent,
-          ...(toolCalls ? { tool_calls: toolCalls } : {}),
-        },
-        finish_reason: raw.stop_reason,
-      },
-    ],
-    usage: {
-      prompt_tokens: raw.usage.input_tokens,
-      completion_tokens: raw.usage.output_tokens,
-      total_tokens: raw.usage.input_tokens + raw.usage.output_tokens,
-    },
-  };
+  // Forge returns OpenAI-compatible response — return as-is
+  return response.json() as Promise<InvokeResult>;
 }
