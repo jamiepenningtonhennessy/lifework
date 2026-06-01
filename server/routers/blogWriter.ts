@@ -218,9 +218,15 @@ async function fetchArticleText(url: string): Promise<string | null> {
   try {
     const resp = await fetch(url, {
       headers: { "User-Agent": "Mozilla/5.0 (compatible; LifeworkBlogBot/1.0)" },
-      signal: AbortSignal.timeout(8000),
+      signal: AbortSignal.timeout(10000),
     });
-    if (!resp.ok) return null;
+    // Accept any response that returns HTML — even non-200 pages often contain
+    // the article text (e.g. paywalled pages still render a lede paragraph).
+    const contentType = resp.headers.get("content-type") ?? "";
+    if (!contentType.includes("html") && !contentType.includes("text")) {
+      console.log(`[blogWriter.fetchArticleText] Skipping non-HTML response for ${url}: ${contentType}`);
+      return null;
+    }
     const html = await resp.text();
     // Strip script/style blocks first
     const noScript = html
@@ -235,8 +241,12 @@ async function fetchArticleText(url: string): Promise<string | null> {
       .replace(/\s{2,}/g, " ")
       .trim();
     // Return first 3000 chars — enough for the LLM to extract the key argument
-    return noScript.slice(0, 3000) || null;
-  } catch {
+    const result = noScript.slice(0, 3000) || null;
+    console.log(`[blogWriter.fetchArticleText] url=${url} status=${resp.status} stripped=${noScript.length} returning=${result ? result.length : 'null'}`);
+    return result;
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : String(err);
+    console.log(`[blogWriter.fetchArticleText] FAILED url=${url} error=${msg}`);
     return null;
   }
 }
@@ -252,10 +262,10 @@ export const blogWriterRouter = router({
       sourceUrl: z.string().url().optional(),
     }))
     .mutation(async ({ input }) => {
+      console.log(`[blogWriter.generate] postType=${input.postType} aspect=${input.aspect} voice=${input.voice} sourceUrl=${input.sourceUrl ?? 'none'}`);
       const postTypeLabel = POST_TYPES.find(p => p.id === input.postType)!.label;
       const aspectLabel = LIFEWORK_ASPECTS.find(a => a.id === input.aspect)!.label;
       const voiceLabel = BLOG_VOICES.find(v => v.id === input.voice)!.label;
-
       const voicePrompt = VOICE_PROMPTS[input.voice];
       const postTypeInstruction = POST_TYPE_INSTRUCTIONS[input.postType];
       const aspectContext = ASPECT_CONTEXT[input.aspect];
@@ -283,7 +293,7 @@ INSTRUCTIONS FOR USING THE EXTERNAL SOURCE:
         }
       }
 
-      const systemPrompt = `You are writing a LinkedIn post for a career coach who uses the Lifework methodology developed by Pennington Hennessy.
+      const systemPrompt = `You are writing a LinkedIn post for a career coach who uses the Lifework methodology developed by Pennington Hennessy.${articleBlock}
 
 ${LIFEWORK_BLOG_CANON}
 
@@ -307,7 +317,7 @@ LINKEDIN FORMAT RULES:
 - Do not end with a call to action ("DM me", "link in bio", etc.).
 - End with a single short sentence that lands the point cleanly.
 
-${LIFEWORK_BLOG_QUALITY_CHECK}${articleBlock}
+${LIFEWORK_BLOG_QUALITY_CHECK}
 
 No preamble in your response — output only the post text.`;
 
