@@ -788,6 +788,16 @@ export async function buildClaudeExportJson(clientId: number): Promise<Record<st
   const ch1Hero = summaryParas[0] ?? "";
   const ch1Paras = summaryParas.slice(1);
 
+  // Shared utility: trim a paragraph to at most N words, ending on a sentence boundary if possible
+  function trimToWords(para: string, maxWords: number): string {
+    const words = para.split(/\s+/);
+    if (words.length <= maxWords) return para;
+    const truncated = words.slice(0, maxWords).join(" ");
+    const sentenceEnd = truncated.search(/[.!?][^.!?]*$/);
+    if (sentenceEnd > 0) return truncated.slice(0, sentenceEnd + 1);
+    return truncated + "\u2026";
+  }
+
   // CH2 — Life History Pattern
   const lhSections = extractAllSections(sections.lifeHistoryPattern ?? "");
   // All raw paragraphs — used as fallback when LLM produces flat or single-section output
@@ -1015,16 +1025,6 @@ export async function buildClaudeExportJson(clientId: number): Promise<Record<st
   const CH8_MAX_SECTIONS = 3;
   const CH8_MAX_PARAS_PER_SECTION = 2;
   const CH8_MAX_WORDS_PER_PARA = 60;
-  /** Trim a paragraph to at most N words, ending on a complete sentence if possible */
-  function trimToWords(para: string, maxWords: number): string {
-    const words = para.split(/\s+/);
-    if (words.length <= maxWords) return para;
-    const truncated = words.slice(0, maxWords).join(" ");
-    // Try to end on a sentence boundary
-    const sentenceEnd = truncated.search(/[.!?][^.!?]*$/);
-    if (sentenceEnd > 0) return truncated.slice(0, sentenceEnd + 1);
-    return truncated + "…";
-  }
   const ch8Sections = ch8AllSections.length > 0
     ? ch8AllSections.slice(0, CH8_MAX_SECTIONS).map(s => ({
         heading: s.heading,
@@ -1084,15 +1084,16 @@ export async function buildClaudeExportJson(clientId: number): Promise<Record<st
     },
     CH2: {
       LEDE: ch2Page1Paras[0] ?? "",
-      PAGE1_PARAGRAPHS: ch2Page1Paras.slice(1, 4),
+      PAGE1_PARAGRAPHS: ch2Page1Paras.slice(1, 4).map(p => trimToWords(p, 55)),
       PAGE1_SECTION_H: ch2Page1SectionH,
-      // Bold the first sentence of every recurring themes paragraph
+      // Bold the first sentence of every recurring themes paragraph; cap each at 55 words
       PAGE1_SECTION_PARAS: ch2Page1SectionParas.slice(0, 6).map((para) => {
-        const sentenceEnd = para.search(/(?<=[.!?])\s+[A-Z]/);
+        const trimmed = trimToWords(para, 55);
+        const sentenceEnd = trimmed.search(/(?<=[.!?])\s+[A-Z]/);
         if (sentenceEnd > 0) {
-          return `<b>${para.slice(0, sentenceEnd + 1)}</b>${para.slice(sentenceEnd + 1)}`;
+          return `<b>${trimmed.slice(0, sentenceEnd + 1)}</b>${trimmed.slice(sentenceEnd + 1)}`;
         }
-        return `<b>${para}</b>`;
+        return `<b>${trimmed}</b>`;
       }),
       PAGE2_SECTION_H: ch2Page2SectionH,
       PAGE2_PARAGRAPHS: ch2Page2Paras,
