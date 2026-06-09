@@ -246,11 +246,6 @@ body{ display:flex; flex-direction:column; align-items:center; gap:30px; padding
 .rail .num{ font-family:var(--sans); font-weight:700; font-size:58px; line-height:0.82; color:var(--gold); letter-spacing:-0.03em; }
 .rail .lab{ font-family:var(--mono); font-size:9.5px; letter-spacing:0.18em; text-transform:uppercase; color:var(--navy); margin-top:14px; font-weight:600; }
 .rail .sub{ font-family:var(--mono); font-size:9px; letter-spacing:0.1em; text-transform:uppercase; color:var(--ink-muted); margin-top:6px; line-height:1.5; }
-/* continuation rail — same 120px column so the grey line stays aligned page-to-page */
-.rail.cont .num{ color:var(--navy-mist); }
-.rail.cont.accent .num{ color:var(--gold); }
-.rail .cmark{ width:30px; height:30px; background:var(--navy-mist); }
-.rail.cont.accent .cmark{ background:var(--gold); }
 .main{ min-width:0; }
 
 /* eyebrow + titles */
@@ -263,6 +258,10 @@ h2.chap-title em{ color:var(--gold); font-style:normal; }
 
 /* text */
 p{ font-family:var(--sans); font-size:12.5px; line-height:1.66; color:var(--ink); margin:0 0 13px; font-weight:400; }
+/* CH2 / CH2B slightly larger body text */
+.ch2-body p{ font-size:13.5px; line-height:1.68; margin:0 0 15px; }
+.ch2-body p.lede{ font-size:14.5px; }
+.ch2-body .pillar .learn{ font-size:13.5px; line-height:1.55; }
 .hero{ font-family:var(--sans); font-weight:500; font-size:18px; line-height:1.46; color:var(--navy); margin:0 0 20px; letter-spacing:-0.01em; }
 p.lede{ font-size:13.5px; line-height:1.62; color:var(--navy-soft); margin:0 0 22px; max-width:62ch; }
 h3.section-h{ font-family:var(--mono); font-size:10.5px; font-weight:600; letter-spacing:0.18em; text-transform:uppercase;
@@ -406,7 +405,7 @@ table.variants td.q{ font-family:var(--sans); font-weight:500; font-size:13.5px;
 /* annex pages */
 .annex-title{ font-family:var(--sans); font-weight:700; font-size:34px; color:var(--navy); margin:0 0 6px; letter-spacing:-0.02em; }
 .annex-title em{ color:var(--gold); font-style:normal; }
-.subhead{ font-family:var(--mono); font-size:10px; font-weight:600; letter-spacing:0.16em; text-transform:uppercase; color:var(--navy); margin:16px 0 10px; padding-bottom:6px; border-bottom:1px solid var(--rule-strong); }
+.subhead{ font-family:var(--mono); font-size:10px; font-weight:600; letter-spacing:0.16em; text-transform:uppercase; color:var(--navy); margin:22px 0 12px; padding-bottom:6px; border-bottom:1px solid var(--rule-strong); }
 .subhead:first-child{ margin-top:0; }
 
 /* life-history entries */
@@ -439,25 +438,23 @@ table.variants td.q{ font-family:var(--sans); font-weight:500; font-size:13.5px;
 .edu .es{ font-family:var(--sans); font-weight:600; font-size:13.5px; color:var(--navy); }
 .edu .ey{ font-family:var(--mono); font-size:9px; letter-spacing:0.1em; text-transform:uppercase; color:var(--ink-muted); white-space:nowrap; }
 .edu .en{ font-family:var(--sans); font-size:11px; line-height:1.5; color:var(--ink); margin-top:4px; }
-.career{ border-bottom:1px solid var(--rule); padding:7px 0; break-inside:avoid; }
+.career{ border-bottom:1px solid var(--rule); padding:11px 0; break-inside:avoid; }
 .career .ch{ display:flex; align-items:baseline; justify-content:space-between; gap:14px; }
 .career .co{ font-family:var(--sans); font-weight:700; font-size:14px; color:var(--navy); }
 .career .cmeta{ font-family:var(--mono); font-size:9px; letter-spacing:0.1em; text-transform:uppercase; color:var(--ink-muted); white-space:nowrap; }
-.career .cr{ font-family:var(--mono); font-size:9px; letter-spacing:0.12em; text-transform:uppercase; color:var(--gold-deep); margin:2px 0 3px; }
-.career .cbody{ font-family:var(--sans); font-size:11px; line-height:1.5; color:var(--ink); margin:0 0 3px; }
+.career .cr{ font-family:var(--mono); font-size:9px; letter-spacing:0.12em; text-transform:uppercase; color:var(--gold-deep); margin:3px 0 5px; }
+.career .cbody{ font-family:var(--sans); font-size:11px; line-height:1.55; color:var(--ink); margin:0 0 5px; }
 .career .cmeta-row{ display:grid; grid-template-columns:auto 1fr; gap:10px 12px; font-family:var(--sans); font-size:10.5px; line-height:1.5; }
 .career .cmeta-row .mk{ font-family:var(--mono); font-size:8px; letter-spacing:0.12em; text-transform:uppercase; color:var(--ink-muted); padding-top:1px; }
 .career .cmeta-row .mv{ color:var(--ink); }
 
-/* definitions grid (VIA / OCEAN) — explicit 2-col grid, balanced split in template */
-.defs{ display:grid; grid-template-columns:1fr 1fr; gap:0 28px; margin-top:6px; align-items:start; }
-.defs.three{ grid-template-columns:1fr 1fr 1fr; gap:0 26px; }
-.defcol{ min-width:0; }
-.vgroup{ break-inside:avoid; margin-bottom:7px; }
-.vgroup .vg{ font-family:var(--mono); font-size:9px; font-weight:600; letter-spacing:0.18em; text-transform:uppercase; color:var(--gold-deep); padding-bottom:3px; border-bottom:1px solid var(--rule); margin-bottom:6px; }
-.def{ margin-bottom:4px; break-inside:avoid; }
-.def .dn{ font-family:var(--sans); font-weight:600; font-size:11px; color:var(--navy); }
-.def .dd{ font-family:var(--sans); font-size:9.5px; line-height:1.4; color:var(--ink-muted); margin-top:1px; }
+/* definitions grid (VIA / OCEAN) */
+.defs{ columns:2; column-gap:34px; margin-top:6px; }
+.vgroup{ break-inside:avoid; margin-bottom:12px; }
+.vgroup .vg{ font-family:var(--mono); font-size:9px; font-weight:600; letter-spacing:0.18em; text-transform:uppercase; color:var(--gold-deep); padding-bottom:4px; border-bottom:1px solid var(--rule); margin-bottom:7px; }
+.def{ margin-bottom:8px; break-inside:avoid; }
+.def .dn{ font-family:var(--sans); font-weight:600; font-size:11.5px; color:var(--navy); }
+.def .dd{ font-family:var(--sans); font-size:10px; line-height:1.45; color:var(--ink-muted); margin-top:1px; }
 
 /* facet groups (OCEAN annex) */
 .fgroup{ margin-bottom:14px; break-inside:avoid; }
@@ -556,7 +553,7 @@ const TEMPLATE = `<!doctype html>
 <!-- ════════ PAGE 4 · CH 2 LIFE HISTORY (1/2) ════════ -->
 <section class="page">
   <div class="band"><span class="wm">Life<b>work</b></span><span>Chapter 2 · Life History Pattern</span></div>
-  <div class="body grid">
+  <div class="body grid ch2-body">
     <div class="rail"><div class="num">02</div><div class="lab">Life History</div><div class="sub">The pattern</div></div>
     <div class="main">
       <h2 class="chap-title">Life history — <em>the pattern.</em></h2>
@@ -570,11 +567,26 @@ const TEMPLATE = `<!doctype html>
   <div class="foot"><span>{{BRAND.COMPANY}}</span><span>{{CLIENT.NAME}} · <span class="cur">04</span></span></div>
 </section>
 
+<!-- ════════ PAGE 5 · CH 2 LIFE HISTORY (2/2) ════════ -->
+{{#IF CH2.PAGE2_PARAGRAPHS}}
+<section class="page">
+  <div class="band"><span class="wm">Life<b>work</b></span><span>Chapter 2 · Life History Pattern</span></div>
+  <div class="body ch2-body"><div class="main">
+    <div class="eyebrow">Chapter 02 · continued</div>
+    <h3 class="section-h">What the pattern reveals</h3>
+    {{#EACH CH2.KEYFIND.PARAGRAPHS}}<p>{{.}}</p>{{/EACH}}
+    <h3 class="section-h">Your ESF distribution</h3>
+    <p>{{CH2.KEYFIND.ESF_PARA}}</p>
+  </div></div>
+  <div class="foot"><span>{{BRAND.COMPANY}}</span><span>{{CLIENT.NAME}} · <span class="cur">05</span></span></div>
+</section>
+{{/IF}}
+
 <!-- ════════ PAGE 5b · CH 2B FOUR CONDITIONS (i) ════════ -->
 {{#IF CH2B.HAS_CONTENT}}
 <section class="page">
   <div class="band"><span class="wm">Life<b>work</b></span><span>Chapter 2b · Four Conditions of Fulfilment</span></div>
-  <div class="body grid">
+  <div class="body grid ch2-body">
     <div class="rail"><div class="num">02b</div><div class="lab">Four Conditions</div><div class="sub">Of fulfilment</div></div>
     <div class="main">
       <h2 class="chap-title">Four Conditions of <em>Fulfilment.</em></h2>
@@ -583,12 +595,12 @@ const TEMPLATE = `<!doctype html>
       {{#IF CH2B.PILLAR_PLACES}}
       <div class="pillar"><div class="ph"><span class="pn">{{CH2B.PILLAR_PLACES.HEADING_ALLCAPS}}</span>{{#IF CH2B.PILLAR_PLACES.HEADING_SUBTITLE}}<span class="ps">— {{CH2B.PILLAR_PLACES.HEADING_SUBTITLE}}</span>{{/IF}}</div>
       {{#IF CH2B.PILLAR_PLACES.LEARNING}}<p class="learn"><b>Learning:</b> {{CH2B.PILLAR_PLACES.LEARNING}}</p>{{/IF}}
-      {{#EACH CH2B.PILLAR_PLACES.EXAMPLES}}<p>{{.}}</p>{{/EACH}}</div>
+      {{#IF CH2B.PILLAR_PLACES.EXAMPLE1}}<p>{{CH2B.PILLAR_PLACES.EXAMPLE1}}</p>{{/IF}}</div>
       {{/IF}}
       {{#IF CH2B.PILLAR_PEOPLE}}
       <div class="pillar"><div class="ph"><span class="pn">{{CH2B.PILLAR_PEOPLE.HEADING_ALLCAPS}}</span>{{#IF CH2B.PILLAR_PEOPLE.HEADING_SUBTITLE}}<span class="ps">— {{CH2B.PILLAR_PEOPLE.HEADING_SUBTITLE}}</span>{{/IF}}</div>
       {{#IF CH2B.PILLAR_PEOPLE.LEARNING}}<p class="learn"><b>Learning:</b> {{CH2B.PILLAR_PEOPLE.LEARNING}}</p>{{/IF}}
-      {{#EACH CH2B.PILLAR_PEOPLE.EXAMPLES}}<p>{{.}}</p>{{/EACH}}</div>
+      {{#IF CH2B.PILLAR_PEOPLE.EXAMPLE1}}<p>{{CH2B.PILLAR_PEOPLE.EXAMPLE1}}</p>{{/IF}}</div>
       {{/IF}}
     </div>
   </div>
@@ -598,24 +610,21 @@ const TEMPLATE = `<!doctype html>
 <!-- ════════ PAGE 5c · CH 2B FOUR CONDITIONS (ii) ════════ -->
 <section class="page">
   <div class="band"><span class="wm">Life<b>work</b></span><span>Chapter 2b · Four Conditions of Fulfilment</span></div>
-  <div class="body grid">
-    <div class="rail cont"><div class="num">02b</div><div class="lab">Four Conditions</div><div class="sub">Continued</div></div>
-    <div class="main">
+  <div class="body ch2-body"><div class="main">
+    <div class="eyebrow">Chapter 02b · continued</div>
     {{#IF CH2B.PILLAR_PROBLEMS}}
     <div class="pillar" style="margin-top:0;"><div class="ph"><span class="pn">{{CH2B.PILLAR_PROBLEMS.HEADING_ALLCAPS}}</span>{{#IF CH2B.PILLAR_PROBLEMS.HEADING_SUBTITLE}}<span class="ps">— {{CH2B.PILLAR_PROBLEMS.HEADING_SUBTITLE}}</span>{{/IF}}</div>
     {{#IF CH2B.PILLAR_PROBLEMS.LEARNING}}<p class="learn"><b>Learning:</b> {{CH2B.PILLAR_PROBLEMS.LEARNING}}</p>{{/IF}}
-    {{#EACH CH2B.PILLAR_PROBLEMS.EXAMPLES}}<p>{{.}}</p>{{/EACH}}</div>
+    {{#IF CH2B.PILLAR_PROBLEMS.EXAMPLE1}}<p>{{CH2B.PILLAR_PROBLEMS.EXAMPLE1}}</p>{{/IF}}</div>
     {{/IF}}
     {{#IF CH2B.PILLAR_PROCEDURES}}
     <div class="pillar"><div class="ph"><span class="pn">{{CH2B.PILLAR_PROCEDURES.HEADING_ALLCAPS}}</span>{{#IF CH2B.PILLAR_PROCEDURES.HEADING_SUBTITLE}}<span class="ps">— {{CH2B.PILLAR_PROCEDURES.HEADING_SUBTITLE}}</span>{{/IF}}</div>
     {{#IF CH2B.PILLAR_PROCEDURES.LEARNING}}<p class="learn"><b>Learning:</b> {{CH2B.PILLAR_PROCEDURES.LEARNING}}</p>{{/IF}}
-    {{#EACH CH2B.PILLAR_PROCEDURES.EXAMPLES}}<p>{{.}}</p>{{/EACH}}</div>
+    {{#IF CH2B.PILLAR_PROCEDURES.EXAMPLE1}}<p>{{CH2B.PILLAR_PROCEDURES.EXAMPLE1}}</p>{{/IF}}</div>
     {{/IF}}
     {{#IF CH2B.COMBINATION_SYNTHESIS}}
     <div class="combo"><h3 class="section-h">The Combination</h3>
-    <p class="synth">{{CH2B.COMBINATION_SYNTHESIS}}</p>
-    {{#IF CH2B.COMBINATION_QUESTION}}<p>{{CH2B.COMBINATION_QUESTION}}</p>{{/IF}}
-    {{#IF CH2B.CITATION}}<p class="citation">{{CH2B.CITATION}}</p>{{/IF}}</div>
+    <p>{{CH2B.COMBINATION_SYNTHESIS}}</p></div>
     {{/IF}}
   </div></div>
   <div class="foot"><span>{{BRAND.COMPANY}}</span><span>{{CLIENT.NAME}} · <span class="cur">05c</span></span></div>
@@ -662,9 +671,8 @@ const TEMPLATE = `<!doctype html>
 <!-- ════════ PAGE 8 · CH 3 KEY FINDINGS ════════ -->
 <section class="page">
   <div class="band"><span class="wm">Life<b>work</b></span><span>Chapter 3 · Character Strengths</span></div>
-  <div class="body grid">
-    <div class="rail cont"><div class="num">03</div><div class="lab">VIA</div><div class="sub">Key findings</div></div>
-    <div class="main">
+  <div class="body"><div class="main">
+    <div class="eyebrow">Chapter 03 · key findings</div>
     <h3 class="section-h">Key findings</h3>
     {{#EACH CH3.KEY_FINDINGS}}<p>{{.}}</p>{{/EACH}}
   </div></div>
@@ -696,9 +704,8 @@ const TEMPLATE = `<!doctype html>
 <!-- ════════ PAGE 10 · CH 4 TWO PICTURES ════════ -->
 <section class="page">
   <div class="band"><span class="wm">Life<b>work</b></span><span>Chapter 4 · Personality Profile</span></div>
-  <div class="body grid">
-    <div class="rail cont"><div class="num">04</div><div class="lab">OCEAN</div><div class="sub">Synthesis</div></div>
-    <div class="main">
+  <div class="body"><div class="main">
+    <div class="eyebrow">Chapter 04 · synthesis</div>
     <h3 class="section-h">Where the two pictures meet</h3>
     {{#EACH CH4.SYNTHESIS_PARAS}}<p>{{.}}</p>{{/EACH}}
     <div class="keyfind"><div class="kt">{{CH4.KEYFIND.TITLE}}</div><p>{{CH4.KEYFIND.BODY}}</p></div>
@@ -753,11 +760,22 @@ const TEMPLATE = `<!doctype html>
       <h2 class="chap-title">Development <em>edge.</em></h2>
       <div class="hr-gold"></div>
       {{#EACH CH6.SECTIONS}}<h3 class="section-h">{{.heading}}</h3>{{#EACH .paragraphs}}<p>{{.}}</p>{{/EACH}}{{/EACH}}
-      {{#IF CH6.HAS_OVERFLOW}}{{#EACH CH6.OVERFLOW_SECTIONS}}{{#IF .heading}}<h3 class="section-h">{{.heading}}</h3>{{/IF}}{{#EACH .paragraphs}}<p>{{.}}</p>{{/EACH}}{{/EACH}}{{/IF}}
     </div>
   </div>
   <div class="foot"><span>{{BRAND.COMPANY}}</span><span>{{CLIENT.NAME}} · <span class="cur">12</span></span></div>
 </section>
+
+<!-- ════════ PAGE 12b · CH 6 DEVELOPMENT EDGE (OVERFLOW) ════════ -->
+{{#IF CH6.HAS_OVERFLOW}}
+<section class="page">
+  <div class="band"><span class="wm">Life<b>work</b></span><span>Chapter 6 · Development Edge (continued)</span></div>
+  <div class="body"><div class="main">
+    <div class="eyebrow">Chapter 06 · continued</div>
+    {{#EACH CH6.OVERFLOW_SECTIONS}}{{#IF .heading}}<h3 class="section-h">{{.heading}}</h3>{{/IF}}{{#EACH .paragraphs}}<p>{{.}}</p>{{/EACH}}{{/EACH}}
+  </div></div>
+  <div class="foot"><span>{{BRAND.COMPANY}}</span><span>{{CLIENT.NAME}} · <span class="cur">12b</span></span></div>
+</section>
+{{/IF}}
 
 <!-- ════════ PAGE 13 · CH 7 CONCLUSIONS (past/present) ════════ -->
 <section class="page">
@@ -780,9 +798,8 @@ const TEMPLATE = `<!doctype html>
 <!-- ════════ PAGE 14 · CH 7 FUTURE + TELL-ME-ABOUT ════════ -->
 <section class="page">
   <div class="band"><span class="wm">Life<b>work</b></span><span>Chapter 7 · Conclusions</span></div>
-  <div class="body grid">
-    <div class="rail cont"><div class="num">07</div><div class="lab">Conclusions</div><div class="sub">Future</div></div>
-    <div class="main">
+  <div class="body"><div class="main">
+    <div class="eyebrow">Chapter 07 · continued</div>
     <h3 class="section-h">Future</h3>
     {{#EACH CH7.FUTURE}}<p>{{.}}</p>{{/EACH}}
     <div class="tmay">
@@ -814,9 +831,8 @@ const TEMPLATE = `<!doctype html>
 {{#IF CH8.HAS_OVERFLOW}}
 <section class="page">
   <div class="band"><span class="wm">Life<b>work</b></span><span>Chapter 8 · Career Directions (continued)</span></div>
-  <div class="body grid">
-    <div class="rail cont"><div class="num">08</div><div class="lab">Directions</div><div class="sub">Continued</div></div>
-    <div class="main">
+  <div class="body"><div class="main">
+    <div class="eyebrow">Chapter 08 · continued</div>
     {{#EACH CH8.OVERFLOW_DIRECTIONS}}{{#IF .heading}}<h3 class="section-h">{{.heading}}</h3>{{/IF}}{{#EACH .paragraphs}}<p>{{.}}</p>{{/EACH}}{{/EACH}}
     <div class="pull">{{CH8.CLOSING}}</div>
   </div></div>
@@ -827,9 +843,8 @@ const TEMPLATE = `<!doctype html>
 <!-- ════════ PAGE 16 · APPENDIX — FOUR VARIANTS ════════ -->
 <section class="page">
   <div class="band"><span class="wm">Life<b>work</b></span><span>Appendix</span></div>
-  <div class="body grid">
-    <div class="rail cont accent"><div class="cmark"></div><div class="lab">Appendix</div><div class="sub">Report variants</div></div>
-    <div class="main">
+  <div class="body"><div class="main">
+    <div class="eyebrow">Appendix</div>
     <h2 class="annex-title">The four report <em>variants.</em></h2>
     <div class="hr-gold"></div>
     <p class="lede">{{APPENDIX.LEDE}}</p>
@@ -865,14 +880,14 @@ const TEMPLATE = `<!doctype html>
 {{#EACH LIFE_HISTORY.PAGES}}
 <section class="page">
   <div class="band"><span class="wm">Life<b>work</b></span><span>A · Life History</span></div>
-  <div class="body grid">
-    <div class="rail cont{{#IF .showKicker}} accent{{/IF}}"><div class="num">A</div><div class="lab">Life History</div><div class="sub">{{#IF .showKicker}}Annex{{/IF}}{{#IF .continued}}Continued{{/IF}}</div></div>
-    <div class="main">
+  <div class="body"><div class="main">
     {{#IF .showKicker}}
+    <div class="eyebrow">Annex A · Life History</div>
     <h2 class="annex-title">Life <em>history.</em></h2>
     <div class="hr-gold"></div>
     <p class="lede">Achievements recorded during the Sage life history interview. Where Sage asked a follow-up, the enrichment note is shown beneath.</p>
     {{/IF}}
+    {{#IF .continued}}<div class="eyebrow">Annex A · continued</div>{{/IF}}
     {{#EACH .stages}}
     <div class="stage"><span class="st">{{.title}}</span><span class="sa">{{.ages}}</span></div>
     {{#EACH .entries}}
@@ -889,9 +904,8 @@ const TEMPLATE = `<!doctype html>
 <!-- ════════ ANNEX B · BIOGRAPHICAL DATA ════════ -->
 <section class="page">
   <div class="band"><span class="wm">Life<b>work</b></span><span>B · Biographical Data</span></div>
-  <div class="body grid">
-    <div class="rail cont accent"><div class="num">B</div><div class="lab">Biographical</div><div class="sub">Annex</div></div>
-    <div class="main">
+  <div class="body"><div class="main">
+    <div class="eyebrow">Annex B · Biographical</div>
     <h2 class="annex-title">Biographical <em>data.</em></h2>
     <div class="hr-gold"></div>
     <p class="lede">Family background, educational history, and career history as provided by the client.</p>
@@ -924,9 +938,8 @@ const TEMPLATE = `<!doctype html>
 <!-- ════════ ANNEX B (cont.) · CAREER HISTORY ════════ -->
 <section class="page">
   <div class="band"><span class="wm">Life<b>work</b></span><span>B · Biographical Data</span></div>
-  <div class="body grid">
-    <div class="rail cont"><div class="num">B</div><div class="lab">Biographical</div><div class="sub">Career history</div></div>
-    <div class="main">
+  <div class="body"><div class="main">
+    <div class="eyebrow">Annex B · Career history</div>
     <h3 class="subhead">B3 — Career history</h3>
     {{#IF BIOGRAPHICAL.HAS_CAREER}}
     {{#EACH BIOGRAPHICAL.CAREER}}
@@ -946,9 +959,8 @@ const TEMPLATE = `<!doctype html>
 <!-- ════════ ANNEX C · VIA FULL 24 ════════ -->
 <section class="page">
   <div class="band"><span class="wm">Life<b>work</b></span><span>C · VIA Character Strengths</span></div>
-  <div class="body grid">
-    <div class="rail cont accent"><div class="num">C</div><div class="lab">VIA · 24</div><div class="sub">Annex</div></div>
-    <div class="main">
+  <div class="body"><div class="main">
+    <div class="eyebrow">Annex C · VIA</div>
     <h2 class="annex-title">VIA character <em>strengths.</em></h2>
     <div class="hr-gold"></div>
     <p class="lede">All 24 strengths ranked by score out of 25. Top 5 highlighted in gold; bottom 5 in muted.</p>
@@ -963,14 +975,12 @@ const TEMPLATE = `<!doctype html>
 <!-- ════════ ANNEX C (cont.) · VIA DEFINITIONS ════════ -->
 <section class="page">
   <div class="band"><span class="wm">Life<b>work</b></span><span>C · VIA Character Strengths — Definitions</span></div>
-  <div class="body grid">
-    <div class="rail cont"><div class="num">C</div><div class="lab">VIA · 24</div><div class="sub">Definitions</div></div>
-    <div class="main">
+  <div class="body"><div class="main">
+    <div class="eyebrow">Annex C · Definitions</div>
     <h2 class="annex-title">VIA <em>definitions.</em></h2>
     <div class="hr-gold"></div>
     <p class="lede">The 24 character strengths, grouped by the six core virtues. Definitions are drawn from the VIA Classification (Peterson &amp; Seligman, 2004).</p>
     <div class="defs">
-      <div class="defcol">
       <div class="vgroup"><div class="vg">Wisdom</div>
         <div class="def"><span class="dn">Creativity</span><div class="dd">Thinking of novel and productive ways to conceptualise and do things; includes artistic achievement but is not limited to it.</div></div>
         <div class="def"><span class="dn">Curiosity</span><div class="dd">Taking an interest in ongoing experience for its own sake; finding subjects and topics fascinating; exploring and discovering.</div></div>
@@ -989,8 +999,6 @@ const TEMPLATE = `<!doctype html>
         <div class="def"><span class="dn">Kindness</span><div class="dd">Doing favours and good deeds for others; helping them; taking care of them.</div></div>
         <div class="def"><span class="dn">Social Intelligence</span><div class="dd">Being aware of the motives and feelings of other people and oneself; knowing what to do to fit into different social situations.</div></div>
       </div>
-      </div>
-      <div class="defcol">
       <div class="vgroup"><div class="vg">Justice</div>
         <div class="def"><span class="dn">Teamwork</span><div class="dd">Working well as a member of a group or team; being loyal to the group; doing one’s share.</div></div>
         <div class="def"><span class="dn">Fairness</span><div class="dd">Treating all people the same according to notions of fairness and justice; not letting personal feelings bias decisions.</div></div>
@@ -1009,7 +1017,6 @@ const TEMPLATE = `<!doctype html>
         <div class="def"><span class="dn">Humour</span><div class="dd">Liking to laugh and tease; bringing smiles to other people; seeing the light side; making jokes.</div></div>
         <div class="def"><span class="dn">Spirituality</span><div class="dd">Having coherent beliefs about the higher purpose and meaning of the universe; knowing where one fits within the larger scheme.</div></div>
       </div>
-      </div>
     </div>
   </div></div>
   <div class="foot"><span>{{BRAND.COMPANY}}</span><span>{{CLIENT.NAME}} · Annex C</span></div>
@@ -1018,9 +1025,8 @@ const TEMPLATE = `<!doctype html>
 <!-- ════════ ANNEX D · OCEAN FACETS (1/2) ════════ -->
 <section class="page">
   <div class="band"><span class="wm">Life<b>work</b></span><span>D · OCEAN Personality Profile</span></div>
-  <div class="body grid">
-    <div class="rail cont accent"><div class="num">D</div><div class="lab">OCEAN</div><div class="sub">Annex</div></div>
-    <div class="main">
+  <div class="body"><div class="main">
+    <div class="eyebrow">Annex D · OCEAN</div>
     <h2 class="annex-title">OCEAN personality <em>profile.</em></h2>
     <div class="hr-gold"></div>
     <p class="lede">Five domain scores and 30 sub-scale facets. Scores are percentiles (0–100). Above 70 is high; below 30 is low.</p>
@@ -1036,9 +1042,8 @@ const TEMPLATE = `<!doctype html>
 <!-- ════════ ANNEX D · OCEAN FACETS (2/2) ════════ -->
 <section class="page">
   <div class="band"><span class="wm">Life<b>work</b></span><span>D · OCEAN Personality Profile</span></div>
-  <div class="body grid">
-    <div class="rail cont"><div class="num">D</div><div class="lab">OCEAN</div><div class="sub">Continued</div></div>
-    <div class="main">
+  <div class="body"><div class="main">
+    <div class="eyebrow">Annex D · continued</div>
     {{#EACH OCEAN.PAGE2_DOMAINS}}
     <div class="fgroup"><div class="fgh"><span class="fgn">{{.name}}</span><span class="fgs">{{.pct}}<span class="pct">%ile</span></span></div>
       <div class="facets">{{#EACH .facets}}<div class="facet"><span class="fn">{{.name}}</span><span class="fb"><span class="ff" style="width:{{.pct}}%"></span></span><span class="fs">{{.pct}}</span></div>{{/EACH}}</div>
@@ -1054,12 +1059,11 @@ const TEMPLATE = `<!doctype html>
 <section class="page">
   <div class="band"><span class="wm">Life<b>work</b></span><span>D · OCEAN — Sub-scale Definitions</span></div>
   <div class="body"><div class="main">
-    <div class="eyebrow">Annex D · Sub-scale definitions</div>
+    <div class="eyebrow">Annex D · Sub-scales</div>
     <h2 class="annex-title">OCEAN <em>sub-scales.</em></h2>
     <div class="hr-gold"></div>
     <p class="lede">The 30 facets of the NEO Personality Inventory, grouped by the five broad domains. Definitions are drawn from Costa &amp; McCrae (1992).</p>
-    <div class="defs three">
-      <div class="defcol">
+    <div class="defs">
       <div class="vgroup"><div class="vg">Openness to Experience</div>
         <div class="def"><span class="dn">Imagination</span><div class="dd">A vivid imagination and a tendency to create a rich inner world of fantasy; daydreaming as a creative outlet.</div></div>
         <div class="def"><span class="dn">Artistic Interests</span><div class="dd">Deep appreciation for art, music, and poetry; moved by beauty in nature and the arts.</div></div>
@@ -1076,8 +1080,6 @@ const TEMPLATE = `<!doctype html>
         <div class="def"><span class="dn">Self-Discipline</span><div class="dd">The capacity to begin tasks and carry them through to completion despite boredom or distraction.</div></div>
         <div class="def"><span class="dn">Cautiousness</span><div class="dd">Thinking carefully before acting or speaking; deliberateness and a tendency to weigh consequences.</div></div>
       </div>
-      </div>
-      <div class="defcol">
       <div class="vgroup"><div class="vg">Extraversion</div>
         <div class="def"><span class="dn">Friendliness</span><div class="dd">Genuine liking for other people and a tendency to form close, warm attachments; easy to get along with.</div></div>
         <div class="def"><span class="dn">Gregariousness</span><div class="dd">Preference for the company of others; enjoyment of crowds and social gatherings.</div></div>
@@ -1094,8 +1096,6 @@ const TEMPLATE = `<!doctype html>
         <div class="def"><span class="dn">Modesty</span><div class="dd">Humbleness and self-effacement; reluctance to claim superiority over others even when entitled to.</div></div>
         <div class="def"><span class="dn">Sympathy</span><div class="dd">Being moved by others’ needs; a tender-minded attitude and concern for the less fortunate.</div></div>
       </div>
-      </div>
-      <div class="defcol">
       <div class="vgroup"><div class="vg">Neuroticism (Emotional Range)</div>
         <div class="def"><span class="dn">Anxiety</span><div class="dd">Tendency to experience worry, fear, and apprehension; a nervous, tense disposition that anticipates trouble.</div></div>
         <div class="def"><span class="dn">Anger</span><div class="dd">Tendency to experience frustration, bitterness, and anger when things do not go as desired.</div></div>
@@ -1103,7 +1103,6 @@ const TEMPLATE = `<!doctype html>
         <div class="def"><span class="dn">Self-Consciousness</span><div class="dd">Shyness and social anxiety; discomfort around others and sensitivity to ridicule or embarrassment.</div></div>
         <div class="def"><span class="dn">Immoderation</span><div class="dd">Difficulty resisting cravings and urges; a tendency to pursue short-term pleasures despite longer-term costs.</div></div>
         <div class="def"><span class="dn">Vulnerability</span><div class="dd">Susceptibility to stress; a tendency to feel panicked, confused, or unable to cope under pressure.</div></div>
-      </div>
       </div>
     </div>
   </div></div>
