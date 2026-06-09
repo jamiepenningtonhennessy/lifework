@@ -1088,7 +1088,7 @@ export async function buildClaudeExportJson(clientId: number): Promise<Record<st
       }
       const mapPillar = (p: typeof fp.pillars[0] | undefined) =>
         p
-          ? { HEADING_ALLCAPS: p.headingAllcaps, HEADING_SUBTITLE: p.headingSubtitle, LEARNING: p.learning, EXAMPLES: p.examples }
+          ? { HEADING_ALLCAPS: p.headingAllcaps, HEADING_SUBTITLE: p.headingSubtitle, LEARNING: p.learning, EXAMPLES: p.examples, EXAMPLE1: p.examples[0] ?? "" }
           : undefined;
       return {
         // Named per-pillar keys for the two-page split template

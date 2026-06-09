@@ -563,20 +563,7 @@ const TEMPLATE = `<!doctype html>
   <div class="foot"><span>{{BRAND.COMPANY}}</span><span>{{CLIENT.NAME}} · <span class="cur">04</span></span></div>
 </section>
 
-<!-- ════════ PAGE 5 · CH 2 LIFE HISTORY (2/2) ════════ -->
-<section class="page">
-  <div class="band"><span class="wm">Life<b>work</b></span><span>Chapter 2 · Life History Pattern</span></div>
-  <div class="body"><div class="main">
-    <div class="eyebrow">Chapter 02 · continued</div>
-    <h3 class="section-h">What the pattern reveals</h3>
-    {{#EACH CH2.KEYFIND.PARAGRAPHS}}<p>{{.}}</p>{{/EACH}}
-    <h3 class="section-h">Your ESF distribution</h3>
-    <p>{{CH2.KEYFIND.ESF_PARA}}</p>
-  </div></div>
-  <div class="foot"><span>{{BRAND.COMPANY}}</span><span>{{CLIENT.NAME}} · <span class="cur">05</span></span></div>
-</section>
-
-<!-- ════════ PAGE 5b · CH 2B FOUR CONDITIONS (i) ════════ -->
+<!-- ════════ PAGE 5b · CH 2B FOUR CONDITIONS ════════ -->
 {{#IF CH2B.HAS_CONTENT}}
 <section class="page">
   <div class="band"><span class="wm">Life<b>work</b></span><span>Chapter 2b · Four Conditions of Fulfilment</span></div>
@@ -585,45 +572,33 @@ const TEMPLATE = `<!doctype html>
     <div class="main">
       <h2 class="chap-title">Four Conditions of <em>Fulfilment.</em></h2>
       <div class="hr-gold"></div>
-      <p class="lede">Mark Savickas argues that the richest career intelligence is not in what a person did, but in what was present when they felt most alive doing it. Four lenses — Places, People, Problems, Procedures — reveal the conditions under which energy, engagement, and meaning consistently appear.</p>
       {{#IF CH2B.PILLAR_PLACES}}
       <div class="pillar"><div class="ph"><span class="pn">{{CH2B.PILLAR_PLACES.HEADING_ALLCAPS}}</span>{{#IF CH2B.PILLAR_PLACES.HEADING_SUBTITLE}}<span class="ps">— {{CH2B.PILLAR_PLACES.HEADING_SUBTITLE}}</span>{{/IF}}</div>
       {{#IF CH2B.PILLAR_PLACES.LEARNING}}<p class="learn"><b>Learning:</b> {{CH2B.PILLAR_PLACES.LEARNING}}</p>{{/IF}}
-      {{#EACH CH2B.PILLAR_PLACES.EXAMPLES}}<p>{{.}}</p>{{/EACH}}</div>
+      {{#IF CH2B.PILLAR_PLACES.EXAMPLE1}}<p>{{CH2B.PILLAR_PLACES.EXAMPLE1}}</p>{{/IF}}</div>
       {{/IF}}
       {{#IF CH2B.PILLAR_PEOPLE}}
       <div class="pillar"><div class="ph"><span class="pn">{{CH2B.PILLAR_PEOPLE.HEADING_ALLCAPS}}</span>{{#IF CH2B.PILLAR_PEOPLE.HEADING_SUBTITLE}}<span class="ps">— {{CH2B.PILLAR_PEOPLE.HEADING_SUBTITLE}}</span>{{/IF}}</div>
       {{#IF CH2B.PILLAR_PEOPLE.LEARNING}}<p class="learn"><b>Learning:</b> {{CH2B.PILLAR_PEOPLE.LEARNING}}</p>{{/IF}}
-      {{#EACH CH2B.PILLAR_PEOPLE.EXAMPLES}}<p>{{.}}</p>{{/EACH}}</div>
+      {{#IF CH2B.PILLAR_PEOPLE.EXAMPLE1}}<p>{{CH2B.PILLAR_PEOPLE.EXAMPLE1}}</p>{{/IF}}</div>
+      {{/IF}}
+      {{#IF CH2B.PILLAR_PROBLEMS}}
+      <div class="pillar"><div class="ph"><span class="pn">{{CH2B.PILLAR_PROBLEMS.HEADING_ALLCAPS}}</span>{{#IF CH2B.PILLAR_PROBLEMS.HEADING_SUBTITLE}}<span class="ps">— {{CH2B.PILLAR_PROBLEMS.HEADING_SUBTITLE}}</span>{{/IF}}</div>
+      {{#IF CH2B.PILLAR_PROBLEMS.LEARNING}}<p class="learn"><b>Learning:</b> {{CH2B.PILLAR_PROBLEMS.LEARNING}}</p>{{/IF}}
+      {{#IF CH2B.PILLAR_PROBLEMS.EXAMPLE1}}<p>{{CH2B.PILLAR_PROBLEMS.EXAMPLE1}}</p>{{/IF}}</div>
+      {{/IF}}
+      {{#IF CH2B.PILLAR_PROCEDURES}}
+      <div class="pillar"><div class="ph"><span class="pn">{{CH2B.PILLAR_PROCEDURES.HEADING_ALLCAPS}}</span>{{#IF CH2B.PILLAR_PROCEDURES.HEADING_SUBTITLE}}<span class="ps">— {{CH2B.PILLAR_PROCEDURES.HEADING_SUBTITLE}}</span>{{/IF}}</div>
+      {{#IF CH2B.PILLAR_PROCEDURES.LEARNING}}<p class="learn"><b>Learning:</b> {{CH2B.PILLAR_PROCEDURES.LEARNING}}</p>{{/IF}}
+      {{#IF CH2B.PILLAR_PROCEDURES.EXAMPLE1}}<p>{{CH2B.PILLAR_PROCEDURES.EXAMPLE1}}</p>{{/IF}}</div>
+      {{/IF}}
+      {{#IF CH2B.COMBINATION_SYNTHESIS}}
+      <div class="combo"><h3 class="section-h">The Combination</h3>
+      <p class="synth">{{CH2B.COMBINATION_SYNTHESIS}}</p></div>
       {{/IF}}
     </div>
   </div>
   <div class="foot"><span>{{BRAND.COMPANY}}</span><span>{{CLIENT.NAME}} · <span class="cur">05b</span></span></div>
-</section>
-
-<!-- ════════ PAGE 5c · CH 2B FOUR CONDITIONS (ii) ════════ -->
-<section class="page">
-  <div class="band"><span class="wm">Life<b>work</b></span><span>Chapter 2b · Four Conditions of Fulfilment</span></div>
-  <div class="body"><div class="main">
-    <div class="eyebrow">Chapter 02b · continued</div>
-    {{#IF CH2B.PILLAR_PROBLEMS}}
-    <div class="pillar" style="margin-top:0;"><div class="ph"><span class="pn">{{CH2B.PILLAR_PROBLEMS.HEADING_ALLCAPS}}</span>{{#IF CH2B.PILLAR_PROBLEMS.HEADING_SUBTITLE}}<span class="ps">— {{CH2B.PILLAR_PROBLEMS.HEADING_SUBTITLE}}</span>{{/IF}}</div>
-    {{#IF CH2B.PILLAR_PROBLEMS.LEARNING}}<p class="learn"><b>Learning:</b> {{CH2B.PILLAR_PROBLEMS.LEARNING}}</p>{{/IF}}
-    {{#EACH CH2B.PILLAR_PROBLEMS.EXAMPLES}}<p>{{.}}</p>{{/EACH}}</div>
-    {{/IF}}
-    {{#IF CH2B.PILLAR_PROCEDURES}}
-    <div class="pillar"><div class="ph"><span class="pn">{{CH2B.PILLAR_PROCEDURES.HEADING_ALLCAPS}}</span>{{#IF CH2B.PILLAR_PROCEDURES.HEADING_SUBTITLE}}<span class="ps">— {{CH2B.PILLAR_PROCEDURES.HEADING_SUBTITLE}}</span>{{/IF}}</div>
-    {{#IF CH2B.PILLAR_PROCEDURES.LEARNING}}<p class="learn"><b>Learning:</b> {{CH2B.PILLAR_PROCEDURES.LEARNING}}</p>{{/IF}}
-    {{#EACH CH2B.PILLAR_PROCEDURES.EXAMPLES}}<p>{{.}}</p>{{/EACH}}</div>
-    {{/IF}}
-    {{#IF CH2B.COMBINATION_SYNTHESIS}}
-    <div class="combo"><h3 class="section-h">The Combination</h3>
-    <p class="synth">{{CH2B.COMBINATION_SYNTHESIS}}</p>
-    {{#IF CH2B.COMBINATION_QUESTION}}<p>{{CH2B.COMBINATION_QUESTION}}</p>{{/IF}}
-    {{#IF CH2B.CITATION}}<p class="citation">{{CH2B.CITATION}}</p>{{/IF}}</div>
-    {{/IF}}
-  </div></div>
-  <div class="foot"><span>{{BRAND.COMPANY}}</span><span>{{CLIENT.NAME}} · <span class="cur">05c</span></span></div>
 </section>
 {{/IF}}
 
