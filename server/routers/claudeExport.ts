@@ -906,13 +906,16 @@ export async function buildClaudeExportJson(clientId: number): Promise<Record<st
   // CH6 — Development Edge (in the WOW report this is "Development Edge")
   const ch6AllSections = extractAllSections(sections.developmentEdge ?? "");
   const ch6AllParas = splitParagraphs(sections.developmentEdge ?? "");
-  const CH6_PAGE1_MAX_SECTIONS = 4; // max named sections on the first Development Edge page
-  const CH6_PAGE1_MAX_PARAS = 8;    // max paragraphs on page 1 when no named sections exist
-  const ch6Sections = ch6AllSections.length > 0 ? ch6AllSections.slice(0, CH6_PAGE1_MAX_SECTIONS) : [];
-  const ch6OverflowSections = ch6AllSections.length > CH6_PAGE1_MAX_SECTIONS ? ch6AllSections.slice(CH6_PAGE1_MAX_SECTIONS) : [];
-  const ch6FallbackPage1 = ch6AllParas.slice(0, CH6_PAGE1_MAX_PARAS);
-  const ch6FallbackOverflow = ch6AllParas.slice(CH6_PAGE1_MAX_PARAS);
-  const ch6HasOverflow = ch6OverflowSections.length > 0 || ch6FallbackOverflow.length > 0;
+  // Enforce: exactly 3 areas, each capped at 2 paragraphs — single page, no overflow
+  const CH6_MAX_SECTIONS = 3;
+  const CH6_MAX_PARAS_PER_SECTION = 2;
+  const ch6Sections = ch6AllSections.length > 0
+    ? ch6AllSections.slice(0, CH6_MAX_SECTIONS).map(s => ({ heading: s.heading, paragraphs: s.paragraphs.slice(0, CH6_MAX_PARAS_PER_SECTION) }))
+    : [];
+  const ch6OverflowSections: typeof ch6Sections = []; // overflow disabled
+  const ch6FallbackPage1 = ch6AllParas.slice(0, CH6_MAX_SECTIONS * CH6_MAX_PARAS_PER_SECTION);
+  const ch6FallbackOverflow: string[] = [];
+  const ch6HasOverflow = false;
   const ch6Pullquote = extractPullquote(sections.developmentEdge ?? "");
 
   // CH7 — Conclusions (Past / Present / Future / Tell Me About Yourself)
