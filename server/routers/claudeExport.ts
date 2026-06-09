@@ -1008,20 +1008,36 @@ export async function buildClaudeExportJson(clientId: number): Promise<Record<st
   })();
 
   // CH8 — Career Directions
-  // Split into page-1 (first 2 sections) and overflow page-2 (remaining sections).
-  // This ensures the section is never truncated — it simply spills onto a second page.
+  // CH8 — enforce exactly 3 directions × 2 paragraphs each, each paragraph ≤ 60 words.
+  // Single page, no overflow.
   const ch8AllSections = extractAllSections(sections.careerDirections ?? "");
   const ch8Closing = extractPullquote(sections.careerDirections ?? "");
-  const CH8_PAGE1_MAX_SECTIONS = 4; // max named sections on the first Career Directions page
-  const CH8_PAGE1_MAX_PARAS = 10;   // max paragraphs on page 1 when no named sections exist
-  // Named-section path
-  const ch8Sections = ch8AllSections.length > 0 ? ch8AllSections.slice(0, CH8_PAGE1_MAX_SECTIONS) : [];
-  const ch8OverflowSections = ch8AllSections.length > CH8_PAGE1_MAX_SECTIONS ? ch8AllSections.slice(CH8_PAGE1_MAX_SECTIONS) : [];
-  // Flat-paragraph fallback path (no headings in AI output)
+  const CH8_MAX_SECTIONS = 3;
+  const CH8_MAX_PARAS_PER_SECTION = 2;
+  const CH8_MAX_WORDS_PER_PARA = 60;
+  /** Trim a paragraph to at most N words, ending on a complete sentence if possible */
+  function trimToWords(para: string, maxWords: number): string {
+    const words = para.split(/\s+/);
+    if (words.length <= maxWords) return para;
+    const truncated = words.slice(0, maxWords).join(" ");
+    // Try to end on a sentence boundary
+    const sentenceEnd = truncated.search(/[.!?][^.!?]*$/);
+    if (sentenceEnd > 0) return truncated.slice(0, sentenceEnd + 1);
+    return truncated + "…";
+  }
+  const ch8Sections = ch8AllSections.length > 0
+    ? ch8AllSections.slice(0, CH8_MAX_SECTIONS).map(s => ({
+        heading: s.heading,
+        paragraphs: s.paragraphs.slice(0, CH8_MAX_PARAS_PER_SECTION).map(p => trimToWords(p, CH8_MAX_WORDS_PER_PARA)),
+      }))
+    : [];
+  const ch8OverflowSections: typeof ch8Sections = []; // overflow disabled
   const ch8AllParas = ch8AllSections.length === 0 ? splitParagraphs(sections.careerDirections ?? "") : [];
-  const ch8FallbackPage1 = ch8AllParas.slice(0, CH8_PAGE1_MAX_PARAS);
-  const ch8FallbackOverflow = ch8AllParas.slice(CH8_PAGE1_MAX_PARAS);
-  const ch8HasOverflow = ch8OverflowSections.length > 0 || ch8FallbackOverflow.length > 0;
+  const ch8FallbackPage1 = ch8AllParas
+    .slice(0, CH8_MAX_SECTIONS * CH8_MAX_PARAS_PER_SECTION)
+    .map(p => trimToWords(p, CH8_MAX_WORDS_PER_PARA));
+  const ch8FallbackOverflow: string[] = [];
+  const ch8HasOverflow = false;
 
   // ── Report metadata ───────────────────────────────────────────────────────
 
