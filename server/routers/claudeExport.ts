@@ -906,8 +906,8 @@ export async function buildClaudeExportJson(clientId: number): Promise<Record<st
   // CH6 — Development Edge (in the WOW report this is "Development Edge")
   const ch6AllSections = extractAllSections(sections.developmentEdge ?? "");
   const ch6AllParas = splitParagraphs(sections.developmentEdge ?? "");
-  const CH6_PAGE1_MAX_SECTIONS = 2; // max named sections on the first Development Edge page
-  const CH6_PAGE1_MAX_PARAS = 4;    // max paragraphs on page 1 when no named sections exist
+  const CH6_PAGE1_MAX_SECTIONS = 4; // max named sections on the first Development Edge page
+  const CH6_PAGE1_MAX_PARAS = 8;    // max paragraphs on page 1 when no named sections exist
   const ch6Sections = ch6AllSections.length > 0 ? ch6AllSections.slice(0, CH6_PAGE1_MAX_SECTIONS) : [];
   const ch6OverflowSections = ch6AllSections.length > CH6_PAGE1_MAX_SECTIONS ? ch6AllSections.slice(CH6_PAGE1_MAX_SECTIONS) : [];
   const ch6FallbackPage1 = ch6AllParas.slice(0, CH6_PAGE1_MAX_PARAS);
@@ -1009,8 +1009,8 @@ export async function buildClaudeExportJson(clientId: number): Promise<Record<st
   // This ensures the section is never truncated — it simply spills onto a second page.
   const ch8AllSections = extractAllSections(sections.careerDirections ?? "");
   const ch8Closing = extractPullquote(sections.careerDirections ?? "");
-  const CH8_PAGE1_MAX_SECTIONS = 2; // max named sections on the first Career Directions page
-  const CH8_PAGE1_MAX_PARAS = 5;    // max paragraphs on page 1 when no named sections exist
+  const CH8_PAGE1_MAX_SECTIONS = 4; // max named sections on the first Career Directions page
+  const CH8_PAGE1_MAX_PARAS = 10;   // max paragraphs on page 1 when no named sections exist
   // Named-section path
   const ch8Sections = ch8AllSections.length > 0 ? ch8AllSections.slice(0, CH8_PAGE1_MAX_SECTIONS) : [];
   const ch8OverflowSections = ch8AllSections.length > CH8_PAGE1_MAX_SECTIONS ? ch8AllSections.slice(CH8_PAGE1_MAX_SECTIONS) : [];
