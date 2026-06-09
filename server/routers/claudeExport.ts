@@ -1067,7 +1067,18 @@ export async function buildClaudeExportJson(clientId: number): Promise<Record<st
       LEDE: ch2Page1Paras[0] ?? "",
       PAGE1_PARAGRAPHS: ch2Page1Paras.slice(1, 4),
       PAGE1_SECTION_H: ch2Page1SectionH,
-      PAGE1_SECTION_PARAS: ch2Page1SectionParas.slice(0, 6),
+      // Bold the first sentence of paragraphs 1, 3, 5 (theme paragraphs in the theme-evidence pattern)
+      PAGE1_SECTION_PARAS: ch2Page1SectionParas.slice(0, 6).map((para, i) => {
+        if (i % 2 === 0) {
+          // Odd-position paragraph (0-indexed 0,2,4 = 1st,3rd,5th): bold the first sentence
+          const sentenceEnd = para.search(/(?<=[.!?])\s+[A-Z]/);
+          if (sentenceEnd > 0) {
+            return `<b>${para.slice(0, sentenceEnd + 1)}</b>${para.slice(sentenceEnd + 1)}`;
+          }
+          return `<b>${para}</b>`;
+        }
+        return para;
+      }),
       PAGE2_SECTION_H: ch2Page2SectionH,
       PAGE2_PARAGRAPHS: ch2Page2Paras,
       KEYFIND: {

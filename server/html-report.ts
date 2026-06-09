@@ -593,8 +593,8 @@ const TEMPLATE = `<!doctype html>
       {{#IF CH2B.PILLAR_PROCEDURES.EXAMPLE1}}<p>{{CH2B.PILLAR_PROCEDURES.EXAMPLE1}}</p>{{/IF}}</div>
       {{/IF}}
       {{#IF CH2B.COMBINATION_SYNTHESIS}}
-      <div class="combo"><h3 class="section-h">The Combination</h3>
-      <p class="synth">{{CH2B.COMBINATION_SYNTHESIS}}</p></div>
+      <h3 class="section-h">The Combination</h3>
+      <p>{{CH2B.COMBINATION_SYNTHESIS}}</p>
       {{/IF}}
     </div>
   </div>
