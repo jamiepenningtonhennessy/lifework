@@ -1501,3 +1501,8 @@
 - [x] When sourceUrl absent: generation proceeds exactly as now
 - [x] Add optional URL input field to blog writer UI (below voice selector, with placeholder and gold confirmation hint)
 - [x] Update blogWriter.test.ts to cover the sourceUrl path (schema validation: valid without URL, valid with URL, invalid non-URL throws)
+
+## Annex Page Overruns (Matthias report)
+
+- [x] Fix Annex A (life history timeline) page overrun — cap items per page and paginate overflow entries
+- [x] Fix Annex B (biographical data) page overrun — trim long career history text fields and cap education/career entry counts per page

@@ -1,0 +1,55 @@
+{
+  "query": "\nSELECT decade, COUNT(*) as cnt FROM achievements WHERE clientId = 1389902 GROUP BY decade ORDER BY FIELD(decade, 'childhood','teens','twenties','thirties','forties','fifties','sixties_plus');\nSELECT COUNT(*) as career_count FROM career_history WHERE clientId = 1389902;\nSELECT COUNT(*) as edu_count FROM education_history WHERE clientId = 1389902;\nSELECT organisation, LENGTH(keyResponsibilities) as resp_len FROM career_history WHERE clientId = 1389902 ORDER BY resp_len DESC LIMIT 5;\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 32u3a1hNYuu9Gj3.7d2282893346 --database kFbbE6kqNApXGDFpQJUGV7 --execute \nSELECT decade, COUNT(*) as cnt FROM achievements WHERE clientId = 1389902 GROUP BY decade ORDER BY FIELD(decade, 'childhood','teens','twenties','thirties','forties','fifties','sixties_plus');\nSELECT COUNT(*) as career_count FROM career_history WHERE clientId = 1389902;\nSELECT COUNT(*) as edu_count FROM education_history WHERE clientId = 1389902;\nSELECT organisation, LENGTH(keyResponsibilities) as resp_len FROM career_history WHERE clientId = 1389902 ORDER BY resp_len DESC LIMIT 5;\n",
+  "rows": [
+    {
+      "decade": "childhood",
+      "cnt": "12"
+    },
+    {
+      "decade": "teens",
+      "cnt": "5"
+    },
+    {
+      "decade": "twenties",
+      "cnt": "4"
+    },
+    {
+      "decade": "thirties",
+      "cnt": "4"
+    },
+    {
+      "decade": "organisation",
+      "cnt": "resp_len"
+    },
+    {
+      "decade": "Just Eat Takeaway.com Austria",
+      "cnt": "2409"
+    },
+    {
+      "decade": "CTS Eventim Austria GmbH",
+      "cnt": "1309"
+    },
+    {
+      "decade": "Deloitte",
+      "cnt": "1224"
+    },
+    {
+      "decade": "PwC Austria",
+      "cnt": "1049"
+    },
+    {
+      "decade": "cargo-partner GmbH",
+      "cnt": "746"
+    }
+  ],
+  "messages": [
+    "career_count",
+    "13",
+    "edu_count",
+    "8"
+  ],
+  "stdout": "decade\tcnt\nchildhood\t12\nteens\t5\ntwenties\t4\nthirties\t4\ncareer_count\n13\nedu_count\n8\norganisation\tresp_len\nJust Eat Takeaway.com Austria\t2409\nCTS Eventim Austria GmbH\t1309\nDeloitte\t1224\nPwC Austria\t1049\ncargo-partner GmbH\t746\n",
+  "stderr": "",
+  "execution_time_ms": 304
+}

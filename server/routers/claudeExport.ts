@@ -531,7 +531,10 @@ export function buildLifeHistoryPages(achievementsList: Achievement[]): Array<{
 
   // Distribute stages across pages dynamically — only emit pages that have content.
   // Page 1 (page 17) gets showKicker: true; the rest get false.
-  // Aim for ~2 stages per page; overflow spills to the next page.
+  // Cap at MAX_ENTRIES_PER_PAGE entries per page (counting across all stages on that page).
+  // A stage header with no entries on the current page still counts as ~1 entry of height.
+  const MAX_ENTRIES_PER_PAGE = 6;
+
   if (stages.length === 0) return [];
 
   const pages: Array<{
@@ -541,23 +544,47 @@ export function buildLifeHistoryPages(achievementsList: Achievement[]): Array<{
   }> = [];
 
   let pageIdx = 0;
+  let entriesOnPage = 0;
+
+  const newPage = () => {
+    pages.push({
+      pageNum: String(17 + pageIdx),
+      showKicker: pageIdx === 0,
+      stages: [],
+    });
+    entriesOnPage = 0;
+  };
+
+  newPage();
+
   for (const stage of stages) {
-    if (pages[pageIdx] === undefined) {
-      pages.push({
-        pageNum: String(17 + pageIdx),
-        showKicker: pageIdx === 0,
-        stages: [],
-      });
-    }
-    if (pages[pageIdx].stages.length >= 2) {
+    // If this stage won't fit at all on the current page, start a new one
+    if (entriesOnPage > 0 && entriesOnPage + 1 + stage.entries.length > MAX_ENTRIES_PER_PAGE) {
       pageIdx++;
-      pages.push({
-        pageNum: String(17 + pageIdx),
-        showKicker: false,
-        stages: [],
-      });
+      newPage();
     }
-    pages[pageIdx].stages.push(stage);
+
+    // Split the stage's entries across pages if needed
+    let remaining = [...stage.entries];
+    let isFirst = true;
+    while (remaining.length > 0) {
+      const available = MAX_ENTRIES_PER_PAGE - entriesOnPage - (isFirst ? 1 : 0); // 1 for stage header
+      const chunk = remaining.splice(0, Math.max(1, available));
+
+      const stageSlice = {
+        title: isFirst ? stage.title : stage.title + " (cont.)",
+        ages: stage.ages,
+        entries: chunk,
+      };
+      pages[pageIdx].stages.push(stageSlice);
+      entriesOnPage += (isFirst ? 1 : 0) + chunk.length;
+
+      if (remaining.length > 0) {
+        pageIdx++;
+        newPage();
+      }
+      isFirst = false;
+    }
   }
 
   return pages;
@@ -1256,7 +1283,7 @@ export async function buildClaudeExportJson(clientId: number): Promise<Record<st
         role: c.role ?? null,
         yearFrom: c.yearFrom ?? null,
         yearTo: c.yearTo ?? null,
-        keyResponsibilities: c.keyResponsibilities ?? null,
+        keyResponsibilities: c.keyResponsibilities ? trimToWords(c.keyResponsibilities, 60) : null,
         highlights: c.highlights ?? null,
         whyLeft: c.whyLeft ?? null,
       })),

@@ -1,0 +1,15 @@
+# Matthias annex overrun findings
+
+Source: /home/ubuntu/upload/Lifework-Matthias.pdf
+Inspected pages: 20-24 via PDF view.
+
+Findings:
+- Page 20 (annex A / life history timeline) is visibly overrunning at the bottom. The next entry begins on the current page and spills into the footer area. Specifically, the next item after "Won a court case" starts with "wrote a law" and is cut off by the footer, indicating the life-history annex timeline page is not respecting page height.
+- Page 21 (annex B / biographical data) is also overrunning. The educational-history list continues past the visible page boundary; the lower entries are cut off by the footer area.
+- Page 22 (annex B / career history) appears very dense and may be close to capacity, but the visible issue is less severe than pages 20-21.
+- Pages 23-24 (annex C / VIA pages) appear to fit within the page correctly.
+
+Initial hypothesis:
+- The page overruns are concentrated in annexes A and B, likely caused by uncapped item counts or uncapped text lengths in the annex data assembly rather than a global CSS issue.
+- Annex A likely needs stricter pagination or per-page item caps for timeline events.
+- Annex B likely needs stronger caps for education/career entry counts or text length trimming within education-history rows.

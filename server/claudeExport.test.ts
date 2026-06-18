@@ -384,35 +384,27 @@ describe("buildLifeHistoryPages", () => {
     expect(allTitles).not.toContain("Twenties");
   });
 
-  it("spills to a second page when more than 2 stages are present", () => {
-    const achievements = [
-      makeAchievement("childhood", 1),
-      makeAchievement("teens", 2),
-      makeAchievement("twenties", 3),
-    ];
+  it("spills to a second page when entries exceed the per-page cap", () => {
+    // 7 entries in one decade exceeds the 6-entry cap, so it must spill
+    const achievements = Array.from({ length: 7 }, (_, i) => makeAchievement("childhood", i + 1));
     const pages = buildLifeHistoryPages(achievements);
     expect(pages).toHaveLength(2);
-    expect(pages[0].stages).toHaveLength(2);
-    expect(pages[1].stages).toHaveLength(1);
+    // All entries should be present across both pages
+    const totalEntries = pages.flatMap(p => p.stages.flatMap(s => s.entries)).length;
+    expect(totalEntries).toBe(7);
   });
 
   it("first page always has showKicker:true, subsequent pages have false", () => {
-    const achievements = [
-      makeAchievement("childhood", 1),
-      makeAchievement("teens", 2),
-      makeAchievement("twenties", 3),
-    ];
+    // Need enough entries to force a second page (>6 entries in one decade)
+    const achievements = Array.from({ length: 8 }, (_, i) => makeAchievement("childhood", i + 1));
     const pages = buildLifeHistoryPages(achievements);
     expect(pages[0].showKicker).toBe(true);
     expect(pages[1].showKicker).toBe(false);
   });
 
   it("assigns sequential page numbers starting at 17", () => {
-    const achievements = [
-      makeAchievement("childhood", 1),
-      makeAchievement("teens", 2),
-      makeAchievement("twenties", 3),
-    ];
+    // Need enough entries to force a second page (>6 entries in one decade)
+    const achievements = Array.from({ length: 8 }, (_, i) => makeAchievement("childhood", i + 1));
     const pages = buildLifeHistoryPages(achievements);
     expect(pages[0].pageNum).toBe("17");
     expect(pages[1].pageNum).toBe("18");

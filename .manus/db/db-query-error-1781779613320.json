@@ -1,0 +1,8 @@
+{
+  "query": "\nSELECT decade, COUNT(*) as cnt FROM achievements WHERE client_id = 1389902 GROUP BY decade ORDER BY FIELD(decade, 'childhood','teens','twenties','thirties','forties','fifties','sixties_plus');\nSELECT COUNT(*) as career_count FROM career_history WHERE client_id = 1389902;\nSELECT COUNT(*) as edu_count FROM education_history WHERE client_id = 1389902;\nSELECT organisation, LENGTH(key_responsibilities) as resp_len FROM career_history WHERE client_id = 1389902 ORDER BY resp_len DESC LIMIT 5;\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 32u3a1hNYuu9Gj3.7d2282893346 --database kFbbE6kqNApXGDFpQJUGV7 --execute \nSELECT decade, COUNT(*) as cnt FROM achievements WHERE client_id = 1389902 GROUP BY decade ORDER BY FIELD(decade, 'childhood','teens','twenties','thirties','forties','fifties','sixties_plus');\nSELECT COUNT(*) as career_count FROM career_history WHERE client_id = 1389902;\nSELECT COUNT(*) as edu_count FROM education_history WHERE client_id = 1389902;\nSELECT organisation, LENGTH(key_responsibilities) as resp_len FROM career_history WHERE client_id = 1389902 ORDER BY resp_len DESC LIMIT 5;\n",
+  "returncode": 1,
+  "logs": [
+    "ERROR 1054 (42S22) at line 2: Unknown column 'client_id' in 'where clause'"
+  ]
+}
