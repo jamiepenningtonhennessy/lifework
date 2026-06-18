@@ -1259,36 +1259,85 @@ export async function buildClaudeExportJson(clientId: number): Promise<Record<st
     LIFE_HISTORY: {
       PAGES: buildLifeHistoryPages(achievementsList as Achievement[]),
     },
-    BIOGRAPHICAL: {
-      FAMILY: familyBg ? {
+    BIOGRAPHICAL: (() => {
+      // ── Paginate Annex B so no content is ever truncated ──────────────────
+      // Each page object carries the content it should render.
+      // Page type 'family_edu' = family background + a slice of education.
+      // Page type 'career'     = a slice of career entries.
+      // Page type 'edu_cont'   = education continuation (if education alone overflows).
+
+      const EDU_PER_PAGE = 8;   // education entries per page
+      const CAREER_PER_PAGE = 5; // career entries per page
+
+      const familyData = familyBg ? {
         upbringingLocation: familyBg.upbringingLocation ?? null,
-        fatherOccupation: familyBg.fatherOccupation ? familyBg.fatherOccupation.slice(0, 80) : null,
-        motherOccupation: familyBg.motherOccupation ? familyBg.motherOccupation.slice(0, 80) : null,
+        fatherOccupation: familyBg.fatherOccupation ?? null,
+        motherOccupation: familyBg.motherOccupation ?? null,
         siblingPosition: familyBg.siblingPosition ?? null,
-        familyNarrative: familyBg.familyNarrative ? trimToWords(familyBg.familyNarrative, 55) : null,
-        significantInfluences: familyBg.significantInfluences ? trimToWords(familyBg.significantInfluences, 45) : null,
+        familyNarrative: familyBg.familyNarrative ?? null,
+        significantInfluences: familyBg.significantInfluences ?? null,
         HAS_DATA: !!(familyBg.upbringingLocation || familyBg.fatherOccupation || familyBg.motherOccupation || familyBg.siblingPosition || familyBg.familyNarrative || familyBg.significantInfluences),
-      } : { HAS_DATA: false },
-      EDUCATION: educationList.map(e => ({
+      } : { HAS_DATA: false as const };
+
+      const eduMapped = educationList.map(e => ({
         institution: e.institution,
         qualification: e.qualification ?? null,
         subject: e.subject ?? null,
         yearFrom: e.yearFrom ?? null,
         yearTo: e.yearTo ?? null,
         highlights: e.highlights ?? null,
-      })),
-      HAS_EDUCATION: educationList.length > 0,
-      CAREER: careerList.slice(0, 8).map(c => ({
+      }));
+
+      const careerMapped = careerList.map(c => ({
         organisation: c.organisation,
         role: c.role ?? null,
         yearFrom: c.yearFrom ?? null,
         yearTo: c.yearTo ?? null,
-        keyResponsibilities: c.keyResponsibilities ? trimToWords(c.keyResponsibilities, 30) : null,
+        keyResponsibilities: c.keyResponsibilities ?? null,
         highlights: c.highlights ?? null,
         whyLeft: c.whyLeft ?? null,
-      })),
-      HAS_CAREER: careerList.length > 0,
-    },
+      }));
+
+      // Build pages array
+      type BioPage =
+        | { type: 'family_edu'; family: typeof familyData; education: typeof eduMapped; HAS_EDUCATION: boolean; IS_FIRST: boolean; IS_CAREER: false }
+        | { type: 'edu_cont';   education: typeof eduMapped; IS_FIRST: false; IS_CAREER: false }
+        | { type: 'career';     career: typeof careerMapped; IS_FIRST: false; IS_CAREER: true };
+
+      const pages: BioPage[] = [];
+
+      // Page 1: family + first EDU_PER_PAGE education entries
+      pages.push({
+        type: 'family_edu',
+        family: familyData,
+        education: eduMapped.slice(0, EDU_PER_PAGE),
+        HAS_EDUCATION: eduMapped.length > 0,
+        IS_FIRST: true,
+        IS_CAREER: false,
+      });
+
+      // Education continuation pages (if more than EDU_PER_PAGE entries)
+      for (let i = EDU_PER_PAGE; i < eduMapped.length; i += EDU_PER_PAGE) {
+        pages.push({
+          type: 'edu_cont',
+          education: eduMapped.slice(i, i + EDU_PER_PAGE),
+          IS_FIRST: false,
+          IS_CAREER: false,
+        });
+      }
+
+      // Career pages
+      for (let i = 0; i < careerMapped.length; i += CAREER_PER_PAGE) {
+        pages.push({
+          type: 'career',
+          career: careerMapped.slice(i, i + CAREER_PER_PAGE),
+          IS_FIRST: false,
+          IS_CAREER: true,
+        });
+      }
+
+      return { PAGES: pages };
+    })(),
   };
   return payload;
 }

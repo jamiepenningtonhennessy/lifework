@@ -886,7 +886,9 @@ const TEMPLATE = `<!doctype html>
 </section>
 {{/EACH}}
 
-<!-- ════════ ANNEX B · BIOGRAPHICAL DATA ════════ -->
+<!-- ════════ ANNEX B · BIOGRAPHICAL DATA (paginated) ════════ -->
+{{#EACH BIOGRAPHICAL.PAGES}}
+{{#IF .IS_FIRST}}
 <section class="page">
   <div class="band"><span class="wm">Life<b>work</b></span><span>B · Biographical Data</span></div>
   <div class="body grid">
@@ -897,39 +899,38 @@ const TEMPLATE = `<!doctype html>
     <p class="lede">Family background, educational history, and career history as provided by the client.</p>
 
     <h3 class="subhead">B1 — Family background</h3>
-    {{#IF BIOGRAPHICAL.FAMILY.HAS_DATA}}
+    {{#IF .family.HAS_DATA}}
     <div class="bfields">
-      {{#IF BIOGRAPHICAL.FAMILY.upbringingLocation}}<div class="bfield"><span class="bl">Location of upbringing</span><span class="bv">{{BIOGRAPHICAL.FAMILY.upbringingLocation}}</span></div>{{/IF}}
-      {{#IF BIOGRAPHICAL.FAMILY.fatherOccupation}}<div class="bfield"><span class="bl">Father’s occupation</span><span class="bv">{{BIOGRAPHICAL.FAMILY.fatherOccupation}}</span></div>{{/IF}}
-      {{#IF BIOGRAPHICAL.FAMILY.motherOccupation}}<div class="bfield"><span class="bl">Mother’s occupation</span><span class="bv">{{BIOGRAPHICAL.FAMILY.motherOccupation}}</span></div>{{/IF}}
-      {{#IF BIOGRAPHICAL.FAMILY.siblingPosition}}<div class="bfield"><span class="bl">Position among siblings</span><span class="bv">{{BIOGRAPHICAL.FAMILY.siblingPosition}}</span></div>{{/IF}}
+      {{#IF .family.upbringingLocation}}<div class="bfield"><span class="bl">Location of upbringing</span><span class="bv">{{.family.upbringingLocation}}</span></div>{{/IF}}
+      {{#IF .family.fatherOccupation}}<div class="bfield"><span class="bl">Father's occupation</span><span class="bv">{{.family.fatherOccupation}}</span></div>{{/IF}}
+      {{#IF .family.motherOccupation}}<div class="bfield"><span class="bl">Mother's occupation</span><span class="bv">{{.family.motherOccupation}}</span></div>{{/IF}}
+      {{#IF .family.siblingPosition}}<div class="bfield"><span class="bl">Position among siblings</span><span class="bv">{{.family.siblingPosition}}</span></div>{{/IF}}
     </div>
-    {{#IF BIOGRAPHICAL.FAMILY.familyNarrative}}<p class="bnote">{{BIOGRAPHICAL.FAMILY.familyNarrative}}</p>{{/IF}}
-    {{#IF BIOGRAPHICAL.FAMILY.significantInfluences}}
+    {{#IF .family.familyNarrative}}<p class="bnote">{{.family.familyNarrative}}</p>{{/IF}}
+    {{#IF .family.significantInfluences}}
     <h3 class="subhead">Significant influences</h3>
-    <p class="bnote">{{BIOGRAPHICAL.FAMILY.significantInfluences}}</p>
+    <p class="bnote">{{.family.significantInfluences}}</p>
     {{/IF}}
     {{/IF}}
 
+    {{#IF .HAS_EDUCATION}}
     <h3 class="subhead">B2 — Educational history</h3>
-    {{#IF BIOGRAPHICAL.HAS_EDUCATION}}
-    {{#EACH BIOGRAPHICAL.EDUCATION}}
+    {{#EACH .education}}
     <div class="edu"><div class="eh"><span class="es">{{.institution}}</span><span class="ey">{{.qualification}}{{#IF .subject}} · {{.subject}}{{/IF}}{{#IF .yearFrom}} · {{.yearFrom}}–{{.yearTo}}{{/IF}}</span></div>{{#IF .highlights}}<div class="en">{{.highlights}}</div>{{/IF}}</div>
     {{/EACH}}
     {{/IF}}
   </div></div>
   <div class="foot"><span>{{BRAND.COMPANY}}</span><span>{{CLIENT.NAME}} · Annex B</span></div>
 </section>
-
-<!-- ════════ ANNEX B (cont.) · CAREER HISTORY ════════ -->
+{{/IF}}
+{{#IF .IS_CAREER}}
 <section class="page">
   <div class="band"><span class="wm">Life<b>work</b></span><span>B · Biographical Data</span></div>
   <div class="body grid">
     <div class="rail cont"><div class="num">B</div><div class="lab">Biographical</div><div class="sub">Career history</div></div>
     <div class="main">
     <h3 class="subhead">B3 — Career history</h3>
-    {{#IF BIOGRAPHICAL.HAS_CAREER}}
-    {{#EACH BIOGRAPHICAL.CAREER}}
+    {{#EACH .career}}
     <div class="career"><div class="ch"><span class="co">{{.organisation}}</span>{{#IF .yearFrom}}<span class="cmeta">{{.yearFrom}}–{{.yearTo}}</span>{{/IF}}</div>
     {{#IF .role}}<div class="cr">{{.role}}</div>{{/IF}}
     {{#IF .keyResponsibilities}}<div class="cbody">{{.keyResponsibilities}}</div>{{/IF}}
@@ -938,10 +939,13 @@ const TEMPLATE = `<!doctype html>
       {{#IF .whyLeft}}<span class="mk">Why left</span><span class="mv">{{.whyLeft}}</span>{{/IF}}
     </div></div>
     {{/EACH}}
-    {{/IF}}
   </div></div>
   <div class="foot"><span>{{BRAND.COMPANY}}</span><span>{{CLIENT.NAME}} · Annex B</span></div>
 </section>
+{{/IF}}
+{{#IF .type}}
+{{/IF}}
+{{/EACH}}
 
 <!-- ════════ ANNEX C · VIA FULL 24 ════════ -->
 <section class="page">
