@@ -1111,11 +1111,11 @@ export async function buildClaudeExportJson(clientId: number): Promise<Record<st
     },
     CH2: {
       LEDE: ch2Page1Paras[0] ?? "",
-      PAGE1_PARAGRAPHS: ch2Page1Paras.slice(1, 4).map(p => trimToWords(p, 55)),
+      PAGE1_PARAGRAPHS: ch2Page1Paras.slice(1, 4).map(p => trimToWords(p, 45)),
       PAGE1_SECTION_H: ch2Page1SectionH,
-      // Bold the first sentence of every recurring themes paragraph; cap each at 55 words
-      PAGE1_SECTION_PARAS: ch2Page1SectionParas.slice(0, 6).map((para) => {
-        const trimmed = trimToWords(para, 55);
+      // Bold the first sentence of every recurring themes paragraph; cap each at 40 words
+      PAGE1_SECTION_PARAS: ch2Page1SectionParas.slice(0, 5).map((para) => {
+        const trimmed = trimToWords(para, 40);
         const sentenceEnd = trimmed.search(/(?<=[.!?])\s+[A-Z]/);
         if (sentenceEnd > 0) {
           return `<b>${trimmed.slice(0, sentenceEnd + 1)}</b>${trimmed.slice(sentenceEnd + 1)}`;
@@ -1262,11 +1262,11 @@ export async function buildClaudeExportJson(clientId: number): Promise<Record<st
     BIOGRAPHICAL: {
       FAMILY: familyBg ? {
         upbringingLocation: familyBg.upbringingLocation ?? null,
-        fatherOccupation: familyBg.fatherOccupation ?? null,
-        motherOccupation: familyBg.motherOccupation ?? null,
+        fatherOccupation: familyBg.fatherOccupation ? familyBg.fatherOccupation.slice(0, 80) : null,
+        motherOccupation: familyBg.motherOccupation ? familyBg.motherOccupation.slice(0, 80) : null,
         siblingPosition: familyBg.siblingPosition ?? null,
-        familyNarrative: familyBg.familyNarrative ?? null,
-        significantInfluences: familyBg.significantInfluences ?? null,
+        familyNarrative: familyBg.familyNarrative ? trimToWords(familyBg.familyNarrative, 55) : null,
+        significantInfluences: familyBg.significantInfluences ? trimToWords(familyBg.significantInfluences, 45) : null,
         HAS_DATA: !!(familyBg.upbringingLocation || familyBg.fatherOccupation || familyBg.motherOccupation || familyBg.siblingPosition || familyBg.familyNarrative || familyBg.significantInfluences),
       } : { HAS_DATA: false },
       EDUCATION: educationList.map(e => ({
@@ -1278,12 +1278,12 @@ export async function buildClaudeExportJson(clientId: number): Promise<Record<st
         highlights: e.highlights ?? null,
       })),
       HAS_EDUCATION: educationList.length > 0,
-      CAREER: careerList.map(c => ({
+      CAREER: careerList.slice(0, 8).map(c => ({
         organisation: c.organisation,
         role: c.role ?? null,
         yearFrom: c.yearFrom ?? null,
         yearTo: c.yearTo ?? null,
-        keyResponsibilities: c.keyResponsibilities ? trimToWords(c.keyResponsibilities, 60) : null,
+        keyResponsibilities: c.keyResponsibilities ? trimToWords(c.keyResponsibilities, 30) : null,
         highlights: c.highlights ?? null,
         whyLeft: c.whyLeft ?? null,
       })),
