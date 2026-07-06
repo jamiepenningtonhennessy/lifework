@@ -946,8 +946,9 @@ export async function buildClaudeExportJson(clientId: number): Promise<Record<st
   // Enforce: exactly 3 areas, each capped at 2 paragraphs — single page, no overflow
   const CH6_MAX_SECTIONS = 3;
   const CH6_MAX_PARAS_PER_SECTION = 2;
+  const CH6_MAX_WORDS_PER_PARA = 50;
   const ch6Sections = ch6AllSections.length > 0
-    ? ch6AllSections.slice(0, CH6_MAX_SECTIONS).map(s => ({ heading: s.heading, paragraphs: s.paragraphs.slice(0, CH6_MAX_PARAS_PER_SECTION) }))
+    ? ch6AllSections.slice(0, CH6_MAX_SECTIONS).map(s => ({ heading: s.heading, paragraphs: s.paragraphs.slice(0, CH6_MAX_PARAS_PER_SECTION).map(p => trimToWords(p, CH6_MAX_WORDS_PER_PARA)) }))
     : [];
   const ch6OverflowSections: typeof ch6Sections = []; // overflow disabled
   const ch6FallbackPage1 = ch6AllParas.slice(0, CH6_MAX_SECTIONS * CH6_MAX_PARAS_PER_SECTION);

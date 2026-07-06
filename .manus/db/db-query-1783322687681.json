@@ -1,0 +1,9 @@
+{
+  "query": "UPDATE counsellor_pin SET pinHash = '$2b$10$VCqmEVc37wYoHk8SRBo.P./P6YjXhN0jScm2kRoxBaDQspwrDj8fu' WHERE id = (SELECT id FROM (SELECT id FROM counsellor_pin LIMIT 1) t);",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 32u3a1hNYuu9Gj3.7d2282893346 --database kFbbE6kqNApXGDFpQJUGV7 --execute UPDATE counsellor_pin SET pinHash = '$2b$10$VCqmEVc37wYoHk8SRBo.P./P6YjXhN0jScm2kRoxBaDQspwrDj8fu' WHERE id = (SELECT id FROM (SELECT id FROM counsellor_pin LIMIT 1) t);",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 296
+}
