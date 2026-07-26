@@ -82,6 +82,37 @@ export const jobsRouter = router({
       return spec ?? null;
     }),
 
+  /** Save (overwrite) the client's target spec — used by counsellor edit mode. */
+  saveTargetSpec: protectedProcedure
+    .input(z.object({
+      clientId: z.number().optional(),
+      spec: z.record(z.string(), z.unknown()),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+      const clientId = await resolveClientId(ctx, input);
+      const [existing] = await db
+        .select({ id: clientTargetSpec.id })
+        .from(clientTargetSpec)
+        .where(eq(clientTargetSpec.clientId, clientId))
+        .limit(1);
+      const specJson = JSON.stringify(input.spec);
+      if (existing) {
+        await db
+          .update(clientTargetSpec)
+          .set({ spec: specJson, generatedAt: new Date() })
+          .where(eq(clientTargetSpec.clientId, clientId));
+      } else {
+        await db.insert(clientTargetSpec).values({
+          clientId,
+          spec: specJson,
+          generatedAt: new Date(),
+        });
+      }
+      return { ok: true };
+    }),
+
   /** Fetch the monitor list (companies to watch) with company details. */
   getMonitorList: protectedProcedure
     .input(z.object({ clientId: z.number().optional() }))

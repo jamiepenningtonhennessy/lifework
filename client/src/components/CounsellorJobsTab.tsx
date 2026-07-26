@@ -68,76 +68,157 @@ function RelevanceBadge({ relevance }: { relevance: number | null }) {
 
 // ─── Target spec panel ────────────────────────────────────────────────────────
 
+interface TargetSpec {
+  summary?: string;
+  seniority_band?: string;
+  role_families?: { title: string; why: string }[];
+  functions?: string[];
+  sectors?: { sector: string; weight: string }[];
+  organisation_archetypes?: string[];
+  geography?: { base?: string; acceptable?: string[]; hard_constraints?: string[] };
+  differentiators?: string[];
+  deal_breakers?: string[];
+  search_terms?: string[];
+}
+
+function SpecBadgeList({ label, items, variant = "secondary" }: { label: string; items: string[]; variant?: "secondary" | "outline" }) {
+  if (!items?.length) return null;
+  return (
+    <div>
+      <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">{label}</p>
+      <div className="flex flex-wrap gap-1">
+        {items.map((t) => <Badge key={t} variant={variant} className="text-xs">{t}</Badge>)}
+      </div>
+    </div>
+  );
+}
+
 function TargetSpecPanel({ clientId }: { clientId: number }) {
+  const utils = trpc.useUtils();
   const { data: row, isLoading } = trpc.jobs.getTargetSpec.useQuery({ clientId });
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState("");
+  const [draftError, setDraftError] = useState("");
+  const saveSpec = trpc.jobs.saveTargetSpec.useMutation({
+    onSuccess: () => {
+      utils.jobs.getTargetSpec.invalidate({ clientId });
+      setEditing(false);
+      setDraftError("");
+      toast.success("Target spec saved.");
+    },
+    onError: (e) => setDraftError(e.message),
+  });
 
   if (isLoading) return <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />;
+
   if (!row) {
     return (
       <p className="text-sm text-muted-foreground italic">
-        No target spec generated yet. Click "Run pipeline" to generate one.
+        No target spec generated yet. Run stage 1 ("Refresh spec & list") to generate one.
       </p>
     );
   }
 
-  // The spec is stored as a JSON blob — cast it
-  const spec = row.spec as {
-    targetTitles?: string[];
-    targetSectors?: string[];
-    targetLocations?: string[];
-    seniorityBand?: string;
-    rationale?: string;
-  };
+  const spec = (typeof row.spec === "string" ? JSON.parse(row.spec) : row.spec) as TargetSpec;
+
+  if (editing) {
+    return (
+      <div className="space-y-3">
+        <p className="text-xs text-muted-foreground">Edit the JSON spec directly. Changes take effect on the next pipeline run (stages 2–5).</p>
+        <textarea
+          className="w-full font-mono text-xs border border-border rounded-md p-3 bg-background min-h-[320px] focus:outline-none focus:ring-1 focus:ring-ring"
+          value={draft}
+          onChange={(e) => setDraft(e.target.value)}
+        />
+        {draftError && <p className="text-xs text-destructive">{draftError}</p>}
+        <div className="flex gap-2">
+          <Button size="sm" onClick={() => {
+            try {
+              const parsed = JSON.parse(draft);
+              saveSpec.mutate({ clientId, spec: parsed });
+            } catch (e) {
+              setDraftError("Invalid JSON: " + (e instanceof Error ? e.message : String(e)));
+            }
+          }} disabled={saveSpec.isPending}>
+            {saveSpec.isPending ? <Loader2 className="w-3 h-3 animate-spin mr-1" /> : null}
+            Save spec
+          </Button>
+          <Button size="sm" variant="outline" onClick={() => { setEditing(false); setDraftError(""); }}>
+            Cancel
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="space-y-3">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
-        {spec.targetTitles && (
-          <div>
-            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">Target Titles</p>
-            <div className="flex flex-wrap gap-1">
-              {spec.targetTitles.map((t) => (
-                <Badge key={t} variant="secondary" className="text-xs">{t}</Badge>
-              ))}
-            </div>
-          </div>
-        )}
-        {spec.targetSectors && (
-          <div>
-            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">Target Sectors</p>
-            <div className="flex flex-wrap gap-1">
-              {spec.targetSectors.map((s) => (
-                <Badge key={s} variant="outline" className="text-xs">{s}</Badge>
-              ))}
-            </div>
-          </div>
-        )}
-        {spec.targetLocations && (
-          <div>
-            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">Locations</p>
-            <div className="flex flex-wrap gap-1">
-              {spec.targetLocations.map((l) => (
-                <Badge key={l} variant="outline" className="text-xs">{l}</Badge>
-              ))}
-            </div>
-          </div>
-        )}
-        {spec.seniorityBand && (
-          <div>
-            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">Seniority</p>
-            <Badge variant="secondary" className="text-xs capitalize">{spec.seniorityBand}</Badge>
-          </div>
-        )}
+    <div className="space-y-4">
+      <div className="flex justify-between items-start">
+        <p className="text-xs text-muted-foreground">Generated {row.generatedAt ? new Date(row.generatedAt).toLocaleDateString("en-GB") : "—"}</p>
+        <Button size="sm" variant="outline" className="text-xs h-7 px-2" onClick={() => {
+          setDraft(JSON.stringify(spec, null, 2));
+          setEditing(true);
+        }}>Edit spec</Button>
       </div>
-      {spec.rationale && (
+
+      {spec.summary && (
         <div>
-          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">Rationale</p>
-          <p className="text-sm text-muted-foreground leading-relaxed">{spec.rationale}</p>
+          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">Summary</p>
+          <p className="text-sm text-muted-foreground leading-relaxed">{spec.summary}</p>
         </div>
       )}
-      <p className="text-xs text-muted-foreground">
-        Generated {row.generatedAt ? new Date(row.generatedAt).toLocaleDateString("en-GB") : "—"}
-      </p>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {spec.role_families?.length ? (
+          <div>
+            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">Role Families</p>
+            <div className="space-y-1">
+              {spec.role_families.map((r) => (
+                <div key={r.title}>
+                  <Badge variant="secondary" className="text-xs mb-0.5">{r.title}</Badge>
+                  {r.why && <p className="text-xs text-muted-foreground pl-1">{r.why}</p>}
+                </div>
+              ))}
+            </div>
+          </div>
+        ) : null}
+
+        <div className="space-y-3">
+          <SpecBadgeList label="Functions" items={spec.functions ?? []} />
+          {spec.sectors?.length ? (
+            <div>
+              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">Sectors</p>
+              <div className="flex flex-wrap gap-1">
+                {spec.sectors.map((s) => (
+                  <Badge key={s.sector} variant={s.weight === "high" ? "default" : "outline"} className="text-xs">
+                    {s.sector} · {s.weight}
+                  </Badge>
+                ))}
+              </div>
+            </div>
+          ) : null}
+          {spec.seniority_band && (
+            <div>
+              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">Seniority</p>
+              <Badge variant="secondary" className="text-xs capitalize">{spec.seniority_band}</Badge>
+            </div>
+          )}
+          {spec.geography?.base && (
+            <div>
+              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">Geography</p>
+              <p className="text-xs text-muted-foreground">{spec.geography.base}</p>
+              {spec.geography.hard_constraints?.length ? (
+                <p className="text-xs text-destructive/80 mt-0.5">Hard constraints: {spec.geography.hard_constraints.join(", ")}</p>
+              ) : null}
+            </div>
+          )}
+        </div>
+      </div>
+
+      <SpecBadgeList label="Organisation Archetypes" items={spec.organisation_archetypes ?? []} variant="outline" />
+      <SpecBadgeList label="Differentiators" items={spec.differentiators ?? []} variant="outline" />
+      <SpecBadgeList label="Deal Breakers" items={spec.deal_breakers ?? []} variant="outline" />
+      <SpecBadgeList label="Search Terms" items={spec.search_terms ?? []} variant="secondary" />
     </div>
   );
 }
