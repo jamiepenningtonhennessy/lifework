@@ -296,10 +296,18 @@ export function CounsellorJobsTab({
 }) {
   const utils = trpc.useUtils();
   const triggerPipeline = trpc.jobs.triggerPipeline.useMutation({
-    onSuccess: () => {
-      toast.success("Pipeline stages 1 & 2 triggered — target spec and monitor list will refresh shortly.");
-      utils.jobs.getTargetSpec.invalidate({ clientId });
-      utils.jobs.getMonitorList.invalidate({ clientId });
+    onSuccess: (data) => {
+      if (data.fullPipeline) {
+        toast.success("Full pipeline complete — target spec, monitor list, open roles, and signals refreshed.");
+        utils.jobs.getTargetSpec.invalidate({ clientId });
+        utils.jobs.getMonitorList.invalidate({ clientId });
+        utils.jobs.getMatches.invalidate({ clientId });
+        utils.jobs.getSignals.invalidate({ clientId });
+      } else {
+        toast.success("Pipeline stages 1 & 2 triggered — target spec and monitor list will refresh shortly.");
+        utils.jobs.getTargetSpec.invalidate({ clientId });
+        utils.jobs.getMonitorList.invalidate({ clientId });
+      }
     },
     onError: (err) => toast.error(`Pipeline failed: ${err.message}`),
   });
@@ -316,20 +324,35 @@ export function CounsellorJobsTab({
             Read-only view of this client's market monitor.
           </p>
         </div>
-        <Button
-          size="sm"
-          variant="outline"
-          className="gap-1.5"
-          disabled={triggerPipeline.isPending}
-          onClick={() => triggerPipeline.mutate({ clientId })}
-        >
-          {triggerPipeline.isPending ? (
-            <Loader2 className="w-3.5 h-3.5 animate-spin" />
-          ) : (
-            <RefreshCw className="w-3.5 h-3.5" />
-          )}
-          Run pipeline (stages 1 & 2)
-        </Button>
+        <div className="flex gap-2 flex-wrap">
+          <Button
+            size="sm"
+            variant="outline"
+            className="gap-1.5"
+            disabled={triggerPipeline.isPending}
+            onClick={() => triggerPipeline.mutate({ clientId, fullPipeline: false })}
+          >
+            {triggerPipeline.isPending ? (
+              <Loader2 className="w-3.5 h-3.5 animate-spin" />
+            ) : (
+              <RefreshCw className="w-3.5 h-3.5" />
+            )}
+            Refresh spec & list
+          </Button>
+          <Button
+            size="sm"
+            className="gap-1.5 bg-[var(--lw-gold)] hover:bg-[oklch(0.60_0.13_72)] text-white"
+            disabled={triggerPipeline.isPending}
+            onClick={() => triggerPipeline.mutate({ clientId, fullPipeline: true })}
+          >
+            {triggerPipeline.isPending ? (
+              <Loader2 className="w-3.5 h-3.5 animate-spin" />
+            ) : (
+              <RefreshCw className="w-3.5 h-3.5" />
+            )}
+            Run full pipeline (all 5 stages)
+          </Button>
+        </div>
       </div>
 
       {/* Target spec */}

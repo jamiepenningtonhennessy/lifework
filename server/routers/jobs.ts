@@ -363,46 +363,45 @@ export const jobsRouter = router({
 
   /**
    * Counsellor-only: trigger the pipeline for a specific client.
-   * Calls stages 1 and 2 inline (target spec → monitor list).
-   * Stages 3-5 run on the nightly Heartbeat schedule.
+   * fullPipeline=false (default): stages 1 + 2 only (target spec + monitor list).
+   * fullPipeline=true: all 5 stages including listings scan, news signals, and alerts.
    */
   triggerPipeline: protectedProcedure
-    .input(z.object({ clientId: z.number() }))
+    .input(z.object({ clientId: z.number(), fullPipeline: z.boolean().optional().default(false) }))
     .mutation(async ({ ctx, input }) => {
       if (ctx.user.role !== "admin") {
         throw new TRPCError({ code: "FORBIDDEN", message: "Counsellors only" });
       }
 
-      // Fire-and-forget — call the Heartbeat handlers directly via internal HTTP
       const base = `http://localhost:${process.env.PORT ?? 3000}`;
       const headers = {
         "Content-Type": "application/json",
         Authorization: `Bearer ${process.env.BUILT_IN_FORGE_API_KEY}`,
       };
 
-      // Stage 1
-      const s1 = await fetch(`${base}/api/scheduled/jobs/generate-target-spec`, {
-        method: "POST",
-        headers,
-        body: JSON.stringify({ clientId: input.clientId }),
-      });
-      if (!s1.ok) {
-        const err = await s1.text();
-        throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: `Stage 1 failed: ${err}` });
+      const runStage = async (endpoint: string, label: string) => {
+        const r = await fetch(`${base}${endpoint}`, {
+          method: "POST",
+          headers,
+          body: JSON.stringify({ clientId: input.clientId }),
+        });
+        if (!r.ok) {
+          const err = await r.text();
+          throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: `${label} failed: ${err}` });
+        }
+        return r.json() as Promise<unknown>;
+      };
+
+      await runStage("/api/scheduled/jobs/generate-target-spec", "Stage 1");
+      await runStage("/api/scheduled/jobs/build-monitor-list", "Stage 2");
+
+      if (input.fullPipeline) {
+        await runStage("/api/scheduled/jobs/scan-listings", "Stage 3");
+        await runStage("/api/scheduled/jobs/scan-news-signals", "Stage 4");
+        await runStage("/api/scheduled/jobs/send-alerts", "Stage 5");
       }
 
-      // Stage 2
-      const s2 = await fetch(`${base}/api/scheduled/jobs/build-monitor-list`, {
-        method: "POST",
-        headers,
-        body: JSON.stringify({ clientId: input.clientId }),
-      });
-      if (!s2.ok) {
-        const err = await s2.text();
-        throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: `Stage 2 failed: ${err}` });
-      }
-
-      return { ok: true };
+      return { ok: true, fullPipeline: input.fullPipeline };
     }),
 
   /** Get company universe stats (counsellor admin view). */
