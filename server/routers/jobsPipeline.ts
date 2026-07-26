@@ -783,11 +783,15 @@ contract when permanent-only, or in an excluded location), set constraint_status
             },
           });
 
-          const scored = JSON.parse(stripFences(scoreResponse.choices[0].message.content as string)) as {
-            score: number;
-            rationale: string;
-            constraint_status: "ok" | "filtered";
-          };
+          const rawScored = scoreResponse.choices[0].message.content as string;
+          let scored: { score: number; rationale: string; constraint_status: "ok" | "filtered" };
+          try {
+            scored = JSON.parse(stripFences(rawScored));
+          } catch {
+            // LLM returned prose instead of JSON — skip this listing
+            console.warn(`[jobs] Stage 3: non-JSON score response for listing ${listingId}, skipping. Preview: ${rawScored.slice(0, 80)}`);
+            continue;
+          }
 
           // Upsert match
           const [existingMatch] = await db
