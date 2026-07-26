@@ -405,55 +405,51 @@ function OpenRolesTab() {
         {data.map((row) => (
           <Card key={row.id} className="border border-[var(--lw-navy)] border-opacity-10">
             <CardContent className="p-4">
-              <div className="flex items-start justify-between gap-3">
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-start gap-2 flex-wrap">
-                    <p className="font-semibold text-[var(--lw-navy)] text-sm">{row.listing.title}</p>
+              <div className="space-y-2">
+                {/* Top row: title + score + action buttons always visible */}
+                <div className="flex items-start gap-2">
+                  <p className="font-semibold text-[var(--lw-navy)] text-sm leading-snug flex-1 min-w-0">{row.listing.title}</p>
+                  <div className="flex items-center gap-1.5 flex-shrink-0">
                     <ScoreBadge score={row.score} />
+                    {row.listing.url && (
+                      <a href={row.listing.url} target="_blank" rel="noopener noreferrer">
+                        <Button size="icon" variant="ghost" className="w-7 h-7 text-muted-foreground hover:text-[var(--lw-navy)]" title="View job posting">
+                          <ExternalLink className="w-3.5 h-3.5" />
+                        </Button>
+                      </a>
+                    )}
+                    <SaveJobDialog
+                      listingId={row.listing.id}
+                      title={row.listing.title}
+                      organisation={row.company.name}
+                      onSaved={() => utils.jobs.getSaved.invalidate()}
+                    />
                   </div>
-                  <p className="text-xs text-muted-foreground mt-0.5">{row.company.name}</p>
-                  <div className="flex flex-wrap gap-2 mt-1.5">
-                    {row.listing.location && (
-                      <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
-                        <MapPin className="w-3 h-3" /> {row.listing.location}
-                      </span>
-                    )}
-                    {row.listing.fetchedAt && (
-                      <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
-                        <Clock className="w-3 h-3" /> {new Date(row.listing.fetchedAt).toLocaleDateString("en-GB")}
-                      </span>
-                    )}
-                    {row.company.sector && (
-                      <Badge variant="outline" className="text-xs capitalize">
-                        {row.company.sector.replace(/_/g, " ")}
-                      </Badge>
-                    )}
-                  </div>
-                  {row.rationale && (
-                    <p className="text-xs text-muted-foreground mt-2 leading-relaxed italic">
-                      "{row.rationale}"
-                    </p>
+                </div>
+                {/* Company + meta */}
+                <p className="text-xs text-muted-foreground">{row.company.name}</p>
+                <div className="flex flex-wrap gap-2">
+                  {row.listing.location && (
+                    <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
+                      <MapPin className="w-3 h-3" /> {row.listing.location}
+                    </span>
+                  )}
+                  {row.listing.fetchedAt && (
+                    <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
+                      <Clock className="w-3 h-3" /> {new Date(row.listing.fetchedAt).toLocaleDateString("en-GB")}
+                    </span>
+                  )}
+                  {row.company.sector && (
+                    <Badge variant="outline" className="text-xs capitalize">
+                      {row.company.sector.replace(/_/g, " ")}
+                    </Badge>
                   )}
                 </div>
-                <div className="flex flex-col gap-2 flex-shrink-0">
-                  {row.listing.url && (
-                    <a
-                      href={row.listing.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      <Button size="sm" variant="outline" className="gap-1.5 text-xs">
-                        <ExternalLink className="w-3.5 h-3.5" /> View
-                      </Button>
-                    </a>
-                  )}
-                  <SaveJobDialog
-                    listingId={row.listing.id}
-                    title={row.listing.title}
-                    organisation={row.company.name}
-                    onSaved={() => utils.jobs.getSaved.invalidate()}
-                  />
-                </div>
+                {row.rationale && (
+                  <p className="text-xs text-muted-foreground leading-relaxed italic">
+                    "{row.rationale}"
+                  </p>
+                )}
               </div>
             </CardContent>
           </Card>
