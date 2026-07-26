@@ -10,7 +10,7 @@
  *   - Trigger pipeline button (stages 1+2)
  */
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { trpc } from "@/lib/trpc";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -295,21 +295,41 @@ export function CounsellorJobsTab({
   clientName?: string;
 }) {
   const utils = trpc.useUtils();
+  const [activeRunId, setActiveRunId] = useState<number | null>(null);
+
+  const { data: pipelineStatus } = trpc.jobs.getPipelineStatus.useQuery(
+    { runId: activeRunId! },
+    {
+      enabled: activeRunId !== null,
+      refetchInterval: (query) => {
+        const status = query.state.data?.status;
+        return status === "done" || status === "error" ? false : 2000;
+      },
+    }
+  );
+
+  // When run completes, invalidate data and clear the run
+  useEffect(() => {
+    if (!pipelineStatus) return;
+    if (pipelineStatus.status === "done") {
+      toast.success("Pipeline complete — data refreshed.");
+      utils.jobs.getTargetSpec.invalidate({ clientId });
+      utils.jobs.getMonitorList.invalidate({ clientId });
+      utils.jobs.getMatches.invalidate({ clientId });
+      utils.jobs.getSignals.invalidate({ clientId });
+      setActiveRunId(null);
+    } else if (pipelineStatus.status === "error") {
+      toast.error(`Pipeline failed: ${pipelineStatus.errorMessage ?? "unknown error"}`);
+      setActiveRunId(null);
+    }
+  }, [pipelineStatus?.status]);
+
   const triggerPipeline = trpc.jobs.triggerPipeline.useMutation({
     onSuccess: (data) => {
-      if (data.fullPipeline) {
-        toast.success("Full pipeline complete — target spec, monitor list, open roles, and signals refreshed.");
-        utils.jobs.getTargetSpec.invalidate({ clientId });
-        utils.jobs.getMonitorList.invalidate({ clientId });
-        utils.jobs.getMatches.invalidate({ clientId });
-        utils.jobs.getSignals.invalidate({ clientId });
-      } else {
-        toast.success("Pipeline stages 1 & 2 triggered — target spec and monitor list will refresh shortly.");
-        utils.jobs.getTargetSpec.invalidate({ clientId });
-        utils.jobs.getMonitorList.invalidate({ clientId });
-      }
+      setActiveRunId(data.runId);
+      toast.info(data.fullPipeline ? "Running all 5 stages in the background…" : "Refreshing spec & monitor list…");
     },
-    onError: (err) => toast.error(`Pipeline failed: ${err.message}`),
+    onError: (err) => toast.error(`Could not start pipeline: ${err.message}`),
   });
 
   return (

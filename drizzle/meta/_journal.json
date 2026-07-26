@@ -176,6 +176,13 @@
       "when": 1785081784882,
       "tag": "0024_magenta_kitty_pryde",
       "breakpoints": true
+    },
+    {
+      "idx": 25,
+      "version": "5",
+      "when": 1785084370053,
+      "tag": "0025_amused_spitfire",
+      "breakpoints": true
     }
   ]
 }

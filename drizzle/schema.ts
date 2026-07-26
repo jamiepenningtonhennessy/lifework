@@ -560,3 +560,17 @@ export const jobAlerts = mysqlTable("job_alerts", {
 });
 
 export type JobAlert = typeof jobAlerts.$inferSelect;
+
+// Tracks async pipeline runs so the UI can poll for completion without timing out.
+export const jobPipelineRuns = mysqlTable("job_pipeline_runs", {
+  id: int("id").autoincrement().primaryKey(),
+  clientId: int("clientId").notNull(),
+  fullPipeline: boolean("fullPipeline").default(false).notNull(),
+  status: mysqlEnum("status", ["pending", "running", "done", "error"]).default("pending").notNull(),
+  currentStage: int("currentStage").default(0).notNull(),
+  totalStages: int("totalStages").default(2).notNull(),
+  errorMessage: text("errorMessage"),
+  startedAt: timestamp("startedAt").defaultNow().notNull(),
+  completedAt: timestamp("completedAt"),
+});
+export type JobPipelineRun = typeof jobPipelineRuns.$inferSelect;

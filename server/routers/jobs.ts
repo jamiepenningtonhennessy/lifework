@@ -32,6 +32,7 @@ import {
   jobMatches,
   latentSignals,
   savedJobs,
+  jobPipelineRuns,
 } from "../../drizzle/schema";
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -363,8 +364,8 @@ export const jobsRouter = router({
 
   /**
    * Counsellor-only: trigger the pipeline for a specific client.
-   * fullPipeline=false (default): stages 1 + 2 only (target spec + monitor list).
-   * fullPipeline=true: all 5 stages including listings scan, news signals, and alerts.
+   * Returns immediately with a runId — use getPipelineStatus to poll for progress.
+   * fullPipeline=false: stages 1+2 only. fullPipeline=true: all 5 stages.
    */
   triggerPipeline: protectedProcedure
     .input(z.object({ clientId: z.number(), fullPipeline: z.boolean().optional().default(false) }))
@@ -372,36 +373,98 @@ export const jobsRouter = router({
       if (ctx.user.role !== "admin") {
         throw new TRPCError({ code: "FORBIDDEN", message: "Counsellors only" });
       }
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
 
+      const totalStages = input.fullPipeline ? 5 : 2;
+
+      // Create a run record immediately so the UI can poll
+      const [inserted] = await db.insert(jobPipelineRuns).values({
+        clientId: input.clientId,
+        fullPipeline: input.fullPipeline,
+        status: "pending",
+        currentStage: 0,
+        totalStages,
+      }).$returningId();
+      const runId = inserted.id;
+
+      // Run the pipeline in the background — do NOT await
       const base = `http://localhost:${process.env.PORT ?? 3000}`;
       const headers = {
         "Content-Type": "application/json",
         Authorization: `Bearer ${process.env.BUILT_IN_FORGE_API_KEY}`,
       };
 
-      const runStage = async (endpoint: string, label: string) => {
-        const r = await fetch(`${base}${endpoint}`, {
-          method: "POST",
-          headers,
-          body: JSON.stringify({ clientId: input.clientId }),
-        });
-        if (!r.ok) {
-          const err = await r.text();
-          throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: `${label} failed: ${err}` });
+      const stages = [
+        "/api/scheduled/jobs/generate-target-spec",
+        "/api/scheduled/jobs/build-monitor-list",
+        ...(input.fullPipeline
+          ? [
+              "/api/scheduled/jobs/scan-listings",
+              "/api/scheduled/jobs/scan-news-signals",
+              "/api/scheduled/jobs/send-alerts",
+            ]
+          : []),
+      ];
+
+      // Fire and forget
+      (async () => {
+        try {
+          await db
+            .update(jobPipelineRuns)
+            .set({ status: "running" })
+            .where(eq(jobPipelineRuns.id, runId));
+
+          for (let i = 0; i < stages.length; i++) {
+            await db
+              .update(jobPipelineRuns)
+              .set({ currentStage: i + 1 })
+              .where(eq(jobPipelineRuns.id, runId));
+
+            const r = await fetch(`${base}${stages[i]}`, {
+              method: "POST",
+              headers,
+              body: JSON.stringify({ clientId: input.clientId }),
+            });
+            if (!r.ok) {
+              const err = await r.text();
+              await db
+                .update(jobPipelineRuns)
+                .set({ status: "error", errorMessage: `Stage ${i + 1} failed: ${err.slice(0, 500)}`, completedAt: new Date() })
+                .where(eq(jobPipelineRuns.id, runId));
+              return;
+            }
+          }
+
+          await db
+            .update(jobPipelineRuns)
+            .set({ status: "done", currentStage: stages.length, completedAt: new Date() })
+            .where(eq(jobPipelineRuns.id, runId));
+        } catch (e) {
+          const msg = e instanceof Error ? e.message : String(e);
+          await db
+            .update(jobPipelineRuns)
+            .set({ status: "error", errorMessage: msg.slice(0, 500), completedAt: new Date() })
+            .where(eq(jobPipelineRuns.id, runId));
         }
-        return r.json() as Promise<unknown>;
-      };
+      })();
 
-      await runStage("/api/scheduled/jobs/generate-target-spec", "Stage 1");
-      await runStage("/api/scheduled/jobs/build-monitor-list", "Stage 2");
+      return { ok: true, runId, fullPipeline: input.fullPipeline };
+    }),
 
-      if (input.fullPipeline) {
-        await runStage("/api/scheduled/jobs/scan-listings", "Stage 3");
-        await runStage("/api/scheduled/jobs/scan-news-signals", "Stage 4");
-        await runStage("/api/scheduled/jobs/send-alerts", "Stage 5");
-      }
-
-      return { ok: true, fullPipeline: input.fullPipeline };
+  /** Poll the status of a pipeline run. */
+  getPipelineStatus: protectedProcedure
+    .input(z.object({ runId: z.number() }))
+    .query(async ({ ctx, input }) => {
+      if (ctx.user.role !== "admin") throw new TRPCError({ code: "FORBIDDEN" });
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+      const [run] = await db
+        .select()
+        .from(jobPipelineRuns)
+        .where(eq(jobPipelineRuns.id, input.runId))
+        .limit(1);
+      return run ?? null;
     }),
 
   /** Get company universe stats (counsellor admin view). */
