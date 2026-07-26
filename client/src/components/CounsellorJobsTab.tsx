@@ -294,8 +294,26 @@ export function CounsellorJobsTab({
   clientId: number;
   clientName?: string;
 }) {
-  const utils = trpc.useUtils();
-  const [activeRunId, setActiveRunId] = useState<number | null>(null);
+    const utils = trpc.useUtils();
+  const storageKey = `jobs-run-${clientId}`;
+
+  // Persist activeRunId in localStorage so it survives tab switches and page scrolls
+  const [activeRunId, setActiveRunIdState] = useState<number | null>(() => {
+    try {
+      const stored = localStorage.getItem(storageKey);
+      return stored ? Number(stored) : null;
+    } catch { return null; }
+  });
+  const setActiveRunId = (id: number | null) => {
+    setActiveRunIdState(id);
+    try {
+      if (id === null) localStorage.removeItem(storageKey);
+      else localStorage.setItem(storageKey, String(id));
+    } catch { /* ignore */ }
+  };
+
+  // Show bar immediately when run starts, before first poll
+  const [runStarted, setRunStarted] = useState(activeRunId !== null);
 
   const { data: pipelineStatus } = trpc.jobs.getPipelineStatus.useQuery(
     { runId: activeRunId! },
@@ -318,15 +336,18 @@ export function CounsellorJobsTab({
       utils.jobs.getMatches.invalidate({ clientId });
       utils.jobs.getSignals.invalidate({ clientId });
       setActiveRunId(null);
+      setRunStarted(false);
     } else if (pipelineStatus.status === "error") {
-      toast.error(`Pipeline failed: ${pipelineStatus.errorMessage ?? "unknown error"}`);
-      setActiveRunId(null);
+      // Keep bar visible with error state — don't clear immediately
+      setActiveRunIdState(null);
+      try { localStorage.removeItem(storageKey); } catch { /* ignore */ }
     }
   }, [pipelineStatus?.status]);
 
   const triggerPipeline = trpc.jobs.triggerPipeline.useMutation({
     onSuccess: (data) => {
       setActiveRunId(data.runId);
+      setRunStarted(true);
       toast.info(data.fullPipeline ? "Running all 5 stages in the background…" : "Refreshing spec & monitor list…");
     },
     onError: (err) => toast.error(`Could not start pipeline: ${err.message}`),
@@ -375,13 +396,13 @@ export function CounsellorJobsTab({
         </div>
       </div>
 
-      {/* Pipeline progress indicator */}
-      {activeRunId !== null && pipelineStatus && pipelineStatus.status !== "done" && pipelineStatus.status !== "error" && (
+      {/* Pipeline progress indicator — shown as soon as run starts, persists across scrolls */}
+      {runStarted && (!pipelineStatus || (pipelineStatus.status !== "done" && pipelineStatus.status !== "error")) && (
         <div className="rounded-lg border border-border bg-muted/40 px-4 py-3 space-y-2">
           <div className="flex items-center justify-between text-sm">
             <span className="flex items-center gap-2 font-medium">
               <Loader2 className="w-4 h-4 animate-spin text-[var(--lw-gold)]" />
-              {pipelineStatus.status === "pending" ? "Starting pipeline…" : (
+              {!pipelineStatus || pipelineStatus.status === "pending" ? "Starting pipeline…" : (
                 (() => {
                   const labels = ["Generating target spec", "Building monitor list", "Scanning job listings", "Scanning news signals", "Sending alerts"];
                   const idx = Math.max(0, (pipelineStatus.currentStage ?? 1) - 1);
@@ -390,13 +411,13 @@ export function CounsellorJobsTab({
               )}
             </span>
             <span className="text-xs text-muted-foreground">
-              {pipelineStatus.currentStage} / {pipelineStatus.totalStages}
+              {pipelineStatus?.currentStage ?? 0} / {pipelineStatus?.totalStages ?? 5}
             </span>
           </div>
           <div className="w-full bg-border rounded-full h-1.5 overflow-hidden">
             <div
               className="h-full bg-[var(--lw-gold)] rounded-full transition-all duration-700"
-              style={{ width: `${Math.round(((pipelineStatus.currentStage ?? 0) / (pipelineStatus.totalStages ?? 5)) * 100)}%` }}
+              style={{ width: `${Math.round(((pipelineStatus?.currentStage ?? 0) / (pipelineStatus?.totalStages ?? 5)) * 100)}%` }}
             />
           </div>
         </div>
