@@ -367,10 +367,20 @@ Return a weight for every bucket you are given.`,
       },
     });
 
-    const { buckets: weightedBuckets } = JSON.parse(stripFences(weightResponse.choices[0].message.content as string)) as {
-      buckets: { tier: string; sector: string; weight: number; reason: string }[];
-    };
-
+    const rawWeightContent = weightResponse.choices[0].message.content as string;
+    let weightedBuckets: { tier: string; sector: string; weight: number; reason: string }[] = [];
+    try {
+      const parsedW = JSON.parse(stripFences(rawWeightContent));
+      if (Array.isArray(parsedW)) {
+        weightedBuckets = parsedW;
+      } else if (Array.isArray(parsedW?.buckets)) {
+        weightedBuckets = parsedW.buckets;
+      } else {
+        console.warn(`[jobs] Stage 2a: unexpected bucket weights shape:`, JSON.stringify(parsedW).slice(0, 200));
+      }
+    } catch (e) {
+      console.warn(`[jobs] Stage 2a: failed to parse bucket weights:`, rawWeightContent.slice(0, 200));
+    }
     // Build lookup map
     const bucketWeightMap = new Map<string, number>();
     for (const b of weightedBuckets) {
@@ -444,10 +454,24 @@ reason. Score every company you are given.`,
         },
       });
 
-      const { scores } = JSON.parse(stripFences(scoreResponse.choices[0].message.content as string)) as {
-        scores: { name: string; score: number; why: string }[];
-      };
-      scored.push(...scores);
+      const rawScoreContent = scoreResponse.choices[0].message.content as string;
+      let parsedScores: { name: string; score: number; why: string }[] = [];
+      try {
+        const parsed = JSON.parse(stripFences(rawScoreContent));
+        // Handle both { scores: [...] } and bare [...]
+        if (Array.isArray(parsed)) {
+          parsedScores = parsed;
+        } else if (Array.isArray(parsed?.scores)) {
+          parsedScores = parsed.scores;
+        } else if (Array.isArray(parsed?.companies)) {
+          parsedScores = parsed.companies;
+        } else {
+          console.warn(`[jobs] Stage 2: unexpected scores shape for batch ${i}:`, JSON.stringify(parsed).slice(0, 200));
+        }
+      } catch (e) {
+        console.warn(`[jobs] Stage 2: failed to parse scores for batch ${i}:`, rawScoreContent.slice(0, 200));
+      }
+      scored.push(...parsedScores);
     }
 
     // Write monitor list
