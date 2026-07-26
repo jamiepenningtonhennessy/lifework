@@ -37,14 +37,53 @@ import { eq, and, inArray, isNull, gte, sql } from "drizzle-orm";
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
 /**
- * Strip markdown code fences that some LLM responses wrap around JSON.
- * Handles: ```json\n{...}\n``` and ``` {...} ```
+ * Strip markdown code fences and sanitise control characters from LLM JSON responses.
+ *
+ * Some models:
+ *   1. Wrap JSON in ```json ... ``` fences
+ *   2. Embed literal newlines / tabs inside string values (invalid JSON)
+ *
+ * This helper handles both cases so JSON.parse never sees either.
  */
 function stripFences(raw: string): string {
-  const trimmed = raw.trim();
-  const withoutOpen = trimmed.replace(/^```[a-zA-Z]*\s*/m, "");
-  const withoutClose = withoutOpen.replace(/\s*```\s*$/m, "");
-  return withoutClose.trim();
+  // 1. Remove opening fence (```json, ```, ```JSON, etc.)
+  let s = raw.trim().replace(/^```[a-zA-Z]*\s*/m, "");
+  // 2. Remove closing fence
+  s = s.replace(/\s*```\s*$/m, "").trim();
+  // 3. Replace literal control characters inside JSON string values.
+  //    We replace bare \n, \r, \t that appear INSIDE quoted strings with their
+  //    escaped equivalents.  We do this by scanning character-by-character so
+  //    we only touch characters inside double-quoted regions.
+  let result = "";
+  let inString = false;
+  let escaped = false;
+  for (let i = 0; i < s.length; i++) {
+    const ch = s[i];
+    if (escaped) {
+      result += ch;
+      escaped = false;
+      continue;
+    }
+    if (ch === "\\") {
+      escaped = true;
+      result += ch;
+      continue;
+    }
+    if (ch === '"') {
+      inString = !inString;
+      result += ch;
+      continue;
+    }
+    if (inString) {
+      if (ch === "\n") { result += "\\n"; continue; }
+      if (ch === "\r") { result += "\\r"; continue; }
+      if (ch === "\t") { result += "\\t"; continue; }
+      // Strip other ASCII control characters (0x00-0x1F except the above)
+      if (ch.charCodeAt(0) < 0x20) continue;
+    }
+    result += ch;
+  }
+  return result;
 }
 
 // ─── Types ───────────────────────────────────────────────────────────────────
