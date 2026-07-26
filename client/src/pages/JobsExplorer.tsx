@@ -52,6 +52,7 @@ import {
   TrendingUp,
   MapPin,
   Clock,
+  RefreshCw,
 } from "lucide-react";
 
 // ─── Score badge ─────────────────────────────────────────────────────────────
@@ -164,6 +165,21 @@ function SaveJobDialog({
   );
 }
 
+// ─── Last refreshed banner ──────────────────────────────────────────────────
+
+function LastRefreshedBanner() {
+  const { data } = trpc.jobs.getLastPipelineRun.useQuery();
+  const text = data?.completedAt
+    ? `Last refreshed: ${new Date(data.completedAt).toLocaleString("en-GB", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" })}`
+    : "Not yet refreshed — your counsellor will run the first scan for you.";
+  return (
+    <div className="flex items-center gap-2 text-xs text-muted-foreground">
+      <RefreshCw className="w-3.5 h-3.5 flex-shrink-0" />
+      <span>{text}</span>
+    </div>
+  );
+}
+
 // ─── Preferences form ─────────────────────────────────────────────────────────
 
 function PreferencesPanel() {
@@ -218,7 +234,7 @@ function PreferencesPanel() {
         onClick={() => setOpen(!open)}
       >
         <span className="flex items-center gap-2">
-          <Settings2 className="w-4 h-4" /> Search preferences
+          <Settings2 className="w-4 h-4" /> Refine your search
         </span>
         {open ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
       </button>
@@ -718,6 +734,9 @@ export default function JobsExplorer() {
 
       {/* Body */}
       <div className="max-w-4xl mx-auto px-4 py-6 space-y-5">
+        {/* Last refreshed */}
+        <LastRefreshedBanner />
+
         {/* Preferences */}
         <PreferencesPanel />
 

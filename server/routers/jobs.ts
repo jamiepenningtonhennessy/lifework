@@ -482,6 +482,24 @@ export const jobsRouter = router({
       return run ?? null;
     }),
 
+  /** Get the most recent completed pipeline run for the logged-in client (client-facing). */
+  getLastPipelineRun: protectedProcedure.query(async ({ ctx }) => {
+    const db = await getDb();
+    if (!db) return null;
+    const [run] = await db
+      .select({ completedAt: jobPipelineRuns.completedAt, status: jobPipelineRuns.status })
+      .from(jobPipelineRuns)
+      .where(
+        and(
+          eq(jobPipelineRuns.clientId, ctx.user.id),
+          eq(jobPipelineRuns.status, "done")
+        )
+      )
+      .orderBy(desc(jobPipelineRuns.completedAt))
+      .limit(1);
+    return run ?? null;
+  }),
+
   /** Get company universe stats (counsellor admin view). */
   getUniverseStats: protectedProcedure.query(async ({ ctx }) => {
     if (ctx.user.role !== "admin") throw new TRPCError({ code: "FORBIDDEN" });
