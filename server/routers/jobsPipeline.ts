@@ -34,6 +34,19 @@ import {
 } from "../../drizzle/schema";
 import { eq, and, inArray, isNull, gte, sql } from "drizzle-orm";
 
+// ─── Helpers ────────────────────────────────────────────────────────────────
+
+/**
+ * Strip markdown code fences that some LLM responses wrap around JSON.
+ * Handles: ```json\n{...}\n``` and ``` {...} ```
+ */
+function stripFences(raw: string): string {
+  const trimmed = raw.trim();
+  const withoutOpen = trimmed.replace(/^```[a-zA-Z]*\s*/m, "");
+  const withoutClose = withoutOpen.replace(/\s*```\s*$/m, "");
+  return withoutClose.trim();
+}
+
 // ─── Types ───────────────────────────────────────────────────────────────────
 
 interface TargetSpec {
@@ -205,7 +218,7 @@ Rules:
       },
     });
 
-    const spec: TargetSpec = JSON.parse(response.choices[0].message.content as string);
+    const spec: TargetSpec = JSON.parse(stripFences(response.choices[0].message.content as string));
 
     // Upsert target spec (one per client — delete old, insert new)
     await db.delete(clientTargetSpec).where(eq(clientTargetSpec.clientId, clientId));
@@ -315,7 +328,7 @@ Return a weight for every bucket you are given.`,
       },
     });
 
-    const { buckets: weightedBuckets } = JSON.parse(weightResponse.choices[0].message.content as string) as {
+    const { buckets: weightedBuckets } = JSON.parse(stripFences(weightResponse.choices[0].message.content as string)) as {
       buckets: { tier: string; sector: string; weight: number; reason: string }[];
     };
 
@@ -392,7 +405,7 @@ reason. Score every company you are given.`,
         },
       });
 
-      const { scores } = JSON.parse(scoreResponse.choices[0].message.content as string) as {
+      const { scores } = JSON.parse(stripFences(scoreResponse.choices[0].message.content as string)) as {
         scores: { name: string; score: number; why: string }[];
       };
       scored.push(...scores);
@@ -707,7 +720,7 @@ contract when permanent-only, or in an excluded location), set constraint_status
             },
           });
 
-          const scored = JSON.parse(scoreResponse.choices[0].message.content as string) as {
+          const scored = JSON.parse(stripFences(scoreResponse.choices[0].message.content as string)) as {
             score: number;
             rationale: string;
             constraint_status: "ok" | "filtered";
