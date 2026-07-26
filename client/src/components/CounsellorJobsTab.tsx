@@ -93,24 +93,72 @@ function SpecBadgeList({ label, items, variant = "secondary" }: { label: string;
   );
 }
 
+// ─── Spec edit form state ────────────────────────────────────────────────────
+interface SpecFormState {
+  summary: string;
+  seniority_band: string;
+  role_families: { title: string; why: string }[];
+  functions: string;
+  sectors: { sector: string; weight: string }[];
+  organisation_archetypes: string;
+  geography_base: string;
+  geography_constraints: string;
+  differentiators: string;
+  deal_breakers: string;
+  search_terms: string;
+}
+
+function specToForm(spec: TargetSpec): SpecFormState {
+  return {
+    summary: spec.summary ?? "",
+    seniority_band: spec.seniority_band ?? "",
+    role_families: spec.role_families?.length ? spec.role_families : [{ title: "", why: "" }],
+    functions: (spec.functions ?? []).join(", "),
+    sectors: spec.sectors?.length ? spec.sectors : [{ sector: "", weight: "medium" }],
+    organisation_archetypes: (spec.organisation_archetypes ?? []).join(", "),
+    geography_base: spec.geography?.base ?? "",
+    geography_constraints: (spec.geography?.hard_constraints ?? []).join(", "),
+    differentiators: (spec.differentiators ?? []).join("\n"),
+    deal_breakers: (spec.deal_breakers ?? []).join("\n"),
+    search_terms: (spec.search_terms ?? []).join(", "),
+  };
+}
+
+function formToSpec(f: SpecFormState): TargetSpec {
+  const splitComma = (s: string) => s.split(",").map(x => x.trim()).filter(Boolean);
+  const splitLine = (s: string) => s.split("\n").map(x => x.trim()).filter(Boolean);
+  return {
+    summary: f.summary,
+    seniority_band: f.seniority_band,
+    role_families: f.role_families.filter(r => r.title.trim()),
+    functions: splitComma(f.functions),
+    sectors: f.sectors.filter(s => s.sector.trim()),
+    organisation_archetypes: splitComma(f.organisation_archetypes),
+    geography: {
+      base: f.geography_base,
+      acceptable: [],
+      hard_constraints: splitComma(f.geography_constraints),
+    },
+    differentiators: splitLine(f.differentiators),
+    deal_breakers: splitLine(f.deal_breakers),
+    search_terms: splitComma(f.search_terms),
+  };
+}
+
 function TargetSpecPanel({ clientId }: { clientId: number }) {
   const utils = trpc.useUtils();
   const { data: row, isLoading } = trpc.jobs.getTargetSpec.useQuery({ clientId });
   const [editing, setEditing] = useState(false);
-  const [draft, setDraft] = useState("");
-  const [draftError, setDraftError] = useState("");
+  const [form, setForm] = useState<SpecFormState | null>(null);
   const saveSpec = trpc.jobs.saveTargetSpec.useMutation({
     onSuccess: () => {
       utils.jobs.getTargetSpec.invalidate({ clientId });
       setEditing(false);
-      setDraftError("");
       toast.success("Target spec saved.");
     },
-    onError: (e) => setDraftError(e.message),
+    onError: (e) => toast.error(e.message),
   });
-
   if (isLoading) return <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />;
-
   if (!row) {
     return (
       <p className="text-sm text-muted-foreground italic">
@@ -118,34 +166,133 @@ function TargetSpecPanel({ clientId }: { clientId: number }) {
       </p>
     );
   }
-
   const spec = (typeof row.spec === "string" ? JSON.parse(row.spec) : row.spec) as TargetSpec;
 
-  if (editing) {
+  const setField = (key: keyof SpecFormState, value: string) =>
+    setForm(f => f ? { ...f, [key]: value } : f);
+
+  if (editing && form) {
+    const inputCls = "w-full text-sm border border-border rounded-md px-3 py-2 bg-background focus:outline-none focus:ring-1 focus:ring-ring";
+    const labelCls = "block text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1";
     return (
-      <div className="space-y-3">
-        <p className="text-xs text-muted-foreground">Edit the JSON spec directly. Changes take effect on the next pipeline run (stages 2–5).</p>
-        <textarea
-          className="w-full font-mono text-xs border border-border rounded-md p-3 bg-background min-h-[320px] focus:outline-none focus:ring-1 focus:ring-ring"
-          value={draft}
-          onChange={(e) => setDraft(e.target.value)}
-        />
-        {draftError && <p className="text-xs text-destructive">{draftError}</p>}
-        <div className="flex gap-2">
-          <Button size="sm" onClick={() => {
-            try {
-              const parsed = JSON.parse(draft);
-              saveSpec.mutate({ clientId, spec: parsed });
-            } catch (e) {
-              setDraftError("Invalid JSON: " + (e instanceof Error ? e.message : String(e)));
-            }
-          }} disabled={saveSpec.isPending}>
+      <div className="space-y-5">
+        <p className="text-xs text-muted-foreground">Changes take effect on the next pipeline run (stages 2–5).</p>
+
+        {/* Summary */}
+        <div>
+          <label className={labelCls}>Summary</label>
+          <textarea className={`${inputCls} min-h-[80px]`} value={form.summary} onChange={e => setField("summary", e.target.value)} />
+        </div>
+
+        {/* Seniority */}
+        <div>
+          <label className={labelCls}>Seniority Band</label>
+          <input className={inputCls} value={form.seniority_band} onChange={e => setField("seniority_band", e.target.value)} placeholder="e.g. Senior / Director" />
+        </div>
+
+        {/* Role families */}
+        <div>
+          <label className={labelCls}>Role Families</label>
+          <div className="space-y-2">
+            {form.role_families.map((rf, i) => (
+              <div key={i} className="flex gap-2 items-start">
+                <div className="flex-1 space-y-1">
+                  <input
+                    className={inputCls}
+                    placeholder="Role title (e.g. Commercial Lawyer)"
+                    value={rf.title}
+                    onChange={e => setForm(f => f ? { ...f, role_families: f.role_families.map((r, j) => j === i ? { ...r, title: e.target.value } : r) } : f)}
+                  />
+                  <input
+                    className={inputCls}
+                    placeholder="Why this role fits the client"
+                    value={rf.why}
+                    onChange={e => setForm(f => f ? { ...f, role_families: f.role_families.map((r, j) => j === i ? { ...r, why: e.target.value } : r) } : f)}
+                  />
+                </div>
+                <button type="button" className="mt-1 text-muted-foreground hover:text-destructive text-xs" onClick={() => setForm(f => f ? { ...f, role_families: f.role_families.filter((_, j) => j !== i) } : f)}>×</button>
+              </div>
+            ))}
+            <button type="button" className="text-xs text-[var(--lw-gold)] hover:underline" onClick={() => setForm(f => f ? { ...f, role_families: [...f.role_families, { title: "", why: "" }] } : f)}>+ Add role family</button>
+          </div>
+        </div>
+
+        {/* Functions */}
+        <div>
+          <label className={labelCls}>Functions <span className="normal-case font-normal">(comma-separated)</span></label>
+          <input className={inputCls} value={form.functions} onChange={e => setField("functions", e.target.value)} placeholder="e.g. Strategy & Operations, Consulting, Legal" />
+        </div>
+
+        {/* Sectors */}
+        <div>
+          <label className={labelCls}>Sectors</label>
+          <div className="space-y-2">
+            {form.sectors.map((s, i) => (
+              <div key={i} className="flex gap-2 items-center">
+                <input
+                  className={`${inputCls} flex-1`}
+                  placeholder="Sector name"
+                  value={s.sector}
+                  onChange={e => setForm(f => f ? { ...f, sectors: f.sectors.map((sec, j) => j === i ? { ...sec, sector: e.target.value } : sec) } : f)}
+                />
+                <select
+                  className="text-sm border border-border rounded-md px-2 py-2 bg-background"
+                  value={s.weight}
+                  onChange={e => setForm(f => f ? { ...f, sectors: f.sectors.map((sec, j) => j === i ? { ...sec, weight: e.target.value } : sec) } : f)}
+                >
+                  <option value="high">High</option>
+                  <option value="medium">Medium</option>
+                  <option value="low">Low</option>
+                </select>
+                <button type="button" className="text-muted-foreground hover:text-destructive text-xs" onClick={() => setForm(f => f ? { ...f, sectors: f.sectors.filter((_, j) => j !== i) } : f)}>×</button>
+              </div>
+            ))}
+            <button type="button" className="text-xs text-[var(--lw-gold)] hover:underline" onClick={() => setForm(f => f ? { ...f, sectors: [...f.sectors, { sector: "", weight: "medium" }] } : f)}>+ Add sector</button>
+          </div>
+        </div>
+
+        {/* Organisation archetypes */}
+        <div>
+          <label className={labelCls}>Organisation Archetypes <span className="normal-case font-normal">(comma-separated)</span></label>
+          <input className={inputCls} value={form.organisation_archetypes} onChange={e => setField("organisation_archetypes", e.target.value)} placeholder="e.g. Law firm, In-house legal, Consultancy" />
+        </div>
+
+        {/* Geography */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <div>
+            <label className={labelCls}>Geography Base</label>
+            <input className={inputCls} value={form.geography_base} onChange={e => setField("geography_base", e.target.value)} placeholder="e.g. London" />
+          </div>
+          <div>
+            <label className={labelCls}>Hard Constraints <span className="normal-case font-normal">(comma-separated)</span></label>
+            <input className={inputCls} value={form.geography_constraints} onChange={e => setField("geography_constraints", e.target.value)} placeholder="e.g. No relocation" />
+          </div>
+        </div>
+
+        {/* Differentiators */}
+        <div>
+          <label className={labelCls}>Differentiators <span className="normal-case font-normal">(one per line)</span></label>
+          <textarea className={`${inputCls} min-h-[80px]`} value={form.differentiators} onChange={e => setField("differentiators", e.target.value)} placeholder="Key strengths and standout qualities" />
+        </div>
+
+        {/* Deal breakers */}
+        <div>
+          <label className={labelCls}>Deal Breakers <span className="normal-case font-normal">(one per line)</span></label>
+          <textarea className={`${inputCls} min-h-[80px]`} value={form.deal_breakers} onChange={e => setField("deal_breakers", e.target.value)} placeholder="Roles or environments to exclude" />
+        </div>
+
+        {/* Search terms */}
+        <div>
+          <label className={labelCls}>Search Terms <span className="normal-case font-normal">(comma-separated)</span></label>
+          <input className={inputCls} value={form.search_terms} onChange={e => setField("search_terms", e.target.value)} placeholder="e.g. Commercial Lawyer, In-house Counsel, Legal Counsel" />
+        </div>
+
+        <div className="flex gap-2 pt-2">
+          <Button size="sm" onClick={() => saveSpec.mutate({ clientId, spec: formToSpec(form) as Record<string, unknown> })} disabled={saveSpec.isPending}>
             {saveSpec.isPending ? <Loader2 className="w-3 h-3 animate-spin mr-1" /> : null}
             Save spec
           </Button>
-          <Button size="sm" variant="outline" onClick={() => { setEditing(false); setDraftError(""); }}>
-            Cancel
-          </Button>
+          <Button size="sm" variant="outline" onClick={() => setEditing(false)}>Cancel</Button>
         </div>
       </div>
     );
@@ -156,7 +303,7 @@ function TargetSpecPanel({ clientId }: { clientId: number }) {
       <div className="flex justify-between items-start">
         <p className="text-xs text-muted-foreground">Generated {row.generatedAt ? new Date(row.generatedAt).toLocaleDateString("en-GB") : "—"}</p>
         <Button size="sm" variant="outline" className="text-xs h-7 px-2" onClick={() => {
-          setDraft(JSON.stringify(spec, null, 2));
+          setForm(specToForm(spec));
           setEditing(true);
         }}>Edit spec</Button>
       </div>
