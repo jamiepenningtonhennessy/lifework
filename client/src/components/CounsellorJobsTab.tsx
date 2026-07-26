@@ -375,6 +375,39 @@ export function CounsellorJobsTab({
         </div>
       </div>
 
+      {/* Pipeline progress indicator */}
+      {activeRunId !== null && pipelineStatus && pipelineStatus.status !== "done" && pipelineStatus.status !== "error" && (
+        <div className="rounded-lg border border-border bg-muted/40 px-4 py-3 space-y-2">
+          <div className="flex items-center justify-between text-sm">
+            <span className="flex items-center gap-2 font-medium">
+              <Loader2 className="w-4 h-4 animate-spin text-[var(--lw-gold)]" />
+              {pipelineStatus.status === "pending" ? "Starting pipeline…" : (
+                (() => {
+                  const labels = ["Generating target spec", "Building monitor list", "Scanning job listings", "Scanning news signals", "Sending alerts"];
+                  const idx = Math.max(0, (pipelineStatus.currentStage ?? 1) - 1);
+                  return `Stage ${pipelineStatus.currentStage} of ${pipelineStatus.totalStages}: ${labels[idx] ?? "Running"}…`;
+                })()
+              )}
+            </span>
+            <span className="text-xs text-muted-foreground">
+              {pipelineStatus.currentStage} / {pipelineStatus.totalStages}
+            </span>
+          </div>
+          <div className="w-full bg-border rounded-full h-1.5 overflow-hidden">
+            <div
+              className="h-full bg-[var(--lw-gold)] rounded-full transition-all duration-700"
+              style={{ width: `${Math.round(((pipelineStatus.currentStage ?? 0) / (pipelineStatus.totalStages ?? 5)) * 100)}%` }}
+            />
+          </div>
+        </div>
+      )}
+      {activeRunId !== null && pipelineStatus?.status === "error" && (
+        <div className="rounded-lg border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm text-destructive">
+          <strong>Pipeline failed at stage {pipelineStatus.currentStage}:</strong>{" "}
+          {pipelineStatus.errorMessage ?? "Unknown error"}
+        </div>
+      )}
+
       {/* Target spec */}
       <Card>
         <CardHeader className="pb-3">
