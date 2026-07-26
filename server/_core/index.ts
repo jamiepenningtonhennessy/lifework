@@ -15,6 +15,13 @@ import { coachingSlidesDownloadRouter } from "../coaching-slides-download";
 import { claudeExportDownloadRouter } from "../claude-export-download";
 import { htmlReportHandler } from "../html-report";
 import { handlePuppeteerPdfDownload } from "../puppeteer-pdf";
+import {
+  handleGenerateTargetSpec,
+  handleBuildMonitorList,
+  handleScanListings,
+  handleScanNewsSignals,
+  handleSendAlerts,
+} from "../routers/jobsPipeline";
 import { getDb } from "../db";
 import { analysisReports } from "../../drizzle/schema";
 import { eq } from "drizzle-orm";
@@ -108,6 +115,13 @@ async function startServer() {
       res.status(500).json({ ok: false, error: msg, stack: stack?.slice(0, 500), nodeVersion: process.version });
     }
   });
+  // Jobs pipeline — Heartbeat cron endpoints
+  app.post("/api/scheduled/jobs/generate-target-spec", handleGenerateTargetSpec);
+  app.post("/api/scheduled/jobs/build-monitor-list", handleBuildMonitorList);
+  app.post("/api/scheduled/jobs/scan-listings", handleScanListings);
+  app.post("/api/scheduled/jobs/scan-news-signals", handleScanNewsSignals);
+  app.post("/api/scheduled/jobs/send-alerts", handleSendAlerts);
+
   // tRPC API
   app.use(
     "/api/trpc",

@@ -13,6 +13,7 @@ import { roleDecoderRouter } from "./routers/roleDecoder";
 import { linkedInRewriterRouter } from "./routers/linkedInRewriter";
 import { debriefChatRouter } from "./routers/debriefChat";
 import { blogWriterRouter } from "./routers/blogWriter";
+import { jobsRouter } from "./routers/jobs";
 import { ENV } from "./_core/env";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
@@ -3512,6 +3513,7 @@ export const appRouter = router({
   linkedInRewriter: linkedInRewriterRouter,
   debriefChat: debriefChatRouter,
   blogWriter: blogWriterRouter,
+  jobs: jobsRouter,
 });
 
 export type AppRouter = typeof appRouter;

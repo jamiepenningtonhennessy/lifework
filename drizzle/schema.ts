@@ -426,3 +426,137 @@ export const reportGenerationLogs = mysqlTable("report_generation_logs", {
 });
 export type ReportGenerationLog = typeof reportGenerationLogs.$inferSelect;
 export type InsertReportGenerationLog = typeof reportGenerationLogs.$inferInsert;
+
+// ─── Jobs / Opportunities Module ─────────────────────────────────────────────
+
+// The employer universe. Seeded from Maz's ~520-company list (name/domain/tier/sector).
+// ATS fields populated from ats_map.csv and watchlist_extra.csv.
+export const companyUniverse = mysqlTable("company_universe", {
+  id: int("id").autoincrement().primaryKey(),
+  name: varchar("name", { length: 256 }).notNull(),
+  domain: varchar("domain", { length: 256 }),
+  tier: varchar("tier", { length: 64 }),        // e.g. law_firm, tech_scaleup, ftse100
+  sector: varchar("sector", { length: 96 }),    // e.g. magic_circle, ai, fintech
+  atsProvider: varchar("ats_provider", { length: 64 }),  // greenhouse|lever|ashby|workday|generic
+  atsSlug: varchar("ats_slug", { length: 512 }),          // board token or careers URL
+  careersUrl: varchar("careers_url", { length: 1024 }),
+  active: boolean("active").default(true),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type CompanyUniverse = typeof companyUniverse.$inferSelect;
+export type InsertCompanyUniverse = typeof companyUniverse.$inferInsert;
+
+// Report-derived taste vector. Regenerated when the WOW report changes.
+export const clientTargetSpec = mysqlTable("client_target_spec", {
+  id: int("id").autoincrement().primaryKey(),
+  clientId: int("clientId").notNull(),
+  spec: json("spec").notNull(),                 // TargetSpec (see 02-pipeline-and-prompts.md)
+  reportVersion: varchar("report_version", { length: 64 }),
+  generatedAt: timestamp("generatedAt").defaultNow().notNull(),
+});
+
+export type ClientTargetSpec = typeof clientTargetSpec.$inferSelect;
+
+// Client-stated hard limits. Company-stage fields filter monitor list + signals;
+// listing-stage fields filter individual vacancies.
+export const clientConstraints = mysqlTable("client_constraints", {
+  id: int("id").autoincrement().primaryKey(),
+  clientId: int("clientId").notNull(),
+  excludeCurrentEmployers: json("exclude_current_employers"),  // string[]
+  excludeCompanies: json("exclude_companies"),                 // string[] (applied-to, no-gos)
+  excludeSectors: json("exclude_sectors"),                     // string[]
+  minTotalGbp: int("min_total_gbp").default(0),                // listing-stage
+  permanentOnly: boolean("permanent_only").default(false),     // listing-stage
+  hardExcludeLocations: json("hard_exclude_locations"),        // string[] listing-stage
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type ClientConstraints = typeof clientConstraints.$inferSelect;
+
+// The personalised watch-list: which universe companies to monitor for this client.
+export const clientMonitorList = mysqlTable("client_monitor_list", {
+  id: int("id").autoincrement().primaryKey(),
+  clientId: int("clientId").notNull(),
+  companyId: int("companyId").notNull(),        // FK company_universe
+  score: int("score"),                          // 1-10 fit (company scorer)
+  bucketWeight: int("bucket_weight"),           // 0-3 (deterministic filter)
+  reason: text("reason"),
+  generatedAt: timestamp("generatedAt").defaultNow().notNull(),
+});
+
+export type ClientMonitorList = typeof clientMonitorList.$inferSelect;
+
+// Source A: real vacancies fetched from monitored employers (Heartbeat), cached w/ TTL.
+export const jobListings = mysqlTable("job_listings", {
+  id: int("id").autoincrement().primaryKey(),
+  companyId: int("companyId").notNull(),
+  externalId: varchar("external_id", { length: 256 }).notNull(),
+  title: varchar("title", { length: 512 }).notNull(),
+  location: varchar("location", { length: 256 }),
+  url: varchar("url", { length: 1024 }),
+  raw: json("raw"),
+  fetchedAt: timestamp("fetchedAt").defaultNow().notNull(),
+  expiresAt: timestamp("expiresAt"),
+});
+
+export type JobListing = typeof jobListings.$inferSelect;
+
+// A listing scored against ONE client's target spec + constraints.
+export const jobMatches = mysqlTable("job_matches", {
+  id: int("id").autoincrement().primaryKey(),
+  clientId: int("clientId").notNull(),
+  listingId: int("listingId").notNull(),
+  score: int("score"),                          // 1-10 fit
+  rationale: text("rationale"),
+  constraintStatus: mysqlEnum("constraint_status", ["ok", "filtered"]).default("ok"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type JobMatch = typeof jobMatches.$inferSelect;
+
+// Source B: latent (pre-posting) signals — senior departures at monitored employers.
+export const latentSignals = mysqlTable("latent_signals", {
+  id: int("id").autoincrement().primaryKey(),
+  clientId: int("clientId").notNull(),
+  company: varchar("company", { length: 256 }),
+  onMonitorList: boolean("on_monitor_list").default(false),
+  event: mysqlEnum("event", ["departure", "vacancy", "appointment", "other"]),
+  role: varchar("role", { length: 256 }),
+  person: varchar("person", { length: 256 }),
+  relevance: int("relevance"),                  // 0-3 target relevance
+  headline: text("headline"),
+  source: varchar("source", { length: 256 }),
+  url: varchar("url", { length: 1024 }),
+  publishedAt: timestamp("publishedAt"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type LatentSignal = typeof latentSignals.$inferSelect;
+
+// What the client saved / how they are tracking it.
+export const savedJobs = mysqlTable("saved_jobs", {
+  id: int("id").autoincrement().primaryKey(),
+  clientId: int("clientId").notNull(),
+  listingId: int("listingId"),                  // if from a live listing
+  signalId: int("signalId"),                    // if from a latent signal
+  title: varchar("title", { length: 512 }).notNull(),
+  organisation: varchar("organisation", { length: 256 }),
+  notes: text("notes"),
+  status: mysqlEnum("status", ["exploring", "applied", "not_for_me"]).default("exploring"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type SavedJob = typeof savedJobs.$inferSelect;
+
+// Records what was alerted, so a client is alerted once per opportunity.
+export const jobAlerts = mysqlTable("job_alerts", {
+  id: int("id").autoincrement().primaryKey(),
+  clientId: int("clientId").notNull(),
+  matchId: int("matchId"),
+  signalId: int("signalId"),
+  sentAt: timestamp("sentAt").defaultNow().notNull(),
+});
+
+export type JobAlert = typeof jobAlerts.$inferSelect;

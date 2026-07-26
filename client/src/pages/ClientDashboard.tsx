@@ -14,6 +14,7 @@ import {
   Loader2,
   LogOut,
   Compass,
+  Briefcase,
   X,
   KeyRound,
   Sparkles,
@@ -90,6 +91,17 @@ const STEPS = [
     statusKey: null,
     cta: "Open Career Explorer",
     ctaInProgress: "Continue Career Explorer",
+  },
+  {
+    id: "jobs_explorer",
+    icon: <Briefcase className="w-5 h-5" />,
+    title: "7. Jobs Explorer",
+    description:
+      "Your personalised market monitor — live vacancies scored against your profile, early signals from senior departures at target employers, and a curated watch list of organisations worth tracking.",
+    path: "/coaching/lifework/jobs",
+    statusKey: null,
+    cta: "Open Jobs Explorer",
+    ctaInProgress: "View Jobs Explorer",
   },
 ];
 

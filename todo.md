@@ -1506,3 +1506,28 @@
 
 - [x] Fix Annex A (life history timeline) page overrun — cap items per page and paginate overflow entries
 - [x] Fix Annex B (biographical data) page overrun — trim long career history text fields and cap education/career entry counts per page
+
+## Jobs / Opportunities Module (feature/jobs-module branch)
+
+- [x] Create feature/jobs-module git branch
+- [x] Add 8 new tables to drizzle/schema.ts: company_universe, client_target_spec, client_constraints, client_monitor_list, job_listings, job_matches, latent_signals, saved_jobs, job_alerts
+- [x] Generate and apply migration SQL for new tables
+- [x] Seed company_universe from company_universe.csv (510 rows)
+- [x] Seed company_universe ATS fields from ats_map.csv (367 rows)
+- [x] Seed company_universe extras from watchlist_extra.csv (42 rows)
+- [x] Build server/routers/jobs.ts with all tRPC procedures: getMonitorList, getMatches, getSignals, saveJob, updateSaved, getSaved, setConstraints, getConstraints, regenerate
+- [x] Build Heartbeat stage 1: generateTargetSpec (WOW report → target spec, invokeLLM)
+- [x] Build Heartbeat stage 2a: buildBucketWeights (target spec → bucket weights, invokeLLM)
+- [x] Build Heartbeat stage 2b: buildMonitorList (bucket weights → company scores, invokeLLM)
+- [x] Build Heartbeat stage 3: scanListings (VacancySource adapters: Greenhouse, Lever, Ashby, Workday, generic fetch)
+- [x] Build Heartbeat stage 4: scanNewsSignals (NewsSource via Google News RSS, classify with invokeLLM)
+- [x] Build Heartbeat stage 5: sendAlerts (new matches/signals → in-app notification via notifyOwner)
+- [x] Register all Heartbeat handlers at /api/scheduled/* in server/_core/index.ts
+- [x] Build client/src/pages/JobsExplorer.tsx (4 tabs: Companies to Watch, Open Roles, Early Signals, Saved)
+- [x] Build intake form for client_constraints (exclude employers, salary floor, permanent-only, location)
+- [x] Add Jobs Explorer route to App.tsx (under /coaching/lifework/jobs)
+- [x] Add Jobs card/entry point to client dashboard
+- [x] Add read-only Jobs tab to counsellor ClientProfile page
+- [x] Register jobs router in server/routers.ts
+- [x] Write vitest tests for jobs procedures
+- [x] Save checkpoint on feature/jobs-module branch

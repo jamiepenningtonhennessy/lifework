@@ -45,6 +45,7 @@ import {
 } from "./preview/PreviewPages";
 import CounsellorCareerExplorer from "./pages/CounsellorCareerExplorer";
 import DebriefChat from "./pages/DebriefChat";
+import JobsExplorer from "./pages/JobsExplorer";
 import BlogWriter from "./pages/ph/BlogWriter";
 
 function Router() {
@@ -80,6 +81,7 @@ function Router() {
       <Route path="/coaching/lifework/ipip/results">{() => <LifeworkLayout><IpipResults /></LifeworkLayout>}</Route>
       <Route path="/coaching/lifework/my-report">{() => <LifeworkLayout><MyReport /></LifeworkLayout>}</Route>
       <Route path="/coaching/lifework/career-explorer">{() => <LifeworkLayout><CareerExplorer /></LifeworkLayout>}</Route>
+      <Route path="/coaching/lifework/jobs">{() => <LifeworkLayout><JobsExplorer /></LifeworkLayout>}</Route>
 
       {/* Backward-compatible redirects from old /lifework/* paths */}
       <Route path="/lifework"><Redirect to="/coaching/lifework" /></Route>
