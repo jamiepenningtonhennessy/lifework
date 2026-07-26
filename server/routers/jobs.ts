@@ -34,6 +34,7 @@ import {
   savedJobs,
   jobPipelineRuns,
 } from "../../drizzle/schema";
+import { runStage1, runStage2, runStage3, runStage4, runStage5 } from "./jobsPipeline";
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -389,20 +390,15 @@ export const jobsRouter = router({
       const runId = inserted.id;
 
       // Run the pipeline in the background — do NOT await
-      const base = `http://localhost:${process.env.PORT ?? 3000}`;
-      const headers = {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${process.env.BUILT_IN_FORGE_API_KEY}`,
-      };
-
-      const stages = [
-        "/api/scheduled/jobs/generate-target-spec",
-        "/api/scheduled/jobs/build-monitor-list",
+      // Stages are called directly in-process (no HTTP) to avoid timeout issues
+      const stageFns = [
+        () => runStage1(input.clientId),
+        () => runStage2(input.clientId),
         ...(input.fullPipeline
           ? [
-              "/api/scheduled/jobs/scan-listings",
-              "/api/scheduled/jobs/scan-news-signals",
-              "/api/scheduled/jobs/send-alerts",
+              () => runStage3(input.clientId),
+              () => runStage4(input.clientId),
+              () => runStage5(input.clientId),
             ]
           : []),
       ];
@@ -415,30 +411,18 @@ export const jobsRouter = router({
             .set({ status: "running" })
             .where(eq(jobPipelineRuns.id, runId));
 
-          for (let i = 0; i < stages.length; i++) {
+          for (let i = 0; i < stageFns.length; i++) {
             await db
               .update(jobPipelineRuns)
               .set({ currentStage: i + 1 })
               .where(eq(jobPipelineRuns.id, runId));
 
-            const r = await fetch(`${base}${stages[i]}`, {
-              method: "POST",
-              headers,
-              body: JSON.stringify({ clientId: input.clientId }),
-            });
-            if (!r.ok) {
-              const err = await r.text();
-              await db
-                .update(jobPipelineRuns)
-                .set({ status: "error", errorMessage: `Stage ${i + 1} failed: ${err.slice(0, 500)}`, completedAt: new Date() })
-                .where(eq(jobPipelineRuns.id, runId));
-              return;
-            }
+            await stageFns[i]();
           }
 
           await db
             .update(jobPipelineRuns)
-            .set({ status: "done", currentStage: stages.length, completedAt: new Date() })
+            .set({ status: "done", currentStage: stageFns.length, completedAt: new Date() })
             .where(eq(jobPipelineRuns.id, runId));
         } catch (e) {
           const msg = e instanceof Error ? e.message : String(e);

@@ -46,10 +46,14 @@ import { eq, and, inArray, isNull, gte, sql } from "drizzle-orm";
  * This helper handles both cases so JSON.parse never sees either.
  */
 function stripFences(raw: string): string {
-  // 1. Remove opening fence (```json, ```, ```JSON, etc.)
-  let s = raw.trim().replace(/^```[a-zA-Z]*\s*/m, "");
+  // 1. Remove opening fence (```json, ```, ```JSON, etc.) — use 's' flag so ^ matches start of string
+  let s = raw.trim();
+  // Handle ```json\n{...}\n``` pattern (multiline)
+  s = s.replace(/^```[a-zA-Z]*\r?\n/, "");
   // 2. Remove closing fence
-  s = s.replace(/\s*```\s*$/m, "").trim();
+  s = s.replace(/\r?\n```\s*$/, "").trim();
+  // Also strip any remaining inline fences
+  s = s.replace(/^```[a-zA-Z]*\s*/, "").replace(/\s*```$/, "").trim();
   // 3. Replace literal control characters inside JSON string values.
   //    We replace bare \n, \r, \t that appear INSIDE quoted strings with their
   //    escaped equivalents.  We do this by scanning character-by-character so
@@ -131,12 +135,52 @@ function authenticateCron(req: Request): boolean {
 
 // ─── Stage 1: Profile → TargetSpec ───────────────────────────────────────────
 
+/** Direct in-process call for Stage 1 — bypasses HTTP so no timeout risk. */
+export async function runStage1(clientId: number): Promise<void> {
+  const fakeReq = { body: { clientId } } as unknown as Request;
+  const fakeRes = {
+    status: () => fakeRes,
+    json: (body: unknown) => { if ((body as { error?: string }).error) throw new Error((body as { error: string }).error); return fakeRes; },
+  } as unknown as Response;
+  await handleGenerateTargetSpec(fakeReq, fakeRes);
+}
+export async function runStage2(clientId: number): Promise<void> {
+  const fakeReq = { body: { clientId } } as unknown as Request;
+  const fakeRes = {
+    status: () => fakeRes,
+    json: (body: unknown) => { if ((body as { error?: string }).error) throw new Error((body as { error: string }).error); return fakeRes; },
+  } as unknown as Response;
+  await handleBuildMonitorList(fakeReq, fakeRes);
+}
+export async function runStage3(clientId: number): Promise<void> {
+  const fakeReq = { body: { clientId } } as unknown as Request;
+  const fakeRes = {
+    status: () => fakeRes,
+    json: (body: unknown) => { if ((body as { error?: string }).error) throw new Error((body as { error: string }).error); return fakeRes; },
+  } as unknown as Response;
+  await handleScanListings(fakeReq, fakeRes);
+}
+export async function runStage4(clientId: number): Promise<void> {
+  const fakeReq = { body: { clientId } } as unknown as Request;
+  const fakeRes = {
+    status: () => fakeRes,
+    json: (body: unknown) => { if ((body as { error?: string }).error) throw new Error((body as { error: string }).error); return fakeRes; },
+  } as unknown as Response;
+  await handleScanNewsSignals(fakeReq, fakeRes);
+}
+export async function runStage5(clientId: number): Promise<void> {
+  const fakeReq = { body: { clientId } } as unknown as Request;
+  const fakeRes = {
+    status: () => fakeRes,
+    json: (body: unknown) => { if ((body as { error?: string }).error) throw new Error((body as { error: string }).error); return fakeRes; },
+  } as unknown as Response;
+  await handleSendAlerts(fakeReq, fakeRes);
+}
+
 export async function handleGenerateTargetSpec(req: Request, res: Response) {
   if (!authenticateCron(req)) return res.status(403).json({ error: "cron-only" });
-
   const { clientId } = req.body as { clientId?: number };
   if (!clientId) return res.status(400).json({ error: "clientId required" });
-
   try {
     const db = await getDb();
     if (!db) throw new Error("DB unavailable");
