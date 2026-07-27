@@ -1,0 +1,1 @@
+ALTER TABLE `client_constraints` ADD `role_intent` text;

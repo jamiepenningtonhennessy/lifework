@@ -469,6 +469,7 @@ export const clientConstraints = mysqlTable("client_constraints", {
   minTotalGbp: int("min_total_gbp").default(0),                // listing-stage
   permanentOnly: boolean("permanent_only").default(false),     // listing-stage
   hardExcludeLocations: json("hard_exclude_locations"),        // string[] listing-stage
+  roleIntent: text("role_intent"),                               // free-text: "I am looking for..."
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });
 

@@ -379,6 +379,7 @@ export const jobsRouter = router({
         minTotalGbp: z.number().min(0).optional(),
         permanentOnly: z.boolean().optional(),
         hardExcludeLocations: z.array(z.string()).optional(),
+        roleIntent: z.string().max(500).optional(),
       })
     )
     .mutation(async ({ ctx, input }) => {
@@ -400,6 +401,7 @@ export const jobsRouter = router({
         minTotalGbp: input.minTotalGbp ?? 0,
         permanentOnly: input.permanentOnly ?? false,
         hardExcludeLocations: input.hardExcludeLocations ?? null,
+        roleIntent: input.roleIntent ?? null,
       };
 
       if (existing) {

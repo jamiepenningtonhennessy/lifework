@@ -1539,3 +1539,10 @@
 - [x] Add score filter slider (5–10) to Open Roles tab header
 - [x] Add "Load more" / Previous/Next pagination to Open Roles tab (25 per page)
 - [x] Show result count and current filter state above the list
+
+## Stage 1 prompt + role intent field
+
+- [x] Fix Stage 1 system prompt to focus on legal market roles (not current career)
+- [x] Add roleIntent free-text field to client_constraints schema + migration
+- [x] Add "What kind of role are you looking for?" field to client preferences panel (JobsExplorer)
+- [x] Wire roleIntent into Stage 1 LLM call as a strong signal alongside WOW report

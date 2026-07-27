@@ -183,6 +183,13 @@
       "when": 1785084370053,
       "tag": "0025_amused_spitfire",
       "breakpoints": true
+    },
+    {
+      "idx": 26,
+      "version": "5",
+      "when": 1785157292069,
+      "tag": "0026_chubby_the_captain",
+      "breakpoints": true
     }
   ]
 }

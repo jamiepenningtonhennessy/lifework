@@ -217,31 +217,53 @@ export async function handleGenerateTargetSpec(req: Request, res: Response) {
       .filter(Boolean)
       .join("\n\n");
 
+    // Load client constraints to get roleIntent if set
+    const constraintRows = await db
+      .select()
+      .from(clientConstraints)
+      .where(eq(clientConstraints.clientId, clientId))
+      .limit(1);
+    const roleIntent = constraintRows[0]?.roleIntent ?? null;
+
+    const roleIntentSection = roleIntent
+      ? `\n\nCLIENT'S OWN STATEMENT OF INTENT (highest priority — override any conflicting inference):\n"${roleIntent}"`
+      : "";
+
     const response = await invokeLLM({
       messages: [
         {
           role: "system",
-          content: `You distil a LifeWorks career-coaching report into a structured career TARGET SPEC.
+          content: `You distil a LifeWorks career-coaching report into a structured career TARGET SPEC for use in a legal-market job search.
+
+This platform serves lawyers and legal professionals seeking roles within or adjacent
+to law firms and legal departments. The client may be a practising lawyer, a legal
+operations professional, a legal technologist, a business services leader at a law
+firm, or someone transitioning into the legal market from another sector.
 
 The LifeWorks report is a reflective, narrative document (life history, character
 strengths, personality, and 'career directions'). It contains NO company names and
 often expresses direction as aspiration rather than job titles. Your job is to turn
-it into concrete, searchable targets.
+it into concrete, searchable targets WITHIN THE LEGAL MARKET.
 
 Rules:
-- GROUND every field in the report. Do not invent employers, facts, or ambitions
-  the text does not support.
+- FOCUS on the legal market: law firms (Magic Circle, Silver Circle, US firms,
+  boutiques), in-house legal teams, legal technology vendors, legal operations,
+  and professional services firms serving the legal sector.
+- If the client has stated a role intent (provided below), treat it as the
+  PRIMARY signal and build the spec around it. Do not override it.
 - Convert narrative directions + the client's actual career history into concrete,
-  searchable ROLE TITLES and FUNCTIONS (this spec is snapped against a company
-  universe and fed to a news/departure monitor downstream, so vague aspiration is
-  useless - favour titles a recruiter would actually post).
+  searchable ROLE TITLES and FUNCTIONS that a legal recruiter would actually post
+  (e.g. "Legal Operations Director", "Head of Legal Technology", "Chief of Staff",
+  "Director of Innovation", "AI Programme Manager", "Knowledge Management Counsel").
 - Infer seniority from career history, not wishful thinking.
 - Capture hard geographic/other constraints faithfully (they are deal-breakers).
-- Be decisive and specific; this is a filter input, not prose.`,
+- Be decisive and specific; this is a filter input, not prose.
+- The sectors field should include "Law Firm" and/or "In-house Legal" unless the
+  client's intent clearly points elsewhere.`,
         },
         {
           role: "user",
-          content: `Here is the client's LifeWorks report and career history:\n\n${reportText}`,
+          content: `Here is the client's LifeWorks report and career history:${roleIntentSection}\n\n${reportText}`,
         },
       ],
       response_format: {
