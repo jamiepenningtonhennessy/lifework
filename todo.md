@@ -1531,3 +1531,11 @@
 - [x] Register jobs router in server/routers.ts
 - [x] Write vitest tests for jobs procedures
 - [x] Save checkpoint on feature/jobs-module branch
+
+## Open Roles UX — Pagination & Score Filter
+
+- [x] Add limit + offset params to getMatches tRPC procedure
+- [x] Default minScore to 7 (was 5) in getMatches
+- [x] Add score filter slider (5–10) to Open Roles tab header
+- [x] Add "Load more" / Previous/Next pagination to Open Roles tab (25 per page)
+- [x] Show result count and current filter state above the list

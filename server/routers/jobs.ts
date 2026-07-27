@@ -151,14 +151,32 @@ export const jobsRouter = router({
     .input(
       z.object({
         clientId: z.number().optional(),
-        minScore: z.number().min(1).max(10).default(5),
+        minScore: z.number().min(1).max(10).default(7),
         includeFiltered: z.boolean().default(false),
+        limit: z.number().min(1).max(100).default(25),
+        offset: z.number().min(0).default(0),
       })
     )
     .query(async ({ ctx, input }) => {
       const db = await getDb();
       if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
       const clientId = await resolveClientId(ctx, input);
+
+      const { sql: sqlFn, count } = await import("drizzle-orm");
+
+      // Total count for pagination metadata
+      const [{ total }] = await db
+        .select({ total: count() })
+        .from(jobMatches)
+        .innerJoin(jobListings, eq(jobMatches.listingId, jobListings.id))
+        .innerJoin(companyUniverse, eq(jobListings.companyId, companyUniverse.id))
+        .where(
+          and(
+            eq(jobMatches.clientId, clientId),
+            input.includeFiltered ? undefined : eq(jobMatches.constraintStatus, "ok"),
+            gte(jobMatches.score, input.minScore)
+          )
+        );
 
       const rows = await db
         .select({
@@ -193,9 +211,11 @@ export const jobsRouter = router({
             gte(jobMatches.score, input.minScore)
           )
         )
-        .orderBy(desc(jobMatches.score), desc(jobMatches.createdAt));
+        .orderBy(desc(jobMatches.score), desc(jobMatches.createdAt))
+        .limit(input.limit)
+        .offset(input.offset);
 
-      return rows;
+      return { rows, total: Number(total), limit: input.limit, offset: input.offset };
     }),
 
   /** Fetch latent signals (Early Signals tab). */

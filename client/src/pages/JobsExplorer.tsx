@@ -392,7 +392,27 @@ function CompaniesTab() {
 
 function OpenRolesTab() {
   const utils = trpc.useUtils();
-  const { data, isLoading } = trpc.jobs.getMatches.useQuery({ minScore: 5 });
+  const [minScore, setMinScore] = useState(7);
+  const [page, setPage] = useState(0);
+  const PAGE_SIZE = 25;
+
+  // Reset to first page when score filter changes
+  const handleScoreChange = (val: number) => {
+    setMinScore(val);
+    setPage(0);
+  };
+
+  const { data, isLoading } = trpc.jobs.getMatches.useQuery({
+    minScore,
+    limit: PAGE_SIZE,
+    offset: page * PAGE_SIZE,
+  });
+
+  const rows = data?.rows ?? [];
+  const total = data?.total ?? 0;
+  const hasMore = (page + 1) * PAGE_SIZE < total;
+  const start = page * PAGE_SIZE + 1;
+  const end = Math.min((page + 1) * PAGE_SIZE, total);
 
   if (isLoading) {
     return (
@@ -402,23 +422,61 @@ function OpenRolesTab() {
     );
   }
 
-  if (!data || data.length === 0) {
+  if (!data || rows.length === 0) {
     return (
-      <EmptyState
-        icon={Briefcase}
-        title="No live roles yet"
-        body="The nightly scan hasn't found any matching vacancies yet. Roles are fetched directly from employer career portals and scored against your profile."
-      />
+      <div className="space-y-4">
+        {/* Score filter */}
+        <div className="flex items-center gap-3 text-sm">
+          <span className="text-muted-foreground whitespace-nowrap">Min score:</span>
+          {[5, 6, 7, 8, 9].map((s) => (
+            <button
+              key={s}
+              onClick={() => handleScoreChange(s)}
+              className={`px-2.5 py-0.5 rounded text-xs font-medium border transition-colors ${
+                minScore === s
+                  ? "bg-[var(--lw-navy)] text-white border-[var(--lw-navy)]"
+                  : "bg-white text-[var(--lw-navy)] border-[var(--lw-navy)] border-opacity-30 hover:border-opacity-60"
+              }`}
+            >
+              {s}+
+            </button>
+          ))}
+        </div>
+        <EmptyState
+          icon={Briefcase}
+          title="No roles at this score threshold"
+          body="Try lowering the minimum score to see more matches, or run the pipeline to refresh listings."
+        />
+      </div>
     );
   }
 
   return (
     <div className="space-y-3">
-      <p className="text-xs text-muted-foreground">
-        {data.length} live {data.length === 1 ? "role" : "roles"} scoring 5+ against your profile.
-      </p>
+      {/* Score filter + result count */}
+      <div className="flex items-center justify-between gap-3 flex-wrap">
+        <p className="text-xs text-muted-foreground">
+          Showing {start}–{end} of {total} {total === 1 ? "role" : "roles"} scoring {minScore}+ against your profile.
+        </p>
+        <div className="flex items-center gap-2">
+          <span className="text-xs text-muted-foreground">Min score:</span>
+          {[5, 6, 7, 8, 9].map((s) => (
+            <button
+              key={s}
+              onClick={() => handleScoreChange(s)}
+              className={`px-2.5 py-0.5 rounded text-xs font-medium border transition-colors ${
+                minScore === s
+                  ? "bg-[var(--lw-navy)] text-white border-[var(--lw-navy)]"
+                  : "bg-white text-[var(--lw-navy)] border-[var(--lw-navy)] border-opacity-30 hover:border-opacity-60"
+              }`}
+            >
+              {s}+
+            </button>
+          ))}
+        </div>
+      </div>
       <div className="space-y-3">
-        {data.map((row) => (
+        {rows.map((row) => (
           <Card key={row.id} className="border border-[var(--lw-navy)] border-opacity-10">
             <CardContent className="p-4">
               <div className="space-y-2">
@@ -469,7 +527,31 @@ function OpenRolesTab() {
               </div>
             </CardContent>
           </Card>
-        ))}
+        )        )}
+      </div>
+      {/* Pagination controls */}
+      <div className="flex items-center justify-between pt-2">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => setPage((p) => Math.max(0, p - 1))}
+          disabled={page === 0}
+          className="text-xs"
+        >
+          ← Previous
+        </Button>
+        <span className="text-xs text-muted-foreground">
+          Page {page + 1} of {Math.ceil(total / PAGE_SIZE) || 1}
+        </span>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => setPage((p) => p + 1)}
+          disabled={!hasMore}
+          className="text-xs"
+        >
+          Next →
+        </Button>
       </div>
     </div>
   );

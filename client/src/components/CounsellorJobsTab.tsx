@@ -403,15 +403,17 @@ function MonitorListPanel({ clientId }: { clientId: number }) {
 // ─── Open roles panel ─────────────────────────────────────────────────────────
 
 function OpenRolesPanel({ clientId }: { clientId: number }) {
-  const { data, isLoading } = trpc.jobs.getMatches.useQuery({ clientId, minScore: 4 });
+  const { data, isLoading } = trpc.jobs.getMatches.useQuery({ clientId, minScore: 4, limit: 50, offset: 0 });
+  const rows = data?.rows ?? [];
+  const total = data?.total ?? 0;
 
   if (isLoading) return <div className="flex justify-center py-8"><Loader2 className="w-5 h-5 animate-spin text-muted-foreground" /></div>;
-  if (!data || data.length === 0) return <p className="text-sm text-muted-foreground italic py-4">No live matches yet.</p>;
+  if (!data || rows.length === 0) return <p className="text-sm text-muted-foreground italic py-4">No live matches yet.</p>;
 
   return (
     <div className="space-y-2">
-      <p className="text-xs text-muted-foreground">{data.length} matches</p>
-      {data.map((row) => (
+      <p className="text-xs text-muted-foreground">{total} matches (showing first 50)</p>
+      {rows.map((row) => (
         <div key={row.id} className="border border-border rounded p-3">
           <div className="flex items-start justify-between gap-2">
             <div>
