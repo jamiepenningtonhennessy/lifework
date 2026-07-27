@@ -10,7 +10,7 @@
  * Plus a collapsible Preferences form (client constraints).
  */
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { useLocation } from "wouter";
@@ -21,6 +21,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { Switch } from "@/components/ui/switch";
 import {
   Dialog,
@@ -410,18 +412,27 @@ function OpenRolesTab() {
   const utils = trpc.useUtils();
   const [minScore, setMinScore] = useState(7);
   const [page, setPage] = useState(0);
+  const [selectedCompanyIds, setSelectedCompanyIds] = useState<number[]>([]);
   const PAGE_SIZE = 25;
 
-  // Reset to first page when score filter changes
-  const handleScoreChange = (val: number) => {
-    setMinScore(val);
+  // Reset to first page when score filter or company filter changes
+  const handleScoreChange = (val: number) => { setMinScore(val); setPage(0); };
+  const handleCompanyToggle = (id: number) => {
+    setSelectedCompanyIds((prev) =>
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
+    );
     setPage(0);
   };
+
+  // Fetch the company list (for the filter panel)
+  const { data: companiesData } = trpc.jobs.getMatchCompanies.useQuery({ minScore });
+  const companies = companiesData ?? [];
 
   const { data, isLoading } = trpc.jobs.getMatches.useQuery({
     minScore,
     limit: PAGE_SIZE,
     offset: page * PAGE_SIZE,
+    companyIds: selectedCompanyIds.length > 0 ? selectedCompanyIds : undefined,
   });
 
   const rows = data?.rows ?? [];
@@ -472,7 +483,8 @@ function OpenRolesTab() {
       {/* Score filter + result count */}
       <div className="flex items-center justify-between gap-3 flex-wrap">
         <p className="text-xs text-muted-foreground">
-          Showing {start}–{end} of {total} {total === 1 ? "role" : "roles"} scoring {minScore}+ against your profile.
+          Showing {start}–{end} of {total} {total === 1 ? "role" : "roles"} scoring {minScore}+
+          {selectedCompanyIds.length > 0 ? ` at ${selectedCompanyIds.length} selected ${selectedCompanyIds.length === 1 ? "company" : "companies"}` : ""}.
         </p>
         <div className="flex items-center gap-2">
           <span className="text-xs text-muted-foreground">Min score:</span>
@@ -491,7 +503,48 @@ function OpenRolesTab() {
           ))}
         </div>
       </div>
-      <div className="space-y-3">
+
+      {/* Main layout: company filter sidebar + roles list */}
+      <div className="flex gap-4 items-start">
+        {/* Company filter panel */}
+        {companies.length > 0 && (
+          <div className="w-52 flex-shrink-0 border border-[var(--lw-navy)] border-opacity-10 rounded-lg bg-white">
+            <div className="flex items-center justify-between px-3 py-2 border-b border-[var(--lw-navy)] border-opacity-10">
+              <span className="text-xs font-semibold text-[var(--lw-navy)]">Filter by company</span>
+              {selectedCompanyIds.length > 0 && (
+                <button
+                  onClick={() => { setSelectedCompanyIds([]); setPage(0); }}
+                  className="text-xs text-muted-foreground hover:text-[var(--lw-navy)] underline"
+                >
+                  Clear
+                </button>
+              )}
+            </div>
+            <ScrollArea className="h-[420px]">
+              <div className="p-2 space-y-0.5">
+                {companies.map((c) => (
+                  <label
+                    key={c.companyId}
+                    className={`flex items-center gap-2 px-2 py-1.5 rounded cursor-pointer hover:bg-[var(--lw-navy)] hover:bg-opacity-5 transition-colors ${
+                      selectedCompanyIds.includes(c.companyId) ? "bg-[var(--lw-gold)] bg-opacity-10" : ""
+                    }`}
+                  >
+                    <Checkbox
+                      checked={selectedCompanyIds.includes(c.companyId)}
+                      onCheckedChange={() => handleCompanyToggle(c.companyId)}
+                      className="w-3.5 h-3.5 flex-shrink-0"
+                    />
+                    <span className="text-xs text-[var(--lw-navy)] leading-tight flex-1 min-w-0 truncate">{c.companyName}</span>
+                    <span className="text-xs text-muted-foreground flex-shrink-0">{c.matchCount}</span>
+                  </label>
+                ))}
+              </div>
+            </ScrollArea>
+          </div>
+        )}
+
+        {/* Roles list */}
+        <div className="flex-1 min-w-0 space-y-3">
         {rows.map((row) => (
           <Card key={row.id} className="border border-[var(--lw-navy)] border-opacity-10">
             <CardContent className="p-4">
@@ -544,7 +597,8 @@ function OpenRolesTab() {
             </CardContent>
           </Card>
         )        )}
-      </div>
+        </div>{/* end roles list */}
+      </div>{/* end flex wrapper */}
       {/* Pagination controls */}
       <div className="flex items-center justify-between pt-2">
         <Button

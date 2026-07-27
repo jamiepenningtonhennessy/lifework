@@ -1546,3 +1546,10 @@
 - [x] Add roleIntent free-text field to client_constraints schema + migration
 - [x] Add "What kind of role are you looking for?" field to client preferences panel (JobsExplorer)
 - [x] Wire roleIntent into Stage 1 LLM call as a strong signal alongside WOW report
+
+## Open Roles — Company Filter
+
+- [ ] Add getMatchCompanies procedure: returns distinct companies with match counts for the current client + minScore
+- [ ] Add companyIds filter param to getMatches procedure
+- [ ] Build company filter panel in Open Roles tab (checkbox list, match count badge, select all / clear all)
+- [ ] Wire company filter state into getMatches query

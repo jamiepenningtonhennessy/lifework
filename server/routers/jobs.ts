@@ -22,7 +22,7 @@ import { z } from "zod";
 import { protectedProcedure, router } from "../_core/trpc";
 import { TRPCError } from "@trpc/server";
 import { getDb } from "../db";
-import { eq, and, desc, gte, isNotNull } from "drizzle-orm";
+import { eq, and, desc, gte, isNotNull, inArray, sql } from "drizzle-orm";
 import {
   clientTargetSpec,
   clientConstraints,
@@ -155,6 +155,7 @@ export const jobsRouter = router({
         includeFiltered: z.boolean().default(false),
         limit: z.number().min(1).max(100).default(25),
         offset: z.number().min(0).default(0),
+        companyIds: z.array(z.number()).optional(),
       })
     )
     .query(async ({ ctx, input }) => {
@@ -162,7 +163,16 @@ export const jobsRouter = router({
       if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
       const clientId = await resolveClientId(ctx, input);
 
-      const { sql: sqlFn, count } = await import("drizzle-orm");
+      const { count } = await import("drizzle-orm");
+
+      const baseWhere = and(
+        eq(jobMatches.clientId, clientId),
+        input.includeFiltered ? undefined : eq(jobMatches.constraintStatus, "ok"),
+        gte(jobMatches.score, input.minScore),
+        input.companyIds && input.companyIds.length > 0
+          ? inArray(companyUniverse.id, input.companyIds)
+          : undefined
+      );
 
       // Total count for pagination metadata
       const [{ total }] = await db
@@ -170,13 +180,7 @@ export const jobsRouter = router({
         .from(jobMatches)
         .innerJoin(jobListings, eq(jobMatches.listingId, jobListings.id))
         .innerJoin(companyUniverse, eq(jobListings.companyId, companyUniverse.id))
-        .where(
-          and(
-            eq(jobMatches.clientId, clientId),
-            input.includeFiltered ? undefined : eq(jobMatches.constraintStatus, "ok"),
-            gte(jobMatches.score, input.minScore)
-          )
-        );
+        .where(baseWhere);
 
       const rows = await db
         .select({
@@ -204,18 +208,49 @@ export const jobsRouter = router({
         .from(jobMatches)
         .innerJoin(jobListings, eq(jobMatches.listingId, jobListings.id))
         .innerJoin(companyUniverse, eq(jobListings.companyId, companyUniverse.id))
-        .where(
-          and(
-            eq(jobMatches.clientId, clientId),
-            input.includeFiltered ? undefined : eq(jobMatches.constraintStatus, "ok"),
-            gte(jobMatches.score, input.minScore)
-          )
-        )
+        .where(baseWhere)
         .orderBy(desc(jobMatches.score), desc(jobMatches.createdAt))
         .limit(input.limit)
         .offset(input.offset);
 
       return { rows, total: Number(total), limit: input.limit, offset: input.offset };
+    }),
+
+  /** Return distinct companies that have matches for this client at the given score threshold, with counts. */
+  getMatchCompanies: protectedProcedure
+    .input(
+      z.object({
+        clientId: z.number().optional(),
+        minScore: z.number().min(1).max(10).default(7),
+      })
+    )
+    .query(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+      const clientId = await resolveClientId(ctx, input);
+
+      const rows = await db
+        .select({
+          companyId: companyUniverse.id,
+          companyName: companyUniverse.name,
+          sector: companyUniverse.sector,
+          tier: companyUniverse.tier,
+          matchCount: sql<number>`cast(count(${jobMatches.id}) as unsigned)`,
+        })
+        .from(jobMatches)
+        .innerJoin(jobListings, eq(jobMatches.listingId, jobListings.id))
+        .innerJoin(companyUniverse, eq(jobListings.companyId, companyUniverse.id))
+        .where(
+          and(
+            eq(jobMatches.clientId, clientId),
+            eq(jobMatches.constraintStatus, "ok"),
+            gte(jobMatches.score, input.minScore)
+          )
+        )
+        .groupBy(companyUniverse.id, companyUniverse.name, companyUniverse.sector, companyUniverse.tier)
+        .orderBy(desc(sql`count(${jobMatches.id})`), companyUniverse.name);
+
+      return rows;
     }),
 
   /** Fetch latent signals (Early Signals tab). */
