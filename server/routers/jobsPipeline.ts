@@ -99,6 +99,7 @@ interface TargetSpec {
   functions: string[];
   sectors: { sector: string; weight: "high" | "medium" | "low" }[];
   organisation_archetypes: string[];
+  quality_preferences?: string[];  // QualityKey[] — inferred from WOW report
   geography: { base: string; acceptable: string[]; hard_constraints: string[] };
   differentiators: string[];
   deal_breakers: string[];
@@ -259,7 +260,12 @@ Rules:
 - Capture hard geographic/other constraints faithfully (they are deal-breakers).
 - Be decisive and specific; this is a filter input, not prose.
 - The sectors field should include "Law Firm" and/or "In-house Legal" unless the
-  client's intent clearly points elsewhere.`,
+  client's intent clearly points elsewhere.
+- For quality_preferences: infer which organisational qualities the client would
+  thrive in based on their personality, values, and career narrative. Choose from:
+  autonomy, structured_learning, social_impact, commercial_intensity, collaboration,
+  innovation, prestige, scale_and_stability. Select 2-4 that genuinely fit the
+  client's character; do not select all of them.`,
         },
         {
           role: "user",
@@ -299,6 +305,14 @@ Rules:
                 },
               },
               organisation_archetypes: { type: "array", items: { type: "string" } },
+              quality_preferences: {
+                type: "array",
+                items: {
+                  type: "string",
+                  enum: ["autonomy", "structured_learning", "social_impact", "commercial_intensity", "collaboration", "innovation", "prestige", "scale_and_stability"],
+                },
+                description: "Organisational quality tags the client would thrive in, inferred from their WOW report",
+              },
               geography: {
                 type: "object",
                 properties: {
@@ -315,7 +329,7 @@ Rules:
             },
             required: [
               "summary", "seniority_band", "role_families", "functions", "sectors",
-              "organisation_archetypes", "geography", "differentiators", "deal_breakers", "search_terms",
+              "organisation_archetypes", "quality_preferences", "geography", "differentiators", "deal_breakers", "search_terms",
             ],
             additionalProperties: false,
           },
@@ -468,6 +482,9 @@ Return a weight for every bucket you are given.`,
     const BATCH = 30;
     const scored: { name: string; score: number; why: string }[] = [];
 
+    // Quality preferences inferred from WOW report by Stage 1 — used for culture-fit scoring
+    const qualityPreferences = spec.quality_preferences ?? [];
+
     for (let i = 0; i < gated.length; i += BATCH) {
       const batch = gated.slice(i, i + BATCH);
       const scoreResponse = await invokeLLM({
@@ -476,16 +493,34 @@ Return a weight for every bucket you are given.`,
             role: "system",
             content: `You score individual companies as job-monitoring targets for one client, given
 their career TARGET SPEC. A deterministic filter already gated the list to
-plausible sectors - your job is to DISCRIMINATE within them: reward companies where
-a senior seat would genuinely use this client's specific blend (role families,
-differentiators, thesis); down-score generic names that only match the sector
-label. Use what you know about each company. Score 1-10 and give a <=12-word
-reason. Score every company you are given.`,
+plausible sectors — your job is to DISCRIMINATE within them.
+
+Scoring criteria (weight each equally):
+1. ROLE FIT: Does this company hire for the client's target role families and functions?
+2. SECTOR FIT: Does the company's sector match the spec's priority sectors?
+3. CULTURE FIT: Do the company's organisational qualities (provided per company) match
+   the client's preferred working environment? Qualities are tags from this taxonomy:
+   - autonomy: flat structure, self-directed, low bureaucracy
+   - structured_learning: formal training, mentorship, clear progression
+   - social_impact: mission-driven, public good, B-Corp
+   - commercial_intensity: deal-driven, high-performance, strong commercial focus
+   - collaboration: team-oriented, cross-functional, matrix structure
+   - innovation: technology investment, experimentation, new business models
+   - prestige: strong brand, selective, high reputational value for alumni
+   - scale_and_stability: large, established, clear processes, job security
+
+Reward companies where a senior seat would genuinely use this client's specific
+blend (role families, differentiators, thesis) AND whose culture aligns with their
+preferred working environment. Down-score generic names that only match the sector
+label or whose culture is a poor fit.
+
+Use what you know about each company. Score 1-10 and give a <=15-word reason
+that mentions both fit dimensions. Score every company you are given.`,
           },
           {
             role: "user",
-            content: `TARGET SPEC:\n${JSON.stringify(spec, null, 2)}\n\nCOMPANIES:\n${JSON.stringify(
-              batch.map((c) => ({ name: c.name, tier: c.tier, sector: c.sector })),
+            content: `TARGET SPEC:\n${JSON.stringify(spec, null, 2)}${qualityPreferences.length > 0 ? `\n\nCLIENT QUALITY PREFERENCES: ${qualityPreferences.join(", ")}` : ""}\n\nCOMPANIES (with culture tags):\n${JSON.stringify(
+              batch.map((c) => ({ name: c.name, tier: c.tier, sector: c.sector, qualities: c.qualities ?? [] })),
               null,
               2
             )}`,

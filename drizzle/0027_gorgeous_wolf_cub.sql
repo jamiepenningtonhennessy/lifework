@@ -1,0 +1,1 @@
+ALTER TABLE `company_universe` ADD `qualities` json;

@@ -1553,3 +1553,14 @@
 - [ ] Add companyIds filter param to getMatches procedure
 - [ ] Build company filter panel in Open Roles tab (checkbox list, match count badge, select all / clear all)
 - [ ] Wire company filter state into getMatches query
+
+## Company Universe — Quality Tags (Option A)
+
+- [x] Define quality taxonomy (8 qualities with descriptions)
+- [x] Add qualities JSON column to company_universe schema + migration
+- [x] Generate quality tags for all 552 companies (deterministic rule-based tagger)
+- [x] Seed quality tags into database (552/552 companies tagged)
+- [x] Update Stage 2 scoring prompt to weight quality-fit alongside sector-fit
+- [x] Stage 1 now infers quality_preferences from WOW report and stores in target spec
+- [x] Counsellor target spec panel shows Culture Fit Preferences badges (violet)
+- [x] Save checkpoint

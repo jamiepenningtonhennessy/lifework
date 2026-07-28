@@ -78,8 +78,20 @@ interface TargetSpec {
   geography?: { base?: string; acceptable?: string[]; hard_constraints?: string[] };
   differentiators?: string[];
   deal_breakers?: string[];
+  quality_preferences?: string[];
   search_terms?: string[];
 }
+
+const QUALITY_LABELS: Record<string, string> = {
+  autonomy: "Autonomy",
+  structured_learning: "Structured Learning",
+  social_impact: "Social Impact",
+  commercial_intensity: "Commercial Intensity",
+  collaboration: "Collaboration",
+  innovation: "Innovation",
+  prestige: "Prestige",
+  scale_and_stability: "Scale & Stability",
+};
 
 function SpecBadgeList({ label, items, variant = "secondary" }: { label: string; items: string[]; variant?: "secondary" | "outline" }) {
   if (!items?.length) return null;
@@ -363,6 +375,18 @@ function TargetSpecPanel({ clientId }: { clientId: number }) {
       </div>
 
       <SpecBadgeList label="Organisation Archetypes" items={spec.organisation_archetypes ?? []} variant="outline" />
+      {spec.quality_preferences?.length ? (
+        <div>
+          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">Culture Fit Preferences</p>
+          <div className="flex flex-wrap gap-1">
+            {spec.quality_preferences.map((q) => (
+              <Badge key={q} className="text-xs bg-violet-100 text-violet-800 hover:bg-violet-100">
+                {QUALITY_LABELS[q] ?? q}
+              </Badge>
+            ))}
+          </div>
+        </div>
+      ) : null}
       <SpecBadgeList label="Differentiators" items={spec.differentiators ?? []} variant="outline" />
       <SpecBadgeList label="Deal Breakers" items={spec.deal_breakers ?? []} variant="outline" />
       <SpecBadgeList label="Search Terms" items={spec.search_terms ?? []} variant="secondary" />

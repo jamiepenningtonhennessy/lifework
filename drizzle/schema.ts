@@ -440,6 +440,7 @@ export const companyUniverse = mysqlTable("company_universe", {
   atsProvider: varchar("ats_provider", { length: 64 }),  // greenhouse|lever|ashby|workday|generic
   atsSlug: varchar("ats_slug", { length: 512 }),          // board token or careers URL
   careersUrl: varchar("careers_url", { length: 1024 }),
+  qualities: json("qualities"),                              // QualityKey[] — organisational culture tags
   active: boolean("active").default(true),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
 });
