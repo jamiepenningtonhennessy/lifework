@@ -55,6 +55,11 @@ import {
   MapPin,
   Clock,
   RefreshCw,
+  FileText,
+  Upload,
+  Copy,
+  Check,
+  Wand2,
 } from "lucide-react";
 
 // ─── Score badge ─────────────────────────────────────────────────────────────
@@ -161,6 +166,197 @@ function SaveJobDialog({
           >
             {saveJob.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : "Save opportunity"}
           </Button>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+// ─── Tailor Application Modal ────────────────────────────────────────────────
+
+function TailorApplicationModal({
+  listingId,
+  listingTitle,
+  companyName,
+}: {
+  listingId: number;
+  listingTitle: string;
+  companyName: string;
+}) {
+  const [open, setOpen] = useState(false);
+  const [copiedCv, setCopiedCv] = useState(false);
+  const [copiedEmail, setCopiedEmail] = useState(false);
+  const { data: existingCv } = trpc.jobs.getClientCv.useQuery({});
+  const uploadCv = trpc.jobs.uploadCv.useMutation();
+  const tailor = trpc.jobs.tailorApplication.useMutation();
+  const utils = trpc.useUtils();
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const allowedTypes = [
+      "application/pdf",
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    ];
+    if (!allowedTypes.includes(file.type)) {
+      alert("Please upload a PDF or Word document (.pdf or .docx)");
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = async (ev) => {
+      const base64 = (ev.target?.result as string).split(",")[1];
+      await uploadCv.mutateAsync({
+        fileBase64: base64,
+        fileName: file.name,
+        mimeType: file.type as "application/pdf" | "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      });
+      utils.jobs.getClientCv.invalidate();
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleTailor = () => {
+    tailor.mutate({ listingId });
+  };
+
+  const copyToClipboard = async (text: string, type: "cv" | "email") => {
+    await navigator.clipboard.writeText(text);
+    if (type === "cv") { setCopiedCv(true); setTimeout(() => setCopiedCv(false), 2000); }
+    else { setCopiedEmail(true); setTimeout(() => setCopiedEmail(false), 2000); }
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) tailor.reset(); }}>
+      <DialogTrigger asChild>
+        <Button size="sm" variant="outline" className="gap-1.5 text-xs border-[var(--lw-gold)] text-[var(--lw-navy)] hover:bg-[var(--lw-gold)] hover:bg-opacity-10">
+          <Wand2 className="w-3.5 h-3.5" /> Tailor
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle className="font-serif text-[var(--lw-navy)] text-lg">
+            Tailor your application
+          </DialogTitle>
+          <p className="text-xs text-muted-foreground">
+            {listingTitle} &mdash; {companyName}
+          </p>
+        </DialogHeader>
+
+        <div className="space-y-5 pt-2">
+          {/* Step 1: CV upload */}
+          <div className="border border-[var(--lw-navy)] border-opacity-15 rounded p-4 space-y-3">
+            <div className="flex items-center gap-2">
+              <div className="w-6 h-6 rounded-full bg-[var(--lw-navy)] text-white flex items-center justify-center text-xs font-bold flex-shrink-0">1</div>
+              <p className="text-sm font-semibold text-[var(--lw-navy)]">Your CV</p>
+            </div>
+            {existingCv ? (
+              <div className="flex items-center gap-3">
+                <FileText className="w-4 h-4 text-[var(--lw-gold)] flex-shrink-0" />
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium truncate">{existingCv.originalName}</p>
+                  <p className="text-xs text-muted-foreground">
+                    Uploaded {new Date(existingCv.uploadedAt).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}
+                  </p>
+                </div>
+                <label className="cursor-pointer">
+                  <input type="file" accept=".pdf,.docx" className="hidden" onChange={handleFileChange} />
+                  <Button size="sm" variant="outline" className="text-xs gap-1" asChild>
+                    <span><Upload className="w-3 h-3" /> Replace</span>
+                  </Button>
+                </label>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                <p className="text-xs text-muted-foreground">Upload your CV once and it will be used for all applications. PDF or Word document, max 10 MB.</p>
+                <label className="cursor-pointer block">
+                  <input type="file" accept=".pdf,.docx" className="hidden" onChange={handleFileChange} />
+                  <div className="border-2 border-dashed border-[var(--lw-navy)] border-opacity-20 rounded p-6 text-center hover:border-opacity-40 transition-colors">
+                    {uploadCv.isPending ? (
+                      <div className="flex flex-col items-center gap-2">
+                        <Loader2 className="w-6 h-6 animate-spin text-[var(--lw-navy)] opacity-50" />
+                        <p className="text-xs text-muted-foreground">Uploading and reading your CV...</p>
+                      </div>
+                    ) : (
+                      <div className="flex flex-col items-center gap-2">
+                        <Upload className="w-6 h-6 text-[var(--lw-navy)] opacity-40" />
+                        <p className="text-sm font-medium text-[var(--lw-navy)]">Click to upload your CV</p>
+                        <p className="text-xs text-muted-foreground">PDF or .docx, max 10 MB</p>
+                      </div>
+                    )}
+                  </div>
+                </label>
+              </div>
+            )}
+          </div>
+
+          {/* Step 2: Generate */}
+          <div className="border border-[var(--lw-navy)] border-opacity-15 rounded p-4 space-y-3">
+            <div className="flex items-center gap-2">
+              <div className="w-6 h-6 rounded-full bg-[var(--lw-navy)] text-white flex items-center justify-center text-xs font-bold flex-shrink-0">2</div>
+              <p className="text-sm font-semibold text-[var(--lw-navy)]">Generate tailored materials</p>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              We will rewrite your CV to emphasise the experience most relevant to this role and firm, and draft a covering email that opens with your genuine professional narrative.
+            </p>
+            <Button
+              className="bg-[var(--lw-navy)] text-white hover:opacity-90 gap-2"
+              disabled={!existingCv || tailor.isPending || tailor.isSuccess}
+              onClick={handleTailor}
+            >
+              {tailor.isPending ? (
+                <><Loader2 className="w-4 h-4 animate-spin" /> Generating — this takes 15–30 seconds...</>
+              ) : tailor.isSuccess ? (
+                <><Check className="w-4 h-4" /> Generated</>
+              ) : (
+                <><Wand2 className="w-4 h-4" /> Generate tailored CV &amp; covering email</>
+              )}
+            </Button>
+            {!existingCv && (
+              <p className="text-xs text-amber-600">Please upload your CV above first.</p>
+            )}
+            {tailor.isError && (
+              <p className="text-xs text-red-600">{tailor.error?.message ?? "Something went wrong. Please try again."}</p>
+            )}
+          </div>
+
+          {/* Step 3: Results */}
+          {tailor.isSuccess && tailor.data && (
+            <div className="space-y-4">
+              {/* Tailored CV */}
+              <div className="border border-[var(--lw-navy)] border-opacity-15 rounded p-4 space-y-3">
+                <div className="flex items-center justify-between">
+                  <p className="text-sm font-semibold text-[var(--lw-navy)]">Tailored CV</p>
+                  <Button
+                    size="sm" variant="outline" className="gap-1.5 text-xs"
+                    onClick={() => copyToClipboard(tailor.data!.rewrittenCv, "cv")}
+                  >
+                    {copiedCv ? <><Check className="w-3 h-3" /> Copied</> : <><Copy className="w-3 h-3" /> Copy</>}
+                  </Button>
+                </div>
+                <pre className="text-xs whitespace-pre-wrap font-sans text-[var(--lw-navy)] bg-[var(--lw-cream)] rounded p-3 max-h-72 overflow-y-auto">
+                  {tailor.data.rewrittenCv}
+                </pre>
+              </div>
+              {/* Covering email */}
+              <div className="border border-[var(--lw-navy)] border-opacity-15 rounded p-4 space-y-3">
+                <div className="flex items-center justify-between">
+                  <p className="text-sm font-semibold text-[var(--lw-navy)]">Covering Email</p>
+                  <Button
+                    size="sm" variant="outline" className="gap-1.5 text-xs"
+                    onClick={() => copyToClipboard(tailor.data!.coveringEmail, "email")}
+                  >
+                    {copiedEmail ? <><Check className="w-3 h-3" /> Copied</> : <><Copy className="w-3 h-3" /> Copy</>}
+                  </Button>
+                </div>
+                <pre className="text-xs whitespace-pre-wrap font-sans text-[var(--lw-navy)] bg-[var(--lw-cream)] rounded p-3 max-h-72 overflow-y-auto">
+                  {tailor.data.coveringEmail}
+                </pre>
+              </div>
+              <p className="text-xs text-muted-foreground italic">
+                These materials are tailored to this specific role. Review and personalise before sending — the AI works from your existing CV and profile, but you know your story best.
+              </p>
+            </div>
+          )}
         </div>
       </DialogContent>
     </Dialog>
@@ -561,6 +757,11 @@ function OpenRolesTab() {
                         </Button>
                       </a>
                     )}
+                    <TailorApplicationModal
+                      listingId={row.listing.id}
+                      listingTitle={row.listing.title}
+                      companyName={row.company.name}
+                    />
                     <SaveJobDialog
                       listingId={row.listing.id}
                       title={row.listing.title}

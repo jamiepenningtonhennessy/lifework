@@ -1564,3 +1564,17 @@
 - [x] Stage 1 now infers quality_preferences from WOW report and stores in target spec
 - [x] Counsellor target spec panel shows Culture Fit Preferences badges (violet)
 - [x] Save checkpoint
+
+## Tailor Application Feature
+
+- [x] Add client_cvs and tailor_applications tables to schema + migration applied
+- [x] Add CV upload tRPC procedure (base64 → text extraction → S3 → DB record)
+- [x] Add getClientCv tRPC query (returns latest CV metadata for client)
+- [x] Add tailorApplication tRPC procedure (CV text + job listing + WOW profile → LLM rewrite + covering email)
+- [x] Build TailorApplicationModal component (3-step: CV upload, generate, results with copy buttons)
+- [x] Add "Tailor" button (gold-bordered) to each job match card in Open Roles tab
+- [x] CV upload: file picker, PDF/DOCX accepted, stored to S3, text extracted via pdf-parse/mammoth
+- [x] CV rewrite: LLM restructures existing CV for the specific firm/role, no fabrication
+- [x] Covering email: opens with WOW report truths, connects to job spec
+- [x] Copy-to-clipboard buttons for both CV and email outputs
+- [x] Save checkpoint

@@ -576,3 +576,30 @@ export const jobPipelineRuns = mysqlTable("job_pipeline_runs", {
   completedAt: timestamp("completedAt"),
 });
 export type JobPipelineRun = typeof jobPipelineRuns.$inferSelect;
+
+// ─── Client CVs ─────────────────────────────────────────────────────────────
+// Stores the most recent CV upload for each client (S3 reference + extracted text).
+export const clientCvs = mysqlTable("client_cvs", {
+  id: int("id").autoincrement().primaryKey(),
+  clientId: int("clientId").notNull(),
+  fileKey: varchar("fileKey", { length: 512 }).notNull(),
+  fileUrl: text("fileUrl").notNull(),
+  originalName: varchar("originalName", { length: 256 }).notNull(),
+  extractedText: text("extractedText"),
+  uploadedAt: timestamp("uploadedAt").defaultNow().notNull(),
+});
+export type ClientCv = typeof clientCvs.$inferSelect;
+
+// ─── Tailor Applications ─────────────────────────────────────────────────────
+// Stores generated CV rewrites and covering emails for a client + listing pair.
+export const tailorApplications = mysqlTable("tailor_applications", {
+  id: int("id").autoincrement().primaryKey(),
+  clientId: int("clientId").notNull(),
+  listingId: int("listingId").notNull(),
+  cvId: int("cvId").notNull(),
+  rewrittenCv: text("rewrittenCv"),
+  coveringEmail: text("coveringEmail"),
+  status: mysqlEnum("status", ["pending", "done", "error"]).default("pending").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+export type TailorApplication = typeof tailorApplications.$inferSelect;

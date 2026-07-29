@@ -33,8 +33,14 @@ import {
   latentSignals,
   savedJobs,
   jobPipelineRuns,
+  clientCvs,
+  tailorApplications,
+  clientProfiles as clientProfilesTable,
 } from "../../drizzle/schema";
 import { runStage1, runStage2, runStage3, runStage4, runStage5 } from "./jobsPipeline";
+import { storagePut } from "../storage";
+import { invokeLLM } from "../_core/llm";
+import { randomBytes } from "crypto";
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -590,4 +596,234 @@ export const jobsRouter = router({
 
     return { total: all.length, byTier, byAts };
   }),
+
+  // ─── CV Upload ────────────────────────────────────────────────────────────
+
+  /** Upload a CV (base64-encoded PDF or DOCX), extract text, store in S3 + DB. */
+  uploadCv: protectedProcedure
+    .input(z.object({
+      clientId: z.number().optional(),
+      fileBase64: z.string(),
+      fileName: z.string(),
+      mimeType: z.enum(["application/pdf", "application/vnd.openxmlformats-officedocument.wordprocessingml.document"]),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+      const clientId = await resolveClientId(ctx, input);
+
+      const fileBuffer = Buffer.from(input.fileBase64, "base64");
+      if (fileBuffer.length > 10 * 1024 * 1024) {
+        throw new TRPCError({ code: "BAD_REQUEST", message: "CV file too large (max 10 MB)" });
+      }
+
+      // Extract text from PDF or DOCX
+      let extractedText = "";
+      try {
+        if (input.mimeType === "application/pdf") {
+          const pdfParseModule = await import("pdf-parse");
+          const pdfParse = (pdfParseModule as unknown as { default: (buf: Buffer) => Promise<{ text: string }> }).default ?? pdfParseModule;
+          const parsed = await pdfParse(fileBuffer);
+          extractedText = parsed.text ?? "";
+        } else {
+          const mammoth = await import("mammoth");
+          const result = await mammoth.extractRawText({ buffer: fileBuffer });
+          extractedText = result.value ?? "";
+        }
+      } catch (e) {
+        console.error("[uploadCv] text extraction failed:", e);
+      }
+
+      // Upload to S3
+      const suffix = randomBytes(10).toString("hex");
+      const ext = input.mimeType === "application/pdf" ? "pdf" : "docx";
+      const fileKey = `client-cvs/${clientId}-${suffix}.${ext}`;
+      const { url: fileUrl } = await storagePut(fileKey, fileBuffer, input.mimeType);
+
+      // Upsert: replace any previous CV for this client
+      await db.delete(clientCvs).where(eq(clientCvs.clientId, clientId));
+      const inserted = await db.insert(clientCvs).values({
+        clientId,
+        fileKey,
+        fileUrl,
+        originalName: input.fileName,
+        extractedText: extractedText.slice(0, 60000), // cap at 60k chars
+      });
+      const cvId = (inserted as unknown as { insertId: number }[])[0]?.insertId ?? 0;
+      return { cvId, fileUrl };
+    }),
+
+  /** Get the most recent CV for the logged-in client (or a specific client for counsellors). */
+  getClientCv: protectedProcedure
+    .input(z.object({ clientId: z.number().optional() }))
+    .query(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+      const clientId = await resolveClientId(ctx, input);
+
+      const [cv] = await db
+        .select()
+        .from(clientCvs)
+        .where(eq(clientCvs.clientId, clientId))
+        .orderBy(desc(clientCvs.uploadedAt))
+        .limit(1);
+
+      return cv ?? null;
+    }),
+
+  // ─── Tailor Application ───────────────────────────────────────────────────
+
+  /** Generate a tailored CV rewrite and covering email for a specific job listing. */
+  tailorApplication: protectedProcedure
+    .input(z.object({
+      clientId: z.number().optional(),
+      listingId: z.number(),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+      const clientId = await resolveClientId(ctx, input);
+
+      // 1. Fetch the client's CV
+      const [cv] = await db
+        .select()
+        .from(clientCvs)
+        .where(eq(clientCvs.clientId, clientId))
+        .orderBy(desc(clientCvs.uploadedAt))
+        .limit(1);
+      if (!cv) throw new TRPCError({ code: "BAD_REQUEST", message: "No CV uploaded yet. Please upload your CV first." });
+
+      // 2. Fetch the listing + company info
+      const [listingRow] = await db
+        .select({
+          title: jobListings.title,
+          url: jobListings.url,
+          location: jobListings.location,
+          companyName: companyUniverse.name,
+          companyTier: companyUniverse.tier,
+          companySector: companyUniverse.sector,
+          companyQualities: companyUniverse.qualities,
+        })
+        .from(jobListings)
+        .innerJoin(companyUniverse, eq(jobListings.companyId, companyUniverse.id))
+        .where(eq(jobListings.id, input.listingId))
+        .limit(1);
+      if (!listingRow) throw new TRPCError({ code: "NOT_FOUND", message: "Listing not found" });
+
+      // 3. Fetch the client's target spec (WOW report narrative)
+      const [specRow] = await db
+        .select({ spec: clientTargetSpec.spec })
+        .from(clientTargetSpec)
+        .where(eq(clientTargetSpec.clientId, clientId))
+        .limit(1);
+      const targetSpec = specRow?.spec ? JSON.parse(specRow.spec as string) : {};
+
+      // 4. Fetch the client's name from their profile
+      const [profile] = await db
+        .select({ firstName: clientProfilesTable.firstName, lastName: clientProfilesTable.lastName })
+        .from(clientProfilesTable)
+        .where(eq(clientProfilesTable.id, clientId))
+        .limit(1);
+      const clientName = [profile?.firstName, profile?.lastName].filter(Boolean).join(" ") || "the client";
+
+      // 5. Build the LLM prompt
+      const qualities: string[] = listingRow.companyQualities
+        ? JSON.parse(listingRow.companyQualities as string)
+        : [];
+      const qualityLabels: Record<string, string> = {
+        autonomy: "Autonomy & independence",
+        structured_learning: "Structured learning & development",
+        social_impact: "Social impact & purpose",
+        commercial_intensity: "Commercial intensity",
+        collaboration: "Collaboration & teamwork",
+        innovation: "Innovation & creativity",
+        prestige: "Prestige & brand",
+        scale_and_stability: "Scale & stability",
+      };
+      const qualityDescriptions = qualities.map((q) => qualityLabels[q] ?? q).join(", ");
+
+      const systemPrompt = `You are an expert career coach and professional writer. 
+Your task is to help a client tailor their CV and write a covering email for a specific job application.
+
+IMPORTANT RULES:
+- Do NOT fabricate any experience, skills, or qualifications not present in the original CV.
+- Do NOT change dates, job titles, or employer names.
+- You may reorder sections, adjust emphasis, rephrase descriptions, and foreground relevant experience.
+- The covering email must open with 2-3 sentences of genuine personal truth drawn from the client's profile narrative — not generic statements.
+- Write in a professional, confident, and warm tone consistent with the Pennington Hennessy brand.`;
+
+      const userPrompt = `CLIENT: ${clientName}
+
+ROLE APPLIED FOR: ${listingRow.title} at ${listingRow.companyName}
+LOCATION: ${listingRow.location ?? "Not specified"}
+COMPANY TYPE: ${listingRow.companyTier ?? ""} — ${listingRow.companySector ?? ""}
+COMPANY CULTURE QUALITIES: ${qualityDescriptions || "Not specified"}
+
+CLIENT PROFILE NARRATIVE (from WOW report):
+${JSON.stringify(targetSpec, null, 2).slice(0, 3000)}
+
+CLIENT'S CURRENT CV:
+${(cv.extractedText ?? "").slice(0, 8000)}
+
+Please produce TWO outputs:
+
+1. TAILORED CV — Rewrite the CV to emphasise the experience and language most relevant to this role and firm. Keep all factual content accurate. Restructure, reorder, and reframe as needed. Format as clean plain text with section headings in CAPS.
+
+2. COVERING EMAIL — Write a covering email (max 350 words) that:
+   - Opens with 2-3 sentences of genuine personal truth from the client's profile (their differentiators, what drives them, what they are looking for)
+   - Connects those truths to what this specific role and firm offers
+   - Closes with a confident, professional call to action
+   - Is addressed to "Dear Hiring Manager" unless a name is available
+
+Return your response as JSON with this exact structure:
+{
+  "rewrittenCv": "...",
+  "coveringEmail": "..."
+}`;
+
+      // 6. Call the LLM
+      const llmResponse = await invokeLLM({
+        messages: [
+          { role: "system", content: systemPrompt },
+          { role: "user", content: userPrompt },
+        ],
+        response_format: {
+          type: "json_schema",
+          json_schema: {
+            name: "tailor_application",
+            strict: true,
+            schema: {
+              type: "object",
+              properties: {
+                rewrittenCv: { type: "string" },
+                coveringEmail: { type: "string" },
+              },
+              required: ["rewrittenCv", "coveringEmail"],
+              additionalProperties: false,
+            },
+          },
+        },
+      });
+
+      const rawContent = llmResponse?.choices?.[0]?.message?.content;
+      const content = typeof rawContent === "string" ? rawContent : "{}";
+      let parsed: { rewrittenCv: string; coveringEmail: string };
+      try {
+        parsed = JSON.parse(content);
+      } catch {
+        throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "LLM returned invalid JSON" });
+      }
+
+      // 7. Store the result
+      await db.insert(tailorApplications).values({
+        clientId,
+        listingId: input.listingId,
+        cvId: cv.id,
+        rewrittenCv: parsed.rewrittenCv,
+        coveringEmail: parsed.coveringEmail,
+        status: "done",
+      });
+
+      return { rewrittenCv: parsed.rewrittenCv, coveringEmail: parsed.coveringEmail };
+    }),
 });
