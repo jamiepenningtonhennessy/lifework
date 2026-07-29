@@ -841,6 +841,20 @@ async function fetchListingsForCompany(company: typeof companyUniverse.$inferSel
   }
 }
 
+/** Run tasks with a bounded concurrency limit (like p-limit but without the dependency). */
+async function runWithConcurrency<T>(tasks: (() => Promise<T>)[], limit: number): Promise<T[]> {
+  const results: T[] = new Array(tasks.length);
+  let idx = 0;
+  const worker = async () => {
+    while (idx < tasks.length) {
+      const i = idx++;
+      results[i] = await tasks[i]();
+    }
+  };
+  await Promise.all(Array.from({ length: Math.min(limit, tasks.length) }, worker));
+  return results;
+}
+
 export async function handleScanListings(req: Request, res: Response) {
   if (!authenticateCron(req)) return res.status(403).json({ error: "cron-only" });
 
@@ -881,49 +895,68 @@ export async function handleScanListings(req: Request, res: Response) {
         .where(eq(clientConstraints.clientId, clientId))
         .limit(1);
 
-      for (const company of companies) {
-        const listings = await fetchListingsForCompany(company);
-        if (listings.length === 0) continue;
-
-        // TTL: 7 days
-        const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
-
+            // ── Step A: Scrape all companies in parallel (12 concurrent) ─────────
+      const SCRAPE_CONCURRENCY = 12;
+      const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+      const scrapeResults = await runWithConcurrency(
+        companies.map((company) => async () => {
+          const listings = await fetchListingsForCompany(company);
+          return { company, listings };
+        }),
+        SCRAPE_CONCURRENCY
+      );
+      // Flatten all (company, listing) pairs
+      const allPairs: { company: typeof companies[0]; listing: NormalisedListing }[] = [];
+      for (const { company, listings } of scrapeResults) {
         for (const listing of listings) {
-          // Upsert listing (dedupe by companyId + externalId)
-          const [existing] = await db
+          allPairs.push({ company, listing });
+        }
+      }
+      console.log(`[jobs] Stage 3: scraped ${allPairs.length} listings from ${companies.length} companies for client ${clientId}`);
+
+      // ── Step B: Upsert listings into DB (sequential to avoid race conditions) ──
+      const listingIds: { company: typeof companies[0]; listing: NormalisedListing; listingId: number; isNew: boolean }[] = [];
+      for (const { company, listing } of allPairs) {
+        const [existing] = await db
+          .select()
+          .from(jobListings)
+          .where(and(eq(jobListings.companyId, company.id), eq(jobListings.externalId, listing.externalId)))
+          .limit(1);
+        let listingId: number;
+        let isNew = false;
+        if (existing) {
+          listingId = existing.id;
+          await db.update(jobListings).set({ fetchedAt: new Date(), expiresAt }).where(eq(jobListings.id, existing.id));
+        } else {
+          const inserted = await db.insert(jobListings).values({
+            companyId: company.id,
+            externalId: listing.externalId,
+            title: listing.title,
+            location: listing.location ?? null,
+            url: listing.url,
+            raw: listing.raw ?? null,
+            expiresAt,
+          });
+          listingId = (inserted as unknown as { insertId: number }[])[0]?.insertId ?? 0;
+          isNew = true;
+          totalListings++;
+        }
+        if (listingId) listingIds.push({ company, listing, listingId, isNew });
+      }
+
+      // ── Step C: Score all listings in parallel (25 concurrent LLM calls) ──
+      const SCORE_CONCURRENCY = 25;
+      const specStr = JSON.stringify(spec, null, 2);
+      const constraintsStr = JSON.stringify(constraints ?? {});
+      await runWithConcurrency(
+        listingIds.map(({ listing, listingId }) => async () => {
+          // Check if match already exists
+          const [existingMatch] = await db
             .select()
-            .from(jobListings)
-            .where(
-              and(
-                eq(jobListings.companyId, company.id),
-                eq(jobListings.externalId, listing.externalId)
-              )
-            )
+            .from(jobMatches)
+            .where(and(eq(jobMatches.clientId, clientId), eq(jobMatches.listingId, listingId)))
             .limit(1);
-
-          let listingId: number;
-          if (existing) {
-            listingId = existing.id;
-            await db
-              .update(jobListings)
-              .set({ fetchedAt: new Date(), expiresAt })
-              .where(eq(jobListings.id, existing.id));
-          } else {
-            const inserted = await db.insert(jobListings).values({
-              companyId: company.id,
-              externalId: listing.externalId,
-              title: listing.title,
-              location: listing.location ?? null,
-              url: listing.url,
-              raw: listing.raw ?? null,
-              expiresAt,
-            });
-            listingId = (inserted as unknown as { insertId: number }[])[0]?.insertId ?? 0;
-            totalListings++;
-          }
-
-          if (!listingId) continue;
-
+          if (existingMatch) return; // already scored
           // Score listing against client's target spec
           const scoreResponse = await invokeLLM({
             messages: [
@@ -938,9 +971,7 @@ contract when permanent-only, or in an excluded location), set constraint_status
               },
               {
                 role: "user",
-                content: `TARGET SPEC:\n${JSON.stringify(spec, null, 2)}\n\nCONSTRAINTS:\n${JSON.stringify(
-                  constraints ?? {}
-                )}\n\nVACANCY:\nTitle: ${listing.title}\nLocation: ${listing.location ?? "unknown"}\nURL: ${listing.url}`,
+                content: `TARGET SPEC:\n${specStr}\n\nCONSTRAINTS:\n${constraintsStr}\n\nVACANCY:\nTitle: ${listing.title}\nLocation: ${listing.location ?? "unknown"}\nURL: ${listing.url}`,
               },
             ],
             response_format: {
@@ -961,36 +992,25 @@ contract when permanent-only, or in an excluded location), set constraint_status
               },
             },
           });
-
           const rawScored = scoreResponse.choices[0].message.content as string;
           let scored: { score: number; rationale: string; constraint_status: "ok" | "filtered" };
           try {
             scored = JSON.parse(stripFences(rawScored));
           } catch {
-            // LLM returned prose instead of JSON — skip this listing
-            console.warn(`[jobs] Stage 3: non-JSON score response for listing ${listingId}, skipping. Preview: ${rawScored.slice(0, 80)}`);
-            continue;
+            console.warn(`[jobs] Stage 3: non-JSON score response for listing ${listingId}, skipping.`);
+            return;
           }
-
-          // Upsert match
-          const [existingMatch] = await db
-            .select()
-            .from(jobMatches)
-            .where(and(eq(jobMatches.clientId, clientId), eq(jobMatches.listingId, listingId)))
-            .limit(1);
-
-          if (!existingMatch) {
-            await db.insert(jobMatches).values({
-              clientId,
-              listingId,
-              score: scored.score,
-              rationale: scored.rationale,
-              constraintStatus: scored.constraint_status,
-            });
-            totalMatches++;
-          }
-        }
-      }
+          await db.insert(jobMatches).values({
+            clientId,
+            listingId,
+            score: scored.score,
+            rationale: scored.rationale,
+            constraintStatus: scored.constraint_status,
+          });
+          totalMatches++;
+        }),
+        SCORE_CONCURRENCY
+      );
     }
 
     console.log(`[jobs] Stage 3 complete: ${totalListings} new listings, ${totalMatches} new matches`);
