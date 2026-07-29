@@ -75,6 +75,7 @@
     "pdf-parse": "^2.4.5",
     "pdfkit": "^0.18.0",
     "pdfmake": "^0.3.5",
+    "playwright-core": "^1.62.0",
     "pptxgenjs": "^4.0.1",
     "puppeteer": "^24.42.0",
     "react": "^19.2.1",

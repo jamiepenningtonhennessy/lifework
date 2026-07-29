@@ -708,6 +708,48 @@ async function fetchWorkdayListings(slug: string): Promise<NormalisedListing[]> 
   return [];
 }
 
+async function fetchIcimsListings(slug: string): Promise<NormalisedListing[]> {
+  // slug format: "lw" (for careers-lw.icims.com) or "jobs-willkie" (for jobs-willkie.icims.com)
+  // Try careers-SLUG, SLUG, and jobs-SLUG patterns
+  const patterns = [
+    `https://careers-${slug}.icims.com/jobs/search?ss=1&searchCategory=0&in_iframe=1`,
+    `https://${slug}.icims.com/jobs/search?ss=1&searchCategory=0&in_iframe=1`,
+    `https://jobs-${slug}.icims.com/jobs/search?ss=1&searchCategory=0&in_iframe=1`,
+  ];
+  for (const baseUrl of patterns) {
+    try {
+      const resp = await fetch(baseUrl, {
+        headers: { "User-Agent": "Mozilla/5.0 (compatible; LifeWorksBot/1.0)" },
+        signal: AbortSignal.timeout(15000),
+      });
+      if (!resp.ok) continue;
+      const html = await resp.text();
+      // iCIMS returns HTML with job listing links in the format /jobs/NNN/job
+      const jobMatches = html.match(/href="\/jobs\/\d+\/[^"]+"/g) ?? [];
+      const titleMatches = html.match(/class="[^"]*title[^"]*"[^>]*>([^<]{5,120})</gi) ?? [];
+      if (jobMatches.length === 0 && titleMatches.length === 0) continue;
+      const baseHost = new URL(baseUrl).origin;
+      const seen = new Set<string>();
+      const listings: NormalisedListing[] = [];
+      jobMatches.forEach((m, idx) => {
+        const href = m.replace(/href="/, "").replace(/"/, "");
+        if (seen.has(href)) return;
+        seen.add(href);
+        const title = titleMatches[idx]?.replace(/<[^>]+>/g, "").trim() ?? `Position ${idx + 1}`;
+        listings.push({
+          externalId: href,
+          title,
+          url: `${baseHost}${href}`,
+          raw: { source: "icims" },
+        });
+      });
+      if (listings.length > 0) return listings;
+    } catch {
+      continue;
+    }
+  }
+  return [];
+}
 async function fetchSmartRecruitersListings(slug: string): Promise<NormalisedListing[]> {
   try {
     const url = `https://api.smartrecruiters.com/v1/companies/${slug}/postings?limit=20`;
@@ -727,8 +769,16 @@ async function fetchSmartRecruitersListings(slug: string): Promise<NormalisedLis
 }
 
 async function fetchGenericListings(careersUrl: string): Promise<NormalisedListing[]> {
-  // MANUS: Generic careers page — fetch HTML and extract job titles.
-  // This is a best-effort scrape; structured ATS adapters above are preferred.
+  // Use Playwright headless browser for JS-rendered careers pages.
+  // Falls back to plain HTML fetch if Playwright is unavailable.
+  try {
+    const { scrapeCareerPage } = await import("../playwrightScraper.js");
+    const results = await scrapeCareerPage(careersUrl, "unknown", 25000);
+    if (results.length > 0) return results;
+  } catch (playwrightErr) {
+    console.warn("[playwright] unavailable, falling back to HTML fetch:", playwrightErr instanceof Error ? playwrightErr.message : String(playwrightErr));
+  }
+  // Fallback: plain HTML fetch for server-rendered pages
   try {
     const resp = await fetch(careersUrl, {
       headers: { "User-Agent": "Mozilla/5.0 (compatible; LifeWorksBot/1.0)" },
@@ -736,7 +786,6 @@ async function fetchGenericListings(careersUrl: string): Promise<NormalisedListi
     });
     if (!resp.ok) return [];
     const html = await resp.text();
-    // Extract text between common job-title tags — heuristic, not guaranteed
     const titleMatches = html.match(/<h[23][^>]*>([^<]{10,120})<\/h[23]>/gi) ?? [];
     return titleMatches.slice(0, 10).map((m, idx) => {
       const title = m.replace(/<[^>]+>/g, "").trim();
@@ -762,6 +811,7 @@ async function fetchListingsForCompany(company: typeof companyUniverse.$inferSel
     case "lever": return fetchLeverListings(slug);
     case "ashby": return fetchAshbyListings(slug);
     case "workday": return fetchWorkdayListings(slug);
+    case "icims": return fetchIcimsListings(slug);
     case "smartrecruiters": return fetchSmartRecruitersListings(slug);
     case "generic": return fetchGenericListings(careersUrl || slug);
     default: return [];
