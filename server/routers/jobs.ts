@@ -543,12 +543,19 @@ export const jobsRouter = router({
   getLastPipelineRun: protectedProcedure.query(async ({ ctx }) => {
     const db = await getDb();
     if (!db) return null;
+    // Resolve the client profile ID (not the user ID) so the lookup works for non-admin users
+    let clientId: number;
+    try {
+      clientId = await resolveClientId(ctx, {});
+    } catch {
+      return null;
+    }
     const [run] = await db
       .select({ completedAt: jobPipelineRuns.completedAt, status: jobPipelineRuns.status })
       .from(jobPipelineRuns)
       .where(
         and(
-          eq(jobPipelineRuns.clientId, ctx.user.id),
+          eq(jobPipelineRuns.clientId, clientId),
           eq(jobPipelineRuns.status, "done")
         )
       )
