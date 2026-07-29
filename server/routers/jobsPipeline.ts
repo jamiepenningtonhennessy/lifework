@@ -681,26 +681,31 @@ async function fetchWorkdayListings(slug: string): Promise<NormalisedListing[]> 
   // slug format: "tenant|site" e.g. "linklaters|Linklaters"
   const [tenant, site] = slug.split("|");
   if (!tenant || !site) return [];
-  try {
-    const url = `https://${tenant}.wd3.myworkdayjobs.com/wday/cxs/${tenant}/${site}/jobs`;
-    const resp = await fetch(url, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ appliedFacets: {}, limit: 20, offset: 0, searchText: "" }),
-      signal: AbortSignal.timeout(15000),
-    });
-    if (!resp.ok) return [];
-    const data = await resp.json() as { jobPostings?: { bulletFields?: string[]; title?: string; locationsText?: string; externalPath?: string }[] };
-    return (data.jobPostings ?? []).map((j, idx) => ({
-      externalId: j.externalPath ?? String(idx),
-      title: j.title ?? "",
-      location: j.locationsText,
-      url: j.externalPath ? `https://${tenant}.wd3.myworkdayjobs.com/${j.externalPath}` : "",
-      raw: j,
-    }));
-  } catch {
-    return [];
+  // Try wd3, wd1, and wd103 subdomains in order
+  for (const subdomain of ["wd3", "wd1", "wd103"]) {
+    try {
+      const baseUrl = `https://${tenant}.${subdomain}.myworkdayjobs.com`;
+      const url = `${baseUrl}/wday/cxs/${tenant}/${site}/jobs`;
+      const resp = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ appliedFacets: {}, limit: 20, offset: 0, searchText: "" }),
+        signal: AbortSignal.timeout(15000),
+      });
+      if (!resp.ok) continue;
+      const data = await resp.json() as { jobPostings?: { bulletFields?: string[]; title?: string; locationsText?: string; externalPath?: string }[] };
+      return (data.jobPostings ?? []).map((j, idx) => ({
+        externalId: j.externalPath ?? String(idx),
+        title: j.title ?? "",
+        location: j.locationsText,
+        url: j.externalPath ? `${baseUrl}/${j.externalPath}` : "",
+        raw: j,
+      }));
+    } catch {
+      continue;
+    }
   }
+  return [];
 }
 
 async function fetchSmartRecruitersListings(slug: string): Promise<NormalisedListing[]> {
