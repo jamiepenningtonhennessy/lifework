@@ -622,14 +622,14 @@ export const jobsRouter = router({
       try {
         if (input.mimeType === "application/pdf") {
           const pdfParseModule = await import("pdf-parse");
-          // pdf-parse v2 exports a PDFParse class, not a default function
-          type PDFParseInstance = { load: (buf: Buffer) => Promise<void>; getText: () => Promise<{ pages: { text: string }[] }> };
-          type PDFParseModule = { PDFParse: new (opts: { verbosity: number }) => PDFParseInstance };
+          // pdf-parse v2: pass data in constructor options, then call load() with no args
+          type PDFParseInstance = { load: () => Promise<void>; getText: () => Promise<{ pages: { text: string }[]; text: string }> };
+          type PDFParseModule = { PDFParse: new (opts: { verbosity: number; data: Buffer }) => PDFParseInstance };
           const { PDFParse } = pdfParseModule as unknown as PDFParseModule;
-          const parser = new PDFParse({ verbosity: 0 }) as PDFParseInstance;
-          await parser.load(fileBuffer);
+          const parser = new PDFParse({ verbosity: 0, data: fileBuffer }) as PDFParseInstance;
+          await parser.load();
           const result = await parser.getText();
-          extractedText = result.pages.map((p: { text: string }) => p.text).join("\n") ?? "";
+          extractedText = result.text ?? result.pages.map((p: { text: string }) => p.text).join("\n") ?? "";
         } else {
           const mammoth = await import("mammoth");
           const result = await mammoth.extractRawText({ buffer: fileBuffer });
@@ -721,7 +721,7 @@ export const jobsRouter = router({
         .from(clientTargetSpec)
         .where(eq(clientTargetSpec.clientId, clientId))
         .limit(1);
-      const targetSpec = specRow?.spec ? JSON.parse(specRow.spec as string) : {};
+      const targetSpec = specRow?.spec ?? {};
 
       // 4. Fetch the client's name from their profile
       const [profile] = await db
