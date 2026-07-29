@@ -46,14 +46,14 @@ import { eq, and, inArray, isNull, gte, sql } from "drizzle-orm";
  * This helper handles both cases so JSON.parse never sees either.
  */
 function stripFences(raw: string): string {
-  // 1. Remove opening fence (```json, ```, ```JSON, etc.) — use 's' flag so ^ matches start of string
+  // 1. Remove opening fence (```json, ```, ```JSON, etc.) — handles leading whitespace
   let s = raw.trim();
-  // Handle ```json\n{...}\n``` pattern (multiline)
-  s = s.replace(/^```[a-zA-Z]*\r?\n/, "");
-  // 2. Remove closing fence
-  s = s.replace(/\r?\n```\s*$/, "").trim();
-  // Also strip any remaining inline fences
-  s = s.replace(/^```[a-zA-Z]*\s*/, "").replace(/\s*```$/, "").trim();
+  // Handle ```json\n{...}\n``` pattern (multiline) — allow optional leading whitespace
+  s = s.replace(/^\s*```[a-zA-Z]*\r?\n/, "");
+  // 2. Remove closing fence — allow trailing whitespace
+  s = s.replace(/\r?\n\s*```\s*$/, "").trim();
+  // Also strip any remaining inline fences (e.g. ``` json without newline)
+  s = s.replace(/^\s*```[a-zA-Z]*\s*/, "").replace(/\s*```\s*$/, "").trim();
   // 3. Replace literal control characters inside JSON string values.
   //    We replace bare \n, \r, \t that appear INSIDE quoted strings with their
   //    escaped equivalents.  We do this by scanning character-by-character so
@@ -392,9 +392,32 @@ export async function handleBuildMonitorList(req: Request, res: Response) {
     for (const c of companies) {
       if (c.tier && c.sector) bucketSet.add(`${c.tier}|${c.sector}`);
     }
+    // Human-readable label map so the LLM can connect raw tier/sector codes to the target spec vocabulary
+    const TIER_LABELS: Record<string, string> = {
+      law_firm: "Law Firm",
+      ftse100: "FTSE 100",
+      ftse250: "FTSE 250",
+      ftse_small: "FTSE Small Cap",
+      uk_private: "UK Private Company",
+      global_tech: "Global Tech",
+      tech_scaleup: "Tech Scaleup / Growth Stage",
+      inhouse_legal: "In-house Legal Team",
+      legal_tech: "Legal Technology",
+      professional_services: "Professional Services",
+      public_sector: "Public Sector",
+    };
+    const SECTOR_LABELS: Record<string, string> = {
+      magic_circle: "Magic Circle (Clifford Chance, Freshfields, Linklaters, A&O Shearman, Slaughter and May)",
+      silver_circle: "Silver Circle (Ashurst, Herbert Smith Freehills, Hogan Lovells, Norton Rose, Simmons & Simmons)",
+      us_firm_london: "US Law Firm with London Office (e.g. Latham, Skadden, Kirkland, Sidley, Mayer Brown)",
+      uk_intl: "UK International Law Firm (e.g. CMS, DLA Piper, Clyde & Co, Pinsent Masons, Eversheds)",
+      uk_regional: "UK Regional Law Firm",
+      "Law Firm": "Law Firm (general)",
+    };
     const buckets = Array.from(bucketSet).map((b) => {
       const [tier, sector] = b.split("|");
-      return { tier, sector };
+      const label = `${TIER_LABELS[tier] ?? tier} — ${SECTOR_LABELS[sector] ?? sector}`;
+      return { tier, sector, label };
     });
 
     const weightResponse = await invokeLLM({
