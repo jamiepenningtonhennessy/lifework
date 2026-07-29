@@ -732,8 +732,8 @@ export const jobsRouter = router({
       const clientName = [profile?.firstName, profile?.lastName].filter(Boolean).join(" ") || "the client";
 
       // 5. Build the LLM prompt
-      const qualities: string[] = listingRow.companyQualities
-        ? JSON.parse(listingRow.companyQualities as string)
+      const qualities: string[] = Array.isArray(listingRow.companyQualities)
+        ? (listingRow.companyQualities as string[])
         : [];
       const qualityLabels: Record<string, string> = {
         autonomy: "Autonomy & independence",
