@@ -44,6 +44,34 @@ import { randomBytes } from "crypto";
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
+/**
+ * Strip markdown code fences and sanitise control characters from LLM JSON responses.
+ * Mirrors the same helper in jobsPipeline.ts — kept local to avoid circular imports.
+ */
+function stripFences(raw: string): string {
+  let s = raw.trim();
+  s = s.replace(/^\s*```[a-zA-Z]*\r?\n/, "");
+  s = s.replace(/\r?\n\s*```\s*$/, "").trim();
+  s = s.replace(/^\s*```[a-zA-Z]*\s*/, "").replace(/\s*```\s*$/, "").trim();
+  let result = "";
+  let inString = false;
+  let escaped = false;
+  for (let i = 0; i < s.length; i++) {
+    const ch = s[i];
+    if (escaped) { result += ch; escaped = false; continue; }
+    if (ch === "\\") { escaped = true; result += ch; continue; }
+    if (ch === '"') { inString = !inString; result += ch; continue; }
+    if (inString) {
+      if (ch === "\n") { result += "\\n"; continue; }
+      if (ch === "\r") { result += "\\r"; continue; }
+      if (ch === "\t") { result += "\\t"; continue; }
+      if (ch.charCodeAt(0) < 0x20) continue;
+    }
+    result += ch;
+  }
+  return result;
+}
+
 /** Resolve the clientId for a request: clients use their own profile; counsellors pass an explicit clientId. */
 async function resolveClientId(
   ctx: { user: { id: number; role: string } },
@@ -811,11 +839,21 @@ Return your response as JSON with this exact structure:
       });
 
       const rawContent = llmResponse?.choices?.[0]?.message?.content;
-      const content = typeof rawContent === "string" ? rawContent : "{}";
-      let parsed: { rewrittenCv: string; coveringEmail: string };
+      const rawStr = typeof rawContent === "string" ? rawContent : "{}";
+      // Apply fence stripping and control-char sanitisation (Claude sometimes wraps in ```json)
+      const content = stripFences(rawStr);
+      let parsed: { rewrittenCv: string; coveringEmail: string } | null = null;
       try {
         parsed = JSON.parse(content);
       } catch {
+        // Fallback: try to extract the first {...} block in case of preamble text
+        const jsonMatch = content.match(/\{[\s\S]*\}/);
+        if (jsonMatch) {
+          try { parsed = JSON.parse(jsonMatch[0]); } catch { /* fall through */ }
+        }
+      }
+      if (!parsed?.rewrittenCv || !parsed?.coveringEmail) {
+        console.error("[tailorApplication] LLM raw content (first 500 chars):", rawStr.slice(0, 500));
         throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "LLM returned invalid JSON" });
       }
 
