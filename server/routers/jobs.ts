@@ -622,9 +622,14 @@ export const jobsRouter = router({
       try {
         if (input.mimeType === "application/pdf") {
           const pdfParseModule = await import("pdf-parse");
-          const pdfParse = (pdfParseModule as unknown as { default: (buf: Buffer) => Promise<{ text: string }> }).default ?? pdfParseModule;
-          const parsed = await pdfParse(fileBuffer);
-          extractedText = parsed.text ?? "";
+          // pdf-parse v2 exports a PDFParse class, not a default function
+          type PDFParseInstance = { load: (buf: Buffer) => Promise<void>; getText: () => Promise<{ pages: { text: string }[] }> };
+          type PDFParseModule = { PDFParse: new (opts: { verbosity: number }) => PDFParseInstance };
+          const { PDFParse } = pdfParseModule as unknown as PDFParseModule;
+          const parser = new PDFParse({ verbosity: 0 }) as PDFParseInstance;
+          await parser.load(fileBuffer);
+          const result = await parser.getText();
+          extractedText = result.pages.map((p: { text: string }) => p.text).join("\n") ?? "";
         } else {
           const mammoth = await import("mammoth");
           const result = await mammoth.extractRawText({ buffer: fileBuffer });
