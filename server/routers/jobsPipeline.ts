@@ -375,11 +375,25 @@ export async function handleBuildMonitorList(req: Request, res: Response) {
 
     const spec = specRow.spec as TargetSpec;
 
-    // Load universe companies
+    // Detect whether this is a graduate (student) client
+    const [reportRow] = await db
+      .select({ wowReportType: analysisReports.wowReportType })
+      .from(analysisReports)
+      .where(eq(analysisReports.clientId, clientId))
+      .limit(1);
+    const isGraduateClient = reportRow?.wowReportType === "student";
+    console.log(`[jobs] Stage 2: client ${clientId} isGraduate=${isGraduateClient}`);
+
+    // Load universe companies — graduate clients use the UK 300 graduate universe only;
+    // senior clients use the non-graduate universe.
     const companies = await db
       .select()
       .from(companyUniverse)
-      .where(eq(companyUniverse.active, true));
+      .where(
+        isGraduateClient
+          ? and(eq(companyUniverse.active, true), eq(companyUniverse.isGraduate, true))
+          : and(eq(companyUniverse.active, true), eq(companyUniverse.isGraduate, false))
+      );
 
     if (companies.length === 0) return res.json({ ok: true, skipped: "empty universe" });
 

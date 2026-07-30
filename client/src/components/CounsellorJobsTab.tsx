@@ -313,7 +313,7 @@ function TargetSpecPanel({ clientId }: { clientId: number }) {
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-start">
-        <p className="text-xs text-muted-foreground">Generated {row.generatedAt ? new Date(row.generatedAt).toLocaleDateString("en-GB") : "—"}</p>
+        <p className="text-xs text-muted-foreground">Generated {(row as {generatedAt?: Date | null})?.generatedAt ? new Date((row as {generatedAt: Date}).generatedAt).toLocaleDateString("en-GB") : "—"}</p>
         <Button size="sm" variant="outline" className="text-xs h-7 px-2" onClick={() => {
           setForm(specToForm(spec));
           setEditing(true);

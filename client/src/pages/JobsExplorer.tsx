@@ -1253,7 +1253,7 @@ export default function JobsExplorer() {
   const [, navigate] = useLocation();
   const { data: specRow, isLoading: specLoading } = trpc.jobs.getTargetSpec.useQuery({});
 
-  if (authLoading) {
+  if (authLoading || specLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <Loader2 className="w-8 h-8 animate-spin text-[var(--lw-navy)] opacity-50" />
@@ -1266,6 +1266,13 @@ export default function JobsExplorer() {
     return null;
   }
 
+  // Graduate (student) clients see the full pipeline UI
+  const isGraduate = specRow?.wowReportType === "student";
+  if (isGraduate) {
+    return <GraduateJobsExplorer navigate={navigate} />;
+  }
+
+  // Senior clients see only their Target Specification
   const spec = specRow?.spec as SpecShape | undefined;
 
   return (
@@ -1290,11 +1297,7 @@ export default function JobsExplorer() {
 
       {/* Body */}
       <div className="max-w-3xl mx-auto px-4 py-8">
-        {specLoading ? (
-          <div className="flex items-center justify-center py-20">
-            <Loader2 className="w-6 h-6 animate-spin text-[var(--lw-navy)] opacity-50" />
-          </div>
-        ) : !spec ? (
+        {!spec ? (
           <div className="flex flex-col items-center justify-center py-20 text-center gap-4">
             <div className="w-14 h-14 rounded-full bg-white flex items-center justify-center shadow-sm">
               <FileText className="w-7 h-7 text-[var(--lw-navy)] opacity-30" />
@@ -1312,9 +1315,9 @@ export default function JobsExplorer() {
             <div className="bg-white rounded-xl border border-[var(--lw-navy)] border-opacity-10 shadow-sm p-6">
               <div className="flex items-center justify-between mb-5">
                 <h2 className="font-serif text-[var(--lw-navy)] text-lg font-semibold">Target Specification</h2>
-                {specRow?.generatedAt && (
+                {'generatedAt' in (specRow ?? {}) && (specRow as {generatedAt?: Date})?.generatedAt && (
                   <p className="text-xs text-muted-foreground">
-                    Generated {new Date(specRow.generatedAt).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })}
+                    Generated {new Date((specRow as {generatedAt: Date}).generatedAt).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })}
                   </p>
                 )}
               </div>
@@ -1338,6 +1341,73 @@ export default function JobsExplorer() {
             ← Back to dashboard
           </button>
         </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── Graduate Jobs Explorer ───────────────────────────────────────────────────
+// Full pipeline UI shown to clients whose report type is "student".
+// Identical to the counsellor portal view but without the counsellor banner.
+
+function GraduateJobsExplorer({ navigate }: { navigate: (path: string) => void }) {
+  return (
+    <div className="min-h-screen bg-[var(--lw-cream)]">
+      {/* Header */}
+      <div className="bg-[var(--lw-navy)] text-white px-6 py-6">
+        <div className="max-w-4xl mx-auto">
+          <div className="flex items-center gap-3 mb-1">
+            <img
+              src="https://d2xsxph8kpxj0f.cloudfront.net/107696804/kFbbE6kqNApXGDFpQJUGV7/phsquare_98c01de4.jpg"
+              alt="Pennington Hennessy"
+              className="w-8 h-8 object-contain"
+            />
+            <span className="text-xs tracking-widest uppercase opacity-60 font-sans">Lifework</span>
+          </div>
+          <h1 className="font-serif text-2xl font-semibold">Graduate Opportunities</h1>
+          <p className="text-sm opacity-70 mt-1">
+            Graduate schemes and entry-level roles matched to your Lifework profile.
+          </p>
+        </div>
+      </div>
+
+      {/* Body */}
+      <div className="max-w-4xl mx-auto px-4 py-6 space-y-5">
+        <LastRefreshedBanner />
+        <PreferencesPanel />
+        <Tabs defaultValue="companies">
+          <TabsList className="grid grid-cols-4 w-full bg-white border border-[var(--lw-navy)] border-opacity-10">
+            <TabsTrigger value="companies" className="gap-1.5 text-xs sm:text-sm">
+              <Building2 className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">Employers</span>
+            </TabsTrigger>
+            <TabsTrigger value="roles" className="gap-1.5 text-xs sm:text-sm">
+              <Briefcase className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">Schemes</span>
+            </TabsTrigger>
+            <TabsTrigger value="signals" className="gap-1.5 text-xs sm:text-sm">
+              <Newspaper className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">Signals</span>
+            </TabsTrigger>
+            <TabsTrigger value="saved" className="gap-1.5 text-xs sm:text-sm">
+              <Bookmark className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">Saved</span>
+            </TabsTrigger>
+          </TabsList>
+          <TabsContent value="companies" className="mt-4"><CompaniesTab /></TabsContent>
+          <TabsContent value="roles" className="mt-4"><OpenRolesTab /></TabsContent>
+          <TabsContent value="signals" className="mt-4"><SignalsTab /></TabsContent>
+          <TabsContent value="saved" className="mt-4"><SavedTab /></TabsContent>
+        </Tabs>
+      </div>
+
+      <div className="max-w-4xl mx-auto px-4 pb-8">
+        <button
+          onClick={() => navigate("/dashboard")}
+          className="text-xs text-[var(--lw-navy)] opacity-60 hover:opacity-100 underline"
+        >
+          ← Back to dashboard
+        </button>
       </div>
     </div>
   );

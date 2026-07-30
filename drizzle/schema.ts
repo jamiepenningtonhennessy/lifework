@@ -441,6 +441,7 @@ export const companyUniverse = mysqlTable("company_universe", {
   atsSlug: varchar("ats_slug", { length: 512 }),          // board token or careers URL
   careersUrl: varchar("careers_url", { length: 1024 }),
   qualities: json("qualities"),                              // QualityKey[] — organisational culture tags
+  isGraduate: boolean("is_graduate").default(false),        // true = part of UK 300 graduate universe
   active: boolean("active").default(true),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
 });

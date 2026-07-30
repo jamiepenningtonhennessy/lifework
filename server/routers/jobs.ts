@@ -36,6 +36,7 @@ import {
   clientCvs,
   tailorApplications,
   clientProfiles as clientProfilesTable,
+  analysisReports,
 } from "../../drizzle/schema";
 import { runStage1, runStage2, runStage3, runStage4, runStage5 } from "./jobsPipeline";
 import { storagePut } from "../storage";
@@ -113,7 +114,15 @@ export const jobsRouter = router({
         .where(eq(clientTargetSpec.clientId, clientId))
         .limit(1);
 
-      return spec ?? null;
+      // Also fetch the report type so the client UI can show the correct experience
+      const [reportRow] = await db
+        .select({ wowReportType: analysisReports.wowReportType })
+        .from(analysisReports)
+        .where(eq(analysisReports.clientId, clientId))
+        .limit(1);
+
+      const wowReportType = reportRow?.wowReportType ?? "standard";
+      return spec ? { ...spec, wowReportType } : { wowReportType, spec: null };
     }),
 
   /** Save (overwrite) the client's target spec — used by counsellor edit mode. */
