@@ -136,46 +136,42 @@ function authenticateCron(req: Request): boolean {
 
 // ─── Stage 1: Profile → TargetSpec ───────────────────────────────────────────
 
+/** Shared fake response that throws on error — used by all in-process stage wrappers. */
+function makeFakeRes() {
+  const fakeRes = {
+    status: () => fakeRes,
+    json: (body: unknown) => {
+      if ((body as { error?: string }).error) throw new Error((body as { error: string }).error);
+      return fakeRes;
+    },
+  } as unknown as Response;
+  return fakeRes;
+}
+/** Fake request with cron auth header so authenticateCron passes in production. */
+function makeFakeReq(clientId: number) {
+  return {
+    body: { clientId },
+    headers: {
+      authorization: `Bearer ${process.env.BUILT_IN_FORGE_API_KEY ?? ""}`,
+    },
+  } as unknown as Request;
+}
+
 /** Direct in-process call for Stage 1 — bypasses HTTP so no timeout risk. */
 export async function runStage1(clientId: number): Promise<void> {
-  const fakeReq = { body: { clientId } } as unknown as Request;
-  const fakeRes = {
-    status: () => fakeRes,
-    json: (body: unknown) => { if ((body as { error?: string }).error) throw new Error((body as { error: string }).error); return fakeRes; },
-  } as unknown as Response;
-  await handleGenerateTargetSpec(fakeReq, fakeRes);
+  await handleGenerateTargetSpec(makeFakeReq(clientId), makeFakeRes());
 }
 export async function runStage2(clientId: number): Promise<void> {
-  const fakeReq = { body: { clientId } } as unknown as Request;
-  const fakeRes = {
-    status: () => fakeRes,
-    json: (body: unknown) => { if ((body as { error?: string }).error) throw new Error((body as { error: string }).error); return fakeRes; },
-  } as unknown as Response;
-  await handleBuildMonitorList(fakeReq, fakeRes);
+  await handleBuildMonitorList(makeFakeReq(clientId), makeFakeRes());
 }
 export async function runStage3(clientId: number): Promise<void> {
-  const fakeReq = { body: { clientId } } as unknown as Request;
-  const fakeRes = {
-    status: () => fakeRes,
-    json: (body: unknown) => { if ((body as { error?: string }).error) throw new Error((body as { error: string }).error); return fakeRes; },
-  } as unknown as Response;
-  await handleScanListings(fakeReq, fakeRes);
+  await handleScanListings(makeFakeReq(clientId), makeFakeRes());
 }
 export async function runStage4(clientId: number): Promise<void> {
-  const fakeReq = { body: { clientId } } as unknown as Request;
-  const fakeRes = {
-    status: () => fakeRes,
-    json: (body: unknown) => { if ((body as { error?: string }).error) throw new Error((body as { error: string }).error); return fakeRes; },
-  } as unknown as Response;
-  await handleScanNewsSignals(fakeReq, fakeRes);
+  await handleScanNewsSignals(makeFakeReq(clientId), makeFakeRes());
 }
 export async function runStage5(clientId: number): Promise<void> {
-  const fakeReq = { body: { clientId } } as unknown as Request;
-  const fakeRes = {
-    status: () => fakeRes,
-    json: (body: unknown) => { if ((body as { error?: string }).error) throw new Error((body as { error: string }).error); return fakeRes; },
-  } as unknown as Response;
-  await handleSendAlerts(fakeReq, fakeRes);
+  await handleSendAlerts(makeFakeReq(clientId), makeFakeRes());
 }
 
 export async function handleGenerateTargetSpec(req: Request, res: Response) {
