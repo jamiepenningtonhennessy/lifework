@@ -1118,11 +1118,140 @@ function SavedTab({ clientId }: { clientId?: number }) {
   );
 }
 
+// ─── Quality labels (shared with counsellor view) ─────────────────────────────
+
+const QUALITY_LABELS: Record<string, string> = {
+  autonomy: "Autonomy",
+  structured_learning: "Structured Learning",
+  social_impact: "Social Impact",
+  commercial_intensity: "Commercial Intensity",
+  collaboration: "Collaboration",
+  innovation: "Innovation",
+  prestige: "Prestige",
+  scale_and_stability: "Scale & Stability",
+};
+
+function SpecBadgeList({ label, items, variant = "secondary" }: { label: string; items: string[]; variant?: "secondary" | "outline" }) {
+  if (!items?.length) return null;
+  return (
+    <div>
+      <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">{label}</p>
+      <div className="flex flex-wrap gap-1">
+        {items.map((t) => <Badge key={t} variant={variant} className="text-xs">{t}</Badge>)}
+      </div>
+    </div>
+  );
+}
+
+// ─── Target Spec display (client-facing read-only) ────────────────────────────
+
+type SpecShape = {
+  summary?: string;
+  seniority_band?: string;
+  role_families?: { title: string; why: string }[];
+  functions?: string[];
+  sectors?: { sector: string; weight: string }[];
+  organisation_archetypes?: string[];
+  geography?: { base?: string; acceptable?: string[]; hard_constraints?: string[] };
+  differentiators?: string[];
+  quality_preferences?: string[];
+  deal_breakers?: string[];
+  search_terms?: string[];
+};
+
+function TargetSpecDisplay({ spec }: { spec: SpecShape }) {
+  return (
+    <div className="space-y-5">
+      {spec.summary && (
+        <div>
+          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">Summary</p>
+          <p className="text-sm text-[var(--lw-navy)] leading-relaxed">{spec.summary}</p>
+        </div>
+      )}
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+        {spec.role_families?.length ? (
+          <div className="md:col-span-2">
+            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">Role Families</p>
+            <div className="space-y-3">
+              {spec.role_families.map((r) => (
+                <div key={r.title} className="border-l-2 border-[var(--lw-gold)] pl-3">
+                  <p className="text-sm font-semibold text-[var(--lw-navy)]">{r.title}</p>
+                  {r.why && <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">{r.why}</p>}
+                </div>
+              ))}
+            </div>
+          </div>
+        ) : null}
+
+        <div className="space-y-4">
+          <SpecBadgeList label="Functions" items={spec.functions ?? []} />
+          {spec.sectors?.length ? (
+            <div>
+              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">Sectors</p>
+              <div className="flex flex-wrap gap-1">
+                {spec.sectors.map((s) => (
+                  <Badge
+                    key={s.sector}
+                    className={`text-xs ${
+                      s.weight === "high"
+                        ? "bg-[var(--lw-navy)] text-white"
+                        : s.weight === "medium"
+                        ? "bg-[var(--lw-gold)] text-white"
+                        : "bg-slate-100 text-slate-600"
+                    }`}
+                  >
+                    {s.sector} · {s.weight}
+                  </Badge>
+                ))}
+              </div>
+            </div>
+          ) : null}
+          {spec.seniority_band && (
+            <div>
+              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">Seniority</p>
+              <Badge variant="secondary" className="text-xs capitalize">{spec.seniority_band}</Badge>
+            </div>
+          )}
+          {spec.geography?.base && (
+            <div>
+              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">Geography</p>
+              <p className="text-sm text-[var(--lw-navy)]">{spec.geography.base}</p>
+              {spec.geography.hard_constraints?.length ? (
+                <p className="text-xs text-muted-foreground mt-0.5">Constraints: {spec.geography.hard_constraints.join(", ")}</p>
+              ) : null}
+            </div>
+          )}
+        </div>
+
+        <div className="space-y-4">
+          <SpecBadgeList label="Organisation Types" items={spec.organisation_archetypes ?? []} variant="outline" />
+          {spec.quality_preferences?.length ? (
+            <div>
+              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">Culture Preferences</p>
+              <div className="flex flex-wrap gap-1">
+                {spec.quality_preferences.map((q) => (
+                  <Badge key={q} className="text-xs bg-violet-100 text-violet-800 hover:bg-violet-100">
+                    {QUALITY_LABELS[q] ?? q}
+                  </Badge>
+                ))}
+              </div>
+            </div>
+          ) : null}
+          <SpecBadgeList label="Differentiators" items={spec.differentiators ?? []} variant="outline" />
+          <SpecBadgeList label="Deal Breakers" items={spec.deal_breakers ?? []} variant="outline" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ─── Main page ────────────────────────────────────────────────────────────────
 
 export default function JobsExplorer() {
   const { user, loading: authLoading } = useAuth();
   const [, navigate] = useLocation();
+  const { data: specRow, isLoading: specLoading } = trpc.jobs.getTargetSpec.useQuery({});
 
   if (authLoading) {
     return (
@@ -1137,12 +1266,14 @@ export default function JobsExplorer() {
     return null;
   }
 
+  const spec = specRow?.spec as SpecShape | undefined;
+
   return (
     <div className="min-h-screen bg-[var(--lw-cream)]">
       {/* Header */}
-      <div className="bg-[var(--lw-navy)] text-white px-6 py-6">
-        <div className="max-w-4xl mx-auto">
-          <div className="flex items-center gap-3 mb-1">
+      <div className="bg-[var(--lw-navy)] text-white px-6 py-8">
+        <div className="max-w-3xl mx-auto">
+          <div className="flex items-center gap-3 mb-2">
             <img
               src="https://d2xsxph8kpxj0f.cloudfront.net/107696804/kFbbE6kqNApXGDFpQJUGV7/phsquare_98c01de4.jpg"
               alt="Pennington Hennessy"
@@ -1150,42 +1281,56 @@ export default function JobsExplorer() {
             />
             <span className="text-xs tracking-widest uppercase opacity-60 font-sans">Lifework</span>
           </div>
-          <h1 className="font-serif text-2xl font-semibold">Jobs Explorer</h1>
+          <h1 className="font-serif text-2xl font-semibold">Your Career Target</h1>
           <p className="text-sm opacity-70 mt-1">
-            Your personalised market monitor — live roles, early signals, and employers to watch.
+            How your counsellor has profiled your next move, based on your Lifework report.
           </p>
         </div>
       </div>
 
       {/* Body */}
-      <div className="max-w-4xl mx-auto px-4 py-6 space-y-5">
-        <LastRefreshedBanner />
-        <PreferencesPanel />
-        <Tabs defaultValue="companies">
-          <TabsList className="grid grid-cols-4 w-full bg-white border border-[var(--lw-navy)] border-opacity-10">
-            <TabsTrigger value="companies" className="gap-1.5 text-xs sm:text-sm">
-              <Building2 className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">Companies</span>
-            </TabsTrigger>
-            <TabsTrigger value="roles" className="gap-1.5 text-xs sm:text-sm">
-              <Briefcase className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">Open Roles</span>
-            </TabsTrigger>
-            <TabsTrigger value="signals" className="gap-1.5 text-xs sm:text-sm">
-              <Newspaper className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">Signals</span>
-            </TabsTrigger>
-            <TabsTrigger value="saved" className="gap-1.5 text-xs sm:text-sm">
-              <Bookmark className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">Saved</span>
-            </TabsTrigger>
-          </TabsList>
-          <TabsContent value="companies" className="mt-4"><CompaniesTab /></TabsContent>
-          <TabsContent value="roles" className="mt-4"><OpenRolesTab /></TabsContent>
-          <TabsContent value="signals" className="mt-4"><SignalsTab /></TabsContent>
-          <TabsContent value="saved" className="mt-4"><SavedTab /></TabsContent>
-        </Tabs>
-        <div className="pt-2">
+      <div className="max-w-3xl mx-auto px-4 py-8">
+        {specLoading ? (
+          <div className="flex items-center justify-center py-20">
+            <Loader2 className="w-6 h-6 animate-spin text-[var(--lw-navy)] opacity-50" />
+          </div>
+        ) : !spec ? (
+          <div className="flex flex-col items-center justify-center py-20 text-center gap-4">
+            <div className="w-14 h-14 rounded-full bg-white flex items-center justify-center shadow-sm">
+              <FileText className="w-7 h-7 text-[var(--lw-navy)] opacity-30" />
+            </div>
+            <div className="space-y-1">
+              <p className="font-serif text-[var(--lw-navy)] text-lg font-semibold">Being prepared</p>
+              <p className="text-sm text-muted-foreground max-w-sm">
+                Your counsellor is working on your career target profile. It will appear here once your Lifework report has been reviewed.
+              </p>
+            </div>
+          </div>
+        ) : (
+          <div className="space-y-6">
+            {/* Spec card */}
+            <div className="bg-white rounded-xl border border-[var(--lw-navy)] border-opacity-10 shadow-sm p-6">
+              <div className="flex items-center justify-between mb-5">
+                <h2 className="font-serif text-[var(--lw-navy)] text-lg font-semibold">Target Specification</h2>
+                {specRow?.generatedAt && (
+                  <p className="text-xs text-muted-foreground">
+                    Generated {new Date(specRow.generatedAt).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })}
+                  </p>
+                )}
+              </div>
+              <TargetSpecDisplay spec={spec} />
+            </div>
+
+            {/* Explanatory note */}
+            <div className="bg-[var(--lw-gold)] bg-opacity-10 border border-[var(--lw-gold)] border-opacity-30 rounded-lg px-5 py-4">
+              <p className="text-sm text-[var(--lw-navy)] leading-relaxed">
+                <span className="font-semibold">What this means for you.</span> This specification is the lens through which your counsellor is monitoring the market on your behalf. It shapes which employers are on your watch list and which opportunities are flagged as relevant. If anything looks wrong or has changed, speak to your counsellor.
+              </p>
+            </div>
+          </div>
+        )}
+
+        <div className="pt-8">
           <button
             onClick={() => navigate("/dashboard")}
             className="text-xs text-[var(--lw-navy)] opacity-60 hover:opacity-100 underline"

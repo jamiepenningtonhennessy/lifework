@@ -1591,3 +1591,9 @@
 - [x] Add counsellor preview banner (gold bar at top: "Viewing as [Client Name] — Return to profile") to portal view
 - [x] Add "View client portal" button to ClientProfile header
 - [x] Register new route in App.tsx
+
+## Jobs Explorer — Client View Simplification
+- [ ] Replace client-facing JobsExplorer (4-tab market monitor) with a clean Target Specification display
+- [ ] Show: summary, role families (with rationale), functions, sectors (with weights), seniority, geography, differentiators
+- [ ] Rename nav tab from "Jobs Explorer" to "Market Profile" on the client dashboard
+- [ ] Keep all counsellor-side pipeline/market-monitor functionality intact (CounsellorJobsTab, CounsellorPortalPage)
