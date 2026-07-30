@@ -468,17 +468,38 @@ Return a weight for every bucket you are given.`,
 
     const rawWeightContent = weightResponse.choices[0].message.content as string;
     let weightedBuckets: { tier: string; sector: string; weight: number; reason: string }[] = [];
-    try {
-      const parsedW = JSON.parse(stripFences(rawWeightContent));
-      if (Array.isArray(parsedW)) {
-        weightedBuckets = parsedW;
-      } else if (Array.isArray(parsedW?.buckets)) {
-        weightedBuckets = parsedW.buckets;
-      } else {
-        console.warn(`[jobs] Stage 2a: unexpected bucket weights shape:`, JSON.stringify(parsedW).slice(0, 200));
-      }
-    } catch (e) {
-      console.warn(`[jobs] Stage 2a: failed to parse bucket weights:`, rawWeightContent.slice(0, 200));
+    // Helper: try multiple parse strategies to handle fenced, truncated, or partially-valid LLM output
+    const tryParseWeights = (raw: string): typeof weightedBuckets | null => {
+      // Strategy 1: standard stripFences + JSON.parse
+      try {
+        const p = JSON.parse(stripFences(raw));
+        if (Array.isArray(p)) return p;
+        if (Array.isArray(p?.buckets)) return p.buckets;
+      } catch { /* fall through */ }
+      // Strategy 2: extract the first [...] array from the raw string (handles missing outer braces)
+      try {
+        const match = raw.match(/\[\s*\{[\s\S]*\}\s*\]/);
+        if (match) {
+          const p = JSON.parse(match[0]);
+          if (Array.isArray(p)) return p;
+        }
+      } catch { /* fall through */ }
+      // Strategy 3: wrap in braces if it looks like the content of a buckets property
+      try {
+        const stripped = stripFences(raw).trim();
+        const wrapped = stripped.startsWith('[') ? stripped : `{${stripped}}`;
+        const p = JSON.parse(wrapped);
+        if (Array.isArray(p)) return p;
+        if (Array.isArray(p?.buckets)) return p.buckets;
+      } catch { /* fall through */ }
+      return null;
+    };
+    const parsed = tryParseWeights(rawWeightContent);
+    if (parsed) {
+      weightedBuckets = parsed;
+      console.log(`[jobs] Stage 2a: parsed ${weightedBuckets.length} bucket weights`);
+    } else {
+      console.warn(`[jobs] Stage 2a: failed to parse bucket weights (all strategies failed):`, rawWeightContent.slice(0, 300));
     }
     // Build lookup map
     const bucketWeightMap = new Map<string, number>();
@@ -941,19 +962,32 @@ export async function handleScanListings(req: Request, res: Response) {
       }
 
       // ── Step C: Score all listings in parallel (25 concurrent LLM calls) ──
+      // Strategy: bulk-fetch all existing match IDs first (one query), then run all
+      // LLM calls without touching the DB (no connections held open during LLM latency),
+      // then bulk-insert all new matches in batches. This avoids ETIMEDOUT from TiDB's
+      // server-side idle connection timeout during long-running parallel LLM batches.
       const SCORE_CONCURRENCY = 25;
       const specStr = JSON.stringify(spec, null, 2);
       const constraintsStr = JSON.stringify(constraints ?? {});
-      await runWithConcurrency(
-        listingIds.map(({ listing, listingId }) => async () => {
-          // Check if match already exists
-          const [existingMatch] = await db
-            .select()
+
+      // Bulk-fetch all existing match listingIds for this client in one query
+      const allListingIds = listingIds.map((l) => l.listingId);
+      const existingMatchRows = allListingIds.length > 0
+        ? await db
+            .select({ listingId: jobMatches.listingId })
             .from(jobMatches)
-            .where(and(eq(jobMatches.clientId, clientId), eq(jobMatches.listingId, listingId)))
-            .limit(1);
-          if (existingMatch) return; // already scored
-          // Score listing against client's target spec
+            .where(and(eq(jobMatches.clientId, clientId), inArray(jobMatches.listingId, allListingIds)))
+        : [];
+      const alreadyScoredSet = new Set(existingMatchRows.map((r) => r.listingId));
+
+      // Filter to only unscored listings
+      const toScore = listingIds.filter(({ listingId }) => !alreadyScoredSet.has(listingId));
+      console.log(`[jobs] Stage 3: ${toScore.length} listings to score (${alreadyScoredSet.size} already scored) for client ${clientId}`);
+
+      // Run all LLM scoring calls in parallel WITHOUT holding DB connections open
+      type ScoredMatch = { listingId: number; score: number; rationale: string; constraintStatus: "ok" | "filtered" };
+      const scoredResults = await runWithConcurrency(
+        toScore.map(({ listing, listingId }) => async (): Promise<ScoredMatch | null> => {
           const scoreResponse = await invokeLLM({
             messages: [
               {
@@ -989,24 +1023,34 @@ contract when permanent-only, or in an excluded location), set constraint_status
             },
           });
           const rawScored = scoreResponse.choices[0].message.content as string;
-          let scored: { score: number; rationale: string; constraint_status: "ok" | "filtered" };
           try {
-            scored = JSON.parse(stripFences(rawScored));
+            const scored = JSON.parse(stripFences(rawScored)) as { score: number; rationale: string; constraint_status: "ok" | "filtered" };
+            return { listingId, score: scored.score, rationale: scored.rationale, constraintStatus: scored.constraint_status };
           } catch {
             console.warn(`[jobs] Stage 3: non-JSON score response for listing ${listingId}, skipping.`);
-            return;
+            return null;
           }
-          await db.insert(jobMatches).values({
-            clientId,
-            listingId,
-            score: scored.score,
-            rationale: scored.rationale,
-            constraintStatus: scored.constraint_status,
-          });
-          totalMatches++;
         }),
         SCORE_CONCURRENCY
       );
+
+      // Bulk-insert all new matches in batches of 50 (fresh DB call, no long-held connections)
+      const validScores = scoredResults.filter((r): r is ScoredMatch => r !== null);
+      const INSERT_BATCH = 50;
+      for (let i = 0; i < validScores.length; i += INSERT_BATCH) {
+        const batch = validScores.slice(i, i + INSERT_BATCH);
+        if (batch.length === 0) continue;
+        await db.insert(jobMatches).values(
+          batch.map((s) => ({
+            clientId,
+            listingId: s.listingId,
+            score: s.score,
+            rationale: s.rationale,
+            constraintStatus: s.constraintStatus,
+          }))
+        );
+        totalMatches += batch.length;
+      }
     }
 
     console.log(`[jobs] Stage 3 complete: ${totalListings} new listings, ${totalMatches} new matches`);
