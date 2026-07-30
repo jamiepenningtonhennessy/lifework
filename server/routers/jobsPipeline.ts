@@ -445,11 +445,37 @@ export async function handleBuildMonitorList(req: Request, res: Response) {
       uk_regional: "UK Regional Law Firm",
       "Law Firm": "Law Firm (general)",
     };
-    const buckets = Array.from(bucketSet).map((b) => {
+    const allBuckets = Array.from(bucketSet).map((b) => {
       const [tier, sector] = b.split("|");
       const label = `${TIER_LABELS[tier] ?? tier} — ${SECTOR_LABELS[sector] ?? sector}`;
       return { tier, sector, label };
     });
+
+    // Pre-filter buckets to keep the LLM prompt small and prevent token-limit truncation.
+    // For graduate clients: exclude law firm buckets unless the spec explicitly mentions legal sectors.
+    // For all clients: hard-cap at 30 buckets (the LLM response grows linearly with bucket count).
+    const specSectors: string[] = Array.isArray(spec?.sectors)
+      ? spec.sectors.map((s: { sector?: string; name?: string }) =>
+          (s.sector ?? s.name ?? "").toLowerCase()
+        )
+      : [];
+    const specText = JSON.stringify(spec).toLowerCase();
+    const wantsLegal = specSectors.some((s) =>
+      s.includes("law") || s.includes("legal") || s.includes("barrister") || s.includes("solicitor")
+    ) || specText.includes("law firm") || specText.includes("in-house legal");
+
+    let buckets = allBuckets;
+    if (isGraduateClient && !wantsLegal) {
+      // Strip pure law-firm buckets for graduates who are not targeting legal roles
+      buckets = buckets.filter((b) => b.tier !== "law_firm" && b.tier !== "inhouse_legal");
+    }
+    // Hard cap: send at most 30 buckets to the LLM to prevent response truncation
+    const MAX_BUCKETS = 30;
+    if (buckets.length > MAX_BUCKETS) {
+      // Prioritise non-law buckets for graduates; otherwise take first N
+      buckets = buckets.slice(0, MAX_BUCKETS);
+    }
+    console.log(`[jobs] Stage 2a: sending ${buckets.length} buckets to LLM (${allBuckets.length} total, isGraduate=${isGraduateClient}, wantsLegal=${wantsLegal})`);
 
     const weightResponse = await invokeLLM({
       messages: [
