@@ -60,6 +60,7 @@ import {
   Copy,
   Check,
   Wand2,
+  Eye,
 } from "lucide-react";
 
 // ─── Score badge ─────────────────────────────────────────────────────────────
@@ -440,8 +441,8 @@ function TailorApplicationModal({
 
 // ─── Last refreshed banner ──────────────────────────────────────────────────
 
-function LastRefreshedBanner() {
-  const { data } = trpc.jobs.getLastPipelineRun.useQuery();
+function LastRefreshedBanner({ clientId }: { clientId?: number }) {
+  const { data } = trpc.jobs.getLastPipelineRun.useQuery({ clientId });
   const text = data?.completedAt
     ? `Last refreshed: ${new Date(data.completedAt).toLocaleString("en-GB", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" })}`
     : "Not yet refreshed — your counsellor will run the first scan for you.";
@@ -455,12 +456,12 @@ function LastRefreshedBanner() {
 
 // ─── Preferences form ─────────────────────────────────────────────────────────
 
-function PreferencesPanel() {
+function PreferencesPanel({ clientId, readOnly }: { clientId?: number; readOnly?: boolean }) {
   const [open, setOpen] = useState(false);
   const utils = trpc.useUtils();
-  const { data: constraints } = trpc.jobs.getConstraints.useQuery({});
+  const { data: constraints } = trpc.jobs.getConstraints.useQuery({ clientId });
   const setConstraints = trpc.jobs.setConstraints.useMutation({
-    onSuccess: () => utils.jobs.getConstraints.invalidate(),
+    onSuccess: () => utils.jobs.getConstraints.invalidate({ clientId }),
   });
 
   const [excludeEmployers, setExcludeEmployers] = useState<string>("");
@@ -608,8 +609,8 @@ function PreferencesPanel() {
 
 // ─── Tab: Companies to Watch ──────────────────────────────────────────────────
 
-function CompaniesTab() {
-  const { data, isLoading } = trpc.jobs.getMonitorList.useQuery({});
+function CompaniesTab({ clientId }: { clientId?: number }) {
+  const { data, isLoading } = trpc.jobs.getMonitorList.useQuery({ clientId });
 
   if (isLoading) {
     return (
@@ -679,14 +680,12 @@ function CompaniesTab() {
 
 // ─── Tab: Open Roles ──────────────────────────────────────────────────────────
 
-function OpenRolesTab() {
+function OpenRolesTab({ clientId }: { clientId?: number }) {
   const utils = trpc.useUtils();
   const [minScore, setMinScore] = useState(7);
   const [page, setPage] = useState(0);
   const [selectedCompanyIds, setSelectedCompanyIds] = useState<number[]>([]);
   const PAGE_SIZE = 25;
-
-  // Reset to first page when score filter or company filter changes
   const handleScoreChange = (val: number) => { setMinScore(val); setPage(0); };
   const handleCompanyToggle = (id: number) => {
     setSelectedCompanyIds((prev) =>
@@ -694,12 +693,10 @@ function OpenRolesTab() {
     );
     setPage(0);
   };
-
-  // Fetch the company list (for the filter panel)
-  const { data: companiesData } = trpc.jobs.getMatchCompanies.useQuery({ minScore });
+  const { data: companiesData } = trpc.jobs.getMatchCompanies.useQuery({ clientId, minScore });
   const companies = companiesData ?? [];
-
   const { data, isLoading } = trpc.jobs.getMatches.useQuery({
+    clientId,
     minScore,
     limit: PAGE_SIZE,
     offset: page * PAGE_SIZE,
@@ -905,9 +902,9 @@ function OpenRolesTab() {
 
 // ─── Tab: Early Signals ───────────────────────────────────────────────────────
 
-function SignalsTab() {
+function SignalsTab({ clientId }: { clientId?: number }) {
   const utils = trpc.useUtils();
-  const { data, isLoading } = trpc.jobs.getSignals.useQuery({ minRelevance: 1 });
+  const { data, isLoading } = trpc.jobs.getSignals.useQuery({ clientId, minRelevance: 1 });
 
   const eventLabel: Record<string, string> = {
     departure: "Departure",
@@ -1008,14 +1005,14 @@ function SignalsTab() {
 
 // ─── Tab: Saved ───────────────────────────────────────────────────────────────
 
-function SavedTab() {
+function SavedTab({ clientId }: { clientId?: number }) {
   const utils = trpc.useUtils();
-  const { data, isLoading } = trpc.jobs.getSaved.useQuery({});
+  const { data, isLoading } = trpc.jobs.getSaved.useQuery({ clientId });
   const updateSaved = trpc.jobs.updateSaved.useMutation({
-    onSuccess: () => utils.jobs.getSaved.invalidate(),
+    onSuccess: () => utils.jobs.getSaved.invalidate({ clientId }),
   });
   const deleteSaved = trpc.jobs.deleteSaved.useMutation({
-    onSuccess: () => utils.jobs.getSaved.invalidate(),
+    onSuccess: () => utils.jobs.getSaved.invalidate({ clientId }),
   });
 
   const [editingNotes, setEditingNotes] = useState<Record<number, string>>({});
@@ -1162,13 +1159,8 @@ export default function JobsExplorer() {
 
       {/* Body */}
       <div className="max-w-4xl mx-auto px-4 py-6 space-y-5">
-        {/* Last refreshed */}
         <LastRefreshedBanner />
-
-        {/* Preferences */}
         <PreferencesPanel />
-
-        {/* Tabs */}
         <Tabs defaultValue="companies">
           <TabsList className="grid grid-cols-4 w-full bg-white border border-[var(--lw-navy)] border-opacity-10">
             <TabsTrigger value="companies" className="gap-1.5 text-xs sm:text-sm">
@@ -1188,22 +1180,11 @@ export default function JobsExplorer() {
               <span className="hidden sm:inline">Saved</span>
             </TabsTrigger>
           </TabsList>
-
-          <TabsContent value="companies" className="mt-4">
-            <CompaniesTab />
-          </TabsContent>
-          <TabsContent value="roles" className="mt-4">
-            <OpenRolesTab />
-          </TabsContent>
-          <TabsContent value="signals" className="mt-4">
-            <SignalsTab />
-          </TabsContent>
-          <TabsContent value="saved" className="mt-4">
-            <SavedTab />
-          </TabsContent>
+          <TabsContent value="companies" className="mt-4"><CompaniesTab /></TabsContent>
+          <TabsContent value="roles" className="mt-4"><OpenRolesTab /></TabsContent>
+          <TabsContent value="signals" className="mt-4"><SignalsTab /></TabsContent>
+          <TabsContent value="saved" className="mt-4"><SavedTab /></TabsContent>
         </Tabs>
-
-        {/* Back link */}
         <div className="pt-2">
           <button
             onClick={() => navigate("/dashboard")}
@@ -1212,6 +1193,86 @@ export default function JobsExplorer() {
             ← Back to dashboard
           </button>
         </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── Counsellor Portal View ───────────────────────────────────────────────────
+// Renders the full Jobs Explorer exactly as the client sees it, but with a
+// counsellor banner at the top and clientId threaded through every query.
+
+export function CounsellorPortalView({
+  clientId,
+  clientName,
+  onBack,
+}: {
+  clientId: number;
+  clientName?: string;
+  onBack: () => void;
+}) {
+  return (
+    <div className="min-h-screen bg-[var(--lw-cream)]">
+      {/* Counsellor banner */}
+      <div className="bg-[var(--lw-gold)] text-white px-4 py-2 flex items-center justify-between sticky top-0 z-20">
+        <div className="flex items-center gap-2 text-sm font-medium">
+          <Eye className="w-4 h-4" />
+          <span>Viewing as {clientName ?? `Client #${clientId}`} — this is their exact portal view</span>
+        </div>
+        <button
+          onClick={onBack}
+          className="text-xs underline opacity-80 hover:opacity-100"
+        >
+          ← Return to profile
+        </button>
+      </div>
+
+      {/* Exact client header */}
+      <div className="bg-[var(--lw-navy)] text-white px-6 py-6">
+        <div className="max-w-4xl mx-auto">
+          <div className="flex items-center gap-3 mb-1">
+            <img
+              src="https://d2xsxph8kpxj0f.cloudfront.net/107696804/kFbbE6kqNApXGDFpQJUGV7/phsquare_98c01de4.jpg"
+              alt="Pennington Hennessy"
+              className="w-8 h-8 object-contain"
+            />
+            <span className="text-xs tracking-widest uppercase opacity-60 font-sans">Lifework</span>
+          </div>
+          <h1 className="font-serif text-2xl font-semibold">Jobs Explorer</h1>
+          <p className="text-sm opacity-70 mt-1">
+            {clientName ? `${clientName}'s personalised market monitor` : "Personalised market monitor"} — live roles, early signals, and employers to watch.
+          </p>
+        </div>
+      </div>
+
+      {/* Exact client body */}
+      <div className="max-w-4xl mx-auto px-4 py-6 space-y-5">
+        <LastRefreshedBanner clientId={clientId} />
+        <PreferencesPanel clientId={clientId} readOnly />
+        <Tabs defaultValue="companies">
+          <TabsList className="grid grid-cols-4 w-full bg-white border border-[var(--lw-navy)] border-opacity-10">
+            <TabsTrigger value="companies" className="gap-1.5 text-xs sm:text-sm">
+              <Building2 className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">Companies</span>
+            </TabsTrigger>
+            <TabsTrigger value="roles" className="gap-1.5 text-xs sm:text-sm">
+              <Briefcase className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">Open Roles</span>
+            </TabsTrigger>
+            <TabsTrigger value="signals" className="gap-1.5 text-xs sm:text-sm">
+              <Newspaper className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">Signals</span>
+            </TabsTrigger>
+            <TabsTrigger value="saved" className="gap-1.5 text-xs sm:text-sm">
+              <Bookmark className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">Saved</span>
+            </TabsTrigger>
+          </TabsList>
+          <TabsContent value="companies" className="mt-4"><CompaniesTab clientId={clientId} /></TabsContent>
+          <TabsContent value="roles" className="mt-4"><OpenRolesTab clientId={clientId} /></TabsContent>
+          <TabsContent value="signals" className="mt-4"><SignalsTab clientId={clientId} /></TabsContent>
+          <TabsContent value="saved" className="mt-4"><SavedTab clientId={clientId} /></TabsContent>
+        </Tabs>
       </div>
     </div>
   );

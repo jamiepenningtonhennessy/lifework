@@ -46,6 +46,7 @@ import {
 import CounsellorCareerExplorer from "./pages/CounsellorCareerExplorer";
 import DebriefChat from "./pages/DebriefChat";
 import JobsExplorer from "./pages/JobsExplorer";
+import CounsellorPortalPage from "./pages/CounsellorPortalPage";
 import BlogWriter from "./pages/ph/BlogWriter";
 
 function Router() {
@@ -96,6 +97,7 @@ function Router() {
       <Route path="/dashboard">{() => <LifeworkLayout><ClientDashboard /></LifeworkLayout>}</Route>
       <Route path="/counselor">{() => <CounsellorPinGate><CounselorDashboard /></CounsellorPinGate>}</Route>
       <Route path="/counselor/client/:id/career-explorer">{(params) => <CounsellorPinGate><CounsellorCareerExplorer /></CounsellorPinGate>}</Route>
+      <Route path="/counselor/client/:id/portal">{(params) => <CounsellorPinGate><CounsellorPortalPage /></CounsellorPinGate>}</Route>
       <Route path="/counselor/client/:id">{(params) => <CounsellorPinGate><ClientProfile /></CounsellorPinGate>}</Route>
 
       {/* Legacy /ph/* redirects kept for backward compatibility */}

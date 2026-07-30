@@ -1584,3 +1584,10 @@
 - [x] Add uploadCoverLetter tRPC procedure (PDF/DOCX extraction, upserts covering_letter_text on client_cvs row)
 - [x] Update tailorApplication LLM prompt to include covering letter style sample when available
 - [x] Add covering letter upload UI step to TailorApplicationModal (optional Step 1b, between CV and Generate)
+
+## Counsellor — View Client Portal (Jobs Explorer preview-as-client)
+- [x] Refactor JobsExplorer sub-components (CompaniesTab, OpenRolesTab, SignalsTab, SavedTab, PreferencesPanel, LastRefreshedBanner, TailorApplicationModal) to accept optional clientId prop
+- [x] Create /counselor/client/:id/portal route that renders full JobsExplorer with clientId passed through
+- [x] Add counsellor preview banner (gold bar at top: "Viewing as [Client Name] — Return to profile") to portal view
+- [x] Add "View client portal" button to ClientProfile header
+- [x] Register new route in App.tsx

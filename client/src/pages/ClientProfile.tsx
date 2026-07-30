@@ -32,6 +32,7 @@ import {
   Lock,
   Search,
   Linkedin,
+  Eye,
 } from "lucide-react";
 import { Streamdown } from "streamdown";
 import { toast } from "sonner";
@@ -276,6 +277,15 @@ export default function ClientProfile() {
           </div>
           {data?.profile && (
             <div className="flex gap-2">
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => navigate(`/counselor/client/${clientId}/portal`)}
+                className="gap-1"
+              >
+                <Eye className="w-3.5 h-3.5" />
+                View client portal
+              </Button>
               <Button
                 size="sm"
                 variant="outline"
