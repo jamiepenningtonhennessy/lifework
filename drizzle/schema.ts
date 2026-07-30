@@ -586,6 +586,8 @@ export const clientCvs = mysqlTable("client_cvs", {
   fileUrl: text("fileUrl").notNull(),
   originalName: varchar("originalName", { length: 256 }).notNull(),
   extractedText: text("extractedText"),
+  coveringLetterText: text("coveringLetterText"),         // optional: extracted text from a sample covering letter
+  coveringLetterName: varchar("coveringLetterName", { length: 256 }), // original filename
   uploadedAt: timestamp("uploadedAt").defaultNow().notNull(),
 });
 export type ClientCv = typeof clientCvs.$inferSelect;

@@ -1578,3 +1578,9 @@
 - [x] Covering email: opens with WOW report truths, connects to job spec
 - [x] Copy-to-clipboard buttons for both CV and email outputs
 - [x] Save checkpoint
+
+## Tailor Application — Covering Letter Style Sample
+- [x] Add covering_letter_text column to client_cvs table (optional, stores extracted text from sample covering letter)
+- [x] Add uploadCoverLetter tRPC procedure (PDF/DOCX extraction, upserts covering_letter_text on client_cvs row)
+- [x] Update tailorApplication LLM prompt to include covering letter style sample when available
+- [x] Add covering letter upload UI step to TailorApplicationModal (optional Step 1b, between CV and Generate)

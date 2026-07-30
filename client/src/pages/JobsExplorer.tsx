@@ -188,6 +188,7 @@ function TailorApplicationModal({
   const [copiedEmail, setCopiedEmail] = useState(false);
   const { data: existingCv } = trpc.jobs.getClientCv.useQuery({});
   const uploadCv = trpc.jobs.uploadCv.useMutation();
+  const uploadCoverLetter = trpc.jobs.uploadCoverLetter.useMutation();
   const tailor = trpc.jobs.tailorApplication.useMutation();
   const utils = trpc.useUtils();
 
@@ -206,6 +207,30 @@ function TailorApplicationModal({
     reader.onload = async (ev) => {
       const base64 = (ev.target?.result as string).split(",")[1];
       await uploadCv.mutateAsync({
+        fileBase64: base64,
+        fileName: file.name,
+        mimeType: file.type as "application/pdf" | "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      });
+      utils.jobs.getClientCv.invalidate();
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleCoverLetterChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const allowedTypes = [
+      "application/pdf",
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    ];
+    if (!allowedTypes.includes(file.type)) {
+      alert("Please upload a PDF or Word document (.pdf or .docx)");
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = async (ev) => {
+      const base64 = (ev.target?.result as string).split(",")[1];
+      await uploadCoverLetter.mutateAsync({
         fileBase64: base64,
         fileName: file.name,
         mimeType: file.type as "application/pdf" | "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
@@ -289,6 +314,56 @@ function TailorApplicationModal({
             )}
           </div>
 
+          {/* Step 1b: Covering letter style sample (optional) */}
+          <div className="border border-[var(--lw-navy)] border-opacity-15 rounded p-4 space-y-3">
+            <div className="flex items-center gap-2">
+              <div className="w-6 h-6 rounded-full bg-[var(--lw-navy)] bg-opacity-20 text-[var(--lw-navy)] flex items-center justify-center text-xs font-bold flex-shrink-0">1b</div>
+              <div>
+                <p className="text-sm font-semibold text-[var(--lw-navy)]">Your covering letter style <span className="font-normal text-muted-foreground">(optional)</span></p>
+              </div>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Upload a covering letter you have written before. We will match your natural writing voice — your sentence rhythm, vocabulary, and structure — when drafting the new one. We do not copy the content, only the style.
+            </p>
+            {existingCv?.coveringLetterName ? (
+              <div className="flex items-center gap-3">
+                <FileText className="w-4 h-4 text-[var(--lw-gold)] flex-shrink-0" />
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium truncate">{existingCv.coveringLetterName}</p>
+                  <p className="text-xs text-muted-foreground">Style sample saved</p>
+                </div>
+                <label className="cursor-pointer">
+                  <input type="file" accept=".pdf,.docx" className="hidden" onChange={handleCoverLetterChange} />
+                  <Button size="sm" variant="outline" className="text-xs gap-1" asChild>
+                    <span><Upload className="w-3 h-3" /> Replace</span>
+                  </Button>
+                </label>
+              </div>
+            ) : (
+              <label className="cursor-pointer block">
+                <input type="file" accept=".pdf,.docx" className="hidden" onChange={handleCoverLetterChange} disabled={!existingCv} />
+                <div className={`border-2 border-dashed rounded p-4 text-center transition-colors ${
+                  !existingCv ? "border-muted opacity-50 cursor-not-allowed" : "border-[var(--lw-navy)] border-opacity-20 hover:border-opacity-40"
+                }`}>
+                  {uploadCoverLetter.isPending ? (
+                    <div className="flex items-center justify-center gap-2">
+                      <Loader2 className="w-4 h-4 animate-spin text-[var(--lw-navy)] opacity-50" />
+                      <p className="text-xs text-muted-foreground">Reading covering letter...</p>
+                    </div>
+                  ) : (
+                    <div className="flex items-center justify-center gap-2">
+                      <Upload className="w-4 h-4 text-[var(--lw-navy)] opacity-40" />
+                      <p className="text-xs text-[var(--lw-navy)]">{existingCv ? "Click to upload a covering letter sample" : "Upload your CV above first"}</p>
+                    </div>
+                  )}
+                </div>
+              </label>
+            )}
+            {uploadCoverLetter.isError && (
+              <p className="text-xs text-red-600">{uploadCoverLetter.error?.message}</p>
+            )}
+          </div>
+
           {/* Step 2: Generate */}
           <div className="border border-[var(--lw-navy)] border-opacity-15 rounded p-4 space-y-3">
             <div className="flex items-center gap-2">
@@ -296,7 +371,7 @@ function TailorApplicationModal({
               <p className="text-sm font-semibold text-[var(--lw-navy)]">Generate tailored materials</p>
             </div>
             <p className="text-xs text-muted-foreground">
-              We will rewrite your CV to emphasise the experience most relevant to this role and firm, and draft a covering email that opens with your genuine professional narrative.
+              We will rewrite your CV to emphasise the experience most relevant to this role and firm, and draft a covering email that opens with your genuine professional narrative{existingCv?.coveringLetterName ? " — written in your own style" : ""}.
             </p>
             <Button
               className="bg-[var(--lw-navy)] text-white hover:opacity-90 gap-2"

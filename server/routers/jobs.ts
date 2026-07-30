@@ -706,6 +706,68 @@ export const jobsRouter = router({
 
   // ─── Tailor Application ───────────────────────────────────────────────────
 
+  /** Upload a sample covering letter (PDF or DOCX) to use as a style reference for future applications. */
+  uploadCoverLetter: protectedProcedure
+    .input(z.object({
+      clientId: z.number().optional(),
+      fileBase64: z.string(),
+      fileName: z.string(),
+      mimeType: z.enum(["application/pdf", "application/vnd.openxmlformats-officedocument.wordprocessingml.document"]),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+      const clientId = await resolveClientId(ctx, input);
+
+      const fileBuffer = Buffer.from(input.fileBase64, "base64");
+      if (fileBuffer.length > 10 * 1024 * 1024) {
+        throw new TRPCError({ code: "BAD_REQUEST", message: "File too large (max 10 MB)" });
+      }
+
+      // Extract text from PDF or DOCX
+      let extractedText = "";
+      try {
+        if (input.mimeType === "application/pdf") {
+          const pdfParseModule = await import("pdf-parse");
+          type PDFParseInstance = { load: () => Promise<void>; getText: () => Promise<{ pages: { text: string }[]; text: string }> };
+          type PDFParseModule = { PDFParse: new (opts: { verbosity: number; data: Buffer }) => PDFParseInstance };
+          const { PDFParse } = pdfParseModule as unknown as PDFParseModule;
+          const parser = new PDFParse({ verbosity: 0, data: fileBuffer }) as PDFParseInstance;
+          await parser.load();
+          const result = await parser.getText();
+          extractedText = result.text ?? result.pages.map((p: { text: string }) => p.text).join("\n") ?? "";
+        } else {
+          const mammoth = await import("mammoth");
+          const result = await mammoth.extractRawText({ buffer: fileBuffer });
+          extractedText = result.value ?? "";
+        }
+      } catch (e) {
+        console.error("[uploadCoverLetter] text extraction failed:", e);
+      }
+
+      // Update the existing CV row — covering letter sample lives alongside the CV
+      const [existing] = await db
+        .select({ id: clientCvs.id })
+        .from(clientCvs)
+        .where(eq(clientCvs.clientId, clientId))
+        .orderBy(desc(clientCvs.uploadedAt))
+        .limit(1);
+
+      if (!existing) {
+        throw new TRPCError({ code: "BAD_REQUEST", message: "Please upload your CV first before adding a covering letter sample." });
+      }
+
+      await db
+        .update(clientCvs)
+        .set({
+          coveringLetterText: extractedText.slice(0, 20000),
+          coveringLetterName: input.fileName,
+        })
+        .where(eq(clientCvs.id, existing.id));
+
+      return { ok: true };
+    }),
+
   /** Generate a tailored CV rewrite and covering email for a specific job listing. */
   tailorApplication: protectedProcedure
     .input(z.object({
@@ -782,7 +844,8 @@ IMPORTANT RULES:
 - Do NOT fabricate any experience, skills, or qualifications not present in the original CV.
 - Do NOT change dates, job titles, or employer names.
 - You may reorder sections, adjust emphasis, rephrase descriptions, and foreground relevant experience.
-- The covering email must open with 2-3 sentences of genuine personal truth drawn from the client's profile narrative — not generic statements.
+- The covering email must open with 2-3 sentences of genuine personal truth drawn from the client's profile narrative — not generic statements.${cv.coveringLetterText ? `
+- STYLE MATCHING: A sample covering letter written by the client is provided. Match their natural voice, sentence rhythm, vocabulary level, and structural preferences as closely as possible. Do not copy content — only mirror the style.` : ""}
 - Write in a professional, confident, and warm tone consistent with the Pennington Hennessy brand.`;
 
       const userPrompt = `CLIENT: ${clientName}
@@ -797,7 +860,10 @@ ${JSON.stringify(targetSpec, null, 2).slice(0, 3000)}
 
 CLIENT'S CURRENT CV:
 ${(cv.extractedText ?? "").slice(0, 8000)}
-
+${cv.coveringLetterText ? `
+CLIENT'S COVERING LETTER STYLE SAMPLE (use this to match their natural writing voice — do NOT copy the content):
+${cv.coveringLetterText.slice(0, 3000)}
+` : ""}
 Please produce TWO outputs:
 
 1. TAILORED CV — Rewrite the CV to emphasise the experience and language most relevant to this role and firm. Keep all factual content accurate. Restructure, reorder, and reframe as needed. Format as clean plain text with section headings in CAPS.
