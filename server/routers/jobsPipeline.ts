@@ -650,10 +650,16 @@ that mentions both fit dimensions. Score every company you are given.`,
       scored.push(...parsedScores);
     }
 
+    // For graduate clients, cap the monitor list at the top 60 companies by score
+    // to keep Stage 3 scraping to a manageable duration (~5 min vs 20+ min uncapped).
+    const GRADUATE_MONITOR_CAP = 60;
+    const finalScored = isGraduateClient
+      ? scored.sort((a, b) => b.score - a.score).slice(0, GRADUATE_MONITOR_CAP)
+      : scored;
+
     // Write monitor list
     await db.delete(clientMonitorList).where(eq(clientMonitorList.clientId, clientId));
-
-    for (const s of scored) {
+    for (const s of finalScored) {
       const company = gated.find((c) => c.name.toLowerCase() === s.name.toLowerCase());
       if (!company) continue;
       const bw = bucketWeightMap.get(`${company.tier}|${company.sector}`) ?? 0;
