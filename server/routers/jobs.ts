@@ -626,6 +626,45 @@ export const jobsRouter = router({
     return { total: all.length, byTier, byAts };
   }),
 
+  /** Get full company universe list (counsellor admin view). */
+  getCompanyUniverse: protectedProcedure
+    .input(z.object({
+      search: z.string().optional(),
+      tier: z.string().optional(),
+      sector: z.string().optional(),
+    }))
+    .query(async ({ ctx, input }) => {
+      if (ctx.user.role !== "admin") throw new TRPCError({ code: "FORBIDDEN" });
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+      let query = db
+        .select({
+          id: companyUniverse.id,
+          name: companyUniverse.name,
+          domain: companyUniverse.domain,
+          tier: companyUniverse.tier,
+          sector: companyUniverse.sector,
+          atsProvider: companyUniverse.atsProvider,
+          atsSlug: companyUniverse.atsSlug,
+          careersUrl: companyUniverse.careersUrl,
+          qualities: companyUniverse.qualities,
+          active: companyUniverse.active,
+        })
+        .from(companyUniverse)
+        .$dynamic();
+      const conditions: ReturnType<typeof eq>[] = [];
+      if (input.tier) conditions.push(eq(companyUniverse.tier, input.tier));
+      if (input.sector) conditions.push(eq(companyUniverse.sector, input.sector));
+      if (conditions.length > 0) query = query.where(and(...conditions));
+      const rows = await query.orderBy(companyUniverse.name);
+      // Apply search filter client-side (avoids LIKE injection concerns and is fast at ~500 rows)
+      const search = input.search?.toLowerCase().trim();
+      const filtered = search
+        ? rows.filter((r) => r.name.toLowerCase().includes(search) || (r.domain ?? "").toLowerCase().includes(search))
+        : rows;
+      return filtered;
+    }),
+
   // ─── CV Upload ────────────────────────────────────────────────────────────
 
   /** Upload a CV (base64-encoded PDF or DOCX), extract text, store in S3 + DB. */
