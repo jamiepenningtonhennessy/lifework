@@ -226,11 +226,10 @@ export async function handleGenerateTargetSpec(req: Request, res: Response) {
       ? `\n\nCLIENT'S OWN STATEMENT OF INTENT (highest priority — override any conflicting inference):\n"${roleIntent}"`
       : "";
 
-    const response = await invokeLLM({
-      messages: [
-        {
-          role: "system",
-          content: `You distil a LifeWorks career-coaching report into a structured career TARGET SPEC for use in a legal-market job search.
+    // Detect whether this is a graduate (student) client for Stage 1 prompt selection
+    const isGraduateStage1 = report.wowReportType === "student";
+
+    const seniorSystemPrompt = `You distil a LifeWorks career-coaching report into a structured career TARGET SPEC for use in a legal-market job search.
 
 This platform serves lawyers and legal professionals seeking roles within or adjacent
 to law firms and legal departments. The client may be a practising lawyer, a legal
@@ -261,7 +260,29 @@ Rules:
   thrive in based on their personality, values, and career narrative. Choose from:
   autonomy, structured_learning, social_impact, commercial_intensity, collaboration,
   innovation, prestige, scale_and_stability. Select 2-4 that genuinely fit the
-  client's character; do not select all of them.`,
+  client's character; do not select all of them.`;
+
+    const graduateSystemPrompt = `You distil a LifeWorks career-coaching report into a structured career TARGET SPEC for a GRADUATE entering the job market for the first time.
+
+This client is at the very start of their career. They have limited work history. Your job is to identify their TRANSFERABLE STRENGTHS and map them to graduate scheme opportunities across ALL sectors — not just the sector they studied or any sector mentioned in their report.
+
+The LifeWorks report is a strengths-based, reflective document (life history, character, values, personality). It contains NO company names. Your job is to turn it into a graduate-appropriate target spec that a graduate recruiter would use to match them to schemes.
+
+CRITICAL RULES:
+- DO NOT default to the sector the client studied or any sector mentioned in passing in the report. A law student is not necessarily best suited to a law firm. A maths student is not necessarily best suited to finance. Start from their STRENGTHS, not their subject.
+- FOCUS on WHAT THEY ARE LIKE (their strengths, values, working style, personality) — not WHAT THEY HAVE DONE (their degree subject or brief work experience).
+- Identify 2-4 ROLE FAMILIES that match their strengths profile. Use role titles that actually appear in UK graduate scheme postings, e.g.: "Graduate Management Trainee", "Commercial Graduate Programme", "Technology Graduate Scheme", "Strategy & Operations Analyst", "Policy Analyst", "Marketing Graduate", "Finance Graduate Scheme", "HR Graduate Programme", "Engineering Graduate Scheme", "Consulting Analyst".
+- For SECTORS: identify 3-5 sectors from the UK graduate scheme landscape where their strengths and values would genuinely thrive. Consider the full range: Consulting, Banking & Finance, Technology, Consumer Goods & Retail, Media & Publishing, Public Sector & Government, Charity & Social Enterprise, Engineering & Manufacturing, Property & Real Estate, Professional Services, Healthcare, Energy & Utilities, Retail & Hospitality, Logistics & Supply Chain. Weight sectors by genuine fit to the person's character — not by their academic background.
+- Seniority is ALWAYS "Entry-Level / Graduate" — never infer anything higher.
+- For differentiators: describe what makes this graduate stand out from other applicants — their distinctive strengths and character, not their CV facts.
+- For search_terms: use terms that appear in actual UK graduate scheme job postings (e.g. "graduate scheme", "graduate programme", "management trainee", "analyst programme").
+- Be decisive and specific. This spec will be used to filter 300 UK graduate employers across all sectors.`;
+
+    const response = await invokeLLM({
+      messages: [
+        {
+          role: "system",
+          content: isGraduateStage1 ? graduateSystemPrompt : seniorSystemPrompt,
         },
         {
           role: "user",
