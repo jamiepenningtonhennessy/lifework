@@ -875,37 +875,12 @@ async function fetchSmartRecruitersListings(slug: string): Promise<NormalisedLis
   }
 }
 
-async function fetchGenericListings(careersUrl: string): Promise<NormalisedListing[]> {
-  // Use Playwright headless browser for JS-rendered careers pages.
-  // Falls back to plain HTML fetch if Playwright is unavailable.
-  try {
-    const { scrapeCareerPage } = await import("../playwrightScraper.js");
-    const results = await scrapeCareerPage(careersUrl, "unknown", 25000);
-    if (results.length > 0) return results;
-  } catch (playwrightErr) {
-    console.warn("[playwright] unavailable, falling back to HTML fetch:", playwrightErr instanceof Error ? playwrightErr.message : String(playwrightErr));
-  }
-  // Fallback: plain HTML fetch for server-rendered pages
-  try {
-    const resp = await fetch(careersUrl, {
-      headers: { "User-Agent": "Mozilla/5.0 (compatible; LifeWorksBot/1.0)" },
-      signal: AbortSignal.timeout(15000),
-    });
-    if (!resp.ok) return [];
-    const html = await resp.text();
-    const titleMatches = html.match(/<h[23][^>]*>([^<]{10,120})<\/h[23]>/gi) ?? [];
-    return titleMatches.slice(0, 10).map((m, idx) => {
-      const title = m.replace(/<[^>]+>/g, "").trim();
-      return {
-        externalId: `generic-${idx}-${Date.now()}`,
-        title,
-        url: careersUrl,
-        raw: { source: "generic_scrape" },
-      };
-    });
-  } catch {
-    return [];
-  }
+async function fetchGenericListings(_careersUrl: string): Promise<NormalisedListing[]> {
+  // Generic scraping requires a headless browser (Playwright/Puppeteer) which is not
+  // available in the Cloud Run production environment. Skip these companies rather than
+  // waiting 15s per company for a timeout that returns nothing useful.
+  // TODO: integrate a cloud scraping service (e.g. ScrapingBee, Apify) for generic pages.
+  return [];
 }
 
 async function fetchListingsForCompany(company: typeof companyUniverse.$inferSelect): Promise<NormalisedListing[]> {
@@ -920,8 +895,10 @@ async function fetchListingsForCompany(company: typeof companyUniverse.$inferSel
     case "workday": return fetchWorkdayListings(slug);
     case "icims": return fetchIcimsListings(slug);
     case "smartrecruiters": return fetchSmartRecruitersListings(slug);
-    case "generic": return fetchGenericListings(careersUrl || slug);
-    default: return [];
+    case "generic": return fetchGenericListings(careersUrl || slug); // returns [] in production
+    default:
+      // No ATS provider configured — skip to avoid long timeouts on unknown pages
+      return [];
   }
 }
 
