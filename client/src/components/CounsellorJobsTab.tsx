@@ -592,9 +592,9 @@ export function CounsellorJobsTab({
       setActiveRunId(null);
       setRunStarted(false);
     } else if (pipelineStatus.status === "error") {
-      // Keep bar visible with error state — don't clear immediately
-      setActiveRunIdState(null);
-      try { localStorage.removeItem(storageKey); } catch { /* ignore */ }
+      // Clear stale run ID so the UI resets cleanly for the next attempt
+      setActiveRunId(null);
+      setRunStarted(false);
     }
   }, [pipelineStatus?.status]);
 
@@ -676,10 +676,20 @@ export function CounsellorJobsTab({
           </div>
         </div>
       )}
-      {activeRunId !== null && pipelineStatus?.status === "error" && (
-        <div className="rounded-lg border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm text-destructive">
-          <strong>Pipeline failed at stage {pipelineStatus.currentStage}:</strong>{" "}
-          {pipelineStatus.errorMessage ?? "Unknown error"}
+      {!runStarted && pipelineStatus?.status === "error" && (
+        <div className="rounded-lg border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm text-destructive flex items-start justify-between gap-3">
+          <span>
+            <strong>Pipeline failed at stage {pipelineStatus.currentStage} of {pipelineStatus.totalStages}:</strong>{" "}
+            {pipelineStatus.errorMessage ?? "Unknown error — please try again"}
+          </span>
+          <Button
+            size="sm"
+            variant="outline"
+            className="shrink-0 text-xs border-destructive/40 text-destructive hover:bg-destructive/10"
+            onClick={() => setActiveRunId(null)}
+          >
+            Dismiss
+          </Button>
         </div>
       )}
 
