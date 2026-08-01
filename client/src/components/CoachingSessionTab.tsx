@@ -49,12 +49,12 @@ interface Props {
 type MainTab = "past" | "present" | "future";
 
 // ─── Colour palette ───────────────────────────────────────────────────────────
-const NAVY = "#0f1f35";
-const GOLD = "#c9973a";
+const NAVY = "var(--navy)";
+const GOLD = "var(--gold)";
 
 const ESF_COLOURS: Record<string, string> = {
-  enjoyable: "#c9973a",
-  satisfying: "#0f1f35",
+  enjoyable: "#C9973A",
+  satisfying: "#1A2744",
   fulfilling: "#5b8a6e",
 };
 

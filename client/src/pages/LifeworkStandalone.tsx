@@ -9,10 +9,10 @@ const LOGO_CLEAN = "https://d2xsxph8kpxj0f.cloudfront.net/107696804/kFbbE6kqNApX
 const LOGO_ON_NAVY = "https://d2xsxph8kpxj0f.cloudfront.net/107696804/kFbbE6kqNApXGDFpQJUGV7/lifework-logo-onnavy_1f7a4c72.png";
 
 // ── Design tokens (matching WOW report PDF) ──────────────────────────────────
-const NAVY   = "#0f1f35";
-const GOLD   = "#c9973a";
-const CREAM  = "#f5f0e8";
-const CREAM_DARK = "#ede8df";
+const NAVY   = "var(--navy)";
+const GOLD   = "var(--gold)";
+const CREAM  = "var(--cream)";
+const CREAM_DARK = "var(--cream-warm)";
 
 // ── Eyebrow label (gold rule + small-caps) ───────────────────────────────────
 function Eyebrow({ children }: { children: React.ReactNode }) {
@@ -53,7 +53,7 @@ function Testimonial({ quote, attribution }: { quote: string; attribution: strin
     >
       <p
         className="mb-4 leading-relaxed"
-        style={{ color: NAVY, fontFamily: "'Playfair Display', Georgia, serif", fontSize: "1rem", fontStyle: "italic" }}
+        style={{ color: NAVY, fontFamily: "'Cormorant Garamond', Georgia, serif", fontSize: "1rem", fontStyle: "italic" }}
       >
         "{quote}"
       </p>
@@ -75,7 +75,7 @@ function StageCard({ number, eyebrow, title, body }: { number: string; eyebrow: 
           height: 36,
           background: GOLD,
           color: NAVY,
-          fontFamily: "'Playfair Display', Georgia, serif",
+          fontFamily: "'Cormorant Garamond', Georgia, serif",
           fontWeight: 700,
           fontSize: "1rem",
         }}
@@ -87,7 +87,7 @@ function StageCard({ number, eyebrow, title, body }: { number: string; eyebrow: 
       </p>
       <h3
         className="mb-3"
-        style={{ color: NAVY, fontFamily: "'Playfair Display', Georgia, serif", fontSize: "1.35rem", fontWeight: 700 }}
+        style={{ color: NAVY, fontFamily: "'Cormorant Garamond', Georgia, serif", fontSize: "1.35rem", fontWeight: 700 }}
       >
         {title}
       </h3>
@@ -104,7 +104,7 @@ function ClientTypeRow({ label, description }: { label: string; description: str
     <div className="flex items-start gap-4 py-5" style={{ borderBottom: `1px solid ${CREAM_DARK}` }}>
       <div style={{ width: 6, height: 6, background: GOLD, flexShrink: 0, marginTop: 8 }} />
       <div>
-        <p style={{ color: NAVY, fontFamily: "'Playfair Display', Georgia, serif", fontWeight: 700, fontSize: "1rem", marginBottom: 4 }}>{label}</p>
+        <p style={{ color: NAVY, fontFamily: "'Cormorant Garamond', Georgia, serif", fontWeight: 700, fontSize: "1rem", marginBottom: 4 }}>{label}</p>
         <p style={{ color: "#4a4a4a", fontSize: "0.9rem", lineHeight: 1.65 }}>{description}</p>
       </div>
     </div>
@@ -195,7 +195,7 @@ export default function LifeworkStandalone() {
               <h1
                 style={{
                   color: NAVY,
-                  fontFamily: "'Playfair Display', Georgia, serif",
+                  fontFamily: "'Cormorant Garamond', Georgia, serif",
                   fontSize: "clamp(2.2rem, 5vw, 3.2rem)",
                   fontWeight: 700,
                   lineHeight: 1.2,
@@ -235,7 +235,7 @@ export default function LifeworkStandalone() {
                 { stat: "3", label: "Stages to clarity" },
               ].map(({ stat, label }) => (
                 <div key={label} className="mb-8 last:mb-0">
-                  <p style={{ color: GOLD, fontFamily: "'Playfair Display', Georgia, serif", fontSize: "2.5rem", fontWeight: 700, lineHeight: 1 }}>{stat}</p>
+                  <p style={{ color: GOLD, fontFamily: "'Cormorant Garamond', Georgia, serif", fontSize: "2.5rem", fontWeight: 700, lineHeight: 1 }}>{stat}</p>
                   <p style={{ color: "rgba(255,255,255,0.55)", fontSize: "0.75rem", letterSpacing: "0.14em", textTransform: "uppercase", marginTop: 6 }}>{label}</p>
                 </div>
               ))}
@@ -257,7 +257,7 @@ export default function LifeworkStandalone() {
               <h2
                 style={{
                   color: NAVY,
-                  fontFamily: "'Playfair Display', Georgia, serif",
+                  fontFamily: "'Cormorant Garamond', Georgia, serif",
                   fontSize: "clamp(1.6rem, 3vw, 2.2rem)",
                   fontWeight: 700,
                   lineHeight: 1.3,
@@ -294,7 +294,7 @@ export default function LifeworkStandalone() {
             <h2
               style={{
                 color: NAVY,
-                fontFamily: "'Playfair Display', Georgia, serif",
+                fontFamily: "'Cormorant Garamond', Georgia, serif",
                 fontSize: "clamp(1.6rem, 3vw, 2.2rem)",
                 fontWeight: 700,
               }}
@@ -335,7 +335,7 @@ export default function LifeworkStandalone() {
             <h2
               style={{
                 color: NAVY,
-                fontFamily: "'Playfair Display', Georgia, serif",
+                fontFamily: "'Cormorant Garamond', Georgia, serif",
                 fontSize: "clamp(1.6rem, 3vw, 2.2rem)",
                 fontWeight: 700,
               }}
@@ -373,7 +373,7 @@ export default function LifeworkStandalone() {
           <h2
             style={{
               color: CREAM,
-              fontFamily: "'Playfair Display', Georgia, serif",
+              fontFamily: "'Cormorant Garamond', Georgia, serif",
               fontSize: "clamp(1.8rem, 4vw, 2.6rem)",
               fontWeight: 700,
               lineHeight: 1.3,
@@ -409,7 +409,7 @@ export default function LifeworkStandalone() {
           <p
             style={{
               color: NAVY,
-              fontFamily: "'Playfair Display', Georgia, serif",
+              fontFamily: "'Cormorant Garamond', Georgia, serif",
               fontSize: "clamp(1.1rem, 2.5vw, 1.4rem)",
               fontStyle: "italic",
               lineHeight: 1.7,
@@ -447,7 +447,7 @@ export default function LifeworkStandalone() {
               <X className="w-5 h-5" />
             </button>
             <Eyebrow>Access Code</Eyebrow>
-            <h3 style={{ color: NAVY, fontFamily: "'Playfair Display', Georgia, serif", fontSize: "1.4rem", fontWeight: 700, marginBottom: "0.75rem" }}>
+            <h3 style={{ color: NAVY, fontFamily: "'Cormorant Garamond', Georgia, serif", fontSize: "1.4rem", fontWeight: 700, marginBottom: "0.75rem" }}>
               Enter your code
             </h3>
             <p style={{ color: "#666", fontSize: "0.9rem", lineHeight: 1.65, marginBottom: "1.5rem" }}>

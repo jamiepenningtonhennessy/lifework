@@ -75,7 +75,7 @@ export function CounsellorPinGate({ children }: Props) {
   if (mode === "loading") {
     return (
       <div className="min-h-screen flex items-center justify-center" style={{ background: "var(--lw-navy, #0a1628)" }}>
-        <div className="w-6 h-6 rounded-full border-2 border-t-transparent animate-spin" style={{ borderColor: "var(--lw-gold, #c9973a)", borderTopColor: "transparent" }} />
+        <div className="w-6 h-6 rounded-full border-2 border-t-transparent animate-spin" style={{ borderColor: "var(--gold)", borderTopColor: "transparent" }} />
       </div>
     );
   }
@@ -99,7 +99,7 @@ export function CounsellorPinGate({ children }: Props) {
             className="inline-flex items-center justify-center w-14 h-14 rounded-full mb-4"
             style={{ background: "rgba(201,151,58,0.12)", border: "1px solid rgba(201,151,58,0.3)" }}
           >
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" style={{ color: "var(--lw-gold, #c9973a)" }}>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" style={{ color: "var(--gold)" }}>
               <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
               <path d="M7 11V7a5 5 0 0 1 10 0v4" />
             </svg>
@@ -134,7 +134,7 @@ export function CounsellorPinGate({ children }: Props) {
               type="submit"
               disabled={verifyMutation.isPending || pin.length < 4}
               className="mt-5 w-full py-2.5 rounded-lg font-medium tracking-widest uppercase transition-opacity disabled:opacity-40"
-              style={{ background: "var(--lw-gold, #c9973a)", color: "#0a1628", fontSize: "0.78rem", letterSpacing: "0.1em" }}
+              style={{ background: "var(--gold)", color: "var(--navy)", fontSize: "0.78rem", letterSpacing: "0.1em" }}
             >
               {verifyMutation.isPending ? "Checking…" : "Unlock"}
             </button>
@@ -169,7 +169,7 @@ export function CounsellorPinGate({ children }: Props) {
               type="submit"
               disabled={setPinMutation.isPending || newPin.length < 4 || newPin !== confirmPin}
               className="mt-5 w-full py-2.5 rounded-lg font-medium tracking-widest uppercase transition-opacity disabled:opacity-40"
-              style={{ background: "var(--lw-gold, #c9973a)", color: "#0a1628", fontSize: "0.78rem", letterSpacing: "0.1em" }}
+              style={{ background: "var(--gold)", color: "var(--navy)", fontSize: "0.78rem", letterSpacing: "0.1em" }}
             >
               {setPinMutation.isPending ? "Saving…" : "Set PIN & Continue"}
             </button>

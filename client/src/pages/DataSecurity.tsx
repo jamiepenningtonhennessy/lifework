@@ -11,7 +11,7 @@ export default function DataSecurity() {
         <div className="mb-12">
           <p
             className="mb-3 tracking-widest uppercase"
-            style={{ fontSize: "0.72rem", color: "var(--lw-gold, #c9973a)", letterSpacing: "0.15em" }}
+            style={{ fontSize: "0.72rem", color: "var(--gold)", letterSpacing: "0.15em" }}
           >
             Pennington Hennessy — Lifework Career Analysis
           </p>
@@ -102,7 +102,7 @@ export default function DataSecurity() {
               answer is unambiguous.
             </p>
 
-            <h3 className="mb-3 font-medium" style={{ fontSize: "1rem", color: "var(--lw-gold, #c9973a)" }}>
+            <h3 className="mb-3 font-medium" style={{ fontSize: "1rem", color: "var(--gold)" }}>
               Anthropic does not train its AI on your data
             </h3>
             <p className="mb-4" style={{ color: "rgba(255,255,255,0.7)" }}>
@@ -111,7 +111,7 @@ export default function DataSecurity() {
             <blockquote
               className="my-4 pl-5 italic"
               style={{
-                borderLeft: "3px solid var(--lw-gold, #c9973a)",
+                borderLeft: "3px solid var(--gold)",
                 color: "rgba(255,255,255,0.65)",
                 fontSize: "0.95rem",
               }}
@@ -136,7 +136,7 @@ export default function DataSecurity() {
               />
             </p>
 
-            <h3 className="mb-3 font-medium" style={{ fontSize: "1rem", color: "var(--lw-gold, #c9973a)" }}>
+            <h3 className="mb-3 font-medium" style={{ fontSize: "1rem", color: "var(--gold)" }}>
               What Anthropic does do with your data
             </h3>
             <p className="mb-4" style={{ color: "rgba(255,255,255,0.7)" }}>
@@ -148,7 +148,7 @@ export default function DataSecurity() {
               marketing.
             </p>
 
-            <h3 className="mb-3 font-medium" style={{ fontSize: "1rem", color: "var(--lw-gold, #c9973a)" }}>
+            <h3 className="mb-3 font-medium" style={{ fontSize: "1rem", color: "var(--gold)" }}>
               How the AI analysis is used
             </h3>
             <p style={{ color: "rgba(255,255,255,0.7)" }}>
@@ -177,7 +177,7 @@ export default function DataSecurity() {
             </PolicyPoint>
             <PolicyPoint title="Data subject rights">
               You may contact Manus directly at{" "}
-              <a href="mailto:privacy@manus.im" style={{ color: "var(--lw-gold, #c9973a)" }}>
+              <a href="mailto:privacy@manus.im" style={{ color: "var(--gold)" }}>
                 privacy@manus.im
               </a>{" "}
               to exercise your rights of access, correction, deletion, or portability in respect of data held on the
@@ -210,7 +210,7 @@ export default function DataSecurity() {
             <p className="mt-4" style={{ color: "rgba(255,255,255,0.7)" }}>
               If you are located in the United Kingdom, you also have the right to lodge a complaint with the{" "}
               <strong style={{ color: "#fff" }}>Information Commissioner's Office (ICO)</strong> at{" "}
-              <a href="https://ico.org.uk/make-a-complaint/" target="_blank" rel="noreferrer" style={{ color: "var(--lw-gold, #c9973a)" }}>
+              <a href="https://ico.org.uk/make-a-complaint/" target="_blank" rel="noreferrer" style={{ color: "var(--gold)" }}>
                 ico.org.uk
               </a>
               .
@@ -251,7 +251,7 @@ export default function DataSecurity() {
                 "We do not store your data outside of the Manus platform infrastructure described in this document.",
               ].map((item) => (
                 <li key={item} className="flex gap-3">
-                  <span style={{ color: "var(--lw-gold, #c9973a)", flexShrink: 0 }}>—</span>
+                  <span style={{ color: "var(--gold)", flexShrink: 0 }}>—</span>
                   <span>{item}</span>
                 </li>
               ))}
@@ -295,13 +295,13 @@ export default function DataSecurity() {
             <ol className="space-y-2" style={{ fontSize: "0.82rem", color: "rgba(255,255,255,0.45)" }}>
               <li>
                 Manus Privacy Policy (Butterfly Effect Pte. Ltd.) —{" "}
-                <a href="https://manus.im/privacy" target="_blank" rel="noreferrer" style={{ color: "var(--lw-gold, #c9973a)" }}>
+                <a href="https://manus.im/privacy" target="_blank" rel="noreferrer" style={{ color: "var(--gold)" }}>
                   manus.im/privacy
                 </a>
               </li>
               <li>
                 Anthropic Commercial Terms of Service (effective June 17, 2025) —{" "}
-                <a href="https://www.anthropic.com/legal/commercial-terms" target="_blank" rel="noreferrer" style={{ color: "var(--lw-gold, #c9973a)" }}>
+                <a href="https://www.anthropic.com/legal/commercial-terms" target="_blank" rel="noreferrer" style={{ color: "var(--gold)" }}>
                   anthropic.com/legal/commercial-terms
                 </a>
               </li>
@@ -311,7 +311,7 @@ export default function DataSecurity() {
                   href="https://privacy.claude.com/en/articles/7996868-is-my-data-used-for-model-training"
                   target="_blank"
                   rel="noreferrer"
-                  style={{ color: "var(--lw-gold, #c9973a)" }}
+                  style={{ color: "var(--gold)" }}
                 >
                   privacy.claude.com
                 </a>
@@ -335,7 +335,7 @@ function Divider() {
 function SectionHeading({ number, title }: { number: string; title: string }) {
   return (
     <h2 className="mb-5 font-light tracking-wide" style={{ fontSize: "1.25rem", color: "#fff" }}>
-      <span style={{ color: "var(--lw-gold, #c9973a)", marginRight: "0.5rem" }}>{number}.</span>
+      <span style={{ color: "var(--gold)", marginRight: "0.5rem" }}>{number}.</span>
       {title}
     </h2>
   );
@@ -386,7 +386,7 @@ function Footnote({ href, label }: { href: string; label: string }) {
       href={href}
       target="_blank"
       rel="noreferrer"
-      style={{ fontSize: "0.78rem", color: "var(--lw-gold, #c9973a)", verticalAlign: "super" }}
+      style={{ fontSize: "0.78rem", color: "var(--gold)", verticalAlign: "super" }}
       title={label}
     >
       ↗
@@ -412,7 +412,7 @@ function ContactBlock({
       {lines.map(({ label, value, href }) => (
         <p key={label} style={{ fontSize: "0.84rem", color: "rgba(255,255,255,0.55)" }}>
           {label}:{" "}
-          <a href={href} style={{ color: "var(--lw-gold, #c9973a)" }}>
+          <a href={href} style={{ color: "var(--gold)" }}>
             {value}
           </a>
         </p>

@@ -6,9 +6,9 @@ interface LifeworkDownloadModalProps {
   onClose: () => void;
 }
 
-const NAVY = "#0F1F35";
-const GOLD = "#C9973A";
-const CREAM = "#F5EFE4";
+const NAVY = "var(--navy)";
+const GOLD = "var(--gold)";
+const CREAM = "var(--cream)";
 
 export function LifeworkDownloadModal({ open, onClose }: LifeworkDownloadModalProps) {
   const [name, setName] = useState("");

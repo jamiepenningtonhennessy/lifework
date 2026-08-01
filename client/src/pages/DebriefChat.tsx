@@ -31,9 +31,9 @@ type Stage =
   | "chat";          // Free conversation
 
 // ─── Colours (matching Lifework brand) ───────────────────────────────────────
-const NAVY = "#0a1628";
-const CREAM = "#f5f0e8";
-const GOLD = "#c9973a";
+const NAVY = "var(--navy)";
+const CREAM = "var(--cream)";
+const GOLD = "var(--gold)";
 
 export default function DebriefChat() {
   // ── Auth ──────────────────────────────────────────────────────────────────

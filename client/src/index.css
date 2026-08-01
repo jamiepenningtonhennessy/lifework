@@ -44,103 +44,126 @@
 }
 
 :root {
-  /* Lifework / Pennington Hennessy palette */
-  /* Navy: #0f1f35 → oklch(0.19 0.05 240) */
-  /* Gold: #c9973a → oklch(0.68 0.13 72) */
-  /* Cream: #f5f0e8 → oklch(0.96 0.02 85) */
+  /* ── Lifework / Pennington Hennessy colour system ─────────────────────── */
+  /* Source palette (hex):
+     --navy        #1A2744   primary dark
+     --navy-soft   #2A3A5E   secondary dark / hover
+     --navy-mist   #8A9BBF   muted blue-grey
+     --gold        #C9973A   accent
+     --gold-soft   #E0B866   lighter accent / hover
+     --cream       #F5F0E8   primary light bg
+     --cream-warm  #EFE6D6   secondary light bg
+     --ink         #0E1628   body text on light
+     --ink-muted   #5A6278   secondary text on light
+     --rule        rgba(26,39,68,0.14)
+     --rule-strong rgba(26,39,68,0.28)
+  */
 
-  --radius: 0rem; /* Sharp rectangular corners — PH style */
+  --radius: 0rem; /* Sharp rectangular corners */
 
-  /* Core semantic colours */
-  --background: oklch(0.96 0.015 85);          /* warm cream #f5f0e8 */
-  --foreground: oklch(0.19 0.05 240);           /* deep navy #0f1f35 */
+  /* ── Brand tokens (hex-based for direct use) ──────────────────────────── */
+  --navy:        #1A2744;
+  --navy-soft:   #2A3A5E;
+  --navy-mist:   #8A9BBF;
+  --gold:        #C9973A;
+  --gold-soft:   #E0B866;
+  --cream:       #F5F0E8;
+  --cream-warm:  #EFE6D6;
+  --ink:         #0E1628;
+  --ink-muted:   #5A6278;
+  --rule:        rgba(26, 39, 68, 0.14);
+  --rule-strong: rgba(26, 39, 68, 0.28);
 
-  --card: oklch(0.99 0.005 85);                 /* near-white card */
-  --card-foreground: oklch(0.19 0.05 240);
+  /* ── Semantic tokens (mapped to brand palette) ────────────────────────── */
+  --background: var(--cream);
+  --foreground: var(--ink);
 
-  --popover: oklch(0.99 0.005 85);
-  --popover-foreground: oklch(0.19 0.05 240);
+  --card: #FFFFFF;
+  --card-foreground: var(--ink);
 
-  --primary: oklch(0.68 0.13 72);               /* gold #c9973a */
-  --primary-foreground: oklch(0.19 0.05 240);   /* navy text on gold */
+  --popover: #FFFFFF;
+  --popover-foreground: var(--ink);
 
-  --secondary: oklch(0.19 0.05 240);            /* navy as secondary */
-  --secondary-foreground: oklch(0.96 0.015 85); /* cream text on navy */
+  --primary: var(--gold);
+  --primary-foreground: var(--navy);
 
-  --muted: oklch(0.92 0.01 85);                 /* light cream */
-  --muted-foreground: oklch(0.42 0.03 240);     /* mid-navy grey */
+  --secondary: var(--navy);
+  --secondary-foreground: var(--cream);
 
-  --accent: oklch(0.68 0.13 72);                /* gold accent */
-  --accent-foreground: oklch(0.19 0.05 240);
+  --muted: var(--cream-warm);
+  --muted-foreground: var(--ink-muted);
+
+  --accent: var(--gold);
+  --accent-foreground: var(--navy);
 
   --destructive: oklch(0.55 0.22 25);
   --destructive-foreground: oklch(0.98 0 0);
 
-  --border: oklch(0.85 0.02 85);                /* warm grey border */
-  --input: oklch(0.90 0.01 85);
-  --ring: oklch(0.68 0.13 72);                  /* gold focus ring */
+  --border: var(--rule);
+  --input: var(--cream-warm);
+  --ring: var(--gold);
 
   /* Charts */
-  --chart-1: oklch(0.68 0.13 72);              /* gold */
-  --chart-2: oklch(0.19 0.05 240);             /* navy */
-  --chart-3: oklch(0.55 0.10 72);              /* dark gold */
-  --chart-4: oklch(0.42 0.04 240);             /* mid navy */
-  --chart-5: oklch(0.80 0.08 72);              /* light gold */
+  --chart-1: var(--gold);
+  --chart-2: var(--navy);
+  --chart-3: #A07828;
+  --chart-4: var(--navy-soft);
+  --chart-5: var(--gold-soft);
 
   /* Sidebar — navy background */
-  --sidebar: oklch(0.19 0.05 240);
-  --sidebar-foreground: oklch(0.96 0.015 85);
-  --sidebar-primary: oklch(0.68 0.13 72);
-  --sidebar-primary-foreground: oklch(0.19 0.05 240);
-  --sidebar-accent: oklch(0.25 0.05 240);
-  --sidebar-accent-foreground: oklch(0.96 0.015 85);
-  --sidebar-border: oklch(0.28 0.04 240);
-  --sidebar-ring: oklch(0.68 0.13 72);
+  --sidebar: var(--navy);
+  --sidebar-foreground: var(--cream);
+  --sidebar-primary: var(--gold);
+  --sidebar-primary-foreground: var(--navy);
+  --sidebar-accent: var(--navy-soft);
+  --sidebar-accent-foreground: var(--cream);
+  --sidebar-border: rgba(255, 255, 255, 0.10);
+  --sidebar-ring: var(--gold);
 
-  /* Brand tokens */
-  --lw-navy: oklch(0.19 0.05 240);
-  --lw-navy-mid: oklch(0.25 0.05 240);
-  --lw-navy-light: oklch(0.32 0.05 240);
-  --lw-gold: oklch(0.68 0.13 72);
-  --lw-gold-light: oklch(0.88 0.07 80);
-  --lw-cream: oklch(0.96 0.015 85);
-  --lw-cream-dark: oklch(0.92 0.02 85);
+  /* ── Legacy brand tokens (kept for backward compat) ──────────────────── */
+  --lw-navy: var(--navy);
+  --lw-navy-mid: var(--navy-soft);
+  --lw-navy-light: #3D4F75;
+  --lw-gold: var(--gold);
+  --lw-gold-light: var(--gold-soft);
+  --lw-cream: var(--cream);
+  --lw-cream-dark: var(--cream-warm);
 }
 
 /* Dark mode — navy-first, gold accents */
 .dark {
-  --background: oklch(0.14 0.04 240);
-  --foreground: oklch(0.92 0.01 85);
-  --card: oklch(0.19 0.05 240);
-  --card-foreground: oklch(0.92 0.01 85);
-  --popover: oklch(0.19 0.05 240);
-  --popover-foreground: oklch(0.92 0.01 85);
-  --primary: oklch(0.68 0.13 72);
-  --primary-foreground: oklch(0.14 0.04 240);
-  --secondary: oklch(0.25 0.05 240);
-  --secondary-foreground: oklch(0.92 0.01 85);
-  --muted: oklch(0.25 0.04 240);
-  --muted-foreground: oklch(0.65 0.03 240);
-  --accent: oklch(0.68 0.13 72);
-  --accent-foreground: oklch(0.14 0.04 240);
+  --background: #0E1628;
+  --foreground: var(--cream);
+  --card: var(--navy);
+  --card-foreground: var(--cream);
+  --popover: var(--navy);
+  --popover-foreground: var(--cream);
+  --primary: var(--gold);
+  --primary-foreground: var(--navy);
+  --secondary: var(--navy-soft);
+  --secondary-foreground: var(--cream);
+  --muted: var(--navy-soft);
+  --muted-foreground: var(--navy-mist);
+  --accent: var(--gold);
+  --accent-foreground: var(--navy);
   --destructive: oklch(0.704 0.191 22.216);
   --destructive-foreground: oklch(0.985 0 0);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.68 0.13 72);
-  --chart-1: oklch(0.68 0.13 72);
-  --chart-2: oklch(0.80 0.08 72);
-  --chart-3: oklch(0.55 0.10 72);
-  --chart-4: oklch(0.42 0.04 240);
-  --chart-5: oklch(0.32 0.05 240);
-  --sidebar: oklch(0.14 0.04 240);
-  --sidebar-foreground: oklch(0.92 0.01 85);
-  --sidebar-primary: oklch(0.68 0.13 72);
-  --sidebar-primary-foreground: oklch(0.14 0.04 240);
-  --sidebar-accent: oklch(0.19 0.05 240);
-  --sidebar-accent-foreground: oklch(0.92 0.01 85);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.68 0.13 72);
+  --border: rgba(255, 255, 255, 0.10);
+  --input: rgba(255, 255, 255, 0.08);
+  --ring: var(--gold);
+  --chart-1: var(--gold);
+  --chart-2: var(--gold-soft);
+  --chart-3: #A07828;
+  --chart-4: var(--navy-mist);
+  --chart-5: var(--navy-soft);
+  --sidebar: #0E1628;
+  --sidebar-foreground: var(--cream);
+  --sidebar-primary: var(--gold);
+  --sidebar-primary-foreground: var(--navy);
+  --sidebar-accent: var(--navy);
+  --sidebar-accent-foreground: var(--cream);
+  --sidebar-border: rgba(255, 255, 255, 0.08);
+  --sidebar-ring: var(--gold);
 }
 
 @layer base {
@@ -150,9 +173,26 @@
   body {
     @apply bg-background text-foreground;
     font-family: 'Inter', system-ui, sans-serif;
+    color: var(--ink);
+    background-color: var(--cream);
   }
+  /* Display headings: Cormorant Garamond, weight 500 */
   h1, h2, h3, h4 {
-    font-family: 'Playfair Display', Georgia, serif;
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-weight: 500;
+    color: var(--navy);
+    line-height: 1.2;
+  }
+  /* Body text */
+  p, li, td, th, label, span {
+    font-family: 'Inter', system-ui, sans-serif;
+  }
+  /* Links */
+  a {
+    color: var(--gold);
+  }
+  a:hover {
+    color: var(--gold-soft);
   }
   button:not(:disabled),
   [role="button"]:not([aria-disabled="true"]),
@@ -196,32 +236,60 @@
     }
   }
 
-  /* PH-style section eyebrow: gold rule + small caps label */
+  /* ── Lifework eyebrow: gold rule + small-caps label ─────────────────── */
   .lw-eyebrow {
     display: flex;
     align-items: center;
     gap: 0.75rem;
-    font-size: 0.75rem;
+    font-size: 0.6875rem;
     font-family: 'Inter', sans-serif;
     font-weight: 500;
-    letter-spacing: 0.12em;
+    letter-spacing: 0.18em;
     text-transform: uppercase;
-    color: var(--lw-gold);
+    color: var(--gold);
   }
   .lw-eyebrow::before {
     content: '';
     display: block;
     width: 2rem;
     height: 1px;
-    background: var(--lw-gold);
+    background: var(--gold);
     flex-shrink: 0;
   }
 
-  /* Gold rule divider */
+  /* ── Hairline divider ────────────────────────────────────────────────── */
   .lw-rule {
     border: none;
-    border-top: 1px solid var(--lw-gold);
-    opacity: 0.4;
+    border-top: 1px solid var(--rule);
+  }
+  .lw-rule-strong {
+    border: none;
+    border-top: 1px solid var(--rule-strong);
+  }
+
+  /* ── Micro-label (table headers, kickers) ───────────────────────────── */
+  .lw-label {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.6875rem;
+    font-weight: 500;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--ink-muted);
+  }
+  .lw-label-gold {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.6875rem;
+    font-weight: 500;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--gold);
+  }
+
+  /* ── Italic accent (Cormorant Garamond italic in gold) ──────────────── */
+  .lw-accent-italic {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-style: italic;
+    color: var(--gold);
   }
 }
 
@@ -231,33 +299,36 @@
   border-collapse: collapse;
   margin: 1rem 0;
   font-size: 0.8125rem;
-  border: 1px solid rgba(201, 151, 58, 0.3);
+  border: 1px solid var(--rule-strong);
 }
 
 .wow-report-content thead th {
-  background-color: var(--lw-navy, #0f1f35);
-  color: #ffffff;
-  font-weight: 600;
-  font-size: 0.75rem;
+  background-color: var(--navy);
+  color: var(--cream);
+  font-weight: 500;
+  font-size: 0.6875rem;
   text-align: left;
   padding: 0.5rem 0.75rem;
   white-space: nowrap;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-family: 'Inter', sans-serif;
 }
 
 .wow-report-content tbody tr:nth-child(odd) {
-  background-color: var(--lw-cream, #fdf9f3);
+  background-color: var(--cream);
 }
 
 .wow-report-content tbody tr:nth-child(even) {
-  background-color: #ffffff;
+  background-color: #FFFFFF;
 }
 
 .wow-report-content tbody td {
   padding: 0.5rem 0.75rem;
-  border-bottom: 1px solid rgba(201, 151, 58, 0.2);
+  border-bottom: 1px solid var(--rule);
   vertical-align: top;
   line-height: 1.5;
+  color: var(--ink);
 }
 
 .wow-report-content tbody tr:last-child td {

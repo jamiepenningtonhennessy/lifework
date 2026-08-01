@@ -1597,3 +1597,12 @@
 - [ ] Show: summary, role families (with rationale), functions, sectors (with weights), seniority, geography, differentiators
 - [ ] Rename nav tab from "Jobs Explorer" to "Market Profile" on the client dashboard
 - [ ] Keep all counsellor-side pipeline/market-monitor functionality intact (CounsellorJobsTab, CounsellorPortalPage)
+
+## Lifework Colour System — Claude Design Brief
+
+- [x] Replace Playfair Display with Cormorant Garamond (ital,wght@0,400;0,500;0,600;1,400;1,500;1,600) in index.html
+- [x] Update CSS variables: navy #1A2744, navy-soft #2A3A5E, navy-mist #8A9BBF, gold #C9973A, gold-soft #E0B866, cream #F5F0E8, cream-warm #EFE6D6, ink #0E1628, ink-muted #5A6278
+- [x] Add lw-eyebrow, lw-rule, lw-label, lw-accent-italic utility classes to global CSS
+- [x] Replace all hardcoded hex constants in LifeworkStandalone.tsx, LifeworkPricing.tsx, DebriefChat.tsx, CoachingSessionTab.tsx, LifeworkDownloadModal.tsx, CounsellorPinGate.tsx, DataSecurity.tsx with CSS variables
+- [x] Ensure all --lw-* legacy tokens map to new palette (backward compat)
+- [x] Radius set to 0rem (sharp rectangular corners) per brief

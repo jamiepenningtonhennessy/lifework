@@ -170,7 +170,7 @@ function TierCard({
 // ─── Page ─────────────────────────────────────────────────────────────────────
 const BRONZE_COLOR = "#cd7f32";
 const SILVER_COLOR = "#a8a9ad";
-const GOLD_COLOR   = "#c9973a";
+const GOLD_COLOR   = "var(--gold)";
 
 const BRONZE_FEATURES = [
   { label: "Life history interview with Sage (AI coach)", included: true },
