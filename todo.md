@@ -1606,3 +1606,14 @@
 - [x] Replace all hardcoded hex constants in LifeworkStandalone.tsx, LifeworkPricing.tsx, DebriefChat.tsx, CoachingSessionTab.tsx, LifeworkDownloadModal.tsx, CounsellorPinGate.tsx, DataSecurity.tsx with CSS variables
 - [x] Ensure all --lw-* legacy tokens map to new palette (backward compat)
 - [x] Radius set to 0rem (sharp rectangular corners) per brief
+
+## CV Upload — Alternative to Career History Form
+
+- [x] Add cv_url and cv_text columns to client_profiles schema; run migration
+- [x] Add cvUpload tRPC procedure: receive base64/multipart, upload to S3, extract text (PDF via pdf-parse, DOCX via mammoth), save cv_url + cv_text to DB
+- [x] Add CV upload card to ClientDashboard career history step (shown as alternative alongside existing form link)
+- [x] Inject cv_text into analysis LLM prompt (alongside career history rows)
+- [x] Inject cv_text into career explorer system prompt
+- [x] Inject cv_text into Sage system prompt
+- [x] Counsellor view: show CV download link and extracted text preview in client profile Career tab
+- [x] Write vitest tests for CV upload procedure

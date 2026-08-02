@@ -79,6 +79,10 @@ export const clientProfiles = mysqlTable("client_profiles", {
     .notNull(),
   pronouns: varchar("pronouns", { length: 32 }),
   careerExplorerUnlocked: boolean("careerExplorerUnlocked").default(false).notNull(),
+  cvUrl: varchar("cvUrl", { length: 1024 }),           // S3 URL of uploaded CV file
+  cvText: text("cvText"),                              // extracted plain text from CV
+  cvOriginalName: varchar("cvOriginalName", { length: 256 }), // original filename
+  cvUploadedAt: timestamp("cvUploadedAt"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });

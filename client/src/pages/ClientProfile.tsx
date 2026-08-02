@@ -861,6 +861,42 @@ export default function ClientProfile() {
                   </CardContent>
                 </Card>
               )}
+              {/* Uploaded CV */}
+              {(data.profile as any)?.cvUrl && (
+                <Card>
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-base font-serif flex items-center gap-2">
+                      <FileText className="w-4 h-4" /> Uploaded CV
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    <div className="flex items-center gap-3">
+                      <a
+                        href={(data.profile as any).cvUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="text-sm font-medium underline"
+                        style={{ color: "var(--navy)" }}
+                      >
+                        {(data.profile as any).cvOriginalName ?? "Download CV"}
+                      </a>
+                      {(data.profile as any).cvUploadedAt && (
+                        <span className="text-xs text-muted-foreground">
+                          Uploaded {new Date((data.profile as any).cvUploadedAt).toLocaleDateString()}
+                        </span>
+                      )}
+                    </div>
+                    {(data.profile as any).cvText && (
+                      <details className="text-xs">
+                        <summary className="cursor-pointer text-muted-foreground hover:text-foreground">View extracted text</summary>
+                        <pre className="mt-2 whitespace-pre-wrap text-muted-foreground bg-muted p-3 rounded max-h-64 overflow-y-auto">
+                          {(data.profile as any).cvText}
+                        </pre>
+                      </details>
+                    )}
+                  </CardContent>
+                </Card>
+              )}
             </div>
           )}
 

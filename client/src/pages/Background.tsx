@@ -8,8 +8,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useLocation } from "wouter";
 import { getLoginUrl } from "@/const";
 import { trpc } from "@/lib/trpc";
-import { ArrowLeft, ArrowRight, Plus, Trash2, Loader2 } from "lucide-react";
+import { ArrowLeft, ArrowRight, Plus, Trash2, Loader2, Upload, FileText, X } from "lucide-react";
 import { toast } from "sonner";
+import { useRef } from "react";
 
 type Tab = "family" | "education" | "career";
 
@@ -235,6 +236,129 @@ function EducationForm() {
   );
 }
 
+function CvUploadCard() {
+  const utils = trpc.useUtils();
+  const { data: profile } = trpc.profile.getMyProfile.useQuery();
+  const fileRef = useRef<HTMLInputElement>(null);
+  const [uploading, setUploading] = useState(false);
+
+  const uploadCv = trpc.profile.uploadCv.useMutation({
+    onSuccess: () => {
+      toast.success("CV uploaded and processed.");
+      utils.profile.getMyProfile.invalidate();
+    },
+    onError: (err) => toast.error(err.message),
+  });
+
+  const removeCv = trpc.profile.removeCv.useMutation({
+    onSuccess: () => {
+      toast.success("CV removed.");
+      utils.profile.getMyProfile.invalidate();
+    },
+  });
+
+  async function handleFile(file: File) {
+    const ALLOWED = [
+      "application/pdf",
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      "application/msword",
+    ];
+    if (!ALLOWED.includes(file.type)) {
+      toast.error("Please upload a PDF or Word (.docx) file.");
+      return;
+    }
+    if (file.size > 10 * 1024 * 1024) {
+      toast.error("File must be under 10 MB.");
+      return;
+    }
+    setUploading(true);
+    try {
+      const arrayBuffer = await file.arrayBuffer();
+      const bytes = new Uint8Array(arrayBuffer);
+      let binary = "";
+      for (let i = 0; i < bytes.byteLength; i++) binary += String.fromCharCode(bytes[i]);
+      const fileBase64 = btoa(binary);
+      await uploadCv.mutateAsync({ fileBase64, mimeType: file.type, originalName: file.name });
+    } finally {
+      setUploading(false);
+    }
+  }
+
+  const hasCv = !!(profile?.cvUrl);
+
+  return (
+    <div
+      className="mb-6 p-4"
+      style={{ border: "1px solid rgba(201,151,58,0.35)", background: "rgba(201,151,58,0.04)" }}
+    >
+      <div className="flex items-center gap-2 mb-2">
+        <FileText className="w-4 h-4" style={{ color: "var(--lw-gold)" }} />
+        <span className="text-sm font-semibold" style={{ color: "var(--navy)" }}>Upload your CV <span className="font-normal text-muted-foreground">(optional alternative to filling in the form below)</span></span>
+      </div>
+      <p className="text-xs text-muted-foreground mb-3">
+        Upload a PDF or Word document and we will extract your career history automatically.
+        Your CV will be used alongside everything else we learn about you to give you the best possible career guidance.
+      </p>
+
+      {hasCv ? (
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 flex-1 min-w-0">
+            <FileText className="w-4 h-4 flex-shrink-0" style={{ color: "var(--lw-gold)" }} />
+            <a
+              href={profile!.cvUrl!}
+              target="_blank"
+              rel="noreferrer"
+              className="text-sm truncate"
+              style={{ color: "var(--navy)", textDecoration: "underline" }}
+            >
+              {profile!.cvOriginalName ?? "CV uploaded"}
+            </a>
+          </div>
+          <button
+            onClick={() => removeCv.mutate()}
+            disabled={removeCv.isPending}
+            className="text-xs flex items-center gap-1 px-2 py-1"
+            style={{ color: "#888", border: "1px solid #ddd", background: "transparent", cursor: "pointer" }}
+          >
+            <X className="w-3 h-3" /> Remove
+          </button>
+          <button
+            onClick={() => fileRef.current?.click()}
+            className="text-xs px-2 py-1"
+            style={{ color: "var(--navy)", border: "1px solid rgba(201,151,58,0.5)", background: "transparent", cursor: "pointer" }}
+          >
+            Replace
+          </button>
+        </div>
+      ) : (
+        <button
+          onClick={() => fileRef.current?.click()}
+          disabled={uploading}
+          className="flex items-center gap-2 px-4 py-2 text-sm"
+          style={{
+            background: uploading ? "#ccc" : "var(--navy)",
+            color: "var(--cream)",
+            border: "none",
+            cursor: uploading ? "default" : "pointer",
+            letterSpacing: "0.05em",
+          }}
+        >
+          {uploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
+          {uploading ? "Processing…" : "Upload CV (PDF or Word)"}
+        </button>
+      )}
+
+      <input
+        ref={fileRef}
+        type="file"
+        accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+        className="hidden"
+        onChange={(e) => { const f = e.target.files?.[0]; if (f) handleFile(f); e.target.value = ""; }}
+      />
+    </div>
+  );
+}
+
 function CareerForm() {
   const utils = trpc.useUtils();
   const { data: career = [], isLoading } = trpc.background.getCareer.useQuery();
@@ -257,7 +381,8 @@ function CareerForm() {
 
   return (
     <div className="space-y-4">
-      <p className="text-sm text-muted-foreground">Add each role in your career, from earliest to most recent. Include voluntary or portfolio work.</p>
+      <CvUploadCard />
+      <p className="text-sm text-muted-foreground">Or add each role manually, from earliest to most recent. Include voluntary or portfolio work.</p>
       {career.map((c) => (
         <Card key={c.id} className="border-border">
           <CardContent className="pt-4 pb-4">

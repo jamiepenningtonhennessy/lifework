@@ -73,6 +73,7 @@ import { invokeLLM } from "./_core/llm";
 import { storagePut } from "./storage";
 import * as pdfParseModule from "pdf-parse";
 const pdfParse = (pdfParseModule as any).default ?? pdfParseModule;
+import mammoth from "mammoth";
 import { scoreVia, VIA_QUESTIONS, VIA_STRENGTHS } from "../shared/via-data";
 import { scoreIpip, ipipCareerNarrative } from "../shared/ipip-data";
 
@@ -184,6 +185,71 @@ const profileRouter = router({
     const required = 20; // Always require 20 enriched regardless of total achievements entered
     const unlocked = enriched >= required;
     return { total, enriched, required, unlocked };
+  }),
+
+  /**
+   * Upload a CV (PDF or DOCX). Accepts base64-encoded file content.
+   * Stores the file in S3, extracts plain text, saves both to client_profiles.
+   */
+  uploadCv: protectedProcedure
+    .input(
+      z.object({
+        fileBase64: z.string(),           // base64-encoded file bytes
+        mimeType: z.string(),             // "application/pdf" | "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+        originalName: z.string(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const profile = await getOrCreateClientProfile(ctx.user.id);
+
+      // Decode base64 → Buffer
+      const fileBuffer = Buffer.from(input.fileBase64, "base64");
+      if (fileBuffer.byteLength > 10 * 1024 * 1024) {
+        throw new TRPCError({ code: "BAD_REQUEST", message: "CV file must be under 10 MB" });
+      }
+
+      // Extract plain text
+      let cvText = "";
+      try {
+        if (input.mimeType === "application/pdf") {
+          const parsed = await pdfParse(fileBuffer);
+          cvText = parsed.text ?? "";
+        } else if (
+          input.mimeType === "application/vnd.openxmlformats-officedocument.wordprocessingml.document" ||
+          input.mimeType === "application/msword"
+        ) {
+          const result = await mammoth.extractRawText({ buffer: fileBuffer });
+          cvText = result.value ?? "";
+        } else {
+          throw new TRPCError({ code: "BAD_REQUEST", message: "Only PDF and Word (.docx) files are supported" });
+        }
+      } catch (err: any) {
+        if (err instanceof TRPCError) throw err;
+        throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: `Could not extract text from CV: ${err.message}` });
+      }
+
+      // Upload to S3
+      const suffix = Date.now();
+      const ext = input.originalName.split(".").pop() ?? "pdf";
+      const s3Key = `cv/${profile.id}-${suffix}.${ext}`;
+      const { url: cvUrl } = await storagePut(s3Key, fileBuffer, input.mimeType);
+
+      // Save to DB
+      await updateClientProfile(profile.id, {
+        cvUrl,
+        cvText: cvText.slice(0, 60000), // cap at ~60k chars to stay within TEXT column
+        cvOriginalName: input.originalName,
+        cvUploadedAt: new Date(),
+      });
+
+      return { success: true, cvUrl, textLength: cvText.length };
+    }),
+
+  /** Remove the stored CV for the current client. */
+  removeCv: protectedProcedure.mutation(async ({ ctx }) => {
+    const profile = await getOrCreateClientProfile(ctx.user.id);
+    await updateClientProfile(profile.id, { cvUrl: null, cvText: null, cvOriginalName: null, cvUploadedAt: null });
+    return { success: true };
   }),
 });
 
@@ -691,6 +757,8 @@ const analysisRouter = router({
         getIpipResults(profile.id),
         getChatSessionsByClient(profile.id),
       ]);
+    // CV text (uploaded alternative to manual career history)
+    const cvText = (profile as any).cvText as string | null | undefined;
 
     const conversationText = messages
       .map((m) => `${m.role === "user" ? "Client" : "Counsellor"}: ${m.content}`)
@@ -808,7 +876,8 @@ EDUCATION:
 ${educationText || "None recorded."}
 
 CAREER HISTORY:
-${careerText || "None recorded."}`;
+${careerText || "None recorded."}
+${cvText ? `\nCV / RÉSUMÉ (uploaded by client — use this to supplement the career history above):\n${cvText.slice(0, 8000)}` : ""}`;
 
     const stage1Response = await invokeLLM({
       messages: [
@@ -2545,6 +2614,7 @@ const chatPeterRouter = router({
         getCareerHistory(profile.id),
         getFamilyBackground(profile.id),
       ]);
+      const sageCvText = (profile as any).cvText as string | null | undefined;
 
       const achievementsContext = achievementsList.length > 0
         ? achievementsList.map(a => {
@@ -2572,7 +2642,7 @@ const chatPeterRouter = router({
 
       const sectionContext = input.section === "life_history"
         ? `The client has completed their Life History Interview and their Background & History. Here is what they have recorded:\n\nLIFE HISTORY ACHIEVEMENTS:\n${achievementsContext}\n\nFAMILY BACKGROUND:\n${backgroundContext}\n\nEDUCATION (for context only — do not focus on this):\n${educationContext}\n\nIMPORTANT: Your role at this stage is to explore the life history achievements and the family backdrop ONLY. Do not discuss their formal career history or job titles — that is covered in a separate session. Focus on what they did of their own initiative, what they found genuinely rewarding, and how their early life and family context shaped who they are.\n\nYou have approximately 30 minutes.\n\nPacing guide:\n- Opening (first 2-3 exchanges): Begin with a brief warm reflection on what you noticed reading their whole story. Then start with early childhood (0-11) — pick ONE achievement that catches your attention.\n- Early middle (next 3-4 exchanges): Move through late childhood and teenage years (12-18). Notice what they were doing of their own initiative, not what was done to them.\n- Middle (next 3-4 exchanges): Move into the adult decades — 20s and 30s. Ask about what they found rewarding in those years, drawing on the achievements they recorded.\n- Later (next 3-4 exchanges): Cover the 40s, 50s, and beyond if relevant. Ask what has remained constant across all the changes.\n- Final third: Begin drawing threads together. Name the pattern you are seeing across the whole life and invite them to respond. Weave in the family backdrop naturally where it illuminates something.\n\nDo not spend more than 2-3 exchanges on any single phase before moving forward. Actively signal the transition: "Let me move us on to your [decade/phase]..." IMPORTANT: Do not offer to wrap up until you have explored at least 20 achievements in depth. If you have covered the full chronological arc but explored fewer than 20 achievements, continue by returning to any achievements you have not yet discussed — ask about them one at a time. Only invite the client to wrap up once 20 or more achievements have been explored.`
-        : `The client has completed their education, career, and life history sections. Here is what they have recorded:\n\nEDUCATION:\n${educationContext}\n\nCAREER HISTORY:\n${careerContext}\n\nLIFE HISTORY ACHIEVEMENTS (for context):\n${achievementsContext}\n\nFAMILY BACKDROP: Father — ${bg?.fatherOccupation ?? "unknown"}; Mother — ${bg?.motherOccupation ?? "unknown"}; Sibling position — ${bg?.siblingPosition ?? "unknown"}.\n\nYour role is to explore the relationship between their formal career path and their actual motivated behaviour across the FULL arc of their working life. You have approximately 30 minutes.\n\nPacing guide:\n- Opening (first 2-3 exchanges): Reflect briefly on the overall shape of their career. Ask about the transition from education into their first role — what drew them to it, and what they actually found rewarding once there.\n- Early middle (next 3-4 exchanges): Move through the early career years. Ask where the formal job description and the actual rewarding work diverged.\n- Middle (next 3-4 exchanges): Cover the mid-career period. Ask about the decisions they made — what they moved toward, what they moved away from, and why.\n- Later (next 3-4 exchanges): Cover the most recent roles. Ask what has remained constant in terms of what they find genuinely rewarding, regardless of job title.\n- Final third: Draw threads together. Name the pattern you see between their life history achievements and their career. The family backdrop is relevant context — weave it in naturally if it illuminates something.\n\nAfter covering the full arc, invite them to tell you when they are ready to wrap up.`;
+        : `The client has completed their education, career, and life history sections. Here is what they have recorded:\n\nEDUCATION:\n${educationContext}\n\nCAREER HISTORY:\n${careerContext}\n${sageCvText ? `\nCV / RÉSUMÉ (uploaded by client — use this to supplement the career history above):\n${sageCvText.slice(0, 6000)}\n` : ""}\nLIFE HISTORY ACHIEVEMENTS (for context):\n${achievementsContext}\n\nFAMILY BACKDROP: Father — ${bg?.fatherOccupation ?? "unknown"}; Mother — ${bg?.motherOccupation ?? "unknown"}; Sibling position — ${bg?.siblingPosition ?? "unknown"}.\n\nYour role is to explore the relationship between their formal career path and their actual motivated behaviour across the FULL arc of their working life. You have approximately 30 minutes.\n\nPacing guide:\n- Opening (first 2-3 exchanges): Reflect briefly on the overall shape of their career. Ask about the transition from education into their first role — what drew them to it, and what they actually found rewarding once there.\n- Early middle (next 3-4 exchanges): Move through the early career years. Ask where the formal job description and the actual rewarding work diverged.\n- Middle (next 3-4 exchanges): Cover the mid-career period. Ask about the decisions they made — what they moved toward, what they moved away from, and why.\n- Later (next 3-4 exchanges): Cover the most recent roles. Ask what has remained constant in terms of what they find genuinely rewarding, regardless of job title.\n- Final third: Draw threads together. Name the pattern you see between their life history achievements and their career. The family backdrop is relevant context — weave it in naturally if it illuminates something.\n\nAfter covering the full arc, invite them to tell you when they are ready to wrap up.`;
 
       // Build conversation history for the LLM
       const existingMessages: ChatMessage[] = JSON.parse(session.messages || "[]");
@@ -3005,6 +3075,7 @@ const careerExplorerRouter = router({
           getIpipResults(profile.id),
           getAnalysisReport(profile.id),
         ]);
+      const explorerCvText = (profile as any).cvText as string | null | undefined;
 
       // ── Life history achievements ──
       const achievementsCtx = achievementsList.length > 0
@@ -3110,7 +3181,7 @@ EDUCATION:
 ${educationCtx}
 
 CAREER HISTORY:
-${careerCtx}
+${careerCtx}${explorerCvText ? `\n\nCV / RÉSUMÉ (uploaded by client — use this to supplement the career history above):\n${explorerCvText.slice(0, 6000)}` : ""}
 
 FAMILY BACKGROUND: Father — ${bg?.fatherOccupation ?? "unknown"}; Mother — ${bg?.motherOccupation ?? "unknown"}; Sibling position — ${bg?.siblingPosition ?? "unknown"}.
 
