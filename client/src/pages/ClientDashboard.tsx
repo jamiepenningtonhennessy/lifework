@@ -449,8 +449,12 @@ export function DashboardBody({
                 let isLocked = false;
                 if (idx > 0) {
                   if (isPsychometrics) {
-                    // Psychometrics is locked until Sage gate is met
-                    isLocked = !sageUnlocked;
+                    // Psychometrics is locked until Sage gate is met —
+                    // BUT if both surveys are already completed, never lock (handles legacy clients
+                    // who completed surveys before the Sage gate was introduced).
+                    const viaAlreadyDone = (profile as any)?.viaStatus === "completed";
+                    const ipipAlreadyDone = (profile as any)?.ipipStatus === "completed";
+                    isLocked = !sageUnlocked && !(viaAlreadyDone && ipipAlreadyDone);
                   } else if (isSage) {
                     // Sage is locked until at least one of interview/background has been started
                     isLocked = !sagePrereqMet;

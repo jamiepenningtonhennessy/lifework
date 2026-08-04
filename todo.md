@@ -1635,3 +1635,7 @@
 - [x] Add /api/export/role-spec Express endpoint to pdf-export.ts (auth-gated, generates full-detail HTML/PDF)
 - [x] PDF uses Lifework colour system (navy #1A2744, gold #C9973A, cream #F5F0E8, Cormorant Garamond headings)
 - [x] PDF includes: summary, role families + why, functions, sectors with weights, seniority, geography, differentiators, organisation archetypes
+
+## Bug Fix — Psychometrics step incorrectly locked for legacy clients
+
+- [x] Fix: Psychometrics step on client dashboard showed as locked for clients (e.g. Neil Denny) who completed VIA/IPIP before the Sage gate was introduced — locking logic now bypasses the Sage gate if both viaStatus and ipipStatus are already "completed"
