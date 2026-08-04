@@ -251,30 +251,32 @@ function SageGatePanel({
 
 // ─────────────────────────────────────────────────────────────────────────────
 
-export default function ClientDashboard() {
-  const { isAuthenticated, loading, user, logout } = useAuth();
-  const [, navigate] = useLocation();
-
-  const { data: profile, isLoading: loadingProfile } = trpc.profile.getMyProfile.useQuery(
-    undefined,
-    { enabled: isAuthenticated }
-  );
-
-  const { data: enrichmentStatus } = trpc.profile.getEnrichmentStatus.useQuery(
-    undefined,
-    { enabled: isAuthenticated }
-  );
-
-  const roleSpecUnlocked = !!(profile as any)?.careerExplorerUnlocked;
-  const { data: targetSpecRow, isLoading: loadingSpec } = trpc.jobs.getTargetSpec.useQuery(
-    {},
-    { enabled: isAuthenticated && roleSpecUnlocked }
-  );
-
-  if (!loading && !isAuthenticated) {
-    window.location.href = getLoginUrl();
-    return null;
-  }
+// ─── Shared dashboard body (used by both client and counsellor preview) ────────
+export function DashboardBody({
+  profile,
+  enrichmentStatus,
+  targetSpecRow,
+  loadingProfile,
+  loadingSpec,
+  displayName,
+  onNavigate,
+  onLogout,
+  showAdminLink,
+  isPreview = false,
+  userId,
+}: {
+  profile: any;
+  enrichmentStatus: { total: number; enriched: number; required: number; unlocked: boolean } | undefined;
+  targetSpecRow: any;
+  loadingProfile: boolean;
+  loadingSpec: boolean;
+  displayName?: string;
+  onNavigate: (path: string) => void;
+  onLogout?: () => void;
+  showAdminLink?: boolean;
+  isPreview?: boolean;
+  userId?: number;
+}) {
 
   const getStatus = (statusKey: string | null, stepId?: string): string => {
     if (!profile || !statusKey) return "not_started";
@@ -310,8 +312,7 @@ export default function ClientDashboard() {
 
   return (
     <div className="min-h-screen" style={{ background: "var(--lw-cream)" }}>
-      <PasswordGuidanceBanner userId={user?.id} />
-
+      {!isPreview && userId !== undefined && <PasswordGuidanceBanner userId={userId} />}
       {/* Header */}
       <div
         className="sticky top-0 z-10"
@@ -329,9 +330,9 @@ export default function ClientDashboard() {
             />
           </div>
           <div className="flex items-center gap-2">
-            {user?.role === "admin" && (
+            {showAdminLink && (
               <button
-                onClick={() => navigate("/counselor")}
+                onClick={() => onNavigate("/counselor")}
                 className="px-3 py-1.5 text-xs font-medium tracking-wide uppercase cursor-pointer"
                 style={{
                   border: "1px solid rgba(201,151,58,0.5)",
@@ -347,15 +348,17 @@ export default function ClientDashboard() {
               className="text-sm hidden sm:block"
               style={{ color: "rgba(255,255,255,0.6)" }}
             >
-              {user?.name}
+              {displayName}
             </span>
-            <button
-              onClick={logout}
-              className="p-1.5 cursor-pointer"
-              style={{ color: "rgba(255,255,255,0.5)" }}
-            >
-              <LogOut className="w-4 h-4" />
-            </button>
+            {onLogout && (
+              <button
+                onClick={onLogout}
+                className="p-1.5 cursor-pointer"
+                style={{ color: "rgba(255,255,255,0.5)" }}
+              >
+                <LogOut className="w-4 h-4" />
+              </button>
+            )}
           </div>
         </div>
       </div>
@@ -370,7 +373,7 @@ export default function ClientDashboard() {
             {/* Welcome */}
             <div className="mb-10">
               <h1 className="text-3xl font-serif font-bold text-foreground mb-2">
-                Welcome{user?.name ? `, ${user.name.split(" ")[0]}` : ""}
+                Welcome{displayName ? `, ${displayName.split(" ")[0]}` : ""}
               </h1>
               <div className="text-muted-foreground leading-relaxed space-y-3 text-sm">
                 <p>
@@ -453,7 +456,7 @@ export default function ClientDashboard() {
                     isLocked = !sagePrereqMet;
                   } else if (isRoleSpec) {
                     // Role Specification is locked until the counsellor explicitly unlocks it
-                    isLocked = !roleSpecUnlocked;
+                    isLocked = !(profile as any)?.careerExplorerUnlocked;
                   } else {
                     isLocked = prevBlockerStatus === "not_started";
                   }
@@ -755,7 +758,7 @@ export default function ClientDashboard() {
                                 <Button
                                   size="sm"
                                   variant={isCompleted ? "outline" : "default"}
-                                  onClick={() => navigate(resolvedPath)}
+                                  onClick={() => isPreview ? undefined : onNavigate(resolvedPath)}
                                   className={
                                     !isCompleted
                                       ? "bg-[var(--lw-gold)] hover:bg-[oklch(0.60 0.13 72)] text-white gap-1"
@@ -789,5 +792,47 @@ export default function ClientDashboard() {
         )}
       </div>
     </div>
+  );
+}
+
+// ─── Default export: self-fetching client view ───────────────────────────────
+export default function ClientDashboard() {
+  const { isAuthenticated, loading, user, logout } = useAuth();
+  const [, navigate] = useLocation();
+
+  const { data: profile, isLoading: loadingProfile } = trpc.profile.getMyProfile.useQuery(
+    undefined,
+    { enabled: isAuthenticated }
+  );
+
+  const { data: enrichmentStatus } = trpc.profile.getEnrichmentStatus.useQuery(
+    undefined,
+    { enabled: isAuthenticated }
+  );
+
+  const roleSpecUnlocked = !!(profile as any)?.careerExplorerUnlocked;
+  const { data: targetSpecRow, isLoading: loadingSpec } = trpc.jobs.getTargetSpec.useQuery(
+    {},
+    { enabled: isAuthenticated && roleSpecUnlocked }
+  );
+
+  if (!loading && !isAuthenticated) {
+    window.location.href = getLoginUrl();
+    return null;
+  }
+
+  return (
+    <DashboardBody
+      profile={profile}
+      enrichmentStatus={enrichmentStatus}
+      targetSpecRow={targetSpecRow}
+      loadingProfile={loadingProfile}
+      loadingSpec={loadingSpec}
+      displayName={user?.name ?? undefined}
+      onNavigate={navigate}
+      onLogout={logout}
+      showAdminLink={user?.role === "admin"}
+      userId={user?.id}
+    />
   );
 }

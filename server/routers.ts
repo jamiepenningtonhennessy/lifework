@@ -1208,6 +1208,15 @@ const counselorRouter = router({
       return { profile, achievements: achievementsList, family, education, career, via, ipip, report, messages, chatSessions };
     }),
 
+  getClientEnrichmentStatus: counselorProcedure
+    .input(z.object({ clientId: z.number() }))
+    .query(async ({ input }) => {
+      const { total, enriched } = await getEnrichmentCounts(input.clientId);
+      const required = 20;
+      const unlocked = enriched >= required;
+      return { total, enriched, required, unlocked };
+    }),
+
   saveNotes: counselorProcedure
     .input(z.object({ clientId: z.number(), notes: z.string() }))
     .mutation(async ({ input }) => {
