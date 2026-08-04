@@ -1617,3 +1617,13 @@
 - [x] Inject cv_text into Sage system prompt
 - [x] Counsellor view: show CV download link and extracted text preview in client profile Career tab
 - [x] Write vitest tests for CV upload procedure
+
+## Role Specification — Client Dashboard Step
+
+- [ ] Schema: add roleSpecUnlocked boolean to client_profiles; migrate
+- [ ] Server: add jobs.setRoleSpecUnlocked procedure (counsellor-only toggle)
+- [ ] Counsellor: rename "Refresh spec & list" → "Refresh spec" (Stage 1 only, not Stage 2)
+- [ ] Counsellor: add "Unlock Role Spec" toggle button to Jobs Explorer tab in client profile
+- [ ] Client WOW dashboard: add locked "Role Specification" step after Ask Alistair
+- [ ] Client: when unlocked and spec exists, show read-only TargetSpecDisplay on dashboard
+- [ ] Client: when unlocked but spec not yet generated, show "being prepared" message

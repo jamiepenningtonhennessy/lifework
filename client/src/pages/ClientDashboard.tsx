@@ -14,13 +14,13 @@ import {
   Loader2,
   LogOut,
   Compass,
-  Briefcase,
   X,
   KeyRound,
   Sparkles,
   Lock,
   AlertCircle,
 } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 import { ChatToPeter } from "@/components/ChatToPeter";
 import { useState, useEffect } from "react";
 
@@ -82,26 +82,15 @@ const STEPS = [
     ctaInProgress: "Request a Coaching Date",
   },
   {
-    id: "career_explorer",
+    id: "role_specification",
     icon: <Compass className="w-5 h-5" />,
-    title: "6. Career Explorer",
+    title: "6. Role Specification",
     description:
-      "Come back to this site once you have had your Lifework Coaching Conversation, and you can ask Sage for her opinion on future careers, or perhaps discuss the challenges that a possible chosen career might bring.",
-    path: "/career-explorer",
+      "Once your counsellor has completed your Lifework analysis, they will generate a personalised Role Specification — a detailed profile of the roles, sectors, and organisations that best match who you are.",
+    path: null,
     statusKey: null,
-    cta: "Open Career Explorer",
-    ctaInProgress: "Continue Career Explorer",
-  },
-  {
-    id: "jobs_explorer",
-    icon: <Briefcase className="w-5 h-5" />,
-    title: "7. Jobs Explorer",
-    description:
-      "Your personalised market monitor — live vacancies scored against your profile, early signals from senior departures at target employers, and a curated watch list of organisations worth tracking.",
-    path: "/coaching/lifework/jobs",
-    statusKey: null,
-    cta: "Open Jobs Explorer",
-    ctaInProgress: "View Jobs Explorer",
+    cta: null,
+    ctaInProgress: null,
   },
 ];
 
@@ -276,6 +265,12 @@ export default function ClientDashboard() {
     { enabled: isAuthenticated }
   );
 
+  const roleSpecUnlocked = !!(profile as any)?.careerExplorerUnlocked;
+  const { data: targetSpecRow, isLoading: loadingSpec } = trpc.jobs.getTargetSpec.useQuery(
+    {},
+    { enabled: isAuthenticated && roleSpecUnlocked }
+  );
+
   if (!loading && !isAuthenticated) {
     window.location.href = getLoginUrl();
     return null;
@@ -446,6 +441,7 @@ export default function ClientDashboard() {
 
                 const isPsychometrics = step.id === "psychometrics";
                 const isSage = step.id === "sage";
+                const isRoleSpec = step.id === "role_specification";
 
                 let isLocked = false;
                 if (idx > 0) {
@@ -455,6 +451,9 @@ export default function ClientDashboard() {
                   } else if (isSage) {
                     // Sage is locked until at least one of interview/background has been started
                     isLocked = !sagePrereqMet;
+                  } else if (isRoleSpec) {
+                    // Role Specification is locked until the counsellor explicitly unlocks it
+                    isLocked = !roleSpecUnlocked;
                   } else {
                     isLocked = prevBlockerStatus === "not_started";
                   }
@@ -514,7 +513,7 @@ export default function ClientDashboard() {
                                 In Progress
                               </span>
                             )}
-                            {isLocked && isPsychometrics && (
+                            {isLocked && (isPsychometrics || isRoleSpec) && (
                               <span
                                 className="text-xs px-2 py-0.5 rounded-full flex items-center gap-1"
                                 style={{
@@ -603,6 +602,124 @@ export default function ClientDashboard() {
                               </div>
                             </div>
                           )}
+
+                          {/* Role Specification — inline spec display when unlocked */}
+                          {isRoleSpec && !isLocked && (
+                            <div className="mt-4">
+                              {loadingSpec ? (
+                                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                                  <Loader2 className="w-4 h-4 animate-spin" />
+                                  Loading your specification…
+                                </div>
+                              ) : targetSpecRow?.spec ? (() => {
+                                const spec = typeof targetSpecRow.spec === "string"
+                                  ? JSON.parse(targetSpecRow.spec)
+                                  : targetSpecRow.spec;
+                                return (
+                                  <div className="space-y-4 border border-[var(--lw-gold)]/30 rounded-lg p-4 bg-[var(--lw-cream-warm)]/40">
+                                    {spec.summary && (
+                                      <div>
+                                        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">Summary</p>
+                                        <p className="text-sm leading-relaxed">{spec.summary}</p>
+                                      </div>
+                                    )}
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                      {spec.role_families?.length ? (
+                                        <div>
+                                          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">Role Families</p>
+                                          <div className="space-y-1">
+                                            {spec.role_families.map((r: {title: string; why?: string}) => (
+                                              <div key={r.title}>
+                                                <Badge variant="secondary" className="text-xs mb-0.5">{r.title}</Badge>
+                                                {r.why && <p className="text-xs text-muted-foreground pl-1">{r.why}</p>}
+                                              </div>
+                                            ))}
+                                          </div>
+                                        </div>
+                                      ) : null}
+                                      <div className="space-y-3">
+                                        {spec.functions?.length ? (
+                                          <div>
+                                            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">Functions</p>
+                                            <div className="flex flex-wrap gap-1">
+                                              {spec.functions.map((f: string) => <Badge key={f} variant="secondary" className="text-xs">{f}</Badge>)}
+                                            </div>
+                                          </div>
+                                        ) : null}
+                                        {spec.sectors?.length ? (
+                                          <div>
+                                            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">Sectors</p>
+                                            <div className="flex flex-wrap gap-1">
+                                              {spec.sectors.map((s: {sector: string; weight: string}) => (
+                                                <Badge key={s.sector} variant={s.weight === "high" ? "default" : "outline"} className="text-xs">
+                                                  {s.sector} · {s.weight}
+                                                </Badge>
+                                              ))}
+                                            </div>
+                                          </div>
+                                        ) : null}
+                                        {spec.seniority_band && (
+                                          <div>
+                                            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">Seniority</p>
+                                            <Badge variant="secondary" className="text-xs capitalize">{spec.seniority_band}</Badge>
+                                          </div>
+                                        )}
+                                        {spec.geography?.base && (
+                                          <div>
+                                            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">Geography</p>
+                                            <p className="text-xs text-muted-foreground">{spec.geography.base}</p>
+                                          </div>
+                                        )}
+                                      </div>
+                                    </div>
+                                    {spec.differentiators?.length ? (
+                                      <div>
+                                        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">Your Differentiators</p>
+                                        <ul className="space-y-1">
+                                          {spec.differentiators.map((d: string) => (
+                                            <li key={d} className="text-xs text-muted-foreground flex gap-1.5"><span className="text-[var(--lw-gold)] mt-0.5">—</span>{d}</li>
+                                          ))}
+                                        </ul>
+                                      </div>
+                                    ) : null}
+                                    {spec.organisation_archetypes?.length ? (
+                                      <div>
+                                        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">Organisation Types</p>
+                                        <div className="flex flex-wrap gap-1">
+                                          {spec.organisation_archetypes.map((a: string) => <Badge key={a} variant="outline" className="text-xs">{a}</Badge>)}
+                                        </div>
+                                      </div>
+                                    ) : null}
+                                  </div>
+                                );
+                              })() : (
+                                <p className="text-sm text-muted-foreground italic">
+                                  Your counsellor is preparing your Role Specification. It will appear here once it is ready.
+                                </p>
+                              )}
+                            </div>
+                          )}
+
+                          {/* Role Specification — locked state */}
+                          {isRoleSpec && isLocked && (
+                            <div
+                              className="mt-3 rounded-lg p-3 flex items-start gap-3"
+                              style={{
+                                background: "rgba(201,151,58,0.07)",
+                                border: "1px solid rgba(201,151,58,0.25)",
+                              }}
+                            >
+                              <Lock className="w-4 h-4 flex-shrink-0 mt-0.5" style={{ color: "var(--lw-gold)" }} />
+                              <div>
+                                <p className="text-sm font-semibold mb-1" style={{ color: "var(--lw-navy)" }}>
+                                  Awaiting your counsellor
+                                </p>
+                                <p className="text-xs leading-relaxed" style={{ color: "rgba(0,0,0,0.55)" }}>
+                                  Your Role Specification will be unlocked by your counsellor once your Lifework report has been completed and your coaching conversation has taken place.
+                                </p>
+                              </div>
+                            </div>
+                          )}
                         </div>
 
                         {/* CTA button (right side) — not for sage step */}
@@ -655,7 +772,7 @@ export default function ClientDashboard() {
                               );
                             })()}
 
-                            {isLocked && !isPsychometrics && step.id !== "sage" && (
+                            {isLocked && !isPsychometrics && !isRoleSpec && step.id !== "sage" && (
                               <span className="text-xs text-muted-foreground/50">
                                 Complete previous step first
                               </span>

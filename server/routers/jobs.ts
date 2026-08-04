@@ -497,7 +497,7 @@ export const jobsRouter = router({
   /**
    * Counsellor-only: trigger the pipeline for a specific client.
    * Returns immediately with a runId — use getPipelineStatus to poll for progress.
-   * fullPipeline=false: stages 1+2 only. fullPipeline=true: all 5 stages.
+   * fullPipeline=false: stage 1 only (generate target spec). fullPipeline=true: all 5 stages.
    */
   triggerPipeline: protectedProcedure
     .input(z.object({ clientId: z.number(), fullPipeline: z.boolean().optional().default(false) }))
@@ -508,7 +508,9 @@ export const jobsRouter = router({
       const db = await getDb();
       if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
 
-      const totalStages = input.fullPipeline ? 5 : 2;
+      // fullPipeline=false: Stage 1 only (generate target spec)
+      // fullPipeline=true: all 5 stages
+      const totalStages = input.fullPipeline ? 5 : 1;
 
       // Create a run record immediately so the UI can poll
       const [inserted] = await db.insert(jobPipelineRuns).values({
@@ -524,9 +526,9 @@ export const jobsRouter = router({
       // Stages are called directly in-process (no HTTP) to avoid timeout issues
       const stageFns = [
         () => runStage1(input.clientId),
-        () => runStage2(input.clientId),
         ...(input.fullPipeline
           ? [
+              () => runStage2(input.clientId),
               () => runStage3(input.clientId),
               () => runStage4(input.clientId),
               () => runStage5(input.clientId),

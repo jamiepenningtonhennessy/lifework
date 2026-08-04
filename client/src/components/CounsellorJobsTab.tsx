@@ -174,7 +174,7 @@ function TargetSpecPanel({ clientId }: { clientId: number }) {
   if (!row || !row.spec) {
     return (
       <p className="text-sm text-muted-foreground italic">
-        No target spec generated yet. Run stage 1 ("Refresh spec & list") to generate one.
+        No target spec generated yet. Click "Refresh spec" above to generate one.
       </p>
     );
   }
@@ -598,11 +598,21 @@ export function CounsellorJobsTab({
     }
   }, [pipelineStatus?.status]);
 
+  const { data: clientData, refetch: refetchClient } = trpc.counselor.getClientProfile.useQuery({ clientId });
+  const unlockRoleSpec = trpc.counselor.unlockCareerExplorer.useMutation({
+    onSuccess: () => { refetchClient(); toast.success("Role Specification unlocked for client."); },
+    onError: (e) => toast.error(e.message),
+  });
+  const lockRoleSpec = trpc.counselor.lockCareerExplorer.useMutation({
+    onSuccess: () => { refetchClient(); toast.success("Role Specification locked."); },
+    onError: (e) => toast.error(e.message),
+  });
+
   const triggerPipeline = trpc.jobs.triggerPipeline.useMutation({
     onSuccess: (data) => {
       setActiveRunId(data.runId);
       setRunStarted(true);
-      toast.info(data.fullPipeline ? "Running all 5 stages in the background…" : "Refreshing spec & monitor list…");
+      toast.info(data.fullPipeline ? "Running all 5 stages in the background…" : "Refreshing target spec…");
     },
     onError: (err) => toast.error(`Could not start pipeline: ${err.message}`),
   });
@@ -616,7 +626,7 @@ export function CounsellorJobsTab({
             Jobs Explorer {clientName ? `— ${clientName}` : ""}
           </h2>
           <p className="text-sm text-muted-foreground mt-0.5">
-            Read-only view of this client's market monitor.
+            Target specification and market intelligence for this client.
           </p>
         </div>
         <div className="flex gap-2 flex-wrap">
@@ -632,7 +642,7 @@ export function CounsellorJobsTab({
             ) : (
               <RefreshCw className="w-3.5 h-3.5" />
             )}
-            Refresh spec & list
+            Refresh spec
           </Button>
           <Button
             size="sm"
@@ -648,6 +658,34 @@ export function CounsellorJobsTab({
             Run full pipeline (all 5 stages)
           </Button>
         </div>
+      </div>
+
+      {/* Unlock Role Spec toggle */}
+      <div className="rounded-lg border border-border bg-muted/20 px-4 py-3 flex items-center justify-between gap-4 flex-wrap">
+        <div>
+          <p className="text-sm font-medium">
+            {clientData?.profile?.careerExplorerUnlocked
+              ? <span className="text-emerald-700 flex items-center gap-1.5"><span className="inline-block w-2 h-2 rounded-full bg-emerald-500" /> Role Specification unlocked — client can view their spec</span>
+              : <span className="text-muted-foreground flex items-center gap-1.5"><span className="inline-block w-2 h-2 rounded-full bg-slate-300" /> Role Specification locked</span>
+            }
+          </p>
+          <p className="text-xs text-muted-foreground mt-0.5">
+            {clientData?.profile?.careerExplorerUnlocked
+              ? "The client can see their Role Specification on their WOW dashboard."
+              : "Unlock after generating the spec to share it with the client on their WOW dashboard."
+            }
+          </p>
+        </div>
+        {clientData?.profile?.careerExplorerUnlocked ? (
+          <Button size="sm" variant="outline" className="text-xs shrink-0" disabled={lockRoleSpec.isPending} onClick={() => lockRoleSpec.mutate({ clientId })}>
+            {lockRoleSpec.isPending ? <Loader2 className="w-3.5 h-3.5 animate-spin mr-1" /> : null}
+            Lock
+          </Button>
+        ) : (
+          <Button size="sm" className="text-xs shrink-0 bg-[var(--lw-navy)] text-white hover:opacity-90 gap-1.5" disabled={unlockRoleSpec.isPending} onClick={() => unlockRoleSpec.mutate({ clientId })}>
+            {unlockRoleSpec.isPending ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <span>Unlock Role Spec</span>}
+          </Button>
+        )}
       </div>
 
       {/* Pipeline progress indicator — shown as soon as run starts, persists across scrolls */}
