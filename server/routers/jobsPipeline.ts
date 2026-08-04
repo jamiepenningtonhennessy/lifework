@@ -229,38 +229,22 @@ export async function handleGenerateTargetSpec(req: Request, res: Response) {
     // Detect whether this is a graduate (student) client for Stage 1 prompt selection
     const isGraduateStage1 = report.wowReportType === "student";
 
-    const seniorSystemPrompt = `You distil a LifeWorks career-coaching report into a structured career TARGET SPEC for use in a legal-market job search.
+    const seniorSystemPrompt = `You distil a LifeWorks career-coaching report into a structured career TARGET SPEC for use in a job search.
 
-This platform serves lawyers and legal professionals seeking roles within or adjacent
-to law firms and legal departments. The client may be a practising lawyer, a legal
-operations professional, a legal technologist, a business services leader at a law
-firm, or someone transitioning into the legal market from another sector.
+This platform serves mid-career and senior professionals across all sectors. Clients may be lawyers, legal operations professionals, technologists, consultants, learning & development specialists, business leaders, or professionals from any other field. Your job is to identify where this specific person should be looking — based on WHO THEY ARE, not on any assumed sector.
 
-The LifeWorks report is a reflective, narrative document (life history, character
-strengths, personality, and 'career directions'). It contains NO company names and
-often expresses direction as aspiration rather than job titles. Your job is to turn
-it into concrete, searchable targets WITHIN THE LEGAL MARKET.
+The LifeWorks report is a reflective, narrative document (life history, character strengths, personality, and 'career directions'). It contains NO company names and often expresses direction as aspiration rather than job titles. Your job is to turn it into concrete, searchable targets that match the client's actual strengths, values, and career history.
 
 Rules:
-- FOCUS on the legal market: law firms (Magic Circle, Silver Circle, US firms,
-  boutiques), in-house legal teams, legal technology vendors, legal operations,
-  and professional services firms serving the legal sector.
-- If the client has stated a role intent (provided below), treat it as the
-  PRIMARY signal and build the spec around it. Do not override it.
-- Convert narrative directions + the client's actual career history into concrete,
-  searchable ROLE TITLES and FUNCTIONS that a legal recruiter would actually post
-  (e.g. "Legal Operations Director", "Head of Legal Technology", "Chief of Staff",
-  "Director of Innovation", "AI Programme Manager", "Knowledge Management Counsel").
+- START FROM THE CLIENT'S STRENGTHS AND CAREER HISTORY — not from any assumed sector. A lawyer may be best suited to a law firm, or they may be best suited to consulting, technology, or financial services. A learning & development professional is not necessarily best suited to legal. Follow the evidence in the report.
+- If the client has stated a role intent (provided below), treat it as the PRIMARY signal and build the spec around it. Do not override it.
+- ONLY include legal-sector roles (law firms, in-house legal, legal technology) if the client's background, stated intent, or report content genuinely points there. Do not add legal roles as a default.
+- Convert narrative directions + the client's actual career history into concrete, searchable ROLE TITLES and FUNCTIONS that a recruiter in the relevant sector would actually post.
 - Infer seniority from career history, not wishful thinking.
 - Capture hard geographic/other constraints faithfully (they are deal-breakers).
 - Be decisive and specific; this is a filter input, not prose.
-- The sectors field should include "Law Firm" and/or "In-house Legal" unless the
-  client's intent clearly points elsewhere.
-- For quality_preferences: infer which organisational qualities the client would
-  thrive in based on their personality, values, and career narrative. Choose from:
-  autonomy, structured_learning, social_impact, commercial_intensity, collaboration,
-  innovation, prestige, scale_and_stability. Select 2-4 that genuinely fit the
-  client's character; do not select all of them.`;
+- For sectors: identify 2-4 sectors where this person's strengths and experience would genuinely be valued. Weight by genuine fit to the person's character and history — not by their most recent employer's sector.
+- For quality_preferences: infer which organisational qualities the client would thrive in based on their personality, values, and career narrative. Choose from: autonomy, structured_learning, social_impact, commercial_intensity, collaboration, innovation, prestige, scale_and_stability. Select 2-4 that genuinely fit the client's character; do not select all of them.`;
 
     const graduateSystemPrompt = `You distil a LifeWorks career-coaching report into a structured career TARGET SPEC for a GRADUATE entering the job market for the first time.
 
