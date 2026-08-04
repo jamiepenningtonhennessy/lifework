@@ -13,7 +13,7 @@ import {
   getCoachingAnnex,
 } from "./db";
 import { getUserByOpenId, getDb } from "./db";
-import { users } from "../drizzle/schema";
+import { clientTargetSpec, users } from "../drizzle/schema";
 import { eq } from "drizzle-orm";
 import { VIA_STRENGTHS } from "../shared/via-data";
 import { IPIP_DOMAINS, IPIP_FACETS } from "../shared/ipip-data";
@@ -238,6 +238,182 @@ pdfRouter.get("/api/export/esf-report/:clientId", async (req: Request, res: Resp
     res.status(500).json({ error: "Failed to generate ESF report" });
   }
 });
+
+// ─── Role Specification PDF Export ──────────────────────────────────────────
+pdfRouter.get("/api/export/role-spec", async (req: Request, res: Response) => {
+  try {
+    let user;
+    try { user = await sdk.authenticateRequest(req); } catch { user = null; }
+    if (!user) { res.status(401).json({ error: "Unauthorised" }); return; }
+
+    const db = await getDb();
+    if (!db) { res.status(500).json({ error: "Database unavailable" }); return; }
+
+    // Resolve client profile for the logged-in user
+    const profile = await getClientProfileByUserId(user.id);
+    if (!profile) { res.status(404).json({ error: "Profile not found" }); return; }
+
+    const [specRow] = await db
+      .select()
+      .from(clientTargetSpec)
+      .where(eq(clientTargetSpec.clientId, profile.id))
+      .limit(1);
+
+    if (!specRow) { res.status(404).json({ error: "No Role Specification found" }); return; }
+
+    const spec: any = typeof specRow.spec === "string" ? JSON.parse(specRow.spec) : specRow.spec;
+
+    // Resolve client name
+    let clientName: string;
+    if (profile.firstName && profile.lastName) {
+      clientName = `${profile.firstName} ${profile.lastName}`;
+    } else if (profile.firstName) {
+      clientName = profile.firstName;
+    } else {
+      const clientUserRows = await db.select().from(users).where(eq(users.id, profile.userId)).limit(1);
+      clientName = clientUserRows[0]?.name ?? "Client";
+    }
+
+    const date = new Date().toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
+
+    const html = buildRoleSpecHTML({ clientName, date, spec });
+
+    res.setHeader("Content-Type", "text/html; charset=utf-8");
+    res.setHeader("Content-Disposition", `inline; filename="role-specification-${clientName.replace(/\s+/g, "-").toLowerCase()}.html"`);
+    res.send(html);
+  } catch (err) {
+    console.error("[Role Spec Export] Error:", err);
+    res.status(500).json({ error: "Failed to generate Role Specification" });
+  }
+});
+
+function buildRoleSpecHTML({ clientName, date, spec }: { clientName: string; date: string; spec: any }): string {
+  const navy = "#1A2744";
+  const gold = "#C9973A";
+  const cream = "#F5F0E8";
+  const ink = "#0E1628";
+  const inkMuted = "#5A6278";
+
+  const badge = (text: string, variant: "primary" | "outline" = "primary") =>
+    variant === "primary"
+      ? `<span style="display:inline-block;background:${gold};color:#fff;font-size:10.5px;font-weight:600;padding:2px 9px;border-radius:3px;margin:2px 3px 2px 0;">${text}</span>`
+      : `<span style="display:inline-block;border:1px solid ${gold};color:${navy};font-size:10.5px;font-weight:500;padding:2px 9px;border-radius:3px;margin:2px 3px 2px 0;">${text}</span>`;
+
+  const section = (title: string, content: string) =>
+    `<div style="margin-bottom:22px;">
+      <p style="font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:${inkMuted};margin:0 0 7px;">${title}</p>
+      ${content}
+    </div>`;
+
+  const roleFamiliesHTML = spec.role_families?.length
+    ? spec.role_families.map((r: any) =>
+        `<div style="margin-bottom:10px;">
+          <span style="font-size:13px;font-weight:600;color:${navy};">${r.title}</span>
+          ${r.why ? `<p style="font-size:12px;color:${inkMuted};margin:3px 0 0;line-height:1.55;">${r.why}</p>` : ""}
+        </div>`
+      ).join("")
+    : "<p style='font-size:12px;color:#999;'>Not specified</p>";
+
+  const functionsHTML = spec.functions?.length
+    ? spec.functions.map((f: string) => badge(f)).join("")
+    : "";
+
+  const sectorsHTML = spec.sectors?.length
+    ? spec.sectors.map((s: any) =>
+        badge(`${s.sector} · ${s.weight}`, s.weight === "high" ? "primary" : "outline")
+      ).join("")
+    : "";
+
+  const differentiatorsList = spec.differentiators?.length
+    ? `<ul style="margin:0;padding:0;list-style:none;">${spec.differentiators.map((d: string) =>
+        `<li style="font-size:12px;color:${ink};line-height:1.6;padding:3px 0;display:flex;gap:8px;"><span style="color:${gold};flex-shrink:0;">—</span><span>${d}</span></li>`
+      ).join("")}</ul>`
+    : "";
+
+  const archetypesHTML = spec.organisation_archetypes?.length
+    ? spec.organisation_archetypes.map((a: string) => badge(a, "outline")).join("")
+    : "";
+
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Role Specification — ${clientName}</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  @page { size: A4; margin: 14mm 18mm; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Inter', sans-serif; color: ${ink}; background: ${cream}; }
+  h1, h2, .serif { font-family: 'Cormorant Garamond', Georgia, serif; }
+  .print-bar { background: ${navy}; color: #fff; padding: 10px 20px; display: flex; align-items: center; justify-content: space-between; }
+  .print-bar button { background: ${gold}; color: #fff; border: none; padding: 7px 18px; border-radius: 3px; font-size: 13px; cursor: pointer; font-family: inherit; }
+  .print-bar p { font-size: 11px; color: rgba(255,255,255,0.6); margin-top: 2px; }
+  @media print { .print-bar { display: none; } body { background: #fff; } }
+</style>
+</head>
+<body>
+<div class="print-bar">
+  <div><strong style="font-size:14px;">Role Specification — ${clientName}</strong>
+  <p>In the print dialog: set Margins = None and uncheck Headers and footers</p></div>
+  <button onclick="window.print()">Print / Save as PDF</button>
+</div>
+<div style="padding:20px 24px;">
+  <!-- Header -->
+  <div style="border-bottom:2px solid ${gold};padding-bottom:14px;margin-bottom:26px;display:flex;align-items:flex-end;justify-content:space-between;">
+    <div>
+      <h1 style="font-size:26px;font-weight:600;color:${navy};letter-spacing:-.01em;">Role Specification</h1>
+      <p style="font-size:12px;color:${inkMuted};margin-top:4px;">A personalised profile of roles, sectors, and organisations that best match who you are</p>
+    </div>
+    <div style="text-align:right;font-size:12px;color:${inkMuted};">
+      <strong style="color:${navy};font-size:14px;display:block;">${clientName}</strong>${date}
+    </div>
+  </div>
+
+  <!-- Summary -->
+  ${spec.summary ? section("Summary", `<p style="font-size:13px;line-height:1.7;color:${ink};">${spec.summary}</p>`) : ""}
+
+  <!-- Role Families -->
+  ${section("Role Families", roleFamiliesHTML)}
+
+  <!-- Two-column: Functions + Sectors -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:22px;">
+    ${spec.functions?.length ? `<div>
+      <p style="font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:${inkMuted};margin:0 0 7px;">Functions</p>
+      <div>${functionsHTML}</div>
+    </div>` : ""}
+    ${spec.sectors?.length ? `<div>
+      <p style="font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:${inkMuted};margin:0 0 7px;">Sectors</p>
+      <div>${sectorsHTML}</div>
+    </div>` : ""}
+  </div>
+
+  <!-- Seniority + Geography -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:22px;">
+    ${spec.seniority_band ? `<div>
+      <p style="font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:${inkMuted};margin:0 0 7px;">Seniority Band</p>
+      ${badge(spec.seniority_band)}
+    </div>` : ""}
+    ${spec.geography?.base ? `<div>
+      <p style="font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:${inkMuted};margin:0 0 7px;">Geography</p>
+      <p style="font-size:12px;color:${ink};">${spec.geography.base}</p>
+    </div>` : ""}
+  </div>
+
+  <!-- Differentiators -->
+  ${differentiatorsList ? section("Your Differentiators", differentiatorsList) : ""}
+
+  <!-- Organisation Archetypes -->
+  ${archetypesHTML ? section("Organisation Archetypes", `<div>${archetypesHTML}</div>`) : ""}
+
+  <!-- Footer -->
+  <div style="margin-top:28px;padding-top:12px;border-top:1px solid rgba(201,151,58,0.4);text-align:center;font-size:11px;color:${inkMuted};">
+    &copy; Pennington Hennessy ${new Date().getFullYear()} &mdash; Confidential
+  </div>
+</div>
+</body>
+</html>`;
+}
 
 // ─── Insights Discovery HTML for PDF ─────────────────────────────────────────
 function buildInsightsDiscoveryHTML(domainScores: Record<string, number>): string {

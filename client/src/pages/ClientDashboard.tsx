@@ -622,77 +622,26 @@ export function DashboardBody({
                                   <div className="space-y-4 border border-[var(--lw-gold)]/30 rounded-lg p-4 bg-[var(--lw-cream-warm)]/40">
                                     {spec.summary && (
                                       <div>
-                                        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">Summary</p>
+                                        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">Your Role Summary</p>
                                         <p className="text-sm leading-relaxed">{spec.summary}</p>
                                       </div>
                                     )}
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                      {spec.role_families?.length ? (
-                                        <div>
-                                          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">Role Families</p>
-                                          <div className="space-y-1">
-                                            {spec.role_families.map((r: {title: string; why?: string}) => (
-                                              <div key={r.title}>
-                                                <Badge variant="secondary" className="text-xs mb-0.5">{r.title}</Badge>
-                                                {r.why && <p className="text-xs text-muted-foreground pl-1">{r.why}</p>}
-                                              </div>
-                                            ))}
-                                          </div>
-                                        </div>
-                                      ) : null}
-                                      <div className="space-y-3">
-                                        {spec.functions?.length ? (
-                                          <div>
-                                            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">Functions</p>
-                                            <div className="flex flex-wrap gap-1">
-                                              {spec.functions.map((f: string) => <Badge key={f} variant="secondary" className="text-xs">{f}</Badge>)}
-                                            </div>
-                                          </div>
-                                        ) : null}
-                                        {spec.sectors?.length ? (
-                                          <div>
-                                            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">Sectors</p>
-                                            <div className="flex flex-wrap gap-1">
-                                              {spec.sectors.map((s: {sector: string; weight: string}) => (
-                                                <Badge key={s.sector} variant={s.weight === "high" ? "default" : "outline"} className="text-xs">
-                                                  {s.sector} · {s.weight}
-                                                </Badge>
-                                              ))}
-                                            </div>
-                                          </div>
-                                        ) : null}
-                                        {spec.seniority_band && (
-                                          <div>
-                                            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">Seniority</p>
-                                            <Badge variant="secondary" className="text-xs capitalize">{spec.seniority_band}</Badge>
-                                          </div>
-                                        )}
-                                        {spec.geography?.base && (
-                                          <div>
-                                            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">Geography</p>
-                                            <p className="text-xs text-muted-foreground">{spec.geography.base}</p>
-                                          </div>
-                                        )}
-                                      </div>
+                                    <div className="pt-1">
+                                      <a
+                                        href="/api/export/role-spec"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="inline-flex items-center gap-2 text-xs font-medium px-3 py-1.5 rounded-md border transition-colors"
+                                        style={{
+                                          borderColor: "var(--lw-gold)",
+                                          color: "var(--lw-gold)",
+                                          background: "rgba(201,151,58,0.06)",
+                                        }}
+                                      >
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                                        Download full Role Specification (PDF)
+                                      </a>
                                     </div>
-                                    {spec.differentiators?.length ? (
-                                      <div>
-                                        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">Your Differentiators</p>
-                                        <ul className="space-y-1">
-                                          {spec.differentiators.map((d: string) => (
-                                            <li key={d} className="text-xs text-muted-foreground flex gap-1.5"><span className="text-[var(--lw-gold)] mt-0.5">—</span>{d}</li>
-                                          ))}
-                                        </ul>
-                                      </div>
-                                    ) : null}
-                                    {spec.organisation_archetypes?.length ? (
-                                      <div>
-                                        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">Organisation Types</p>
-                                        <div className="flex flex-wrap gap-1">
-                                          {spec.organisation_archetypes.map((a: string) => <Badge key={a} variant="outline" className="text-xs">{a}</Badge>)}
-                                        </div>
-                                      </div>
-                                    ) : null}
                                   </div>
                                 );
                               })() : (

@@ -1627,3 +1627,11 @@
 - [ ] Client WOW dashboard: add locked "Role Specification" step after Ask Alistair
 - [ ] Client: when unlocked and spec exists, show read-only TargetSpecDisplay on dashboard
 - [ ] Client: when unlocked but spec not yet generated, show "being prepared" message
+
+## Role Spec Client View — Summary + PDF Download
+
+- [x] Simplify client WOW dashboard Role Specification step: show summary text only (not full detail grid)
+- [x] Add gold-styled "Download full Role Specification (PDF)" button on client dashboard
+- [x] Add /api/export/role-spec Express endpoint to pdf-export.ts (auth-gated, generates full-detail HTML/PDF)
+- [x] PDF uses Lifework colour system (navy #1A2744, gold #C9973A, cream #F5F0E8, Cormorant Garamond headings)
+- [x] PDF includes: summary, role families + why, functions, sectors with weights, seniority, geography, differentiators, organisation archetypes
