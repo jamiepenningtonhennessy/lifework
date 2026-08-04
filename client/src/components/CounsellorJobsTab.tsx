@@ -171,7 +171,7 @@ function TargetSpecPanel({ clientId }: { clientId: number }) {
     onError: (e) => toast.error(e.message),
   });
   if (isLoading) return <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />;
-  if (!row) {
+  if (!row || !row.spec) {
     return (
       <p className="text-sm text-muted-foreground italic">
         No target spec generated yet. Run stage 1 ("Refresh spec & list") to generate one.
