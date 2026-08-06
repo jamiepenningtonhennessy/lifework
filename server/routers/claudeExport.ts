@@ -19,7 +19,6 @@ import {
   getClientProfileById,
   getAchievements,
   getFamilyBackground,
-  getEducationHistory,
   getCareerHistory,
   getViaResults,
   getIpipResults,
@@ -619,7 +618,7 @@ function buildViaEvidence(
     for (const line of lines) {
       if (line.includes("| Strength") || line.includes("|Strength")) { inTable = true; continue; }
       if (inTable && line.startsWith("|") && !line.includes("---")) {
-        const cells = line.split("|").map(c => c.trim()).filter(c => c.length > 0);
+        const cells = line.split("|").map((c: any) => c.trim()).filter(c => c.length > 0);
         if (cells.length >= 5) {
           const name = cells[0];
           const freq = parseInt(cells[3]) || 0;
@@ -665,11 +664,10 @@ function buildViaEvidence(
 // ─── Main export builder ──────────────────────────────────────────────────────
 
 export async function buildClaudeExportJson(clientId: number): Promise<Record<string, unknown>> {
-  const [profile, achievementsList, familyBg, educationList, careerList, via, ipip, report] = await Promise.all([
+  const [profile, achievementsList, familyBg, careerList, via, ipip, report] = await Promise.all([
     getClientProfileById(clientId),
     getAchievements(clientId),
     getFamilyBackground(clientId),
-    getEducationHistory(clientId),
     getCareerHistory(clientId),
     getViaResults(clientId),
     getIpipResults(clientId),
@@ -1280,16 +1278,7 @@ export async function buildClaudeExportJson(clientId: number): Promise<Record<st
         HAS_DATA: !!(familyBg.upbringingLocation || familyBg.fatherOccupation || familyBg.motherOccupation || familyBg.siblingPosition || familyBg.familyNarrative || familyBg.significantInfluences),
       } : { HAS_DATA: false as const };
 
-      const eduMapped = educationList.map(e => ({
-        institution: e.institution,
-        qualification: e.qualification ?? null,
-        subject: e.subject ?? null,
-        yearFrom: e.yearFrom ?? null,
-        yearTo: e.yearTo ?? null,
-        highlights: e.highlights ?? null,
-      }));
-
-      const careerMapped = careerList.map(c => ({
+      const careerMapped = careerList.map((c: any) => ({
         organisation: c.organisation,
         role: c.role ?? null,
         yearFrom: c.yearFrom ?? null,
@@ -1301,31 +1290,18 @@ export async function buildClaudeExportJson(clientId: number): Promise<Record<st
 
       // Build pages array
       type BioPage =
-        | { type: 'family_edu'; family: typeof familyData; education: typeof eduMapped; HAS_EDUCATION: boolean; IS_FIRST: boolean; IS_CAREER: false }
-        | { type: 'edu_cont';   education: typeof eduMapped; IS_FIRST: false; IS_CAREER: false }
-        | { type: 'career';     career: typeof careerMapped; IS_FIRST: false; IS_CAREER: true };
+        | { type: 'family'; family: typeof familyData; IS_FIRST: true; IS_CAREER: false }
+        | { type: 'career'; career: typeof careerMapped; IS_FIRST: false; IS_CAREER: true };
 
       const pages: BioPage[] = [];
 
-      // Page 1: family + first EDU_PER_PAGE education entries
+      // Page 1: family background
       pages.push({
-        type: 'family_edu',
+        type: 'family',
         family: familyData,
-        education: eduMapped.slice(0, EDU_PER_PAGE),
-        HAS_EDUCATION: eduMapped.length > 0,
         IS_FIRST: true,
         IS_CAREER: false,
       });
-
-      // Education continuation pages (if more than EDU_PER_PAGE entries)
-      for (let i = EDU_PER_PAGE; i < eduMapped.length; i += EDU_PER_PAGE) {
-        pages.push({
-          type: 'edu_cont',
-          education: eduMapped.slice(i, i + EDU_PER_PAGE),
-          IS_FIRST: false,
-          IS_CAREER: false,
-        });
-      }
 
       // Career pages
       for (let i = 0; i < careerMapped.length; i += CAREER_PER_PAGE) {

@@ -12,7 +12,7 @@ import { ArrowLeft, ArrowRight, Plus, Trash2, Loader2, Upload, FileText, X } fro
 import { toast } from "sonner";
 import { useRef } from "react";
 
-type Tab = "family" | "education" | "career";
+type Tab = "family" | "career";
 
 export default function Background() {
   const { isAuthenticated, loading } = useAuth();
@@ -68,7 +68,7 @@ export default function Background() {
 
         {/* Tabs */}
         <div className="flex gap-1 mb-8 border-b border-border">
-          {(["family", "education", "career"] as Tab[]).map((tab) => (
+          {(["family", "career"] as Tab[]).map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
@@ -78,13 +78,12 @@ export default function Background() {
                   : "border-transparent text-muted-foreground hover:text-foreground"
               }`}
             >
-              {tab === "family" ? "Family Background" : tab === "education" ? "Education" : "Career History"}
+              {tab === "family" ? "Family Background" : "Career History"}
             </button>
           ))}
         </div>
 
         {activeTab === "family" && <FamilyForm />}
-        {activeTab === "education" && <EducationForm />}
         {activeTab === "career" && <CareerForm />}
       </div>
     </div>

@@ -436,8 +436,6 @@ export default function ClientProfile() {
                     <span className="font-medium">{data.achievements.length}</span>
                   </div>
                   <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Education records</span>
-                    <span className="font-medium">{data.education.length}</span>
                   </div>
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">Career records</span>
@@ -831,21 +829,6 @@ export default function ClientProfile() {
                   </CardContent>
                 </Card>
               )}
-              {/* Education */}
-              {data.education.length > 0 && (
-                <Card>
-                  <CardHeader className="pb-2"><CardTitle className="text-base font-serif flex items-center gap-2"><GraduationCap className="w-4 h-4" /> Education</CardTitle></CardHeader>
-                  <CardContent className="space-y-3">
-                    {data.education.map((e) => (
-                      <div key={e.id} className="text-sm border-b border-border pb-3 last:border-0 last:pb-0">
-                        <p className="font-medium">{e.institution}</p>
-                        <p className="text-muted-foreground">{[e.qualification, e.subject].filter(Boolean).join(" — ")} {e.yearFrom && `(${e.yearFrom}–${e.yearTo ?? ""})`}</p>
-                        {e.highlights && <p className="mt-1">{e.highlights}</p>}
-                      </div>
-                    ))}
-                  </CardContent>
-                </Card>
-              )}
               {/* Career */}
               {data.career.length > 0 && (
                 <Card>
@@ -1209,7 +1192,6 @@ export default function ClientProfile() {
                 ipip: data.ipip,
                 career: data.career,
                 family: data.family,
-                education: data.education,
                 chatSessions: (data as any).chatSessions ?? [],
                 report: data.report,
                 clientFirstName: data.profile.firstName ?? undefined,

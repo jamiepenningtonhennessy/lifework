@@ -44,11 +44,10 @@ pdfRouter.get("/api/export/report/:clientId?", async (req: Request, res: Respons
       clientId = profile.id;
     }
 
-    const [profile, achievements, family, education, career, via, ipip, report, coachingAnnex] = await Promise.all([
+    const [profile, achievements, family, career, via, ipip, report, coachingAnnex] = await Promise.all([
       getClientProfileById(clientId),
       getAchievements(clientId),
       getFamilyBackground(clientId),
-      getEducationHistory(clientId),
       getCareerHistory(clientId),
       getViaResults(clientId),
       getIpipResults(clientId),
@@ -95,7 +94,6 @@ pdfRouter.get("/api/export/report/:clientId?", async (req: Request, res: Respons
       profile,
       achievements,
       family,
-      education,
       career,
       top5,
       ranked,
@@ -513,7 +511,6 @@ function buildReportHTML(data: {
   profile: any;
   achievements: any[];
   family: any;
-  education: any[];
   career: any[];
   top5: any[];
   ranked: any[];
@@ -521,7 +518,7 @@ function buildReportHTML(data: {
   report: any;
   approvedAnnex?: string | null;
 }): string {
-  const { clientName, date, achievements, family, education, career, top5, ranked, ipip, report, approvedAnnex } = data;
+  const { clientName, date, achievements, family, career, top5, ranked, ipip, report, approvedAnnex } = data;
 
   const achievementsByDecade = achievements.reduce((acc: Record<string, any[]>, a) => {
     if (!acc[a.decade]) acc[a.decade] = [];
@@ -825,7 +822,7 @@ function buildReportHTML(data: {
   </div>
   ` : ""}
 
-  ${(education.length > 0 || career.length > 0 || family) ? `
+  ${(career.length > 0 || family) ? `
   <!-- Background -->
   <div class="section" style="page-break-before:always;">
     <div class="section-title">Career &amp; Family Background</div>
@@ -839,17 +836,6 @@ function buildReportHTML(data: {
       ${family.upbringingLocation ? `<tr><td style="color:#9a8a78;padding:4px 0">Upbringing</td><td>${family.upbringingLocation}</td></tr>` : ""}
     </table>
     ${family.familyNarrative ? `<p style="font-size:13px;color:#1a1008;margin-bottom:8px">${family.familyNarrative}</p>` : ""}
-    ` : ""}
-
-    ${education.length > 0 ? `
-    <div class="section-subtitle">Education</div>
-    ${education.map((e: any) => `
-    <div class="timeline-item">
-      <div class="timeline-role">${e.institution}</div>
-      <div class="timeline-org">${[e.qualification, e.subject].filter(Boolean).join(" \u2014 ")}</div>
-      <div class="timeline-years">${e.yearFrom ?? ""}${e.yearTo ? ` \u2013 ${e.yearTo}` : ""}</div>
-      ${e.highlights ? `<div class="timeline-notes">${e.highlights}</div>` : ""}
-    </div>`).join("")}
     ` : ""}
 
     ${career.length > 0 ? `

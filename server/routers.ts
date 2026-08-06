@@ -746,12 +746,11 @@ const analysisRouter = router({
     await updateClientProfile(profile.id, { analysisStatus: "in_progress" });
 
     // Gather all data
-    const [messages, achievementsList, family, education, career, via, ipip, chatSessions] =
+    const [messages, achievementsList, family, career, via, ipip, chatSessions] =
       await Promise.all([
         getInterviewMessages(profile.id),
         getAchievements(profile.id),
         getFamilyBackground(profile.id),
-        getEducationHistory(profile.id),
         getCareerHistory(profile.id),
         getViaResults(profile.id),
         getIpipResults(profile.id),
@@ -785,10 +784,6 @@ const analysisRouter = router({
 
     const careerText = career
       .map((c) => `${c.yearFrom ?? "?"}-${c.yearTo ?? "present"}: ${c.role} at ${c.organisation}`)
-      .join("\n");
-
-    const educationText = education
-      .map((e) => `${e.yearFrom ?? "?"}-${e.yearTo ?? "?"}: ${e.qualification ?? ""} ${e.subject ?? ""} at ${e.institution}`)
       .join("\n");
 
      // Build chat session summaries for injection into the prompt
@@ -871,9 +866,6 @@ Mother's occupation: ${family?.motherOccupation ?? "Unknown"}
 Sibling position: ${family?.siblingPosition ?? "Unknown"}
 Family narrative: ${family?.familyNarrative ?? "None"}
 Significant influences: ${family?.significantInfluences ?? "None"}
-
-EDUCATION:
-${educationText || "None recorded."}
 
 CAREER HISTORY:
 ${careerText || "None recorded."}
@@ -1261,10 +1253,9 @@ const counselorRouter = router({
         return { summary: JSON.parse(existing.coachingSummaryJson) };
       }
 
-      const [achievementsList, family, education, career, via, ipip] = await Promise.all([
+      const [achievementsList, family, career, via, ipip] = await Promise.all([
         getAchievements(input.clientId),
         getFamilyBackground(input.clientId),
-        getEducationHistory(input.clientId),
         getCareerHistory(input.clientId),
         getViaResults(input.clientId),
         getIpipResults(input.clientId),
@@ -1280,10 +1271,6 @@ const counselorRouter = router({
 
       const careerCtx = career.map(c =>
         `${c.yearFrom ?? "?"}–${c.yearTo ?? "present"}: ${c.role ?? ""} at ${c.organisation ?? ""}`
-      ).join("\n") || "None recorded.";
-
-      const educationCtx = education.map(e =>
-        `${e.yearFrom ?? "?"}–${e.yearTo ?? "?"}: ${e.qualification ?? ""} at ${e.institution}`
       ).join("\n") || "None recorded.";
 
       const viaCtx = via?.rankedStrengths
@@ -1309,8 +1296,6 @@ LIFE HISTORY ACHIEVEMENTS:
 ${achievementsCtx}
 FAMILY BACKGROUND:
 ${familyCtx}
-EDUCATION:
-${educationCtx}
 CAREER HISTORY:
 ${careerCtx}
 VIA CHARACTER STRENGTHS (top 10):
@@ -1389,12 +1374,11 @@ IMPORTANT: Be concise. Each summary: 2-3 sentences max (under 60 words). Each ex
       // Fire and forget — return immediately, run analysis in background
       void (async () => {
         try {
-      const [messages, achievementsList, family, education, career, via, ipip] =
+      const [messages, achievementsList, family, career, via, ipip] =
         await Promise.all([
           getInterviewMessages(profile.id),
           getAchievements(profile.id),
           getFamilyBackground(profile.id),
-          getEducationHistory(profile.id),
           getCareerHistory(profile.id),
           getViaResults(profile.id),
           getIpipResults(profile.id),
@@ -1411,8 +1395,6 @@ IMPORTANT: Be concise. Each summary: 2-3 sentences max (under 60 words). Each ex
         ? ipipCareerNarrative({ domainScores: ipip.domainScores as any, facetScores: ipip.facetScores as any })
         : "No IPIP-NEO personality data available";
       const careerText = career.map((c) => `${c.yearFrom}-${c.yearTo}: ${c.role} at ${c.organisation}`).join("\n");
-      const educationText = education.map((e) => `${e.yearFrom}-${e.yearTo}: ${e.qualification} ${e.subject} at ${e.institution}`).join("\n");
-
       const prompt = `You are an expert career analyst using the narrative life history methodology of Bernard Haldane, as practised by Pennington Hennessy. Produce a comprehensive career analysis report in Markdown for the following client data.
 
 ### Life History Pattern Analysis (Canonical — Dependable Strengths)
@@ -1425,9 +1407,6 @@ Father: ${family?.fatherOccupation ?? "Unknown"}, Mother: ${family?.motherOccupa
 Sibling position: ${family?.siblingPosition ?? "Unknown"}, Upbringing: ${family?.upbringingLocation ?? "Unknown"}
 Narrative: ${family?.familyNarrative ?? "None"}
 Influences: ${family?.significantInfluences ?? "None"}
-
-### Education
-${educationText || "None."}
 
 ### Career
 ${careerText || "None."}
@@ -1768,10 +1747,9 @@ Critical analytical principle: the earliest experiences carry the deepest imprin
         return { analysis: (existing as any).counsellorViaAnalysis, cached: true };
       }
 
-      const [achievementsList, family, education, career, via, ipip] = await Promise.all([
+      const [achievementsList, family, career, via, ipip] = await Promise.all([
         getAchievements(input.clientId),
         getFamilyBackground(input.clientId),
-        getEducationHistory(input.clientId),
         getCareerHistory(input.clientId),
         getViaResults(input.clientId),
         getIpipResults(input.clientId),
@@ -2617,9 +2595,8 @@ const chatPeterRouter = router({
       }
 
       // Load client context for Peter to read
-      const [achievementsList, educationList, careerList, bg] = await Promise.all([
+      const [achievementsList, careerList, bg] = await Promise.all([
         getAchievements(profile.id),
-        getEducationHistory(profile.id),
         getCareerHistory(profile.id),
         getFamilyBackground(profile.id),
       ]);
@@ -2639,19 +2616,13 @@ const chatPeterRouter = router({
           ).join("\n")
         : "No career history recorded yet.";
 
-      const educationContext = educationList.length > 0
-        ? educationList.map(e =>
-            `${e.yearFrom || "?"}–${e.yearTo || "?"}: ${e.qualification || ""} at ${e.institution || ""}`
-          ).join("\n")
-        : "No education history recorded yet.";
-
       const backgroundContext = bg
         ? `Father's occupation: ${bg.fatherOccupation ?? "unknown"}\nMother's occupation: ${bg.motherOccupation ?? "unknown"}\nSibling position: ${bg.siblingPosition ?? "unknown"}\nFamily background notes: ${(bg as any).additionalNotes ?? "none"}`
         : "No family background recorded yet.";
 
       const sectionContext = input.section === "life_history"
-        ? `The client has completed their Life History Interview and their Background & History. Here is what they have recorded:\n\nLIFE HISTORY ACHIEVEMENTS:\n${achievementsContext}\n\nFAMILY BACKGROUND:\n${backgroundContext}\n\nEDUCATION (for context only — do not focus on this):\n${educationContext}\n\nIMPORTANT: Your role at this stage is to explore the life history achievements and the family backdrop ONLY. Do not discuss their formal career history or job titles — that is covered in a separate session. Focus on what they did of their own initiative, what they found genuinely rewarding, and how their early life and family context shaped who they are.\n\nYou have approximately 30 minutes.\n\nPacing guide:\n- Opening (first 2-3 exchanges): Begin with a brief warm reflection on what you noticed reading their whole story. Then start with early childhood (0-11) — pick ONE achievement that catches your attention.\n- Early middle (next 3-4 exchanges): Move through late childhood and teenage years (12-18). Notice what they were doing of their own initiative, not what was done to them.\n- Middle (next 3-4 exchanges): Move into the adult decades — 20s and 30s. Ask about what they found rewarding in those years, drawing on the achievements they recorded.\n- Later (next 3-4 exchanges): Cover the 40s, 50s, and beyond if relevant. Ask what has remained constant across all the changes.\n- Final third: Begin drawing threads together. Name the pattern you are seeing across the whole life and invite them to respond. Weave in the family backdrop naturally where it illuminates something.\n\nDo not spend more than 2-3 exchanges on any single phase before moving forward. Actively signal the transition: "Let me move us on to your [decade/phase]..." IMPORTANT: Do not offer to wrap up until you have explored at least 20 achievements in depth. If you have covered the full chronological arc but explored fewer than 20 achievements, continue by returning to any achievements you have not yet discussed — ask about them one at a time. Only invite the client to wrap up once 20 or more achievements have been explored.`
-        : `The client has completed their education, career, and life history sections. Here is what they have recorded:\n\nEDUCATION:\n${educationContext}\n\nCAREER HISTORY:\n${careerContext}\n${sageCvText ? `\nCV / RÉSUMÉ (uploaded by client — use this to supplement the career history above):\n${sageCvText.slice(0, 6000)}\n` : ""}\nLIFE HISTORY ACHIEVEMENTS (for context):\n${achievementsContext}\n\nFAMILY BACKDROP: Father — ${bg?.fatherOccupation ?? "unknown"}; Mother — ${bg?.motherOccupation ?? "unknown"}; Sibling position — ${bg?.siblingPosition ?? "unknown"}.\n\nYour role is to explore the relationship between their formal career path and their actual motivated behaviour across the FULL arc of their working life. You have approximately 30 minutes.\n\nPacing guide:\n- Opening (first 2-3 exchanges): Reflect briefly on the overall shape of their career. Ask about the transition from education into their first role — what drew them to it, and what they actually found rewarding once there.\n- Early middle (next 3-4 exchanges): Move through the early career years. Ask where the formal job description and the actual rewarding work diverged.\n- Middle (next 3-4 exchanges): Cover the mid-career period. Ask about the decisions they made — what they moved toward, what they moved away from, and why.\n- Later (next 3-4 exchanges): Cover the most recent roles. Ask what has remained constant in terms of what they find genuinely rewarding, regardless of job title.\n- Final third: Draw threads together. Name the pattern you see between their life history achievements and their career. The family backdrop is relevant context — weave it in naturally if it illuminates something.\n\nAfter covering the full arc, invite them to tell you when they are ready to wrap up.`;
+        ? `The client has completed their Life History Interview and their Background & History. Here is what they have recorded:\n\nLIFE HISTORY ACHIEVEMENTS:\n${achievementsContext}\n\nFAMILY BACKGROUND:\n${backgroundContext}\n\nIMPORTANT: Your role at this stage is to explore the life history achievements and the family backdrop ONLY. Do not discuss their formal career history or job titles — that is covered in a separate session. Focus on what they did of their own initiative, what they found genuinely rewarding, and how their early life and family context shaped who they are.\n\nYou have approximately 30 minutes.\n\nPacing guide:\n- Opening (first 2-3 exchanges): Begin with a brief warm reflection on what you noticed reading their whole story. Then start with early childhood (0-11) — pick ONE achievement that catches your attention.\n- Early middle (next 3-4 exchanges): Move through late childhood and teenage years (12-18). Notice what they were doing of their own initiative, not what was done to them.\n- Middle (next 3-4 exchanges): Move into the adult decades — 20s and 30s. Ask about what they found rewarding in those years, drawing on the achievements they recorded.\n- Later (next 3-4 exchanges): Cover the 40s, 50s, and beyond if relevant. Ask what has remained constant across all the changes.\n- Final third: Begin drawing threads together. Name the pattern you are seeing across the whole life and invite them to respond. Weave in the family backdrop naturally where it illuminates something.\n\nDo not spend more than 2-3 exchanges on any single phase before moving forward. Actively signal the transition: "Let me move us on to your [decade/phase]..." IMPORTANT: Do not offer to wrap up until you have explored at least 20 achievements in depth. If you have covered the full chronological arc but explored fewer than 20 achievements, continue by returning to any achievements you have not yet discussed — ask about them one at a time. Only invite the client to wrap up once 20 or more achievements have been explored.`
+        : `The client has completed their career and life history sections. Here is what they have recorded:\n\nCAREER HISTORY:\n${careerContext}\n${sageCvText ? `\nCV / RÉSUMÉ (uploaded by client — use this to supplement the career history above):\n${sageCvText.slice(0, 6000)}\n` : ""}\nLIFE HISTORY ACHIEVEMENTS (for context):\n${achievementsContext}\n\nFAMILY BACKDROP: Father — ${bg?.fatherOccupation ?? "unknown"}; Mother — ${bg?.motherOccupation ?? "unknown"}; Sibling position — ${bg?.siblingPosition ?? "unknown"}.\n\nYour role is to explore the relationship between their formal career path and their actual motivated behaviour across the FULL arc of their working life. You have approximately 30 minutes.\n\nPacing guide:\n- Opening (first 2-3 exchanges): Reflect briefly on the overall shape of their career. Ask about the transition from education into their first role — what drew them to it, and what they actually found rewarding once there.\n- Early middle (next 3-4 exchanges): Move through the early career years. Ask where the formal job description and the actual rewarding work diverged.\n- Middle (next 3-4 exchanges): Cover the mid-career period. Ask about the decisions they made — what they moved toward, what they moved away from, and why.\n- Later (next 3-4 exchanges): Cover the most recent roles. Ask what has remained constant in terms of what they find genuinely rewarding, regardless of job title.\n- Final third: Draw threads together. Name the pattern you see between their life history achievements and their career. The family backdrop is relevant context — weave it in naturally if it illuminates something.\n\nAfter covering the full arc, invite them to tell you when they are ready to wrap up.`;
 
       // Build conversation history for the LLM
       const existingMessages: ChatMessage[] = JSON.parse(session.messages || "[]");
@@ -3074,10 +3045,9 @@ const careerExplorerRouter = router({
       const session = await getOrCreateCareerExplorerSession(profile.id);
 
       // Load the full client context
-      const [achievementsList, educationList, careerList, bg, viaData, ipipData, report] =
+      const [achievementsList, careerList, bg, viaData, ipipData, report] =
         await Promise.all([
           getAchievements(profile.id),
-          getEducationHistory(profile.id),
           getCareerHistory(profile.id),
           getFamilyBackground(profile.id),
           getViaResults(profile.id),
@@ -3094,10 +3064,6 @@ const careerExplorerRouter = router({
             return others ? `${base}\n  Others said: ${others}` : base;
           }).join("\n")
         : "No achievements recorded yet.";
-
-      const educationCtx = educationList.length > 0
-        ? educationList.map(e => `${e.yearFrom ?? "?"}–${e.yearTo ?? "?"}: ${e.qualification ?? ""} at ${e.institution}`).join("\n")
-        : "No education history recorded.";
 
       const careerCtx = careerList.length > 0
         ? careerList.map(c => `${c.yearFrom ?? "?"}–${c.yearTo ?? "present"}: ${c.role ?? ""} at ${c.organisation}`).join("\n")
@@ -3185,9 +3151,6 @@ const careerExplorerRouter = router({
 
 LIFE HISTORY ACHIEVEMENTS:
 ${achievementsCtx}
-
-EDUCATION:
-${educationCtx}
 
 CAREER HISTORY:
 ${careerCtx}${explorerCvText ? `\n\nCV / RÉSUMÉ (uploaded by client — use this to supplement the career history above):\n${explorerCvText.slice(0, 6000)}` : ""}

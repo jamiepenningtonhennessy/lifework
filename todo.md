@@ -1665,3 +1665,13 @@
 - [x] Change "IPIP Survey" in nav to "Personality Survey"
 - [ ] Add clearer message on locked Career Explorer: "Your counsellor will unlock this after your coaching session"
 - [ ] Gate nav links so locked steps show a tooltip rather than navigating freely
+
+## Remove Education History
+
+- [ ] Remove Education tab from Background.tsx client form (keep Family Background and Career History tabs)
+- [ ] Remove education from PreviewPages.tsx background preview
+- [ ] Remove education section from WOW report analysis context (wowReport.ts)
+- [ ] Remove education section from PDF/HTML export (pdf-export.ts)
+- [ ] Remove education from counsellor ClientProfile view
+- [ ] Remove education from Sage career_education chat context (routers.ts)
+- [ ] Update Background page header/description to reflect two tabs only

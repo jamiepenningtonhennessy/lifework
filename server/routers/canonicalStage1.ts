@@ -18,7 +18,6 @@ import {
   getAchievements,
   getInterviewMessages,
   getFamilyBackground,
-  getEducationHistory,
   getCareerHistory,
   updateCanonicalStage1,
   getAnalysisReport,
@@ -121,12 +120,11 @@ function buildAchievementContext(
 
 // ─── Main export: generate and store the canonical Stage 1 ───────────────────
 export async function generateAndStoreCanonicalStage1(clientId: number): Promise<string> {
-  const [profile, achievementsList, interviewMsgs, family, education, career] = await Promise.all([
+  const [profile, achievementsList, interviewMsgs, family, career] = await Promise.all([
     getClientProfileById(clientId),
     getAchievements(clientId),
     getInterviewMessages(clientId),
     getFamilyBackground(clientId),
-    getEducationHistory(clientId),
     getCareerHistory(clientId),
   ]);
 
@@ -155,19 +153,6 @@ export async function generateAndStoreCanonicalStage1(clientId: number): Promise
     if (family.significantInfluences) familyLines.push(`Significant influences: ${family.significantInfluences}`);
   }
   const familyContext = familyLines.length > 1 ? familyLines.join("\n") : null;
-
-  // Education history section
-  const educationLines: string[] = [];
-  if (education && education.length > 0) {
-    educationLines.push("--- EDUCATION HISTORY ---");
-    for (const e of education) {
-      educationLines.push(
-        `${e.institution ?? ""} — ${e.qualification ?? ""} ${e.subject ?? ""} (${e.yearFrom ?? ""}–${e.yearTo ?? ""})`.trim()
-      );
-      if (e.highlights) educationLines.push(`  Highlights: ${e.highlights}`);
-    }
-  }
-  const educationContext = educationLines.length > 1 ? educationLines.join("\n") : null;
 
   // Career history section
   const careerLines: string[] = [];
@@ -201,7 +186,6 @@ export async function generateAndStoreCanonicalStage1(clientId: number): Promise
     "--- LIFE HISTORY ACHIEVEMENTS ---",
     achievementContext,
     ...(familyContext ? ["", familyContext] : []),
-    ...(educationContext ? ["", educationContext] : []),
     ...(careerContext ? ["", careerContext] : []),
     ...(interviewContext ? ["", "--- SAGE 1 INTERVIEW TRANSCRIPT ---", interviewContext] : []),
     "",

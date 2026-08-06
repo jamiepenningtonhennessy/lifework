@@ -20,7 +20,6 @@ import {
   getClientProfileById,
   getAchievements,
   getFamilyBackground,
-  getEducationHistory,
   getCareerHistory,
   getViaResults,
   getIpipResults,
@@ -49,11 +48,10 @@ const BIG5: Record<string, { name: string; low: string; high: string }> = {
 // ─── Build full client context string ────────────────────────────────────────
 
 async function buildCounsellorContext(clientId: number): Promise<string> {
-  const [profile, achievements, family, education, career, via, ipip, report] = await Promise.all([
+  const [profile, achievements, family, career, via, ipip, report] = await Promise.all([
     getClientProfileById(clientId),
     getAchievements(clientId),
     getFamilyBackground(clientId),
-    getEducationHistory(clientId),
     getCareerHistory(clientId),
     getViaResults(clientId),
     getIpipResults(clientId),
@@ -87,14 +85,6 @@ async function buildCounsellorContext(clientId: number): Promise<string> {
     if (family.upbringingLocation)   lines.push(`Upbringing: ${family.upbringingLocation}`);
     if (family.familyNarrative)      lines.push(`Family narrative: ${family.familyNarrative}`);
     if (family.significantInfluences) lines.push(`Significant influences: ${family.significantInfluences}`);
-  }
-
-  if (education.length > 0) {
-    lines.push("\n--- EDUCATION ---");
-    for (const e of education) {
-      lines.push(`${e.institution} — ${e.qualification ?? ""} ${e.subject ?? ""} (${e.yearFrom ?? ""}–${e.yearTo ?? ""})`);
-      if (e.highlights) lines.push(`  ${e.highlights}`);
-    }
   }
 
   if (career.length > 0) {

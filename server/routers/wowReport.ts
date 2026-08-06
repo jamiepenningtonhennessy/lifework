@@ -98,11 +98,10 @@ async function buildClientContext(clientId: number): Promise<{
   facetScores: Record<string, number>;
   restoreClientName: (text: string) => string;
 }> {
-  const [profile, achievementsList, family, education, career, via, ipip] = await Promise.all([
+  const [profile, achievementsList, family, career, via, ipip] = await Promise.all([
     getClientProfileById(clientId),
     getAchievements(clientId),
     getFamilyBackground(clientId),
-    getEducationHistory(clientId),
     getCareerHistory(clientId),
     getViaResults(clientId),
     getIpipResults(clientId),
@@ -165,14 +164,6 @@ async function buildClientContext(clientId: number): Promise<{
     if (family.upbringingLocation) lines.push(`Upbringing: ${family.upbringingLocation}`);
     if (family.familyNarrative) lines.push(`Family narrative: ${family.familyNarrative}`);
     if (family.significantInfluences) lines.push(`Significant influences: ${family.significantInfluences}`);
-  }
-
-  if (education.length > 0) {
-    lines.push("\n--- EDUCATION ---");
-    for (const e of education) {
-      lines.push(`${e.institution} — ${e.qualification ?? ""} ${e.subject ?? ""} (${e.yearFrom ?? ""}–${e.yearTo ?? ""})`);
-      if (e.highlights) lines.push(`  ${e.highlights}`);
-    }
   }
 
   if (career.length > 0) {
@@ -2397,7 +2388,6 @@ async function renderAnnexPdf(
   domainScores: Record<string, number>,
   facetScores: Record<string, number>,
   familyBg: { fatherOccupation?: string | null; motherOccupation?: string | null; siblingPosition?: string | null; upbringingLocation?: string | null; familyNarrative?: string | null; significantInfluences?: string | null } | null,
-  educationList: Array<{ institution: string; qualification?: string | null; subject?: string | null; yearFrom?: string | null; yearTo?: string | null; highlights?: string | null }>,
   careerList: Array<{ organisation: string; role?: string | null; yearFrom?: string | null; yearTo?: string | null; keyResponsibilities?: string | null; whyLeft?: string | null; highlights?: string | null }>,
 ): Promise<Buffer> {
   const pdfmake = _require("pdfmake") as any;
@@ -2515,42 +2505,10 @@ async function renderAnnexPdf(
     bContent.push(para("No family background data provided.", { color: LIGHT_GREY, italics: true }));
   }
 
-  // B2: Educational History
+  // B2: Career History
   bContent.push({ text: "", margin: [0, 16, 0, 0] as [number,number,number,number] });
   bContent.push({
-    text: "B2 — Educational History",
-    font: "Roboto", bold: true, fontSize: 13, color: NAVY,
-    margin: [0, 8, 0, 4] as [number,number,number,number],
-  });
-  bContent.push({ canvas: [{ type: "line", x1: 0, y1: 0, x2: 483, y2: 0, lineWidth: 0.5, lineColor: GOLD }], margin: [0, 0, 0, 10] as [number,number,number,number] });
-  if (educationList.length === 0) {
-    bContent.push(para("No educational history provided.", { color: LIGHT_GREY, italics: true }));
-  } else {
-    for (const edu of educationList) {
-      const years = [edu.yearFrom, edu.yearTo].filter(Boolean).join("\u2013") || "";
-      const qualLine = [edu.qualification, edu.subject].filter(Boolean).join(", ");
-      bContent.push({
-        columns: [
-          {
-            stack: [
-              { text: edu.institution, font: "Roboto", bold: true, fontSize: 11, color: NAVY },
-              ...(qualLine ? [{ text: qualLine, font: "Roboto", fontSize: 10, color: DARK_GREY, margin: [0, 1, 0, 0] as [number,number,number,number] }] : []),
-              ...(edu.highlights ? [{ text: edu.highlights, font: "Roboto", fontSize: 9, color: MID_GREY, margin: [0, 3, 0, 0] as [number,number,number,number] }] : []),
-            ],
-            width: "*",
-          },
-          ...(years ? [{ text: years, font: "Roboto", fontSize: 10, color: MID_GREY, width: 80, alignment: "right" as const }] : [{ text: "", width: 80 }]),
-        ],
-        margin: [0, 0, 0, 10] as [number,number,number,number],
-      });
-      bContent.push({ canvas: [{ type: "line", x1: 0, y1: 0, x2: 483, y2: 0, lineWidth: 0.3, lineColor: "#eeeeee" }], margin: [0, 0, 0, 6] as [number,number,number,number] });
-    }
-  }
-
-  // B3: Career History
-  bContent.push({ text: "", margin: [0, 16, 0, 0] as [number,number,number,number] });
-  bContent.push({
-    text: "B3 — Career History",
+    text: "B2 — Career History",
     font: "Roboto", bold: true, fontSize: 13, color: NAVY,
     margin: [0, 8, 0, 4] as [number,number,number,number],
   });
@@ -2813,9 +2771,8 @@ async function runGenerationJob(clientId: number, reportType: WowReportType = "s
     let combinedBuffer = pdfBuffer;
     try {
       const { PDFDocument } = await import("pdf-lib");
-      const [annexFamilyBg, annexEducation, annexCareer] = await Promise.all([
+      const [annexFamilyBg, annexCareer] = await Promise.all([
         getFamilyBackground(clientId),
-        getEducationHistory(clientId),
         getCareerHistory(clientId),
       ]);
       const annexBuffer = await renderAnnexPdf(
@@ -2825,7 +2782,6 @@ async function runGenerationJob(clientId: number, reportType: WowReportType = "s
         sections.domainScores ?? {},
         sections.facetScores ?? {},
         annexFamilyBg,
-        annexEducation,
         annexCareer,
       );
       console.log(`[WOW Report] Annex rendered, size: ${annexBuffer.length} bytes`);
@@ -2956,19 +2912,17 @@ export const wowReportRouter = router({
       let combinedBuffer = pdfBuffer;
       try {
         const { PDFDocument } = await import("pdf-lib");
-        const [annexFamilyBg, annexEducation, annexCareer] = await Promise.all([
+        const [annexFamilyBg, annexCareer] = await Promise.all([
           getFamilyBackground(input.clientId),
-          getEducationHistory(input.clientId),
           getCareerHistory(input.clientId),
         ]);
         const annexBuffer = await renderAnnexPdf(
           input.clientId,
-          sections.clientFullName ?? sections.clientName,
+          sections.clientFullName ?? sections.clientName ?? "Client",
           sections.viaRanked ?? [],
           sections.domainScores ?? {},
           sections.facetScores ?? {},
           annexFamilyBg,
-          annexEducation,
           annexCareer,
         );
         const mainDoc = await PDFDocument.load(pdfBuffer);

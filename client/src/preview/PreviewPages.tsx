@@ -333,7 +333,7 @@ export function PreviewClientDashboard() {
     {
       id: "background", icon: <User className="w-5 h-5" />,
       title: "2. Background & History",
-      description: "Capture your family background, education, and career timeline.",
+      description: "Capture your family background and career timeline.",
       status: "not_started", cta: "Add Background", path: "/preview/background",
     },
     {
@@ -564,7 +564,7 @@ export function PreviewInterview() {
 // ─── 3. Background & History (first visit — video + empty forms) ──────────────
 export function PreviewBackground() {
   const [, navigate] = useLocation();
-  const [activeTab, setActiveTab] = useState<"family" | "education" | "career">("family");
+  const [activeTab, setActiveTab] = useState<"family" | "career">("family");
   const [client] = usePreviewClient();
   const { family, education, career } = getClientData(client);
 
@@ -589,7 +589,7 @@ export function PreviewBackground() {
 
         {/* Tabs */}
         <div className="flex border-b border-border mb-8">
-          {(["family", "education", "career"] as const).map((tab) => (
+          {(["family", "career"] as const).map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
@@ -600,7 +600,7 @@ export function PreviewBackground() {
                 background: "transparent",
               }}
             >
-              {tab === "family" ? "Family Background" : tab === "education" ? "Education" : "Career History"}
+              {tab === "family" ? "Family Background" : "Career History"}
             </button>
           ))}
         </div>
@@ -641,31 +641,6 @@ export function PreviewBackground() {
           </div>
         )}
 
-        {/* Education tab */}
-        {activeTab === "education" && (
-          <div className="space-y-5">
-            <p className="text-sm text-muted-foreground">Add your educational history, starting with secondary school. You can add multiple entries.</p>
-            {education.map((edu, i) => (
-              <div key={i} className="p-5 rounded-xl border border-border bg-card space-y-3">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-semibold uppercase tracking-widest" style={{ color: "var(--lw-gold)" }}>{edu.type}</span>
-                  <span className="text-xs text-muted-foreground">{edu.years}</span>
-                </div>
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="block text-xs text-muted-foreground mb-1">Institution</label>
-                    <input type="text" defaultValue={edu.institution} readOnly className="w-full px-3 py-2 text-sm border border-border rounded bg-background text-foreground" />
-                  </div>
-                  <div>
-                    <label className="block text-xs text-muted-foreground mb-1">Qualification</label>
-                    <input type="text" defaultValue={edu.qualification} readOnly className="w-full px-3 py-2 text-sm border border-border rounded bg-background text-foreground" />
-                  </div>
-                </div>
-                {edu.notes && <p className="text-xs text-muted-foreground italic">{edu.notes}</p>}
-              </div>
-            ))}
-          </div>
-        )}
 
         {/* Career tab */}
         {activeTab === "career" && (

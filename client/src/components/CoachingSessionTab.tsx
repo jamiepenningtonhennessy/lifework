@@ -39,7 +39,6 @@ interface Props {
     ipip: any;
     career: any[];
     family: any;
-    education: any[];
     chatSessions: any[];
     report: any;
     clientFirstName?: string;
@@ -313,11 +312,11 @@ function AchievementsChart({ achievements }: { achievements: any[] }) {
 
 // ─── PAST TAB ─────────────────────────────────────────────────────────────────
 function PastTab({
-  clientId, achievements, family, career, education, chatSessions,
+  clientId, achievements, family, career, chatSessions,
   notes, onNoteChange, analyses, onRefreshAnalyses, clientName,
 }: {
   clientId: number; achievements: any[]; family: any; career: any[];
-  education: any[]; chatSessions: any[]; notes: Record<string, string>;
+  chatSessions: any[]; notes: Record<string, string>;
   onNoteChange: (key: string, val: string) => void;
   analyses: Record<string, any>; onRefreshAnalyses: () => void;
   clientName: string;
@@ -326,7 +325,7 @@ function PastTab({
   const [activeSection, setActiveSection] = useState<PastSection>("lifeHistory");
 
   const lifeSession = chatSessions.find((s: any) => s.section === "life_history");
-  const careerSession = chatSessions.find((s: any) => s.section === "career_education");
+  const careerSession = chatSessions.find((s: any) => s.section === "career_education")
   const lifeMessages = parseMessages(lifeSession?.messages);
   const careerMessages = parseMessages(careerSession?.messages);
 
@@ -483,29 +482,8 @@ function PastTab({
               ))}
             </div>
           </div>
-          {education.length > 0 && (
-            <div className="border border-border rounded-xl overflow-hidden">
-              <div className="px-4 py-2.5 border-b border-border bg-muted/20">
-                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Education</p>
-              </div>
-              <div className="divide-y divide-border">
-                {education.map((e: any) => (
-                  <div key={e.id} className="p-4">
-                    <div className="flex items-start justify-between gap-3">
-                      <div>
-                        <p className="text-sm font-semibold text-foreground">{e.qualification ?? ""} {e.subject ?? ""}</p>
-                        <p className="text-xs text-muted-foreground">{e.institution}</p>
-                      </div>
-                      <p className="text-xs text-muted-foreground whitespace-nowrap">{e.yearFrom ?? "?"} – {e.yearTo ?? "?"}</p>
-                    </div>
-                    {e.highlights && <p className="text-xs text-muted-foreground mt-1">{e.highlights}</p>}
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
           <div>
-            <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-2">Sage — Career & Education Conversation</p>
+            <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-2">Sage — Career Conversation</p>
             <SageTranscript messages={careerMessages} clientName={clientName} />
           </div>
           <div className="border border-[var(--lw-gold)]/20 rounded-xl p-4 bg-[var(--lw-gold-light)]/5">
@@ -850,7 +828,7 @@ function FutureTab({
 
 // ─── Main Component ───────────────────────────────────────────────────────────
 export default function CoachingSessionTab({ clientId, clientData }: Props) {
-  const { achievements, via, ipip, career, family, education, chatSessions, clientFirstName } = clientData;
+  const { achievements, via, ipip, career, family, chatSessions, clientFirstName } = clientData;
   const clientName = clientFirstName ?? "Client";
   const utils = trpc.useUtils();
 
@@ -922,13 +900,14 @@ export default function CoachingSessionTab({ clientId, clientData }: Props) {
         ))}
       </div>
       {activeTab === "past" && (
-        <PastTab
-          clientId={clientId} achievements={achievements} family={family}
-          career={career} education={education ?? []} chatSessions={chatSessions}
-          notes={notes} onNoteChange={handleNoteChange}
-          analyses={analyses} onRefreshAnalyses={() => refetchAnalyses()}
-          clientName={clientName}
-        />
+       <PastTab
+         clientId={clientId} achievements={achievements} family={family}
+         career={career}
+         notes={notes} onNoteChange={handleNoteChange}
+         analyses={analyses} onRefreshAnalyses={() => refetchAnalyses()}
+         clientName={clientName}
+          chatSessions={chatSessions}
+       />
       )}
       {activeTab === "present" && (
         <PresentTab clientId={clientId} via={via} ipip={ipip} notes={notes} onNoteChange={handleNoteChange} />
