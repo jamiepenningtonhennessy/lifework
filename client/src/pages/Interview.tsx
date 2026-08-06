@@ -723,7 +723,7 @@ export default function Interview() {
           personally pleased with what you did. Don't take any notice of what others thought.{" "}
           {isUnder30
             ? <><strong>We'd like at least {currentSlotCount} events</strong> for this stage — the more detail the better.</>
-            : <>Record <strong>4 actions</strong> for this stage using several short phrases — the more detail the better.</>
+            : <>Record up to <strong>4 actions</strong> for this stage — if you can only recall 2 or 3, that is fine using several short phrases — the more detail the better.</>
           }
         </div>
 

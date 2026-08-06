@@ -42,7 +42,7 @@ export const IPIP_DOMAINS: IpipDomain[] = [
   {
     key: "N",
     name: "Neuroticism",
-    description: "The tendency to experience negative emotions such as anxiety, anger, or depression. High scorers are emotionally reactive and vulnerable to stress. Low scorers are emotionally stable and resilient.",
+    description: "This dimension reflects how you tend to respond to stress and emotional pressure. It is not a measure of mental health — it simply describes your natural emotional style. High scorers tend to be emotionally expressive and reactive; low scorers tend to be calm and resilient.",
     lowLabel: "Emotionally stable, calm, resilient",
     highLabel: "Emotionally reactive, prone to stress",
     color: "#7C3AED",

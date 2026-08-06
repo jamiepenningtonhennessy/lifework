@@ -35,6 +35,7 @@ import {
 } from "lucide-react";
 import { Streamdown } from "streamdown";
 import { IPIP_DOMAINS, IPIP_FACETS, type IpipDomainKey, type IpipFacetKey } from "../../../shared/ipip-data";
+import { VIA_STRENGTHS } from "../../../shared/via-data";
 import {
   PREVIEW_IPIP_RESULTS, PREVIEW_VIA_RESULTS, PREVIEW_ACHIEVEMENTS, PREVIEW_FAMILY,
   PREVIEW_EDUCATION, PREVIEW_CAREER, PREVIEW_PROFILE,
@@ -77,8 +78,8 @@ const ALEX_SAGE_CONTEXT = [
   ),
   "",
   "FAMILY BACKGROUND:",
-  `Father's occupation: ${PREVIEW_FAMILY.fatherOccupation}`,
-  `Mother's occupation: ${PREVIEW_FAMILY.motherOccupation}`,
+  `Parent / Guardian 1: ${PREVIEW_FAMILY.fatherOccupation}`,
+  `Parent / Guardian 2: ${PREVIEW_FAMILY.motherOccupation}`,
   `Siblings: ${PREVIEW_FAMILY.siblings}`,
   `Childhood location: ${PREVIEW_FAMILY.childhoodLocation}`,
   `Family notes: ${PREVIEW_FAMILY.familyNotes}`,
@@ -91,8 +92,8 @@ const ALISTAIR_SAGE_CONTEXT = [
   ),
   "",
   "FAMILY BACKGROUND:",
-  `Father's occupation: ${PREVIEW_FAMILY_ALISTAIR.fatherOccupation}`,
-  `Mother's occupation: ${PREVIEW_FAMILY_ALISTAIR.motherOccupation}`,
+  `Parent / Guardian 1: ${PREVIEW_FAMILY_ALISTAIR.fatherOccupation}`,
+  `Parent / Guardian 2: ${PREVIEW_FAMILY_ALISTAIR.motherOccupation}`,
   `Siblings: ${PREVIEW_FAMILY_ALISTAIR.siblings}`,
   `Childhood location: ${PREVIEW_FAMILY_ALISTAIR.childhoodLocation}`,
   `Family notes: ${PREVIEW_FAMILY_ALISTAIR.familyNotes}`,
@@ -398,7 +399,7 @@ export function PreviewClientDashboard() {
               that lies beneath the surface of your story.
             </p>
             <p>
-              This conversation can take up to two hours — and it is worth every minute. It is the bedrock of the Lifework
+              This conversation typically takes 45–90 minutes, at your own pace — and it is worth every minute. It is the bedrock of the Lifework
               process, and the reason that Lifework has such a profound impact on the people who go through it.
             </p>
             <p>
@@ -798,7 +799,8 @@ const VIRTUE_COLORS: Record<string, string> = {
 export function PreviewVIAResults() {
   const [, navigate] = useLocation();
   const ranked = PREVIEW_VIA_RESULTS.rankedStrengths;
-  const top5 = ranked.slice(0, 5);
+ const top5 = ranked.slice(0, 5);
+  const strengthsMap = new Map(VIA_STRENGTHS.map((s) => [s.id, s]));
   return (
     <div className="min-h-screen bg-background">
       <PreviewNav current="/preview/via/results" />
@@ -823,12 +825,15 @@ export function PreviewVIAResults() {
           <div className="grid gap-3">
             {top5.map((s, i) => (
               <Card key={s.id} className={i === 0 ? "border-primary/40 bg-primary/5" : ""}>
-                <CardContent className="p-4 flex items-center gap-4">
-                  <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 text-sm font-bold text-primary">{s.rank}</div>
-                  <div className="flex-1">
-                    <p className="font-semibold text-foreground">{s.name}</p>
-                    <Badge variant="outline" className={`text-xs mt-1 ${VIRTUE_COLORS[s.virtue] ?? ""}`}>{s.virtue}</Badge>
-                  </div>
+               <CardContent className="p-4 flex items-center gap-4">
+                 <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 text-sm font-bold text-primary">{s.rank}</div>
+                 <div className="flex-1">
+                   <p className="font-semibold text-foreground">{s.name}</p>
+                   <Badge variant="outline" className={`text-xs mt-1 ${VIRTUE_COLORS[s.virtue] ?? ""}`}>{s.virtue}</Badge>
+                    {strengthsMap.get(s.id)?.description && (
+                      <p className="text-xs text-muted-foreground mt-1.5 leading-relaxed">{strengthsMap.get(s.id)!.description}</p>
+                    )}
+                 </div>
                   <div className="w-24">
                     <Progress value={(s.score / 25) * 100} className="h-2" />
                     <p className="text-xs text-muted-foreground text-right mt-1">{s.score}/25</p>
@@ -968,6 +973,12 @@ export function PreviewIpipResults() {
     return { label: "Average", variant: "outline" as const };
   }
 
+  function ordinal(n: number): string {
+    const s = ["th", "st", "nd", "rd"];
+    const v = n % 100;
+    return n + (s[(v - 20) % 10] || s[v] || s[0]);
+  }
+
   return (
     <div className="min-h-screen bg-background">
       <PreviewNav current="/preview/ipip-results" />
@@ -993,7 +1004,7 @@ export function PreviewIpipResults() {
                   <CardTitle className="text-base font-semibold" style={{ color: domain.color }}>{domain.name}</CardTitle>
                   <div className="flex items-center gap-2">
                     <Badge variant={variant}>{label}</Badge>
-                    <span className="text-sm font-mono text-muted-foreground">{ds}th</span>
+                    <span className="text-sm font-mono text-muted-foreground">{ordinal(ds)}</span>
                   </div>
                 </div>
                 <Progress value={ds} className="h-2 mt-2" />
@@ -1045,9 +1056,7 @@ export function PreviewIpipResults() {
             </div>
             <div className="flex flex-col sm:flex-row gap-3 mt-2">
               <a
-                href="https://www.penningtonhennessy.com"
-                target="_blank"
-                rel="noopener noreferrer"
+                href="mailto:jamie@penningtonhennessy.com?subject=Lifework%20Coaching%20Session&body=Hi%20Jamie%2C%0A%0AI%20have%20completed%20my%20Lifework%20data%20input%20and%20would%20love%20to%20arrange%20a%20coaching%20session.%20Could%20you%20send%20me%20some%20available%20timeslots%3F%0A%0AMany%20thanks"
               >
                 <Button
                   size="lg"
@@ -1095,7 +1104,7 @@ export function PreviewMyReport() {
           <Brain className="h-14 w-14 text-muted-foreground mx-auto mb-4" />
           <h2 className="text-2xl font-semibold mb-2">Your Report Isn't Ready Yet</h2>
           <p className="text-muted-foreground mb-6">
-            Your counsellor will generate your personalised career analysis report once you have completed all the steps in your journey. Make sure all four steps are marked as complete on your dashboard.
+            Your counsellor will generate your personalised career analysis report once you have completed all the steps in your journey. Make sure all six steps are marked as complete on your dashboard.
           </p>
           <Button onClick={() => navigate("/preview/dashboard")} className="gap-2">
             <ArrowLeft className="w-4 h-4" /> Back to Dashboard

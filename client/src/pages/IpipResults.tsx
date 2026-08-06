@@ -212,7 +212,7 @@ export default function IpipResults() {
             </div>
             <div className="flex flex-col sm:flex-row gap-3 mt-2">
               <a
-                href="https://www.penningtonhennessy.com"
+                href="mailto:jamie@penningtonhennessy.com?subject=Lifework%20Coaching%20Session&body=Hi%20Jamie%2C%0A%0AI%20have%20completed%20my%20Lifework%20data%20input%20and%20would%20love%20to%20arrange%20a%20coaching%20session.%20Could%20you%20send%20me%20some%20available%20timeslots%3F%0A%0AMany%20thanks"
                 target="_blank"
                 rel="noopener noreferrer"
               >

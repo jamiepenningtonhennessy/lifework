@@ -133,11 +133,13 @@ function FamilyForm() {
       </p>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
-          <Label>Father's Occupation</Label>
+         <Label>Father's Occupation</Label>
+         <Input className="mt-1" value={form.fatherOccupation} onChange={(e) => handleChange("fatherOccupation", e.target.value)} placeholder="e.g. Engineer, Teacher" />
+          <Label>Parent / Guardian 1 — Occupation</Label>
           <Input className="mt-1" value={form.fatherOccupation} onChange={(e) => handleChange("fatherOccupation", e.target.value)} placeholder="e.g. Engineer, Teacher" />
         </div>
         <div>
-          <Label>Mother's Occupation</Label>
+          <Label>Parent / Guardian 2 — Occupation</Label>
           <Input className="mt-1" value={form.motherOccupation} onChange={(e) => handleChange("motherOccupation", e.target.value)} placeholder="e.g. Nurse, Homemaker" />
         </div>
         <div>

@@ -32,7 +32,7 @@ const STEPS = [
     icon: <MessageSquare className="w-5 h-5" />,
     title: "1. Life History Interview",
     description:
-      "A structured conversation exploring your achievements across the decades of your life.",
+      "A structured conversation exploring your achievements across the decades of your life. Your progress is automatically saved — you can return at any time.",
     path: "/interview",
     statusKey: "interviewStatus",
     cta: "Begin Interview",
@@ -54,7 +54,7 @@ const STEPS = [
     icon: <Sparkles className="w-5 h-5" />,
     title: "3. Sage — Exploring your Life History",
     description:
-      "Sage will read what you have written and add depth by asking you some reflective questions. You must complete at least 20 events with Sage before moving on to the psychometric assessments.",
+      "Sage will read what you have written and add depth by asking you some reflective questions. This conversation typically takes 45–90 minutes at your own pace. You must complete at least 20 events with Sage before moving on to the psychometric assessments.",
     path: null,
     statusKey: "sageStatus",
     cta: null,

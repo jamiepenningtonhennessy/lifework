@@ -33,7 +33,7 @@ export default function MyReport() {
           <h2 className="text-2xl font-semibold mb-2">Your Report Isn't Ready Yet</h2>
           <p className="text-muted-foreground mb-6">
             Your counsellor will generate your personalised career analysis report once you have
-            completed all the steps in your journey. Make sure all four steps are marked as complete
+            completed all the steps in your journey. Make sure all six steps are marked as complete
             on your dashboard.
           </p>
           <Button onClick={() => setLocation("/dashboard")} className="gap-2">

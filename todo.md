@@ -1639,3 +1639,29 @@
 ## Bug Fix — Psychometrics step incorrectly locked for legacy clients
 
 - [x] Fix: Psychometrics step on client dashboard showed as locked for clients (e.g. Neil Denny) who completed VIA/IPIP before the Sage gate was introduced — locking logic now bypasses the Sage gate if both viaStatus and ipipStatus are already "completed"
+
+## Test Run Fixes — High Priority
+
+- [x] Fix ordinal suffix bug on IPIP results: "72th" → "72nd", "81th" → "81st" (and any others)
+- [x] Fix "all four steps" → "all six steps" on My Report holding page
+- [x] Fix "Book Your Coaching Session" button — link to Jamie's contact/calendar page, not PH homepage
+
+## Test Run Fixes — Medium Priority
+
+- [ ] Add poster/thumbnail images to all intro videos so they don't show as black rectangles on load
+- [ ] Update Manus OAuth app name from "Pennington Hennessy" to "Lifework"
+- [x] Hide Sage chat button on dashboard until at least one of interview/background has been started
+- [ ] Add a booking CTA (link to Jamie's contact) to Step 5 (Lifework Coaching) when it unlocks
+- [x] Change "Father's occupation" / "Mother's occupation" to "Parent / Guardian 1" / "Parent / Guardian 2"
+- [x] Add brief strength descriptions to VIA results page (one-line per strength or expandable)
+
+## Test Run Fixes — Low Priority
+
+- [x] Soften Sage time estimate: "up to two hours" → "typically 45–90 minutes, at your own pace"
+- [x] Add note to interview form: "If you can only recall 2 or 3 memories for this phase, that is fine"
+- [x] Soften Neuroticism domain description — replace clinical language about anxiety/depression
+- [ ] Reorder IPIP domains to start with Extraversion instead of Neuroticism
+- [x] Add "Your progress is automatically saved" note to interview form
+- [x] Change "IPIP Survey" in nav to "Personality Survey"
+- [ ] Add clearer message on locked Career Explorer: "Your counsellor will unlock this after your coaching session"
+- [ ] Gate nav links so locked steps show a tooltip rather than navigating freely
