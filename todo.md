@@ -1660,7 +1660,7 @@
 - [x] Soften Sage time estimate: "up to two hours" → "typically 45–90 minutes, at your own pace"
 - [x] Add note to interview form: "If you can only recall 2 or 3 memories for this phase, that is fine"
 - [x] Soften Neuroticism domain description — replace clinical language about anxiety/depression
-- [ ] Reorder IPIP domains to start with Extraversion instead of Neuroticism
+- [x] Reorder IPIP domains to start with Extraversion instead of Neuroticism (new order: E, O, A, C, N; N renamed to "Emotional Resilience")
 - [x] Add "Your progress is automatically saved" note to interview form
 - [x] Change "IPIP Survey" in nav to "Personality Survey"
 - [ ] Add clearer message on locked Career Explorer: "Your counsellor will unlock this after your coaching session"

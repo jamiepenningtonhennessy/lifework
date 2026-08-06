@@ -22,9 +22,9 @@ const SCALE_LABELS = [
   { value: 5, label: "Very Accurate" },
 ];
 
-// Group questions by domain (24 questions each for N and E, then O, A, C)
+// Group questions by domain — order: E, O, A, C, N (Emotional Resilience last)
 // We'll show one domain per page = 5 pages of 24 questions each
-const DOMAIN_ORDER: IpipDomainKey[] = ["N", "E", "O", "A", "C"];
+const DOMAIN_ORDER: IpipDomainKey[] = ["E", "O", "A", "C", "N"];
 
 function getQuestionsForDomain(domainKey: IpipDomainKey) {
   const facetKeys = IPIP_FACETS.filter((f) => f.domain === domainKey).map((f) => f.key);

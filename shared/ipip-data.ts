@@ -40,14 +40,6 @@ export interface IpipQuestion {
 
 export const IPIP_DOMAINS: IpipDomain[] = [
   {
-    key: "N",
-    name: "Neuroticism",
-    description: "This dimension reflects how you tend to respond to stress and emotional pressure. It is not a measure of mental health — it simply describes your natural emotional style. High scorers tend to be emotionally expressive and reactive; low scorers tend to be calm and resilient.",
-    lowLabel: "Emotionally stable, calm, resilient",
-    highLabel: "Emotionally reactive, prone to stress",
-    color: "#7C3AED",
-  },
-  {
     key: "E",
     name: "Extraversion",
     description: "The tendency to seek stimulation in the company of others. High scorers are outgoing, energetic, and talkative. Low scorers (introverts) tend to be reserved and prefer solitary activities.",
@@ -78,6 +70,14 @@ export const IPIP_DOMAINS: IpipDomain[] = [
     lowLabel: "Spontaneous, flexible, easy-going",
     highLabel: "Organised, disciplined, goal-directed",
     color: "#2563EB",
+  },
+  {
+    key: "N",
+    name: "Emotional Resilience",
+    description: "This dimension reflects how you tend to respond to stress and emotional pressure. It is not a measure of mental health — it simply describes your natural emotional style. High scorers tend to be emotionally expressive and reactive; low scorers tend to be calm and resilient.",
+    lowLabel: "Emotionally stable, calm, resilient",
+    highLabel: "Emotionally expressive, reactive to stress",
+    color: "#7C3AED",
   },
 ];
 
