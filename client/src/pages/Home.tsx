@@ -4,6 +4,7 @@ import { getLoginUrl } from "@/const";
 import { useLocation } from "wouter";
 import { ArrowRight, CheckCircle, X, Lock, Download } from "lucide-react";
 import { trpc } from "@/lib/trpc";
+import { lifeworkLandingPath } from "@/lib/lifeworkDomain";
 
 const LIFEWORK_VIDEO_URL = "https://d2xsxph8kpxj0f.cloudfront.net/107696804/kFbbE6kqNApXGDFpQJUGV7/lifework-overview_10b2a812.mp4";
 
@@ -25,7 +26,7 @@ export default function Home() {
         // Store in sessionStorage so it survives a page refresh within the session
         sessionStorage.setItem("lw_access_granted", "1");
         // Proceed to sign-in — return to Lifework opening page after login
-        window.location.href = getLoginUrl("/coaching/lifework");
+        window.location.href = getLoginUrl(lifeworkLandingPath());
       } else {
         setCodeError("That code doesn't match. Please check with your counsellor.");
       }
@@ -42,7 +43,7 @@ export default function Home() {
     }
     // Check if already granted this session
     if (sessionStorage.getItem("lw_access_granted") === "1") {
-      window.location.href = getLoginUrl("/coaching/lifework");
+      window.location.href = getLoginUrl(lifeworkLandingPath());
       return;
     }
     setShowCodeModal(true);

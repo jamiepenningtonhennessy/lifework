@@ -10,10 +10,13 @@ interface LifeworkLayoutProps {
  * navigate back to the main site, above the page's own sticky header.
  */
 export function LifeworkLayout({ children }: LifeworkLayoutProps) {
+  const isStandaloneDomain = isStandaloneLifeworkDomain();
+
   return (
     <div className="min-h-screen flex flex-col">
-      <PHNav />
+      {!isStandaloneDomain && <PHNav />}
       <div className="flex-1">{children}</div>
     </div>
   );
 }
+import { isStandaloneLifeworkDomain } from "@/lib/lifeworkDomain";

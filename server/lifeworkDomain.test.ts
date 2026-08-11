@@ -1,0 +1,19 @@
+import { describe, expect, it } from "vitest";
+import { isStandaloneLifeworkHostname } from "../client/src/lib/lifeworkDomain";
+
+describe("standalone Lifework hostname routing", () => {
+  it("recognises the new Lifework domain and its www alias", () => {
+    expect(isStandaloneLifeworkHostname("lifeworkpath.com")).toBe(true);
+    expect(isStandaloneLifeworkHostname("www.lifeworkpath.com")).toBe(true);
+  });
+
+  it("recognises the existing standalone Lifework hostname", () => {
+    expect(isStandaloneLifeworkHostname("lifework.manus.space")).toBe(true);
+  });
+
+  it("keeps the Pennington Hennessy domain on its own homepage", () => {
+    expect(isStandaloneLifeworkHostname("penningtonhennessy.com")).toBe(false);
+    expect(isStandaloneLifeworkHostname("www.penningtonhennessy.com")).toBe(false);
+    expect(isStandaloneLifeworkHostname(null)).toBe(false);
+  });
+});

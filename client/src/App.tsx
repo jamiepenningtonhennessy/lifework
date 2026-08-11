@@ -49,12 +49,19 @@ import JobsExplorer from "./pages/JobsExplorer";
 import CounsellorPortalPage from "./pages/CounsellorPortalPage";
 import CompanyUniversePage from "./pages/CompanyUniversePage";
 import BlogWriter from "./pages/ph/BlogWriter";
+import { isStandaloneLifeworkDomain } from "@/lib/lifeworkDomain";
+
+function RootRoute() {
+  return isStandaloneLifeworkDomain()
+    ? <LifeworkLayout><Home /></LifeworkLayout>
+    : <PHHome />;
+}
 
 function Router() {
   return (
     <Switch>
       {/* ── Pennington Hennessy marketing site (root) ── */}
-      <Route path="/" component={PHHome} />
+      <Route path="/" component={RootRoute} />
       <Route path="/coaching" component={PHCoaching} />
       <Route path="/training" component={PHTraining} />
       <Route path="/about" component={PHAbout} />

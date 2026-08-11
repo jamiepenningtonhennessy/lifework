@@ -1675,3 +1675,11 @@
 - [ ] Remove education from counsellor ClientProfile view
 - [ ] Remove education from Sage career_education chat context (routers.ts)
 - [ ] Update Background page header/description to reflect two tabs only
+
+## Lifework Custom-Domain Migration — lifeworkpath.com
+- [x] Define canonical URLs for lifeworkpath.com and the legacy Pennington Hennessy Lifework path
+- [ ] Bind lifeworkpath.com and www.lifeworkpath.com to the Lifework application in the hosting settings
+- [ ] Add the required Cloudflare DNS records and verify SSL/TLS activation
+- [x] Prepare standalone-domain application routing: Lifework root, sign-in return path, and no PH navigation
+- [ ] Configure permanent redirects from penningtonhennessy.com/coaching/lifework and legacy sub-routes
+- [ ] Verify access-code, sign-in callback, client dashboard, PDF links, and logout on the new domain

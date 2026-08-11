@@ -4,6 +4,7 @@ import { getLoginUrl } from "@/const";
 import { useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { X } from "lucide-react";
+import { lifeworkLandingPath } from "@/lib/lifeworkDomain";
 
 const LOGO_CLEAN = "https://d2xsxph8kpxj0f.cloudfront.net/107696804/kFbbE6kqNApXGDFpQJUGV7/lifework-logo-clean_6f5b0ffe.png";
 const LOGO_ON_NAVY = "https://d2xsxph8kpxj0f.cloudfront.net/107696804/kFbbE6kqNApXGDFpQJUGV7/lifework-logo-onnavy_1f7a4c72.png";
@@ -124,7 +125,7 @@ export default function LifeworkStandalone() {
       if (data.valid) {
         setCodeError("");
         sessionStorage.setItem("lw_access_granted", "1");
-        window.location.href = getLoginUrl("/coaching/lifework");
+        window.location.href = getLoginUrl(lifeworkLandingPath());
       } else {
         setCodeError("That code doesn't match. Please check with your counsellor.");
       }
@@ -135,7 +136,7 @@ export default function LifeworkStandalone() {
   const handleBeginJourney = () => {
     if (isAuthenticated) { navigate("/dashboard"); return; }
     if (sessionStorage.getItem("lw_access_granted") === "1") {
-      window.location.href = getLoginUrl("/coaching/lifework"); return;
+      window.location.href = getLoginUrl(lifeworkLandingPath()); return;
     }
     setShowCodeModal(true);
   };
