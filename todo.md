@@ -1683,3 +1683,14 @@
 - [x] Prepare standalone-domain application routing: Lifework root, sign-in return path, and no PH navigation
 - [ ] Configure permanent redirects from penningtonhennessy.com/coaching/lifework and legacy sub-routes
 - [ ] Verify access-code, sign-in callback, client dashboard, PDF links, and logout on the new domain
+
+## Lifework Logo Alternatives
+- [x] Create three distinct 300 × 300 square logo directions for Lifework
+- [x] Deliver the options for selection and subsequent brand use
+
+## Lifework Webinar Squeeze Page
+- [x] Create a public, responsive webinar landing-page route using the Lifework navy, gold and cream visual system
+- [x] Write the first-draft webinar proposition, audience benefits, agenda, and September-event call to action
+- [x] Add clearly marked testimonial-video placeholders suitable for four or five supplied videos
+- [x] Add booking CTAs designed for a later Eventbrite or comparable booking-service link/embed
+- [x] Add page-level interaction and rendering tests, verify the responsive preview, and save a checkpoint

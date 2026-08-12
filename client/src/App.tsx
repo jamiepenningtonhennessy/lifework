@@ -50,6 +50,7 @@ import CounsellorPortalPage from "./pages/CounsellorPortalPage";
 import CompanyUniversePage from "./pages/CompanyUniversePage";
 import BlogWriter from "./pages/ph/BlogWriter";
 import { isStandaloneLifeworkDomain } from "@/lib/lifeworkDomain";
+import LifeworkWebinar from "./pages/LifeworkWebinar";
 
 function RootRoute() {
   return isStandaloneLifeworkDomain()
@@ -71,6 +72,8 @@ function Router() {
       <Route path="/lifework/pricing" component={LifeworkPricing} />
       <Route path="/lifework-standalone" component={LifeworkStandalone} />
       <Route path="/lifework/standalone" component={LifeworkStandalone} />
+      <Route path="/webinar" component={LifeworkWebinar} />
+      <Route path="/lifework/webinar" component={LifeworkWebinar} />
       <Route path="/ai-coaching" component={AICoaching} />
 
       {/* Results held — shown after completing VIA or IPIP (withheld until Wow Report session) ── */}
@@ -91,6 +94,7 @@ function Router() {
       <Route path="/coaching/lifework/my-report">{() => <LifeworkLayout><MyReport /></LifeworkLayout>}</Route>
       <Route path="/coaching/lifework/career-explorer">{() => <LifeworkLayout><CareerExplorer /></LifeworkLayout>}</Route>
       <Route path="/coaching/lifework/jobs">{() => <LifeworkLayout><JobsExplorer /></LifeworkLayout>}</Route>
+      <Route path="/coaching/lifework/webinar" component={LifeworkWebinar} />
 
       {/* Backward-compatible redirects from old /lifework/* paths */}
       <Route path="/lifework"><Redirect to="/coaching/lifework" /></Route>
