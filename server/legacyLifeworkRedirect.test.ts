@@ -1,0 +1,19 @@
+import { describe, expect, it } from "vitest";
+import { getLegacyLifeworkRedirectUrl } from "./legacyLifeworkRedirect";
+
+describe("getLegacyLifeworkRedirectUrl", () => {
+  it("moves the primary legacy Lifework page to the standalone domain", () => {
+    expect(getLegacyLifeworkRedirectUrl("penningtonhennessy.com", "/coaching/lifework"))
+      .toBe("https://lifeworkpath.com/");
+  });
+
+  it("preserves campaign query strings and supports the www legacy host", () => {
+    expect(getLegacyLifeworkRedirectUrl("www.penningtonhennessy.com", "/coaching/lifework/", "?utm_source=linkedin"))
+      .toBe("https://lifeworkpath.com/?utm_source=linkedin");
+  });
+
+  it("does not redirect other Pennington Hennessy pages or Lifework routes", () => {
+    expect(getLegacyLifeworkRedirectUrl("penningtonhennessy.com", "/coaching")).toBeNull();
+    expect(getLegacyLifeworkRedirectUrl("lifeworkpath.com", "/coaching/lifework")).toBeNull();
+  });
+});
