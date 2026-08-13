@@ -1,5 +1,6 @@
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { useEffect } from "react";
 import NotFound from "@/pages/NotFound";
 import { Route, Switch, Redirect } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
@@ -49,13 +50,30 @@ import JobsExplorer from "./pages/JobsExplorer";
 import CounsellorPortalPage from "./pages/CounsellorPortalPage";
 import CompanyUniversePage from "./pages/CompanyUniversePage";
 import BlogWriter from "./pages/ph/BlogWriter";
-import { isStandaloneLifeworkDomain } from "@/lib/lifeworkDomain";
+import { isPenningtonHennessyHostname, isStandaloneLifeworkDomain } from "@/lib/lifeworkDomain";
 import LifeworkWebinar from "./pages/LifeworkWebinar";
 
 function RootRoute() {
   return isStandaloneLifeworkDomain()
     ? <LifeworkLayout><Home /></LifeworkLayout>
     : <PHHome />;
+}
+
+function LegacyLifeworkRoute() {
+  const redirectToStandaloneDomain =
+    typeof window !== "undefined" && isPenningtonHennessyHostname(window.location.hostname);
+
+  useEffect(() => {
+    if (redirectToStandaloneDomain) {
+      window.location.replace(`https://lifeworkpath.com/${window.location.search}`);
+    }
+  }, [redirectToStandaloneDomain]);
+
+  if (redirectToStandaloneDomain) {
+    return null;
+  }
+
+  return <LifeworkLayout><Home /></LifeworkLayout>;
 }
 
 function Router() {
@@ -83,7 +101,7 @@ function Router() {
       <Route path="/coaching/lifework/results-held/ipip">{() => <LifeworkLayout><ResultsHeld assessmentName="Personality Profile" /></LifeworkLayout>}</Route>
 
       {/* ── Lifework app (under /coaching/lifework) ── */}
-      <Route path="/coaching/lifework">{() => <LifeworkLayout><Home /></LifeworkLayout>}</Route>
+      <Route path="/coaching/lifework" component={LegacyLifeworkRoute} />
       <Route path="/coaching/lifework/interview">{() => <LifeworkLayout><Interview /></LifeworkLayout>}</Route>
       <Route path="/coaching/lifework/background">{() => <LifeworkLayout><Background /></LifeworkLayout>}</Route>
       <Route path="/coaching/lifework/via">{() => <LifeworkLayout><VIASurvey /></LifeworkLayout>}</Route>

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { isStandaloneLifeworkHostname } from "../client/src/lib/lifeworkDomain";
+import { isPenningtonHennessyHostname, isStandaloneLifeworkHostname } from "../client/src/lib/lifeworkDomain";
 
 describe("standalone Lifework hostname routing", () => {
   it("recognises the new Lifework domain and its www alias", () => {
@@ -15,5 +15,12 @@ describe("standalone Lifework hostname routing", () => {
     expect(isStandaloneLifeworkHostname("penningtonhennessy.com")).toBe(false);
     expect(isStandaloneLifeworkHostname("www.penningtonhennessy.com")).toBe(false);
     expect(isStandaloneLifeworkHostname(null)).toBe(false);
+  });
+
+  it("recognises only the public Pennington Hennessy hosts for the legacy redirect", () => {
+    expect(isPenningtonHennessyHostname("penningtonhennessy.com")).toBe(true);
+    expect(isPenningtonHennessyHostname("www.penningtonhennessy.com")).toBe(true);
+    expect(isPenningtonHennessyHostname("lifeworkpath.com")).toBe(false);
+    expect(isPenningtonHennessyHostname("localhost")).toBe(false);
   });
 });

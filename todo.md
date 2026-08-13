@@ -1678,8 +1678,8 @@
 
 ## Lifework Custom-Domain Migration — lifeworkpath.com
 - [x] Define canonical URLs for lifeworkpath.com and the legacy Pennington Hennessy Lifework path
-- [ ] Bind lifeworkpath.com and www.lifeworkpath.com to the Lifework application in the hosting settings
-- [ ] Add the required Cloudflare DNS records and verify SSL/TLS activation
+- [x] Bind lifeworkpath.com and www.lifeworkpath.com to the Lifework application in the hosting settings
+- [x] Add the required Cloudflare DNS records and verify SSL/TLS activation
 - [x] Prepare standalone-domain application routing: Lifework root, sign-in return path, and no PH navigation
 - [ ] Configure permanent redirects from penningtonhennessy.com/coaching/lifework and legacy sub-routes
 - [ ] Verify access-code, sign-in callback, client dashboard, PDF links, and logout on the new domain
@@ -1694,3 +1694,12 @@
 - [x] Add clearly marked testimonial-video placeholders suitable for four or five supplied videos
 - [x] Add booking CTAs designed for a later Eventbrite or comparable booking-service link/embed
 - [x] Add page-level interaction and rendering tests, verify the responsive preview, and save a checkpoint
+
+## Lifework LinkedIn Profile Background
+- [x] Create a 1584 × 396 LinkedIn background with the user’s coaching, training, and Lifework-founder positioning
+- [x] Deliver the completed background for the user to upload to LinkedIn
+
+## Lifeworkpath.com Cutover Verification
+- [x] Confirm both lifeworkpath.com hostnames serve the standalone Lifework entry point after DNS connection
+- [ ] Confirm Cloudflare canonical redirect and safe legacy-route redirect behaviour before changing the Pennington Hennessy public links
+- [x] Add an application-level redirect for the legacy Lifework route because the existing Pennington Hennessy DNS record is not Cloudflare-proxied
