@@ -25,7 +25,7 @@ import {
 import { getDb } from "../db";
 import { analysisReports } from "../../drizzle/schema";
 import { eq } from "drizzle-orm";
-import { getLegacyLifeworkRedirectUrl } from "../legacyLifeworkRedirect";
+import { getLegacyLifeworkRedirectUrl, getOriginalRequestHostname } from "../legacyLifeworkRedirect";
 
 function isPortAvailable(port: number): Promise<boolean> {
   return new Promise(resolve => {
@@ -82,7 +82,12 @@ async function startServer() {
 
     const queryIndex = req.originalUrl.indexOf("?");
     const search = queryIndex >= 0 ? req.originalUrl.slice(queryIndex) : "";
-    const redirectUrl = getLegacyLifeworkRedirectUrl(req.hostname, req.path, search);
+    const originalHostname = getOriginalRequestHostname({
+      host: req.get("host"),
+      forwardedHost: req.get("x-forwarded-host"),
+      originalHost: req.get("x-original-host"),
+    });
+    const redirectUrl = getLegacyLifeworkRedirectUrl(originalHostname, req.path, search);
 
     return redirectUrl ? res.redirect(301, redirectUrl) : next();
   });

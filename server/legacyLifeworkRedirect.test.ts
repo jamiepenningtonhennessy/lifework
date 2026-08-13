@@ -1,7 +1,14 @@
 import { describe, expect, it } from "vitest";
-import { getLegacyLifeworkRedirectUrl } from "./legacyLifeworkRedirect";
+import { getLegacyLifeworkRedirectUrl, getOriginalRequestHostname } from "./legacyLifeworkRedirect";
 
 describe("getLegacyLifeworkRedirectUrl", () => {
+  it("prefers the original proxy hostname over an internal application host", () => {
+    expect(getOriginalRequestHostname({
+      host: "internal.manus.app",
+      forwardedHost: "penningtonhennessy.com",
+    })).toBe("penningtonhennessy.com");
+  });
+
   it("moves the primary legacy Lifework page to the standalone domain", () => {
     expect(getLegacyLifeworkRedirectUrl("penningtonhennessy.com", "/coaching/lifework"))
       .toBe("https://lifeworkpath.com/");

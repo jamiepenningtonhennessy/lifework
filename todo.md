@@ -1704,3 +1704,4 @@
 - [ ] Confirm Cloudflare canonical redirect and safe legacy-route redirect behaviour before changing the Pennington Hennessy public links
 - [x] Add an application-level redirect for the legacy Lifework route because the existing Pennington Hennessy DNS record is not Cloudflare-proxied
 - [x] Add a server-side 301 redirect for the legacy Lifework route to avoid a client-side redirect delay
+- [x] Read the original public hostname from the reverse-proxy headers for the server-side legacy redirect
