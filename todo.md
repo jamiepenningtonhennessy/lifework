@@ -1705,3 +1705,4 @@
 - [x] Add an application-level redirect for the legacy Lifework route because the existing Pennington Hennessy DNS record is not Cloudflare-proxied
 - [x] Add a server-side 301 redirect for the legacy Lifework route to avoid a client-side redirect delay
 - [x] Read the original public hostname from the reverse-proxy headers for the server-side legacy redirect
+- [x] Preserve legacy Lifework client sub-routes when transferring users to the standalone domain

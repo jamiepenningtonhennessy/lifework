@@ -2,6 +2,7 @@ const LEGACY_LIFEWORK_HOSTS = new Set([
   "penningtonhennessy.com",
   "www.penningtonhennessy.com",
 ]);
+const LEGACY_LIFEWORK_PREFIX = "/coaching/lifework";
 
 /** Selects the visitor-facing hostname when the app is behind a reverse proxy. */
 export function getOriginalRequestHostname(headers: {
@@ -27,9 +28,13 @@ export function getLegacyLifeworkRedirectUrl(
     return null;
   }
 
-  if (normalizedPath !== "/coaching/lifework") {
+  if (
+    normalizedPath !== LEGACY_LIFEWORK_PREFIX
+    && !normalizedPath.startsWith(`${LEGACY_LIFEWORK_PREFIX}/`)
+  ) {
     return null;
   }
 
-  return `https://lifeworkpath.com/${search}`;
+  const destinationPath = normalizedPath.slice(LEGACY_LIFEWORK_PREFIX.length) || "/";
+  return `https://lifeworkpath.com${destinationPath}${search}`;
 }

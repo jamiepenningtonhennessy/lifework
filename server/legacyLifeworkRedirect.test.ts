@@ -19,8 +19,16 @@ describe("getLegacyLifeworkRedirectUrl", () => {
       .toBe("https://lifeworkpath.com/?utm_source=linkedin");
   });
 
+  it("preserves legacy Lifework sub-routes on the standalone domain", () => {
+    expect(getLegacyLifeworkRedirectUrl("penningtonhennessy.com", "/coaching/lifework/interview"))
+      .toBe("https://lifeworkpath.com/interview");
+    expect(getLegacyLifeworkRedirectUrl("penningtonhennessy.com", "/coaching/lifework/webinar"))
+      .toBe("https://lifeworkpath.com/webinar");
+  });
+
   it("does not redirect other Pennington Hennessy pages or Lifework routes", () => {
     expect(getLegacyLifeworkRedirectUrl("penningtonhennessy.com", "/coaching")).toBeNull();
+    expect(getLegacyLifeworkRedirectUrl("penningtonhennessy.com", "/coaching/lifeworkshop")).toBeNull();
     expect(getLegacyLifeworkRedirectUrl("lifeworkpath.com", "/coaching/lifework")).toBeNull();
   });
 });
