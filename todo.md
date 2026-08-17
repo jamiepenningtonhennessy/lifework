@@ -1710,3 +1710,10 @@
 - [x] Identify and map the management viewer's internal root hostname to Lifework without changing public Pennington Hennessy routing
 - [x] Resolve the management viewer and Open Website control that still open the Pennington Hennessy internal preview
 - [x] Route the management viewer's localhost/internal preview host to Lifework at the root path
+
+## WOW Report Template Restoration
+- [x] Inspect the supplied WOW report reference and document its reusable visual-template elements
+- [x] Inspect and adapt the supplied Claude Design TypeScript report template as the authoritative visual source
+- [x] Restore the selected WOW report branding in the active report renderer
+- [x] Give a client secure access to their own Claude Design branded report view
+- [x] Validate the restored template treatment and save a checkpoint

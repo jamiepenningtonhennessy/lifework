@@ -21,6 +21,7 @@
 import { Request, Response } from "express";
 import { buildClaudeExportJson } from "./routers/claudeExport.js";
 import { sdk } from "./_core/sdk.js";
+import { getClientProfileById, getClientProfileByUserId } from "./db.js";
 
 // ─── CDN constants ────────────────────────────────────────────────────────────
 
@@ -494,6 +495,14 @@ table.variants td.q{ font-family:var(--sans); font-weight:500; font-size:13.5px;
 // ─── Public render helper ─────────────────────────────────────────────────────
 export function renderHtmlReport(payload: Record<string, unknown>): string {
   return renderTemplate(TEMPLATE, payload);
+}
+
+/** A counsellor may view any report; a client may view only their own report. */
+export function canAccessBrandedReport(
+  user: { id?: number; role?: string },
+  reportOwnerUserId: number,
+): boolean {
+  return user.role === "admin" || user.id === reportOwnerUserId;
 }
 
 // ─── HTML template (embedded) · "MODERN COUNSEL" ──────────────────────────────
@@ -1125,22 +1134,36 @@ const TEMPLATE = `<!doctype html>
 // ─── Express route handler ────────────────────────────────────────────────────
 export async function htmlReportHandler(req: Request, res: Response): Promise<void> {
   try {
-    // Auth check — must be a counsellor (admin)
-    let user: { role?: string } | null = null;
+    // Auth check — counsellors can inspect any report; a client can inspect their own.
+    let user: { id?: number; role?: string } | null = null;
     try {
       user = await sdk.authenticateRequest(req);
     } catch {
       res.status(401).send("Unauthorised");
       return;
     }
-    if (!user || user.role !== "admin") {
-      res.status(403).send("Forbidden — counsellor access required");
+    if (!user?.id) {
+      res.status(403).send("Forbidden");
       return;
     }
 
-    const clientId = parseInt(req.params.clientId ?? "0", 10);
+    const requestedClientId = req.params.clientId ?? "";
+    const ownProfile = requestedClientId === "me"
+      ? await getClientProfileByUserId(user.id)
+      : null;
+    const clientId = ownProfile?.id ?? parseInt(requestedClientId, 10);
     if (!clientId || isNaN(clientId)) {
       res.status(400).send("Invalid client ID");
+      return;
+    }
+
+    const reportProfile = ownProfile ?? await getClientProfileById(clientId);
+    if (!reportProfile) {
+      res.status(404).send("Report recipient not found");
+      return;
+    }
+    if (!canAccessBrandedReport(user, reportProfile.userId)) {
+      res.status(403).send("Forbidden — you may view only your own report");
       return;
     }
 

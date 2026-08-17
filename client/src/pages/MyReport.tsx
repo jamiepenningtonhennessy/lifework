@@ -67,9 +67,9 @@ export default function MyReport() {
             variant="outline"
             size="sm"
             className="gap-2"
-            onClick={() => window.open(`/api/export/report`, "_blank")}
+            onClick={() => window.open("/api/report/html/me", "_blank", "noopener,noreferrer")}
           >
-            <Download className="w-4 h-4" /> Export PDF
+            <FileText className="w-4 h-4" /> View Branded Report
           </Button>
         </div>
       </div>
