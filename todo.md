@@ -1777,3 +1777,8 @@
 - [x] Remove the client-facing Role Specification card and associated client-dashboard rendering
 - [x] Retain Explore with Alistair as Step 6 and the final standard Lifework stage
 - [x] Update regression coverage, validate the simplified client and counsellor preview journey, and save a publish-ready checkpoint
+
+## Counsellor Portal Query Error
+- [x] Trace the HTML response returned to the counsellor client-portal preview query
+- [x] Correct the faulty client-portal route or data query without changing access controls
+- [x] Add regression coverage, validate the repaired portal, and save a publish-ready checkpoint

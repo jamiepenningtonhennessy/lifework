@@ -40,8 +40,13 @@ queryClient.getMutationCache().subscribe(event => {
 const trpcClient = trpc.createClient({
   links: [
     httpBatchLink({
-      url: "/api/trpc",
+      // Bind directly to the browser origin so portal previews on deep routes
+      // always reach the API endpoint rather than an SPA fallback document.
+      url: `${window.location.origin}/api/trpc`,
       transformer: superjson,
+      headers: {
+        accept: "application/json",
+      },
       fetch(input, init) {
         return globalThis.fetch(input, {
           ...(init ?? {}),

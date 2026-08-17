@@ -1,5 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { trpc } from "@/lib/trpc";
+import { useAuth } from "@/_core/hooks/useAuth";
+import { getLoginUrl } from "@/const";
 
 interface Props {
   children: React.ReactNode;
@@ -16,6 +18,10 @@ interface Props {
  */
 export function CounsellorPinGate({ children }: Props) {
   const SESSION_KEY = "counsellor_pin_verified";
+  const { loading: authLoading, isAuthenticated } = useAuth({
+    redirectOnUnauthenticated: true,
+    redirectPath: getLoginUrl(window.location.pathname),
+  });
 
   const [verified, setVerified] = useState(() => {
     try {
@@ -34,6 +40,7 @@ export function CounsellorPinGate({ children }: Props) {
 
   const { data: hasPinData, isLoading } = trpc.pin.hasPin.useQuery(undefined, {
     retry: false,
+    enabled: !authLoading && isAuthenticated,
   });
 
   const verifyMutation = trpc.pin.verify.useMutation({
@@ -61,10 +68,11 @@ export function CounsellorPinGate({ children }: Props) {
   });
 
   useEffect(() => {
+    if (authLoading || !isAuthenticated) return;
     if (verified) { setMode("granted"); return; }
     if (isLoading) return;
     setMode(hasPinData?.hasPin ? "verify" : "setup");
-  }, [verified, isLoading, hasPinData]);
+  }, [authLoading, isAuthenticated, verified, isLoading, hasPinData]);
 
   useEffect(() => {
     if (mode === "verify" || mode === "setup") {
@@ -72,7 +80,7 @@ export function CounsellorPinGate({ children }: Props) {
     }
   }, [mode]);
 
-  if (mode === "loading") {
+  if (authLoading || !isAuthenticated || mode === "loading") {
     return (
       <div className="min-h-screen flex items-center justify-center" style={{ background: "var(--lw-navy, #0a1628)" }}>
         <div className="w-6 h-6 rounded-full border-2 border-t-transparent animate-spin" style={{ borderColor: "var(--gold)", borderTopColor: "transparent" }} />
