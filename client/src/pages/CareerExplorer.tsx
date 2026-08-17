@@ -18,6 +18,7 @@ import { useAuth } from "@/_core/hooks/useAuth";
 import { Streamdown } from "streamdown";
 import { toast } from "sonner";
 import { JobSpecReviewPanel } from "@/components/JobSpecReviewPanel";
+import { ALISTAIR_CONVERSATION_PANEL_CLASS, ALISTAIR_MESSAGE_BUBBLE_CLASS } from "@shared/alistairLayout";
 
 const ALISTAIR_AVATAR = "https://d2xsxph8kpxj0f.cloudfront.net/107696804/kFbbE6kqNApXGDFpQJUGV7/alistair-avatar_24fddf8e.jpg";
 
@@ -113,7 +114,7 @@ function parseAdvisorMessage(content: string): { behaviour: string | null; speec
 function AdvisorMessageBubble({ content }: { content: string }) {
   const { behaviour, speech } = parseAdvisorMessage(content);
   return (
-    <div className="max-w-[80%] space-y-1.5">
+    <div className={`${ALISTAIR_MESSAGE_BUBBLE_CLASS} space-y-1.5`}>
       {behaviour && (
         <p className="text-xs italic text-muted-foreground px-1 leading-relaxed">{behaviour}</p>
       )}
@@ -446,7 +447,7 @@ export default function CareerExplorer() {
 
       {/* Chat area */}
       <div className="flex-1 overflow-y-auto">
-        <div className="container max-w-3xl py-6 space-y-5">
+        <div className={`container ${ALISTAIR_CONVERSATION_PANEL_CLASS} py-6 space-y-5`}>
           <JobSpecReviewPanel />
 
           {/* Empty state */}
@@ -508,7 +509,7 @@ export default function CareerExplorer() {
                 <AdvisorMessageBubble content={msg.content} />
               ) : (
                 <div
-                  className="max-w-[80%] rounded-2xl px-4 py-3 text-sm leading-relaxed text-white rounded-br-sm"
+                  className={`${ALISTAIR_MESSAGE_BUBBLE_CLASS} rounded-2xl px-4 py-3 text-sm leading-relaxed text-white rounded-br-sm`}
                   style={{ background: "var(--lw-navy)" }}
                 >
                   {msg.content}
@@ -542,7 +543,7 @@ export default function CareerExplorer() {
         className="sticky bottom-0 border-t border-border"
         style={{ background: "var(--lw-cream)" }}
       >
-        <div className="container max-w-3xl py-4">
+        <div className={`container ${ALISTAIR_CONVERSATION_PANEL_CLASS} py-4`}>
           <div className="flex items-end gap-3 bg-card border border-border rounded-2xl px-4 py-3 focus-within:border-[var(--lw-gold)]/60 transition-colors">
             <textarea
               ref={inputRef}

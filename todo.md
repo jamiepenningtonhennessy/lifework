@@ -1742,3 +1742,7 @@
 - [x] Generate structured Alistair feedback against Lifework evidence, CV, and Role Specification
 - [x] Add client and counsellor review surfaces with clear upload limits and data-retention controls
 - [x] Add security and analysis tests, validate the workflow, and save a checkpoint
+
+## Ask Alistair Layout
+- [x] Widen the desktop Ask Alistair conversation panel to a balanced 50/50 layout while retaining single-column mobile behaviour
+- [x] Validate the layout and save a checkpoint

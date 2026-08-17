@@ -12,6 +12,7 @@ import { Streamdown } from "streamdown";
 import { Upload, Send, Loader2, Lock, FileText, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { ALISTAIR_CONVERSATION_PANEL_CLASS, ALISTAIR_MESSAGE_BUBBLE_CLASS } from "@shared/alistairLayout";
 
 const ALISTAIR_AVATAR =
   "https://d2xsxph8kpxj0f.cloudfront.net/107696804/kFbbE6kqNApXGDFpQJUGV7/alistair-avatar_24fddf8e.jpg";
@@ -374,7 +375,7 @@ export default function DebriefChat() {
       </header>
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto px-4 py-6 space-y-5 max-w-2xl mx-auto w-full">
+      <div className={`flex-1 overflow-y-auto px-4 py-6 space-y-5 mx-auto ${ALISTAIR_CONVERSATION_PANEL_CLASS}`}>
         {messages.map((msg, i) => (
           <div
             key={i}
@@ -389,7 +390,7 @@ export default function DebriefChat() {
               />
             )}
             <div
-              className="max-w-[80%] rounded-2xl px-4 py-3 text-sm leading-relaxed"
+              className={`${ALISTAIR_MESSAGE_BUBBLE_CLASS} rounded-2xl px-4 py-3 text-sm leading-relaxed`}
               style={
                 msg.role === "assistant"
                   ? {
@@ -448,7 +449,7 @@ export default function DebriefChat() {
         className="sticky bottom-0 px-4 py-3"
         style={{ background: NAVY, borderTop: `1px solid rgba(201,151,58,0.15)` }}
       >
-        <div className="max-w-2xl mx-auto flex items-end gap-2">
+        <div className={`mx-auto flex items-end gap-2 ${ALISTAIR_CONVERSATION_PANEL_CLASS}`}>
           {/* PDF upload button — shown during ask_upload stage and in chat */}
           {(stage as string) !== "ask_name" && (stage as string) !== "ask_client" && (stage as string) !== "chat" || stage === "ask_upload" || stage === "chat" ? (
             <></> // placeholder
