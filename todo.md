@@ -1762,3 +1762,8 @@
 - [x] Move Alistair to a standalone Step 6 before Role Specification, with the requested client-facing copy and shared counsellor unlock
 - [x] Move Role Specification to Step 7 and remove the embedded Alistair prompt
 - [x] Validate the seven-step dashboard and save a publish-ready checkpoint
+
+## Counsellor Access Control Clarity
+- [x] Clearly label the existing counsellor overview control as the shared Alistair and Role Specification access gate
+- [x] Update unlock, lock, and confirmation copy to describe the client access granted or removed
+- [x] Add regression coverage, validate the control, and save a publish-ready checkpoint
