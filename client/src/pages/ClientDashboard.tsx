@@ -742,6 +742,21 @@ export function DashboardBody({
                               ) {
                                 resolvedPath = "/ipip-survey";
                               }
+                              if (isPreview && isAlistair) {
+                                return (
+                                  <span
+                                    className="inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs font-medium"
+                                    style={{
+                                      background: "rgba(34,197,94,0.10)",
+                                      color: "rgb(21,128,61)",
+                                      border: "1px solid rgba(34,197,94,0.25)",
+                                    }}
+                                  >
+                                    <CheckCircle2 className="w-3.5 h-3.5" />
+                                    Available to client
+                                  </span>
+                                );
+                              }
                               return (
                               <Button
                                 size="sm"

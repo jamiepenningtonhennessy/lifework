@@ -29,4 +29,10 @@ describe("client dashboard Alistair journey", () => {
     );
     expect(dashboardSource).not.toContain("Ask Alistair to help you test this Role Specification");
   });
+
+  it("shows an unlocked Alistair step as available in the read-only counsellor preview", () => {
+    expect(dashboardSource).toContain("if (isPreview && isAlistair)");
+    expect(dashboardSource).toContain("Available to client");
+    expect(dashboardSource).toContain("Explore with Alistair");
+  });
 });

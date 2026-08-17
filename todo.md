@@ -1767,3 +1767,8 @@
 - [x] Clearly label the existing counsellor overview control as the shared Alistair and Role Specification access gate
 - [x] Update unlock, lock, and confirmation copy to describe the client access granted or removed
 - [x] Add regression coverage, validate the control, and save a publish-ready checkpoint
+
+## Counsellor Preview Access-State Mismatch
+- [x] Trace why an unlocked counsellor profile can render Explore with Alistair as locked in the client portal preview
+- [x] Correct the preview data or shared unlock-state handling without changing the client-access policy
+- [x] Add regression coverage, verify Michael Phillips’s preview, and save a publish-ready checkpoint
