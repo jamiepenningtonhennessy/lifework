@@ -1757,3 +1757,8 @@
 - [x] Audit Michael Phillips’s Alistair unlock state and the client-dashboard access conditions
 - [x] Restore the client-facing Alistair route when a counsellor has authorised it
 - [x] Validate the corrected route in counsellor preview and add regression coverage
+
+## Dashboard Journey: Explore with Alistair
+- [x] Move Alistair to a standalone Step 6 before Role Specification, with the requested client-facing copy and shared counsellor unlock
+- [x] Move Role Specification to Step 7 and remove the embedded Alistair prompt
+- [x] Validate the seven-step dashboard and save a publish-ready checkpoint

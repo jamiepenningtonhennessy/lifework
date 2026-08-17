@@ -84,9 +84,20 @@ const STEPS = [
     ctaInProgress: "Request a Coaching Date",
   },
   {
+    id: "ask_alistair",
+    icon: <Sparkles className="w-5 h-5" />,
+    title: "6. Explore with Alistair",
+    description:
+      "Alistair wrote your report so he's the ideal person to talk to about what you now believe to be true and potential roles you might be going for.",
+    path: "/career-explorer",
+    statusKey: null,
+    cta: "Talk to Alistair",
+    ctaInProgress: "Continue with Alistair",
+  },
+  {
     id: "role_specification",
     icon: <Compass className="w-5 h-5" />,
-    title: "6. Role Specification",
+    title: "7. Role Specification",
     description:
       "Once your counsellor has completed your Lifework analysis, they will generate a personalised Role Specification — a detailed profile of the roles, sectors, and organisations that best match who you are.",
     path: null,
@@ -304,7 +315,7 @@ export function DashboardBody({
     if (s.id === "sage") return sageUnlocked;
     return getStatus(s.statusKey, s.id) === "completed";
   }).length;
-  const totalSteps = 6;
+  const totalSteps = 7;
   const progressPct = Math.round((completedSteps / totalSteps) * 100);
 
   // Determine whether interview + background have been started (prerequisite for Sage)
@@ -379,7 +390,7 @@ export function DashboardBody({
               </h1>
               <div className="text-muted-foreground leading-relaxed space-y-3 text-sm">
                 <p>
-                  Your Lifework journey has six stages. Begin by completing your{" "}
+                  Your Lifework journey has seven stages. Begin by completing your{" "}
                   <strong className="text-foreground">Life History Interview</strong> and{" "}
                   <strong className="text-foreground">Background &amp; History</strong> — these form the foundation of everything that follows.
                 </p>
@@ -446,6 +457,7 @@ export function DashboardBody({
 
                 const isPsychometrics = step.id === "psychometrics";
                 const isSage = step.id === "sage";
+                const isAlistair = step.id === "ask_alistair";
                 const isRoleSpec = step.id === "role_specification";
 
                 let isLocked = false;
@@ -460,8 +472,8 @@ export function DashboardBody({
                   } else if (isSage) {
                     // Sage is locked until at least one of interview/background has been started
                     isLocked = !sagePrereqMet;
-                  } else if (isRoleSpec) {
-                    // Role Specification is locked until the counsellor explicitly unlocks it
+                  } else if (isAlistair || isRoleSpec) {
+                    // Alistair and the Role Specification are locked until the counsellor explicitly unlocks them
                     isLocked = !canClientAccessAlistair((profile as any)?.careerExplorerUnlocked);
                   } else {
                     isLocked = prevBlockerStatus === "not_started";
@@ -522,7 +534,7 @@ export function DashboardBody({
                                 In Progress
                               </span>
                             )}
-                            {isLocked && (isPsychometrics || isRoleSpec) && (
+                            {isLocked && (isPsychometrics || isAlistair || isRoleSpec) && (
                               <span
                                 className="text-xs px-2 py-0.5 rounded-full flex items-center gap-1"
                                 style={{
@@ -648,23 +660,6 @@ export function DashboardBody({
                                         Download full Role Specification (PDF)
                                       </a>
                                     </div>
-                                    <div className="border-t border-[var(--lw-gold)]/20 pt-4">
-                                      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                                        <div>
-                                          <p className="text-sm font-semibold" style={{ color: "var(--lw-navy)" }}>Explore this with Alistair</p>
-                                          <p className="mt-1 text-xs leading-relaxed text-muted-foreground">Ask Alistair to help you test this Role Specification against your strengths, experience and the opportunities you are considering.</p>
-                                        </div>
-                                        <Button
-                                          size="sm"
-                                          disabled={isPreview}
-                                          onClick={() => onNavigate("/career-explorer")}
-                                          className="shrink-0 gap-1 bg-[var(--lw-gold)] text-[var(--lw-navy)] hover:bg-[var(--lw-gold-soft)]"
-                                        >
-                                          Ask Alistair
-                                          <ArrowRight className="h-3.5 w-3.5" />
-                                        </Button>
-                                      </div>
-                                    </div>
                                   </div>
                                 );
                               })() : (
@@ -672,6 +667,27 @@ export function DashboardBody({
                                   Your counsellor is preparing your Role Specification. It will appear here once it is ready.
                                 </p>
                               )}
+                            </div>
+                          )}
+
+                          {/* Explore with Alistair — locked until counsellor unlocks it */}
+                          {isAlistair && isLocked && (
+                            <div
+                              className="mt-3 rounded-lg p-3 flex items-start gap-3"
+                              style={{
+                                background: "rgba(201,151,58,0.07)",
+                                border: "1px solid rgba(201,151,58,0.25)",
+                              }}
+                            >
+                              <Lock className="w-4 h-4 flex-shrink-0 mt-0.5" style={{ color: "var(--lw-gold)" }} />
+                              <div>
+                                <p className="text-sm font-semibold mb-1" style={{ color: "var(--lw-navy)" }}>
+                                  Awaiting your counsellor
+                                </p>
+                                <p className="text-xs leading-relaxed" style={{ color: "rgba(0,0,0,0.55)" }}>
+                                  Your counsellor will unlock this conversation once your Lifework report and coaching conversation are complete.
+                                </p>
+                              </div>
                             </div>
                           )}
 
@@ -727,10 +743,11 @@ export function DashboardBody({
                                 resolvedPath = "/ipip-survey";
                               }
                               return (
-                                <Button
-                                  size="sm"
-                                  variant={isCompleted ? "outline" : "default"}
-                                  onClick={() => isPreview ? undefined : onNavigate(resolvedPath)}
+                              <Button
+                                size="sm"
+                                variant={isCompleted ? "outline" : "default"}
+                                disabled={isPreview}
+                                onClick={() => isPreview ? undefined : onNavigate(resolvedPath)}
                                   className={
                                     !isCompleted
                                       ? "bg-[var(--lw-gold)] hover:bg-[oklch(0.60 0.13 72)] text-white gap-1"
@@ -747,7 +764,7 @@ export function DashboardBody({
                               );
                             })()}
 
-                            {isLocked && !isPsychometrics && !isRoleSpec && step.id !== "sage" && (
+                            {isLocked && !isPsychometrics && !isAlistair && !isRoleSpec && step.id !== "sage" && (
                               <span className="text-xs text-muted-foreground/50">
                                 Complete previous step first
                               </span>
