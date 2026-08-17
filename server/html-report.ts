@@ -1,15 +1,15 @@
 /**
- * html-report.ts  —  "MODERN COUNSEL" EDITION
+ * html-report.ts  —  "QUIET AUTHORITY" EDITION
  *
  * Drop-in replacement for the Lifework WOW Report renderer.
  * Express route: GET /api/report/html/:clientId
  *
  * WHAT CHANGED vs the previous version:
- *   • INLINED_CSS  — new "Modern Counsel" design system (Libre Franklin +
- *     IBM Plex Mono, navy bands, structural rail, measured data bars).
+ *   • QUIET_AUTHORITY_CSS  — restored "Quiet Authority" design system
+ *     (Cormorant Garamond, Source Serif 4 and Libre Franklin; warm paper,
+ *     hairline gold rules and restrained navy only for data-divider pages).
  *   • TEMPLATE     — re-laid-out markup for the new look.
- *   • Fonts        — now loads Libre Franklin + IBM Plex Mono (was Cormorant
- *     Garamond + Inter).
+ *   • Fonts        — loads Cormorant Garamond + Source Serif 4 + Libre Franklin.
  *
  * WHAT DID NOT CHANGE (so live data keeps flowing in unchanged):
  *   • The template engine (renderTemplate / processIf / processEach / …).
@@ -210,7 +210,7 @@ export function renderTemplate(template: string, data: Record<string, unknown>):
   return out;
 }
 
-// ─── Inlined CSS · "MODERN COUNSEL" ───────────────────────────────────────────
+// ─── Base CSS · structure shared by the Quiet Authority template ───────────────
 const INLINED_CSS = `
 :root{
   --navy:#16233F; --navy-2:#1E3052; --navy-soft:#33425F; --navy-mist:#8A99B8;
@@ -492,6 +492,68 @@ table.variants td.q{ font-family:var(--sans); font-weight:500; font-size:13.5px;
 }
 `;
 
+// ─── Quiet Authority visual treatment ─────────────────────────────────────────
+// Kept as a final cascade so the shared report structure and all existing data
+// bindings remain untouched while the original Claude Design language is restored.
+const QUIET_AUTHORITY_CSS = `
+:root{
+  --navy:#1A2744; --navy-2:#22345A; --navy-soft:#4A5470; --navy-mist:#9CA6BE;
+  --gold:#B8862F; --gold-soft:#D9B36A; --gold-deep:#8A6118;
+  --paper:#F6F1E9; --paper-2:#EFE7D8; --ink:#1C2435; --ink-muted:#666f83;
+  --rule:rgba(26,39,68,0.13); --rule-strong:rgba(26,39,68,0.28);
+  --serif:"Cormorant Garamond",Georgia,serif;
+  --text:"Source Serif 4",Georgia,serif;
+  --sans:"Libre Franklin",system-ui,-apple-system,"Helvetica Neue",Arial,sans-serif;
+  --mono:var(--sans); --green:#5E7F4E; --blue:#3C6E8F; --red:#A2402F; --yellow:#B8862F;
+}
+html,body{background:#e7e3da;color:var(--ink);font-family:var(--text);}
+.band{background:var(--paper);color:var(--ink-muted);align-items:baseline;padding:24px 74px 15px;border-bottom:1px solid var(--rule);font-family:var(--sans);font-size:10px;letter-spacing:.2em;}
+.band .wm{font-family:var(--serif);font-weight:600;letter-spacing:0;font-size:18px;color:var(--navy);}
+.band .wm b{color:var(--gold);font-weight:600;}
+.foot{align-items:baseline;padding:16px 74px 20px;border-top:1px solid var(--rule);font-family:var(--sans);font-size:9.5px;letter-spacing:.18em;color:var(--ink-muted);}
+.foot .cur{color:var(--gold);}
+.rail{border-right:1px solid var(--rule);}
+.rail .num{font-family:var(--serif);font-style:italic;font-weight:500;font-size:40px;line-height:.9;color:var(--gold);letter-spacing:0;}
+.rail .lab{font-family:var(--sans);font-size:9px;letter-spacing:.16em;color:var(--navy);margin-top:13px;}
+.rail .sub{font-family:var(--text);font-style:italic;font-size:9.5px;letter-spacing:0;text-transform:none;color:var(--ink-muted);margin-top:4px;}
+.rail .cmark{width:22px;height:1px;background:var(--navy-mist);margin-top:20px;}
+.rail.cont.accent .cmark{background:var(--gold);}
+.eyebrow{font-family:var(--sans);font-size:10px;letter-spacing:.22em;color:var(--gold);}
+.eyebrow::before{height:1px;background:var(--gold);}
+h2.chap-title{font-family:var(--serif);font-weight:500;font-size:38px;line-height:1.06;letter-spacing:-.01em;color:var(--navy);}
+h2.chap-title em{color:var(--gold);font-style:italic;}
+.hr-gold{width:44px;height:1px;background:var(--gold);margin:18px 0 22px;}
+p{font-family:var(--text);font-size:12.5px;line-height:1.62;margin:0 0 12px;color:var(--ink);}
+.hero{font-family:var(--text);font-weight:400;font-style:italic;font-size:17px;line-height:1.42;color:var(--navy);margin:0 0 18px;}
+p.lede{font-family:var(--text);font-style:italic;font-size:13.5px;line-height:1.5;color:var(--navy-soft);margin:0 0 18px;max-width:58ch;}
+h3.section-h{font-family:var(--serif);font-size:19px;font-weight:500;letter-spacing:0;text-transform:none;color:var(--navy);margin:20px 0 9px;border:0;}
+.title-page .tband{background:var(--paper);color:var(--ink-muted);padding:30px 74px 20px;border-bottom:1px solid var(--rule);}
+.title-page .tband .wm{font-family:var(--serif);font-weight:600;font-size:24px;letter-spacing:0;color:var(--navy);}
+.title-page .tband .wm b{color:var(--gold);}
+.title-page .tband .ed,.title-page .row .lab,.title-page .tfoot{font-family:var(--sans);letter-spacing:.2em;color:var(--ink-muted);}
+.title-page h1{font-family:var(--serif);font-weight:500;font-size:76px;line-height:.98;letter-spacing:-.015em;color:var(--navy);}
+.title-page h1 em{color:var(--gold);font-style:italic;}
+.title-page .hr-gold{width:64px;height:1px;margin:0 0 30px;}
+.title-page .row .val{font-family:var(--serif);font-weight:500;font-size:20px;color:var(--navy);}
+.letter h1{font-family:var(--serif);font-weight:500;font-size:46px;line-height:1.08;letter-spacing:-.01em;color:var(--navy);}
+.letter h1 em{color:var(--gold);font-style:italic;}
+.letter .lead-rule{height:1px;background:var(--gold);margin:20px 0 26px;}
+.letter p{font-family:var(--text);font-size:15px;line-height:1.75;}
+.letter .sig{font-family:var(--text);font-style:italic;font-size:15px;}
+.letter .sig .nm{font-family:var(--serif);font-weight:600;font-style:normal;font-size:19px;color:var(--navy);}
+.letter .sig .ml{font-family:var(--sans);font-size:11px;letter-spacing:.04em;color:var(--gold-deep);}
+.axis,.virtues-note,table.evidence thead th,.citation,.jbox .jlab,.jbox .jspelt,.axiscard .al,.axiscard .an,.stage .st,.lh .lmeta,.bfield .bl,.career .cmeta,.career .cmeta-row .mk,.vgroup .vg,.fgroup .fgs .pct,.facet .fs{font-family:var(--sans);}
+.trait .nm,ol.rank li .nm,table.evidence td.nm,.pillar .ph .pn,.combo .synth,.jbox .jtype,.jbox .jval,.axiscard .av,table.variants td.vr,.annex-title,.subhead,.lh .ltitle,.bfield .bv,.edu .es,.career .co,.fgroup .fgn,.def .dn{font-family:var(--serif);font-weight:500;color:var(--navy);}
+.trait .track{height:5px;background:rgba(26,39,68,.08);border-radius:999px;}.trait .fill{background:var(--gold);border-radius:999px;}.trait .sc{font-family:var(--serif);font-style:italic;font-size:20px;color:var(--gold);}
+ol.rank li .ix,table.evidence td.rk{font-family:var(--serif);font-style:italic;color:var(--gold);}
+ol.rank li .sc,table.evidence td.fq{font-family:var(--sans);}
+.pillar .ph .ps,.pillar .learn,.keyfind p,.tmay p,table.variants td.wh,table.variants td.q,.stage .sa,.lh .lbody,.lh .lnote,.bnote,.edu .en,.career .cr,.career .cbody,.career .cmeta-row,.def .dd,.facet .fn,.annex-note{font-family:var(--text);}
+.pillar .ph .ps,.combo .synth,table.variants td.q,.stage .sa,.lh .lnote,.career .cr{font-style:italic;}
+.keyfind{background:var(--paper-2);border-left:2px solid var(--gold);color:var(--ink);padding:20px 26px;}.keyfind .kt,.tmay .tk{font-family:var(--sans);letter-spacing:.2em;color:var(--gold-deep);}.keyfind p{color:var(--ink);font-style:italic;}.pull{font-family:var(--serif);font-weight:500;font-style:italic;border-left:1px solid var(--gold);color:var(--navy);}.tmay{background:var(--paper-2);border-left:2px solid var(--gold);}.tmay .ti,.tmay ul.drives li{font-family:var(--serif);font-weight:500;color:var(--navy);}.tmay ul.drives li::before{height:1px;background:var(--gold);}
+.divider .dband{font-family:var(--sans);letter-spacing:.2em;}.divider .dband .wm,.divider h1,.divider .contents .crow .cl{font-family:var(--serif);font-weight:500;letter-spacing:0;}.divider .di{font-family:var(--text);font-style:italic;}.divider .dhr{height:1px;background:var(--gold);}.divider .contents .crow .cx{font-family:var(--serif);font-style:italic;color:var(--gold-soft);}
+#lw-print-bar{font-family:var(--sans);}.page{background:var(--paper);}
+`;
+
 // ─── Public render helper ─────────────────────────────────────────────────────
 export function renderHtmlReport(payload: Record<string, unknown>): string {
   return renderTemplate(TEMPLATE, payload);
@@ -513,8 +575,8 @@ const TEMPLATE = `<!doctype html>
 <title>Lifework WOW Report — {{CLIENT.NAME}}</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Libre+Franklin:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400;1,500&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-<style>${INLINED_CSS}</style>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,500;0,8..60,600;1,8..60,400;1,8..60,500&family=Libre+Franklin:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<style>${INLINED_CSS}${QUIET_AUTHORITY_CSS}</style>
 </head>
 <body>
 

@@ -1717,3 +1717,8 @@
 - [x] Restore the selected WOW report branding in the active report renderer
 - [x] Give a client secure access to their own Claude Design branded report view
 - [x] Validate the restored template treatment and save a checkpoint
+
+## Quiet Authority Report Template Restoration
+- [x] Inspect the supplied Quiet Authority TypeScript renderer and compare its data bindings with the active report endpoint
+- [x] Replace the Modern Counsel HTML/CSS template with Quiet Authority while retaining secure client and counsellor access
+- [x] Add regression tests for Quiet Authority rendering and validate the report view before checkpointing

@@ -16,16 +16,17 @@ describe("canAccessBrandedReport", () => {
   });
 });
 
-describe("renderHtmlReport — Claude Design template", () => {
-  it("retains the Modern Counsel structural report treatment", () => {
+describe("renderHtmlReport — Quiet Authority template", () => {
+  it("retains the Quiet Authority structural report treatment", () => {
     const html = renderHtmlReport({
       CLIENT: { NAME: "David Example", FIRST_NAME: "David" },
       BRAND: { COMPANY: "Lifework" },
       REPORT: { EDITION_LABEL: "Career Analysis", DATE: "August 2026", ANALYST: "Jamie Pennington" },
     });
 
-    expect(html).toContain("--navy:#16233F");
-    expect(html).toContain("IBM+Plex+Mono");
+    expect(html).toContain("--navy:#1A2744");
+    expect(html).toContain("Cormorant+Garamond");
+    expect(html).toContain("Source+Serif+4");
     expect(html).toContain('class="rail"');
     expect(html).toContain("Life<b>work</b>");
     expect(html).toContain("David Example");
