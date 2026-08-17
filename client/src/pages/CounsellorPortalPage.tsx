@@ -25,12 +25,6 @@ export default function CounsellorPortalPage() {
     { enabled: !!clientId }
   );
 
-  const roleSpecUnlocked = !!(data?.profile as any)?.careerExplorerUnlocked;
-  const { data: targetSpecRow, isLoading: loadingSpec } = trpc.jobs.getTargetSpec.useQuery(
-    { clientId },
-    { enabled: !!clientId && roleSpecUnlocked }
-  );
-
   if (loadingProfile) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -66,9 +60,7 @@ export default function CounsellorPortalPage() {
       <DashboardBody
         profile={data?.profile}
         enrichmentStatus={enrichmentStatus}
-        targetSpecRow={targetSpecRow}
         loadingProfile={false}
-        loadingSpec={loadingSpec}
         displayName={clientName}
         onNavigate={() => {}}
         showAdminLink={false}

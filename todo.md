@@ -1772,3 +1772,8 @@
 - [x] Trace why an unlocked counsellor profile can render Explore with Alistair as locked in the client portal preview
 - [x] Correct the preview data or shared unlock-state handling without changing the client-access policy
 - [x] Add regression coverage, verify Michael Phillips’s preview, and save a publish-ready checkpoint
+
+## Client Journey: Complete with Alistair
+- [x] Remove the client-facing Role Specification card and associated client-dashboard rendering
+- [x] Retain Explore with Alistair as Step 6 and the final standard Lifework stage
+- [x] Update regression coverage, validate the simplified client and counsellor preview journey, and save a publish-ready checkpoint

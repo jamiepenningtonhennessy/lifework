@@ -144,7 +144,7 @@ export default function ClientProfile() {
 
   const unlockCareerExplorer = trpc.counselor.unlockCareerExplorer.useMutation({
     onSuccess: () => {
-      toast.success("Client access to Alistair and Role Specification unlocked.");
+      toast.success("Client access to Alistair unlocked.");
       utils.counselor.getClientProfile.invalidate({ clientId });
     },
     onError: () => toast.error("Failed to unlock client access."),
@@ -152,7 +152,7 @@ export default function ClientProfile() {
 
   const lockCareerExplorer = trpc.counselor.lockCareerExplorer.useMutation({
     onSuccess: () => {
-      toast.success("Client access to Alistair and Role Specification locked.");
+      toast.success("Client access to Alistair locked.");
       utils.counselor.getClientProfile.invalidate({ clientId });
     },
     onError: () => toast.error("Failed to lock client access."),
@@ -492,12 +492,12 @@ export default function ClientProfile() {
                   </Button>
                 </CardContent>
               </Card>
-              {/* Shared Alistair and Role Specification client-access control */}
+              {/* Client Alistair access control */}
               <Card className="md:col-span-2">
                 <CardHeader className="pb-2">
                   <CardTitle className="text-base font-serif flex items-center gap-2">
                     <Compass className="w-4 h-4" style={{ color: "var(--lw-gold)" }} />
-                    Client Access: Alistair &amp; Role Specification
+                    Client Access: Explore with Alistair
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -505,9 +505,9 @@ export default function ClientProfile() {
                     <div className="flex items-center justify-between">
                       <div>
                         <p className="text-sm text-emerald-700 font-medium flex items-center gap-1.5">
-                          <CheckCircle2 className="w-4 h-4" /> Unlocked — client can explore with Alistair and view their Role Specification
+                          <CheckCircle2 className="w-4 h-4" /> Unlocked — client can explore with Alistair
                         </p>
-                        <p className="text-xs text-muted-foreground mt-1">The client can now use Step 6: Explore with Alistair and Step 7: Role Specification on their Lifework dashboard.</p>
+                        <p className="text-xs text-muted-foreground mt-1">The client can now use Step 6: Explore with Alistair on their Lifework dashboard.</p>
                       </div>
                       <div className="flex items-center gap-2 ml-4 flex-shrink-0">
                         <Button
@@ -525,7 +525,7 @@ export default function ClientProfile() {
                           onClick={() => lockCareerExplorer.mutate({ clientId })}
                           className="text-xs gap-1"
                         >
-                          {lockCareerExplorer.isPending ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <><Lock className="w-3.5 h-3.5" /> Lock Client Access</>}
+                          {lockCareerExplorer.isPending ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <><Lock className="w-3.5 h-3.5" /> Lock Alistair</>}
                         </Button>
                       </div>
                     </div>
@@ -533,7 +533,7 @@ export default function ClientProfile() {
                     <div className="flex items-center justify-between">
                       <div>
                         <p className="text-sm text-muted-foreground">Client access is currently locked.</p>
-                        <p className="text-xs text-muted-foreground mt-1">Unlock once the Lifework report and coaching conversation are complete. This gives the client access to both Explore with Alistair and their Role Specification.</p>
+                        <p className="text-xs text-muted-foreground mt-1">Unlock once the Lifework report and coaching conversation are complete. This gives the client access to Explore with Alistair.</p>
                       </div>
                       <Button
                         size="sm"
@@ -542,7 +542,7 @@ export default function ClientProfile() {
                         className="bg-[var(--lw-navy)] text-white hover:opacity-90 gap-2 ml-4 flex-shrink-0"
                       >
                         {unlockCareerExplorer.isPending ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <>
-                          <Unlock className="w-3.5 h-3.5" /> Unlock Alistair &amp; Role Specification
+                          <Unlock className="w-3.5 h-3.5" /> Unlock Alistair
                         </>}
                       </Button>
                     </div>

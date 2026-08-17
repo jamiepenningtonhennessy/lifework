@@ -8,17 +8,17 @@ const clientProfileSource = readFileSync(
 );
 
 describe("counsellor client access control", () => {
-  it("clearly identifies the shared Alistair and Role Specification permission", () => {
-    expect(clientProfileSource).toContain("Client Access: Alistair &amp; Role Specification");
-    expect(clientProfileSource).toContain("Unlock Alistair &amp; Role Specification");
-    expect(clientProfileSource).toContain("Lock Client Access");
-    expect(clientProfileSource).toContain("Step 6: Explore with Alistair and Step 7: Role Specification");
+  it("clearly identifies the client-facing Alistair permission", () => {
+    expect(clientProfileSource).toContain("Client Access: Explore with Alistair");
+    expect(clientProfileSource).toContain("Unlock Alistair");
+    expect(clientProfileSource).toContain("Lock Alistair");
+    expect(clientProfileSource).toContain("Step 6: Explore with Alistair");
   });
 
-  it("uses the existing shared client-access mutations and acknowledges both capabilities", () => {
+  it("uses the existing client-access mutations and acknowledges Alistair access", () => {
     expect(clientProfileSource).toContain("trpc.counselor.unlockCareerExplorer.useMutation");
     expect(clientProfileSource).toContain("trpc.counselor.lockCareerExplorer.useMutation");
-    expect(clientProfileSource).toContain("Client access to Alistair and Role Specification unlocked.");
-    expect(clientProfileSource).toContain("Client access to Alistair and Role Specification locked.");
+    expect(clientProfileSource).toContain("Client access to Alistair unlocked.");
+    expect(clientProfileSource).toContain("Client access to Alistair locked.");
   });
 });

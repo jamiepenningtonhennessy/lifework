@@ -15,7 +15,6 @@ import {
   ArrowRight,
   Loader2,
   LogOut,
-  Compass,
   X,
   KeyRound,
   Sparkles,
@@ -93,17 +92,6 @@ const STEPS = [
     statusKey: null,
     cta: "Talk to Alistair",
     ctaInProgress: "Continue with Alistair",
-  },
-  {
-    id: "role_specification",
-    icon: <Compass className="w-5 h-5" />,
-    title: "7. Role Specification",
-    description:
-      "Once your counsellor has completed your Lifework analysis, they will generate a personalised Role Specification — a detailed profile of the roles, sectors, and organisations that best match who you are.",
-    path: null,
-    statusKey: null,
-    cta: null,
-    ctaInProgress: null,
   },
 ];
 
@@ -268,9 +256,7 @@ function SageGatePanel({
 export function DashboardBody({
   profile,
   enrichmentStatus,
-  targetSpecRow,
   loadingProfile,
-  loadingSpec,
   displayName,
   onNavigate,
   onLogout,
@@ -280,9 +266,7 @@ export function DashboardBody({
 }: {
   profile: any;
   enrichmentStatus: { total: number; enriched: number; required: number; unlocked: boolean } | undefined;
-  targetSpecRow: any;
   loadingProfile: boolean;
-  loadingSpec: boolean;
   displayName?: string;
   onNavigate: (path: string) => void;
   onLogout?: () => void;
@@ -315,7 +299,7 @@ export function DashboardBody({
     if (s.id === "sage") return sageUnlocked;
     return getStatus(s.statusKey, s.id) === "completed";
   }).length;
-  const totalSteps = 7;
+  const totalSteps = 6;
   const progressPct = Math.round((completedSteps / totalSteps) * 100);
 
   // Determine whether interview + background have been started (prerequisite for Sage)
@@ -390,7 +374,7 @@ export function DashboardBody({
               </h1>
               <div className="text-muted-foreground leading-relaxed space-y-3 text-sm">
                 <p>
-                  Your Lifework journey has seven stages. Begin by completing your{" "}
+                  Your Lifework journey has six stages. Begin by completing your{" "}
                   <strong className="text-foreground">Life History Interview</strong> and{" "}
                   <strong className="text-foreground">Background &amp; History</strong> — these form the foundation of everything that follows.
                 </p>
@@ -458,7 +442,6 @@ export function DashboardBody({
                 const isPsychometrics = step.id === "psychometrics";
                 const isSage = step.id === "sage";
                 const isAlistair = step.id === "ask_alistair";
-                const isRoleSpec = step.id === "role_specification";
 
                 let isLocked = false;
                 if (idx > 0) {
@@ -472,8 +455,8 @@ export function DashboardBody({
                   } else if (isSage) {
                     // Sage is locked until at least one of interview/background has been started
                     isLocked = !sagePrereqMet;
-                  } else if (isAlistair || isRoleSpec) {
-                    // Alistair and the Role Specification are locked until the counsellor explicitly unlocks them
+                  } else if (isAlistair) {
+                    // Alistair is locked until the counsellor explicitly unlocks this conversation.
                     isLocked = !canClientAccessAlistair((profile as any)?.careerExplorerUnlocked);
                   } else {
                     isLocked = prevBlockerStatus === "not_started";
@@ -534,7 +517,7 @@ export function DashboardBody({
                                 In Progress
                               </span>
                             )}
-                            {isLocked && (isPsychometrics || isAlistair || isRoleSpec) && (
+                            {isLocked && (isPsychometrics || isAlistair) && (
                               <span
                                 className="text-xs px-2 py-0.5 rounded-full flex items-center gap-1"
                                 style={{
@@ -624,52 +607,6 @@ export function DashboardBody({
                             </div>
                           )}
 
-                          {/* Role Specification — inline spec display when unlocked */}
-                          {isRoleSpec && !isLocked && (
-                            <div className="mt-4">
-                              {loadingSpec ? (
-                                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                                  <Loader2 className="w-4 h-4 animate-spin" />
-                                  Loading your specification…
-                                </div>
-                              ) : targetSpecRow?.spec ? (() => {
-                                const spec = typeof targetSpecRow.spec === "string"
-                                  ? JSON.parse(targetSpecRow.spec)
-                                  : targetSpecRow.spec;
-                                return (
-                                  <div className="space-y-4 border border-[var(--lw-gold)]/30 rounded-lg p-4 bg-[var(--lw-cream-warm)]/40">
-                                    {spec.summary && (
-                                      <div>
-                                        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">Your Role Summary</p>
-                                        <p className="text-sm leading-relaxed">{spec.summary}</p>
-                                      </div>
-                                    )}
-                                    <div className="pt-1">
-                                      <a
-                                        href="/api/export/role-spec"
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="inline-flex items-center gap-2 text-xs font-medium px-3 py-1.5 rounded-md border transition-colors"
-                                        style={{
-                                          borderColor: "var(--lw-gold)",
-                                          color: "var(--lw-gold)",
-                                          background: "rgba(201,151,58,0.06)",
-                                        }}
-                                      >
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-                                        Download full Role Specification (PDF)
-                                      </a>
-                                    </div>
-                                  </div>
-                                );
-                              })() : (
-                                <p className="text-sm text-muted-foreground italic">
-                                  Your counsellor is preparing your Role Specification. It will appear here once it is ready.
-                                </p>
-                              )}
-                            </div>
-                          )}
-
                           {/* Explore with Alistair — locked until counsellor unlocks it */}
                           {isAlistair && isLocked && (
                             <div
@@ -691,26 +628,6 @@ export function DashboardBody({
                             </div>
                           )}
 
-                          {/* Role Specification — locked state */}
-                          {isRoleSpec && isLocked && (
-                            <div
-                              className="mt-3 rounded-lg p-3 flex items-start gap-3"
-                              style={{
-                                background: "rgba(201,151,58,0.07)",
-                                border: "1px solid rgba(201,151,58,0.25)",
-                              }}
-                            >
-                              <Lock className="w-4 h-4 flex-shrink-0 mt-0.5" style={{ color: "var(--lw-gold)" }} />
-                              <div>
-                                <p className="text-sm font-semibold mb-1" style={{ color: "var(--lw-navy)" }}>
-                                  Awaiting your counsellor
-                                </p>
-                                <p className="text-xs leading-relaxed" style={{ color: "rgba(0,0,0,0.55)" }}>
-                                  Your Role Specification will be unlocked by your counsellor once your Lifework report has been completed and your coaching conversation has taken place.
-                                </p>
-                              </div>
-                            </div>
-                          )}
                         </div>
 
                         {/* CTA button (right side) — not for sage step */}
@@ -779,7 +696,7 @@ export function DashboardBody({
                               );
                             })()}
 
-                            {isLocked && !isPsychometrics && !isAlistair && !isRoleSpec && step.id !== "sage" && (
+                            {isLocked && !isPsychometrics && !isAlistair && step.id !== "sage" && (
                               <span className="text-xs text-muted-foreground/50">
                                 Complete previous step first
                               </span>
@@ -814,12 +731,6 @@ export default function ClientDashboard() {
     { enabled: isAuthenticated }
   );
 
-  const roleSpecUnlocked = !!(profile as any)?.careerExplorerUnlocked;
-  const { data: targetSpecRow, isLoading: loadingSpec } = trpc.jobs.getTargetSpec.useQuery(
-    {},
-    { enabled: isAuthenticated && roleSpecUnlocked }
-  );
-
   if (!loading && !isAuthenticated) {
     window.location.href = getLoginUrl();
     return null;
@@ -829,9 +740,7 @@ export default function ClientDashboard() {
     <DashboardBody
       profile={profile}
       enrichmentStatus={enrichmentStatus}
-      targetSpecRow={targetSpecRow}
       loadingProfile={loadingProfile}
-      loadingSpec={loadingSpec}
       displayName={user?.name ?? undefined}
       onNavigate={navigate}
       onLogout={logout}
