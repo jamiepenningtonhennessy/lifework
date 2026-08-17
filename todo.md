@@ -1722,3 +1722,10 @@
 - [x] Inspect the supplied Quiet Authority TypeScript renderer and compare its data bindings with the active report endpoint
 - [x] Replace the Modern Counsel HTML/CSS template with Quiet Authority while retaining secure client and counsellor access
 - [x] Add regression tests for Quiet Authority rendering and validate the report view before checkpointing
+
+## Standard Counsellor Client-Profile View
+- [x] Audit existing roles, client-profile tabs, and server-side client access before introducing standard counsellor access
+- [x] Hide Parallel Clients, Analysis Report, Role Decoder, LinkedIn Rewriter, and Jobs Explorer from the standard counsellor client-profile view
+- [x] Preserve all client-profile tabs and tools for the master administrator view
+- [x] Create a safe standard-counsellor test mode without granting access to real clients
+- [x] Add role-visibility tests and document the next client-ownership confidentiality controls

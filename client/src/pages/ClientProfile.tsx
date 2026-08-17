@@ -42,6 +42,7 @@ import WowReportTab from "@/components/WowReportTab";
 import RoleDecoderTab from "@/components/RoleDecoderTab";
 import LinkedInRewriterTab from "@/components/LinkedInRewriterTab";
 import { CounsellorJobsTab } from "@/components/CounsellorJobsTab";
+import { isClientProfileTabVisible } from "@shared/counsellorProfileTabs";
 
 type Tab = "overview" | "interview" | "background" | "via" | "ocean" | "insights" | "report" | "virtual-peter" | "coaching-annex" | "coaching-session" | "wow-report" | "role-decoder" | "linkedin-rewriter" | "jobs";
 
@@ -51,6 +52,7 @@ export default function ClientProfile() {
   const params = useParams<{ id: string }>();
   const clientId = parseInt(params.id ?? "0");
   const [activeTab, setActiveTab] = useState<Tab>("overview");
+  const [isStandardCounsellorPreview, setIsStandardCounsellorPreview] = useState(false);
   const [counselorNotes, setCounselorNotes] = useState("");
   const utils = trpc.useUtils();
 
@@ -256,6 +258,14 @@ export default function ClientProfile() {
   { id: "linkedin-rewriter", label: "LinkedIn Rewriter", icon: <Linkedin className="w-4 h-4" /> },
   { id: "jobs", label: "Jobs Explorer", icon: <Briefcase className="w-4 h-4" /> },
   ];
+  const counsellorView = isStandardCounsellorPreview ? "standard-counsellor" : "master";
+  const visibleTabs = TABS.filter((tab) => isClientProfileTabVisible(tab.id, counsellorView));
+
+  useEffect(() => {
+    if (!isClientProfileTabVisible(activeTab, counsellorView)) {
+      setActiveTab("overview");
+    }
+  }, [activeTab, counsellorView]);
 
   return (
     <div className="min-h-screen bg-background">
@@ -277,6 +287,15 @@ export default function ClientProfile() {
           </div>
           {data?.profile && (
             <div className="flex gap-2">
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => setIsStandardCounsellorPreview((current) => !current)}
+                className="gap-1"
+              >
+                <Eye className="w-3.5 h-3.5" />
+                {isStandardCounsellorPreview ? "Master view" : "Counsellor view"}
+              </Button>
               <Button
                 size="sm"
                 variant="outline"
@@ -381,8 +400,13 @@ export default function ClientProfile() {
 
           {/* Tabs */}
           <div className="mb-6 border-b border-border">
+            {isStandardCounsellorPreview && (
+              <div className="mb-3 border border-[var(--lw-gold)]/40 bg-[var(--lw-gold-soft)]/25 px-3 py-2 text-sm text-[var(--lw-navy)]">
+                <strong>Standard counsellor preview.</strong> Master-only tools are hidden; no client-access permissions have changed.
+              </div>
+            )}
             <div className="flex flex-wrap">
-              {TABS.map((tab) => (
+              {visibleTabs.map((tab) => (
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
