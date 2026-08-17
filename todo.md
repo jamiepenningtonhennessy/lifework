@@ -1707,3 +1707,6 @@
 - [x] Read the original public hostname from the reverse-proxy headers for the server-side legacy redirect
 - [x] Preserve legacy Lifework client sub-routes when transferring users to the standalone domain
 - [x] Fix standalone Lifework root rendering when the hosted viewer exposes an internal preview hostname
+- [x] Identify and map the management viewer's internal root hostname to Lifework without changing public Pennington Hennessy routing
+- [x] Resolve the management viewer and Open Website control that still open the Pennington Hennessy internal preview
+- [x] Route the management viewer's localhost/internal preview host to Lifework at the root path

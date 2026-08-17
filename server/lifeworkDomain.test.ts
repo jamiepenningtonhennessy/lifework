@@ -13,11 +13,15 @@ describe("standalone Lifework hostname routing", () => {
 
   it("renders Lifework in the managed project viewer", () => {
     expect(isStandaloneLifeworkHostname("plumtrees-kfbbe6kq.manus.space")).toBe(true);
+    expect(isStandaloneLifeworkHostname("3000-ivxro4qkiijpp7939byev-5763187f.us1.manus.computer")).toBe(true);
+    expect(isStandaloneLifeworkHostname("localhost")).toBe(true);
+    expect(isStandaloneLifeworkHostname("127.0.0.1")).toBe(true);
   });
 
   it("keeps the Pennington Hennessy domain on its own homepage", () => {
     expect(isStandaloneLifeworkHostname("penningtonhennessy.com")).toBe(false);
     expect(isStandaloneLifeworkHostname("www.penningtonhennessy.com")).toBe(false);
+    expect(isStandaloneLifeworkHostname("3000-preview.other.example")).toBe(false);
     expect(isStandaloneLifeworkHostname(null)).toBe(false);
   });
 
