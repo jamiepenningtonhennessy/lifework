@@ -11,6 +11,10 @@ describe("standalone Lifework hostname routing", () => {
     expect(isStandaloneLifeworkHostname("lifework.manus.space")).toBe(true);
   });
 
+  it("renders Lifework in the managed project viewer", () => {
+    expect(isStandaloneLifeworkHostname("plumtrees-kfbbe6kq.manus.space")).toBe(true);
+  });
+
   it("keeps the Pennington Hennessy domain on its own homepage", () => {
     expect(isStandaloneLifeworkHostname("penningtonhennessy.com")).toBe(false);
     expect(isStandaloneLifeworkHostname("www.penningtonhennessy.com")).toBe(false);

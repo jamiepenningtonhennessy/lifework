@@ -1681,7 +1681,7 @@
 - [x] Bind lifeworkpath.com and www.lifeworkpath.com to the Lifework application in the hosting settings
 - [x] Add the required Cloudflare DNS records and verify SSL/TLS activation
 - [x] Prepare standalone-domain application routing: Lifework root, sign-in return path, and no PH navigation
-- [ ] Configure permanent redirects from penningtonhennessy.com/coaching/lifework and legacy sub-routes
+- [x] Configure permanent redirects from penningtonhennessy.com/coaching/lifework and legacy sub-routes
 - [ ] Verify access-code, sign-in callback, client dashboard, PDF links, and logout on the new domain
 
 ## Lifework Logo Alternatives
@@ -1701,8 +1701,9 @@
 
 ## Lifeworkpath.com Cutover Verification
 - [x] Confirm both lifeworkpath.com hostnames serve the standalone Lifework entry point after DNS connection
-- [ ] Confirm Cloudflare canonical redirect and safe legacy-route redirect behaviour before changing the Pennington Hennessy public links
+- [x] Confirm Cloudflare canonical redirect and safe legacy-route redirect behaviour before changing the Pennington Hennessy public links
 - [x] Add an application-level redirect for the legacy Lifework route because the existing Pennington Hennessy DNS record is not Cloudflare-proxied
 - [x] Add a server-side 301 redirect for the legacy Lifework route to avoid a client-side redirect delay
 - [x] Read the original public hostname from the reverse-proxy headers for the server-side legacy redirect
 - [x] Preserve legacy Lifework client sub-routes when transferring users to the standalone domain
+- [x] Fix standalone Lifework root rendering when the hosted viewer exposes an internal preview hostname

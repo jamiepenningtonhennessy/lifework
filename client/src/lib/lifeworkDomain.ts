@@ -2,6 +2,7 @@ export const STANDALONE_LIFEWORK_HOSTS = [
   "lifeworkpath.com",
   "www.lifeworkpath.com",
   "lifework.manus.space",
+  "plumtrees-kfbbe6kq.manus.space",
 ] as const;
 
 /** Returns whether a hostname should open the standalone Lifework experience. */
