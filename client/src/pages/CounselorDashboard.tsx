@@ -4,6 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { useLocation } from "wouter";
 import { getLoginUrl } from "@/const";
 import { trpc } from "@/lib/trpc";
+import { canEnterCounsellorWorkspace } from "@shared/counsellorAccess";
 import { ArrowRight, Loader2, Users, CheckCircle2, Clock, Circle, Eye, Lock, Building2 } from "lucide-react";
 
 function StatusBadge({ status }: { status: string }) {
@@ -32,8 +33,9 @@ export default function CounselorDashboard() {
   const { isAuthenticated, loading, user } = useAuth();
   const [, navigate] = useLocation();
 
+  const canEnterWorkspace = canEnterCounsellorWorkspace(user?.role);
   const { data: clients = [], isLoading } = trpc.counselor.listClients.useQuery(undefined, {
-    enabled: isAuthenticated && user?.role === "admin",
+    enabled: isAuthenticated && canEnterWorkspace,
   });
 
   if (!loading && !isAuthenticated) {
@@ -41,7 +43,7 @@ export default function CounselorDashboard() {
     return null;
   }
 
-  if (!loading && user?.role !== "admin") {
+  if (!loading && !canEnterWorkspace) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="text-center">
@@ -82,22 +84,26 @@ export default function CounselorDashboard() {
               <Lock className="w-3.5 h-3.5" />
               Lock
             </button>
-            <button
-              onClick={() => navigate("/counselor/universe")}
-              className="px-3 py-1.5 text-xs font-medium tracking-wide uppercase cursor-pointer flex items-center gap-1.5"
-              style={{ border: "1px solid rgba(201,151,58,0.3)", color: "rgba(255,255,255,0.65)", background: "transparent", letterSpacing: "0.08em" }}
-            >
-              <Building2 className="w-3.5 h-3.5" />
-              Universe
-            </button>
-            <button
-              onClick={() => navigate("/preview")}
-              className="px-3 py-1.5 text-xs font-medium tracking-wide uppercase cursor-pointer flex items-center gap-1.5"
-              style={{ border: "1px solid rgba(201,151,58,0.3)", color: "rgba(255,255,255,0.65)", background: "transparent", letterSpacing: "0.08em" }}
-            >
-              <Eye className="w-3.5 h-3.5" />
-              Preview
-            </button>
+            {user?.role === "admin" && (
+              <>
+                <button
+                  onClick={() => navigate("/counselor/universe")}
+                  className="px-3 py-1.5 text-xs font-medium tracking-wide uppercase cursor-pointer flex items-center gap-1.5"
+                  style={{ border: "1px solid rgba(201,151,58,0.3)", color: "rgba(255,255,255,0.65)", background: "transparent", letterSpacing: "0.08em" }}
+                >
+                  <Building2 className="w-3.5 h-3.5" />
+                  Universe
+                </button>
+                <button
+                  onClick={() => navigate("/preview")}
+                  className="px-3 py-1.5 text-xs font-medium tracking-wide uppercase cursor-pointer flex items-center gap-1.5"
+                  style={{ border: "1px solid rgba(201,151,58,0.3)", color: "rgba(255,255,255,0.65)", background: "transparent", letterSpacing: "0.08em" }}
+                >
+                  <Eye className="w-3.5 h-3.5" />
+                  Preview
+                </button>
+              </>
+            )}
             <button
               onClick={() => navigate("/dashboard")}
               className="px-3 py-1.5 text-xs font-medium tracking-wide uppercase cursor-pointer"
@@ -110,6 +116,12 @@ export default function CounselorDashboard() {
       </div>
 
       <div className="container py-10">
+        {user?.role === "counselor" && (
+          <div className="mb-6 border border-[var(--lw-gold)]/40 bg-[var(--lw-gold-soft)]/20 px-5 py-4 text-[var(--lw-navy)]">
+            <p className="font-medium">Counsellor audit account</p>
+            <p className="mt-1 text-sm">No clients are assigned to this account. This is intentional: client assignments and record access will be added only after the confidentiality model has been approved.</p>
+          </div>
+        )}
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>

@@ -5,6 +5,7 @@ import { useLocation } from "wouter";
 import { ArrowRight, CheckCircle, X, Lock, Download } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { lifeworkLandingPath } from "@/lib/lifeworkDomain";
+import { canEnterCounsellorWorkspace } from "@shared/counsellorAccess";
 
 const LIFEWORK_VIDEO_URL = "https://d2xsxph8kpxj0f.cloudfront.net/107696804/kFbbE6kqNApXGDFpQJUGV7/lifework-overview_10b2a812.mp4";
 
@@ -86,7 +87,7 @@ export default function Home() {
                 <span className="text-sm hidden sm:block" style={{ color: "rgba(255,255,255,0.6)" }}>
                   Welcome, {user?.name?.split(" ")[0]}
                 </span>
-                {user?.role === "admin" && (
+                {canEnterCounsellorWorkspace(user?.role) && (
                   <button onClick={handleCounselor}
                     className="px-4 py-2 text-sm font-medium tracking-wide uppercase cursor-pointer transition-colors"
                     style={{ border: "1px solid rgba(201,151,58,0.6)", color: "var(--lw-gold)", background: "transparent", letterSpacing: "0.08em", fontSize: "0.75rem" }}>

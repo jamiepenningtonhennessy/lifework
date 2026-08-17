@@ -1729,3 +1729,9 @@
 - [x] Preserve all client-profile tabs and tools for the master administrator view
 - [x] Create a safe standard-counsellor test mode without granting access to real clients
 - [x] Add role-visibility tests and document the next client-ownership confidentiality controls
+
+## Isolated Dummy Counsellor Audit
+- [x] Add a dedicated counsellor role distinct from clients and master administrators
+- [x] Ensure a counsellor with no assigned clients sees an empty state and cannot access any client profile by URL
+- [x] Create a dummy counsellor audit workflow that requires a separate first-time login but no real client assignment
+- [x] Add role-isolation tests and document how to promote the dummy account after its first sign-in

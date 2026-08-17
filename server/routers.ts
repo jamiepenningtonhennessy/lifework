@@ -76,11 +76,21 @@ const pdfParse = (pdfParseModule as any).default ?? pdfParseModule;
 import mammoth from "mammoth";
 import { scoreVia, VIA_QUESTIONS, VIA_STRENGTHS } from "../shared/via-data";
 import { scoreIpip, ipipCareerNarrative } from "../shared/ipip-data";
+import { canEnterCounsellorWorkspace } from "../shared/counsellorAccess";
 
 // ─── Helper: require counselor/admin role ────────────────────────────────────
 const counselorProcedure = protectedProcedure.use(({ ctx, next }) => {
   if (ctx.user.role !== "admin") {
     throw new TRPCError({ code: "FORBIDDEN", message: "Counselor access required" });
+  }
+  return next({ ctx });
+});
+
+// Standard counsellors can enter a deliberately empty workspace while client
+// assignment is being designed. Existing client-data procedures stay admin-only.
+const counsellorWorkspaceProcedure = protectedProcedure.use(({ ctx, next }) => {
+  if (!canEnterCounsellorWorkspace(ctx.user.role)) {
+    throw new TRPCError({ code: "FORBIDDEN", message: "Counsellor access required" });
   }
   return next({ ctx });
 });
@@ -1177,7 +1187,10 @@ ${stage4Output}
 
 // ─── Counselor Router ─────────────────────────────────────────────────────────
 const counselorRouter = router({
-  listClients: counselorProcedure.query(async () => {
+  listClients: counsellorWorkspaceProcedure.query(async ({ ctx }) => {
+    // A standard counsellor has no visible clients until a future assignment
+    // layer is implemented. Never fall back to the global client list.
+    if (ctx.user.role === "counselor") return [];
     return getAllClientProfiles();
   }),
 

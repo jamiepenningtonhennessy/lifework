@@ -4,6 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { useLocation } from "wouter";
 import { getLoginUrl } from "@/const";
 import { trpc } from "@/lib/trpc";
+import { canEnterCounsellorWorkspace } from "@shared/counsellorAccess";
 import {
   MessageSquare,
   Users,
@@ -784,7 +785,7 @@ export default function ClientDashboard() {
       displayName={user?.name ?? undefined}
       onNavigate={navigate}
       onLogout={logout}
-      showAdminLink={user?.role === "admin"}
+      showAdminLink={canEnterCounsellorWorkspace(user?.role)}
       userId={user?.id}
     />
   );
