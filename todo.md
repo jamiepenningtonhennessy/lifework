@@ -1752,3 +1752,8 @@
 - [x] Accept DOCX reports alongside PDFs and extract text safely from both formats
 - [x] Add robust PDF extraction fallback and user-facing actionable error handling
 - [x] Add format/extraction regression tests, validate the upload flow, and save a checkpoint
+
+## Client-Facing Alistair Access
+- [x] Audit Michael Phillips’s Alistair unlock state and the client-dashboard access conditions
+- [x] Restore the client-facing Alistair route when a counsellor has authorised it
+- [x] Validate the corrected route in counsellor preview and add regression coverage

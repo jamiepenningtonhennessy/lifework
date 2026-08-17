@@ -5,6 +5,7 @@ import { useLocation } from "wouter";
 import { getLoginUrl } from "@/const";
 import { trpc } from "@/lib/trpc";
 import { canEnterCounsellorWorkspace } from "@shared/counsellorAccess";
+import { canClientAccessAlistair } from "@shared/alistairAccess";
 import {
   MessageSquare,
   Users,
@@ -461,7 +462,7 @@ export function DashboardBody({
                     isLocked = !sagePrereqMet;
                   } else if (isRoleSpec) {
                     // Role Specification is locked until the counsellor explicitly unlocks it
-                    isLocked = !(profile as any)?.careerExplorerUnlocked;
+                    isLocked = !canClientAccessAlistair((profile as any)?.careerExplorerUnlocked);
                   } else {
                     isLocked = prevBlockerStatus === "not_started";
                   }
@@ -646,6 +647,23 @@ export function DashboardBody({
                                         <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                                         Download full Role Specification (PDF)
                                       </a>
+                                    </div>
+                                    <div className="border-t border-[var(--lw-gold)]/20 pt-4">
+                                      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                                        <div>
+                                          <p className="text-sm font-semibold" style={{ color: "var(--lw-navy)" }}>Explore this with Alistair</p>
+                                          <p className="mt-1 text-xs leading-relaxed text-muted-foreground">Ask Alistair to help you test this Role Specification against your strengths, experience and the opportunities you are considering.</p>
+                                        </div>
+                                        <Button
+                                          size="sm"
+                                          disabled={isPreview}
+                                          onClick={() => onNavigate("/career-explorer")}
+                                          className="shrink-0 gap-1 bg-[var(--lw-gold)] text-[var(--lw-navy)] hover:bg-[var(--lw-gold-soft)]"
+                                        >
+                                          Ask Alistair
+                                          <ArrowRight className="h-3.5 w-3.5" />
+                                        </Button>
+                                      </div>
                                     </div>
                                   </div>
                                 );
