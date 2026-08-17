@@ -1746,3 +1746,9 @@
 ## Ask Alistair Layout
 - [x] Widen the desktop Ask Alistair conversation panel to a balanced 50/50 layout while retaining single-column mobile behaviour
 - [x] Validate the layout and save a checkpoint
+
+## Alistair Debrief Report Upload Compatibility
+- [x] Audit the existing Debrief with Alistair PDF upload and extraction flow
+- [x] Accept DOCX reports alongside PDFs and extract text safely from both formats
+- [x] Add robust PDF extraction fallback and user-facing actionable error handling
+- [x] Add format/extraction regression tests, validate the upload flow, and save a checkpoint

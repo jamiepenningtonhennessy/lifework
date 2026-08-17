@@ -57,7 +57,7 @@ export default function SageCounsellorPanel({
   const [isSending, setIsSending] = useState(false);
   const [documentContext, setDocumentContext] = useState<string | null>(null);
   const [documentName, setDocumentName] = useState<string | null>(null);
-  const [isExtractingPdf, setIsExtractingPdf] = useState(false);
+  const [isExtractingDocument, setIsExtractingDocument] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -87,22 +87,33 @@ export default function SageCounsellorPanel({
     }
   }, [open]);
 
-  const handlePdfUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleDocumentUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    if (file.size > 10 * 1024 * 1024) {
-      alert("Please upload a PDF under 10 MB (ideally 1–3 pages for best results).");
+    const acceptedTypes = [
+      "application/pdf",
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    ];
+    if (!acceptedTypes.includes(file.type)) {
+      alert("Please upload a PDF or DOCX report.");
       return;
     }
-    setIsExtractingPdf(true);
+    if (file.size > 10 * 1024 * 1024) {
+      alert("Please upload a PDF or DOCX report under 10 MB (ideally 1–3 pages for best results).");
+      return;
+    }
+    setIsExtractingDocument(true);
     try {
       const arrayBuffer = await file.arrayBuffer();
       const bytes = new Uint8Array(arrayBuffer);
       // Send to server for extraction
       const formData = new FormData();
-      formData.append("file", new Blob([bytes], { type: "application/pdf" }), file.name);
+      formData.append("file", new Blob([bytes], { type: file.type }), file.name);
       const res = await fetch("/api/extract-pdf", { method: "POST", body: formData });
-      if (!res.ok) throw new Error("Extraction failed");
+      if (!res.ok) {
+        const body = await res.json().catch(() => null) as { error?: string } | null;
+        throw new Error(body?.error ?? "Extraction failed");
+      }
       const { text } = await res.json();
       setDocumentContext(text);
       setDocumentName(file.name);
@@ -111,10 +122,10 @@ export default function SageCounsellorPanel({
         role: "assistant" as const,
         content: `📄 **${file.name}** has been loaded. I've read the document and can now discuss it alongside ${displayName}'s profile. What would you like to explore?`,
       }]);
-    } catch {
-      alert("Could not extract text from this PDF. Please try a different file.");
+    } catch (error) {
+      alert(error instanceof Error ? error.message : "Could not read this document. Please try a text-based PDF or DOCX version.");
     } finally {
-      setIsExtractingPdf(false);
+      setIsExtractingDocument(false);
       if (fileInputRef.current) fileInputRef.current.value = "";
     }
   };
@@ -385,9 +396,9 @@ export default function SageCounsellorPanel({
           <input
             ref={fileInputRef}
             type="file"
-            accept="application/pdf"
+            accept=".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
             className="hidden"
-            onChange={handlePdfUpload}
+            onChange={handleDocumentUpload}
           />
           <div className="flex gap-2 items-end">
             <Button
@@ -395,10 +406,10 @@ export default function SageCounsellorPanel({
               variant="ghost"
               className="h-10 w-10 flex-shrink-0 mb-0.5 text-white/40 hover:text-white/70 hover:bg-white/5"
               onClick={() => fileInputRef.current?.click()}
-              disabled={isSending || briefingLoading || isExtractingPdf}
-              title="Upload PDF document (1–3 pages recommended)"
+              disabled={isSending || briefingLoading || isExtractingDocument}
+              title="Upload PDF or DOCX document (1–3 pages recommended)"
             >
-              {isExtractingPdf ? (
+              {isExtractingDocument ? (
                 <Loader2 className="w-4 h-4 animate-spin" />
               ) : (
                 <Paperclip className="w-4 h-4" />
