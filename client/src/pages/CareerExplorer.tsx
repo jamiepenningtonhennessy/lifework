@@ -17,6 +17,7 @@ import { getLoginUrl } from "@/const";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { Streamdown } from "streamdown";
 import { toast } from "sonner";
+import { JobSpecReviewPanel } from "@/components/JobSpecReviewPanel";
 
 const ALISTAIR_AVATAR = "https://d2xsxph8kpxj0f.cloudfront.net/107696804/kFbbE6kqNApXGDFpQJUGV7/alistair-avatar_24fddf8e.jpg";
 
@@ -446,6 +447,7 @@ export default function CareerExplorer() {
       {/* Chat area */}
       <div className="flex-1 overflow-y-auto">
         <div className="container max-w-3xl py-6 space-y-5">
+          <JobSpecReviewPanel />
 
           {/* Empty state */}
           {isEmpty && (

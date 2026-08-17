@@ -1735,3 +1735,10 @@
 - [x] Ensure a counsellor with no assigned clients sees an empty state and cannot access any client profile by URL
 - [x] Create a dummy counsellor audit workflow that requires a separate first-time login but no real client assignment
 - [x] Add role-isolation tests and document how to promote the dummy account after its first sign-in
+
+## Alistair Job-Specification Feedback
+- [x] Audit existing CV/document upload, Alistair prompts, and client access controls
+- [x] Add secure job-specification storage, extraction, and ownership-aware access
+- [x] Generate structured Alistair feedback against Lifework evidence, CV, and Role Specification
+- [x] Add client and counsellor review surfaces with clear upload limits and data-retention controls
+- [x] Add security and analysis tests, validate the workflow, and save a checkpoint
