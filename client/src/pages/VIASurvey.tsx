@@ -24,7 +24,9 @@ export default function VIASurvey() {
   const [page, setPage] = useState(0);
   const [submitted, setSubmitted] = useState(false);
 
-  const { data: viaData, isLoading: loadingQuestions } = trpc.via.getQuestions.useQuery();
+  const { data: viaData, isLoading: loadingQuestions } = trpc.via.getQuestions.useQuery(undefined, {
+    enabled: isAuthenticated,
+  });
   const { data: existingResults } = trpc.via.getMyResults.useQuery(undefined, {
     enabled: isAuthenticated,
   });

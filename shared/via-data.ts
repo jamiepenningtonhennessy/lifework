@@ -357,6 +357,65 @@ export const VIA_QUESTIONS: ViaQuestion[] = [
   { id: 120, strengthId: "spirituality", text: "I feel a sense of calling in what I do." },
 ];
 
+/**
+ * Returns the VIA questions in a reproducible, client-specific random order.
+ *
+ * The question identifiers and strength mappings are never changed, so answers
+ * remain compatible with scoreVia regardless of their presentation sequence.
+ * A deterministic seed gives an individual client the same order on every page
+ * load and return visit, while different clients receive different sequences.
+ */
+export function getViaQuestionsForClient(clientSeed: number): ViaQuestion[] {
+  let state = (clientSeed ^ 0x9e3779b9) >>> 0;
+
+  const nextRandom = () => {
+    state = (state + 0x6d2b79f5) >>> 0;
+    let value = state;
+    value = Math.imul(value ^ (value >>> 15), value | 1);
+    value ^= value + Math.imul(value ^ (value >>> 7), value | 61);
+    return ((value ^ (value >>> 14)) >>> 0) / 4294967296;
+  };
+
+  const shuffle = <T,>(items: T[]): T[] => {
+    const shuffled = [...items];
+    for (let index = shuffled.length - 1; index > 0; index -= 1) {
+      const swapIndex = Math.floor(nextRandom() * (index + 1));
+      [shuffled[index], shuffled[swapIndex]] = [shuffled[swapIndex], shuffled[index]];
+    }
+    return shuffled;
+  };
+
+  const questionsByStrength = new Map(
+    VIA_STRENGTHS.map((strength) => [
+      strength.id,
+      shuffle(VIA_QUESTIONS.filter((question) => question.strengthId === strength.id)),
+    ])
+  );
+  const strengthIds = VIA_STRENGTHS.map((strength) => strength.id);
+  const ordered: ViaQuestion[] = [];
+  let previousStrengthId: string | undefined;
+
+  // Each round includes one randomly selected item from every strength. This
+  // retains a fully mixed experience without allowing neighbouring items from
+  // the same strength to create recognisable five-question blocks.
+  for (let roundIndex = 0; roundIndex < 5; roundIndex += 1) {
+    const roundStrengthIds = shuffle(strengthIds);
+    if (previousStrengthId && roundStrengthIds[0] === previousStrengthId) {
+      const swapIndex = 1 + Math.floor(nextRandom() * (roundStrengthIds.length - 1));
+      [roundStrengthIds[0], roundStrengthIds[swapIndex]] = [roundStrengthIds[swapIndex], roundStrengthIds[0]];
+    }
+
+    for (const strengthId of roundStrengthIds) {
+      const question = questionsByStrength.get(strengthId)?.[roundIndex];
+      if (!question) throw new Error(`Missing VIA question for strength: ${strengthId}`);
+      ordered.push(question);
+      previousStrengthId = strengthId;
+    }
+  }
+
+  return ordered;
+}
+
 export function scoreVia(answers: Record<number, number>): { strengthId: string; name: string; score: number; rank: number }[] {
   const totals: Record<string, number> = {};
   for (const q of VIA_QUESTIONS) {

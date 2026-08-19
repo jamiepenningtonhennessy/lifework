@@ -75,7 +75,7 @@ import { storagePut } from "./storage";
 import * as pdfParseModule from "pdf-parse";
 const pdfParse = (pdfParseModule as any).default ?? pdfParseModule;
 import mammoth from "mammoth";
-import { scoreVia, VIA_QUESTIONS, VIA_STRENGTHS } from "../shared/via-data";
+import { getViaQuestionsForClient, scoreVia, VIA_STRENGTHS } from "../shared/via-data";
 import { scoreIpip, ipipCareerNarrative } from "../shared/ipip-data";
 import { canEnterCounsellorWorkspace } from "../shared/counsellorAccess";
 
@@ -647,8 +647,8 @@ const backgroundRouter = router({
 
 // ─── VIA Router ──────────────────────────────────────────────────────────────
 const viaRouter = router({
-  getQuestions: publicProcedure.query(() => {
-    return { questions: VIA_QUESTIONS, strengths: VIA_STRENGTHS };
+  getQuestions: protectedProcedure.query(({ ctx }) => {
+    return { questions: getViaQuestionsForClient(ctx.user.id), strengths: VIA_STRENGTHS };
   }),
 
   getMyResults: protectedProcedure.query(async ({ ctx }) => {
