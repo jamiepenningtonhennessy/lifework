@@ -1782,3 +1782,8 @@
 - [x] Trace the HTML response returned to the counsellor client-portal preview query
 - [x] Correct the faulty client-portal route or data query without changing access controls
 - [x] Add regression coverage, validate the repaired portal, and save a publish-ready checkpoint
+
+## Live Client Portal Role Specification Removal
+- [x] Trace why the live counsellor portal still displays Role Specification as Step 7
+- [x] Remove the remaining client-facing Step 7 source or stale deployed output
+- [x] Test every client-dashboard entry point has exactly six stages and save a publish-ready checkpoint

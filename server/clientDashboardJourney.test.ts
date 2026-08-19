@@ -6,6 +6,10 @@ const dashboardSource = readFileSync(
   resolve(process.cwd(), "client/src/pages/ClientDashboard.tsx"),
   "utf8"
 );
+const counsellorPortalSource = readFileSync(
+  resolve(process.cwd(), "client/src/pages/CounsellorPortalPage.tsx"),
+  "utf8"
+);
 
 describe("client dashboard Alistair journey", () => {
   it("makes Explore with Alistair the sixth and final client dashboard step", () => {
@@ -32,5 +36,12 @@ describe("client dashboard Alistair journey", () => {
     expect(dashboardSource).toContain("if (isPreview && isAlistair)");
     expect(dashboardSource).toContain("Available to client");
     expect(dashboardSource).toContain("Explore with Alistair");
+  });
+
+  it("uses that same six-step dashboard for every counsellor client portal preview", () => {
+    expect(counsellorPortalSource).toContain('import { DashboardBody } from "./ClientDashboard"');
+    expect(counsellorPortalSource).toContain("<DashboardBody");
+    expect(counsellorPortalSource).toContain("isPreview={true}");
+    expect(counsellorPortalSource).not.toContain("Role Specification");
   });
 });
