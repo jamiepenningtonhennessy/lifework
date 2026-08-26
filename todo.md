@@ -1802,3 +1802,8 @@
 - [x] Create a public prototype page where a colleague can enter a childhood memory and receive Sage’s new-style coaching question
 - [x] Add a server-side, prompt-bounded Sage conversation endpoint with transparent prototype framing
 - [x] Provide reset and follow-up interaction, automated tests, and a publish-ready shareable route
+
+## Sage Opening Response: Question Before Interpretation
+- [x] Add an explicit first-turn rule that an embodied, experience-near question comes before interpretation
+- [x] Add regression coverage and test the revised response against the colleague feedback scenario
+- [x] Save a publish-ready checkpoint for the refined Sage prototype

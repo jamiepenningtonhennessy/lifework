@@ -8,6 +8,10 @@ describe("Sage coaching prototype prompt", () => {
     expect(SAGE_PROTOTYPE_SYSTEM_PROMPT).toContain("Do not use the same type of question twice in succession");
     expect(SAGE_PROTOTYPE_SYSTEM_PROMPT).toContain("Enjoyable, Satisfying and Fulfilling");
     expect(SAGE_PROTOTYPE_SYSTEM_PROMPT).toContain("Ask only one clear question at a time");
+    expect(SAGE_PROTOTYPE_SYSTEM_PROMPT).toContain("QUESTION FIRST, INTERPRET LATER");
+    expect(SAGE_PROTOTYPE_SYSTEM_PROMPT).toContain("do not front-load an interpretation");
+    expect(SAGE_PROTOTYPE_SYSTEM_PROMPT).toContain("Your entire first reply must be one clear, experience-near coaching question and nothing else");
+    expect(SAGE_PROTOTYPE_SYSTEM_PROMPT).toContain("do not add “I wonder whether…”");
   });
 
   it("keeps client input after the server-side prototype instructions", () => {
