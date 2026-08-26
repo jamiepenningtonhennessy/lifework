@@ -25,11 +25,16 @@ export default function SagePrototype() {
   const [turns, setTurns] = useState<Turn[]>([]);
   const [activityTags, setActivityTags] = useState<ActivityTag[]>([]);
   const [isComplete, setIsComplete] = useState(false);
+  const [completedMemories, setCompletedMemories] = useState(0);
+  const [isOnBreak, setIsOnBreak] = useState(false);
 
   const reflect = trpc.sagePrototype.reflect.useMutation({
     onSuccess: ({ reply, isComplete: activityComplete }) => {
       setTurns((current) => [...current, { role: "assistant", content: reply }]);
       setIsComplete(activityComplete);
+      if (activityComplete) {
+        setCompletedMemories((current) => current + 1);
+      }
     },
     onError: (error) => toast.error(error.message),
   });
@@ -50,7 +55,7 @@ export default function SagePrototype() {
     setTurns(nextTurns);
     setMemory("");
     setFollowUp("");
-    reflect.mutate({ messages: nextTurns, activityTags });
+    reflect.mutate({ messages: nextTurns, activityTags, activityNumber: completedMemories + 1 });
   };
 
   const toggleActivityTag = (tag: ActivityTag) => {
@@ -63,9 +68,21 @@ export default function SagePrototype() {
     setTurns([]);
     setActivityTags([]);
     setIsComplete(false);
+    setCompletedMemories(0);
+    setIsOnBreak(false);
+  };
+
+  const beginNextMemory = () => {
+    setMemory("");
+    setFollowUp("");
+    setTurns([]);
+    setActivityTags([]);
+    setIsComplete(false);
+    setIsOnBreak(false);
   };
 
   const hasConversation = turns.length > 0;
+  const currentActivityNumber = completedMemories + 1;
 
   return (
     <main className="min-h-screen bg-[var(--lw-cream)] text-[var(--lw-ink)]">
@@ -106,7 +123,7 @@ export default function SagePrototype() {
               <span className="grid h-9 w-9 place-items-center rounded-full bg-[var(--lw-gold-soft)] text-[var(--lw-navy)]"><Sparkles className="h-4 w-4" /></span>
               <div>
                 <p className="font-serif text-xl text-[var(--lw-navy)]">Sage</p>
-                <p className="text-xs text-[var(--lw-ink-muted)]">Reflective coaching companion</p>
+                <p className="text-xs text-[var(--lw-ink-muted)]">Reflective coaching companion · Memory {Math.min(currentActivityNumber, 20)} of 20</p>
               </div>
             </div>
             {hasConversation && (
@@ -117,7 +134,14 @@ export default function SagePrototype() {
           </div>
 
           <div className="min-h-[475px] p-5 sm:p-7">
-            {!hasConversation ? (
+            {isOnBreak ? (
+              <div className="mx-auto max-w-2xl py-10 text-center">
+                <span className="grid h-12 w-12 place-items-center rounded-full bg-[var(--lw-navy-soft)] text-[var(--lw-gold)] mx-auto"><Lightbulb className="h-5 w-5" /></span>
+                <h2 className="mt-5 font-serif text-3xl text-[var(--lw-navy)]">A natural pause.</h2>
+                <p className="mx-auto mt-3 max-w-lg text-sm leading-relaxed text-[var(--lw-ink-muted)]">You have explored {completedMemories} memories. This prototype does not save your entries, but you can begin another when you are ready.</p>
+                <button onClick={beginNextMemory} className="mt-6 inline-flex items-center gap-2 bg-[var(--lw-navy)] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[var(--lw-navy-soft)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--lw-gold)] focus-visible:ring-offset-2">Continue with another memory <ArrowUp className="h-4 w-4" /></button>
+              </div>
+            ) : !hasConversation ? (
               <div className="mx-auto max-w-2xl py-4 sm:py-10">
                 <span className="grid h-12 w-12 place-items-center rounded-full bg-[var(--lw-navy-soft)] text-[var(--lw-gold)]"><Lightbulb className="h-5 w-5" /></span>
                 <h2 className="mt-5 font-serif text-3xl text-[var(--lw-navy)]">Begin with one real memory.</h2>
@@ -161,9 +185,12 @@ export default function SagePrototype() {
                 )}
                 {isComplete && (
                   <div className="mt-3 rounded-sm border border-[var(--lw-gold)]/35 bg-[var(--lw-gold-soft)] p-5 text-center">
-                    <p className="font-serif text-2xl text-[var(--lw-navy)]">This memory is complete.</p>
-                    <p className="mx-auto mt-2 max-w-lg text-sm leading-relaxed text-[var(--lw-ink-muted)]">Sage has gathered enough for this short exploration. Start another memory whenever you are ready.</p>
-                    <button onClick={reset} className="mt-4 inline-flex items-center gap-2 bg-[var(--lw-navy)] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[var(--lw-navy-soft)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--lw-gold)] focus-visible:ring-offset-2"><RotateCcw className="h-4 w-4" /> Explore another memory</button>
+                    <p className="font-serif text-2xl text-[var(--lw-navy)]">{completedMemories === 10 ? "Ten memories explored." : "This memory is complete."}</p>
+                    <p className="mx-auto mt-2 max-w-lg text-sm leading-relaxed text-[var(--lw-ink-muted)]">{completedMemories === 10 ? "Sage has marked this natural point in the journey. You can take a breather or continue into another memory." : "Sage has brought this activity to a close and asked whether you would like to move on or pause."}</p>
+                    <div className="mt-4 flex flex-wrap justify-center gap-3">
+                      <button onClick={beginNextMemory} className="inline-flex items-center gap-2 bg-[var(--lw-navy)] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[var(--lw-navy-soft)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--lw-gold)] focus-visible:ring-offset-2">Continue to another memory <ArrowUp className="h-4 w-4" /></button>
+                      <button onClick={() => setIsOnBreak(true)} className="inline-flex items-center gap-2 border border-[var(--lw-navy)]/30 bg-white px-5 py-3 text-sm font-semibold text-[var(--lw-navy)] transition hover:border-[var(--lw-gold)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--lw-gold)] focus-visible:ring-offset-2"><RotateCcw className="h-4 w-4" /> Take a break</button>
+                    </div>
                   </div>
                 )}
               </div>

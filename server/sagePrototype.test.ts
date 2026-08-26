@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { buildSagePrototypeMessages, deriveQuestionLimit, SAGE_PROTOTYPE_SYSTEM_PROMPT } from "./routers/sagePrototype";
+import { buildSagePrototypeMessages, deriveMoveOnInvitation, deriveQuestionLimit, SAGE_PROTOTYPE_SYSTEM_PROMPT } from "./routers/sagePrototype";
 
 describe("Sage coaching prototype prompt", () => {
   it("uses a varied coach-like prompt rather than the legacy stage-direction format", () => {
@@ -15,13 +15,13 @@ describe("Sage coaching prototype prompt", () => {
   });
 
   it("keeps client input after the server-side prototype instructions", () => {
-    const messages = buildSagePrototypeMessages([{ role: "user", content: "At eight, I built a den." }], ["enjoyable", "fulfilling"], 4, false);
+    const messages = buildSagePrototypeMessages([{ role: "user", content: "At eight, I built a den." }], ["enjoyable", "fulfilling"], 4, false, 1);
 
     expect(messages).toHaveLength(2);
     expect(messages[0]).toMatchObject({ role: "system" });
     expect(messages[0].content).toContain(SAGE_PROTOTYPE_SYSTEM_PROMPT);
     expect(messages[0].content).toContain("ACTIVITY CLASSIFICATION (selected by the person): Enjoyable + Fulfilling");
-    expect(messages[0].content).toContain("QUESTION BUDGET: 4 questions maximum");
+    expect(messages[0].content).toContain("QUESTION BUDGET: 4 coaching questions maximum");
     expect(messages[1]).toEqual({ role: "user", content: "At eight, I built a den." });
   });
 
@@ -44,8 +44,26 @@ describe("Sage coaching prototype prompt", () => {
       { role: "user", content: "It was mine." },
       { role: "assistant", content: "What mattered about that?" },
       { role: "user", content: "I could make the rules." },
-    ], ["enjoyable"], 3, true);
+    ], ["enjoyable"], 3, true, 1);
 
-    expect(messages[0].content).toContain("The question budget has now been reached. Close this activity without asking a question.");
+    expect(messages[0].content).toContain("The question budget has now been reached. Close this activity, then End with this exact varied move-on question");
+  });
+
+  it("varies normal move-on invitations and gives the tenth memory an explicit break-or-continue question", () => {
+    expect(deriveMoveOnInvitation(1)).not.toBe(deriveMoveOnInvitation(2));
+    expect(deriveMoveOnInvitation(10)).toBe("We have now reached ten memories. Would you like to take a break, or continue with another memory?");
+
+    const messages = buildSagePrototypeMessages([
+      { role: "user", content: "At eight, I built a den." },
+      { role: "assistant", content: "What drew you to it?" },
+      { role: "user", content: "It felt private." },
+      { role: "assistant", content: "What did private mean then?" },
+      { role: "user", content: "It was mine." },
+      { role: "assistant", content: "What mattered about that?" },
+      { role: "user", content: "I could make the rules." },
+    ], ["enjoyable"], 3, true, 10);
+
+    expect(messages[0].content).toContain("This is the tenth completed memory. Name that fact gently");
+    expect(messages[0].content).toContain("We have now reached ten memories. Would you like to take a break, or continue with another memory?");
   });
 });

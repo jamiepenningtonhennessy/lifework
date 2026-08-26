@@ -1812,3 +1812,8 @@
 - [x] Add an Enjoyable, Satisfying or Fulfilling selection control when entering a memory
 - [x] Limit Sage to a varied total of three to five questions per activity and provide a clear close-out state
 - [x] Add regression coverage, validate the varied question flow, and save a publish-ready checkpoint
+
+## Sage Prototype: Activity Transitions and Tenth-Memory Pause
+- [x] Ask a varied, natural move-on question when Sage finishes each memory
+- [x] Count completed memories and offer an optional break-or-continue choice after the tenth
+- [x] Add regression coverage, validate both transitions, and save a publish-ready checkpoint
