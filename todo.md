@@ -1807,3 +1807,8 @@
 - [x] Add an explicit first-turn rule that an embodied, experience-near question comes before interpretation
 - [x] Add regression coverage and test the revised response against the colleague feedback scenario
 - [x] Save a publish-ready checkpoint for the refined Sage prototype
+
+## Sage Prototype: E/S/F Tags and Activity Limits
+- [x] Add an Enjoyable, Satisfying or Fulfilling selection control when entering a memory
+- [x] Limit Sage to a varied total of three to five questions per activity and provide a clear close-out state
+- [x] Add regression coverage, validate the varied question flow, and save a publish-ready checkpoint

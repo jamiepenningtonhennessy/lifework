@@ -9,16 +9,27 @@ type Turn = {
   content: string;
 };
 
+type ActivityTag = "enjoyable" | "satisfying" | "fulfilling";
+
+const ACTIVITY_TAG_OPTIONS: Array<{ value: ActivityTag; label: string; description: string }> = [
+  { value: "enjoyable", label: "Enjoyable", description: "It felt naturally engaging or energising" },
+  { value: "satisfying", label: "Satisfying", description: "It brought pride in doing something well" },
+  { value: "fulfilling", label: "Fulfilling", description: "It felt meaningful or worthwhile" },
+];
+
 const EXAMPLE_MEMORY = "When I was about eight, I spent a whole afternoon building a den at the bottom of the garden from branches, blankets and old cardboard boxes. I remember wanting it to be somewhere nobody else had thought of.";
 
 export default function SagePrototype() {
   const [memory, setMemory] = useState("");
   const [followUp, setFollowUp] = useState("");
   const [turns, setTurns] = useState<Turn[]>([]);
+  const [activityTags, setActivityTags] = useState<ActivityTag[]>([]);
+  const [isComplete, setIsComplete] = useState(false);
 
   const reflect = trpc.sagePrototype.reflect.useMutation({
-    onSuccess: ({ reply }) => {
+    onSuccess: ({ reply, isComplete: activityComplete }) => {
       setTurns((current) => [...current, { role: "assistant", content: reply }]);
+      setIsComplete(activityComplete);
     },
     onError: (error) => toast.error(error.message),
   });
@@ -30,17 +41,28 @@ export default function SagePrototype() {
       return;
     }
 
+    if (!turns.length && !activityTags.length) {
+      toast.error("Please tick at least one word that fits this memory.");
+      return;
+    }
+
     const nextTurns: Turn[] = [...turns, { role: "user", content: cleaned }];
     setTurns(nextTurns);
     setMemory("");
     setFollowUp("");
-    reflect.mutate({ messages: nextTurns });
+    reflect.mutate({ messages: nextTurns, activityTags });
+  };
+
+  const toggleActivityTag = (tag: ActivityTag) => {
+    setActivityTags((current) => current.includes(tag) ? current.filter((value) => value !== tag) : [...current, tag]);
   };
 
   const reset = () => {
     setMemory("");
     setFollowUp("");
     setTurns([]);
+    setActivityTags([]);
+    setIsComplete(false);
   };
 
   const hasConversation = turns.length > 0;
@@ -102,9 +124,21 @@ export default function SagePrototype() {
                 <p className="mt-3 text-sm leading-relaxed text-[var(--lw-ink-muted)]">There is no need to make it impressive. A small moment often reveals more than a headline achievement.</p>
                 <label htmlFor="sage-memory" className="mt-7 block text-sm font-semibold text-[var(--lw-navy)]">What happened, and what do you remember about it?</label>
                 <textarea id="sage-memory" value={memory} onChange={(event) => setMemory(event.target.value)} placeholder="For example: I was nine and…" className="mt-2 min-h-44 w-full resize-y rounded-sm border border-[var(--lw-navy)]/18 bg-[var(--lw-cream)] px-4 py-3 text-base leading-relaxed text-[var(--lw-ink)] outline-none transition focus:border-[var(--lw-gold)] focus:ring-2 focus:ring-[var(--lw-gold)]/25" maxLength={1500} disabled={reflect.isPending} />
+                <fieldset className="mt-5">
+                  <legend className="text-sm font-semibold text-[var(--lw-navy)]">Which words fit this memory?</legend>
+                  <p className="mt-1 text-xs leading-relaxed text-[var(--lw-ink-muted)]">Tick one or more. There is no right answer—this simply gives Sage a starting point.</p>
+                  <div className="mt-3 grid gap-2 sm:grid-cols-3">
+                    {ACTIVITY_TAG_OPTIONS.map((tag) => (
+                      <label key={tag.value} className={`cursor-pointer rounded-sm border p-3 transition ${activityTags.includes(tag.value) ? "border-[var(--lw-gold)] bg-[var(--lw-gold-soft)]" : "border-[var(--lw-navy)]/14 bg-white hover:border-[var(--lw-gold)]/60"}`}>
+                        <span className="flex items-center gap-2 text-sm font-semibold text-[var(--lw-navy)]"><input type="checkbox" checked={activityTags.includes(tag.value)} onChange={() => toggleActivityTag(tag.value)} disabled={reflect.isPending} className="h-4 w-4 accent-[var(--lw-gold)]" />{tag.label}</span>
+                        <span className="mt-1 block pl-6 text-[11px] leading-snug text-[var(--lw-ink-muted)]">{tag.description}</span>
+                      </label>
+                    ))}
+                  </div>
+                </fieldset>
                 <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
                   <button onClick={() => setMemory(EXAMPLE_MEMORY)} className="text-xs font-medium text-[var(--lw-navy)] underline decoration-[var(--lw-gold)] underline-offset-4 hover:text-[var(--lw-gold)]">Try a sample memory</button>
-                  <button onClick={() => send(memory)} disabled={reflect.isPending || memory.trim().length < 20} className="inline-flex items-center gap-2 bg-[var(--lw-gold)] px-5 py-3 text-sm font-semibold text-[var(--lw-navy)] transition hover:brightness-105 disabled:cursor-not-allowed disabled:opacity-45 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--lw-navy)] focus-visible:ring-offset-2">
+                  <button onClick={() => send(memory)} disabled={reflect.isPending || memory.trim().length < 20 || !activityTags.length} className="inline-flex items-center gap-2 bg-[var(--lw-gold)] px-5 py-3 text-sm font-semibold text-[var(--lw-navy)] transition hover:brightness-105 disabled:cursor-not-allowed disabled:opacity-45 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--lw-navy)] focus-visible:ring-offset-2">
                     {reflect.isPending ? "Sage is thinking…" : "Ask Sage"} <ArrowUp className="h-4 w-4" />
                   </button>
                 </div>
@@ -118,11 +152,18 @@ export default function SagePrototype() {
                   </article>
                 ))}
                 {reflect.isPending && <div className="self-start rounded-sm border-l-2 border-[var(--lw-gold)] bg-[var(--lw-cream-warm)] px-5 py-4 text-sm italic text-[var(--lw-ink-muted)]">Sage is considering what you have shared…</div>}
-                {!reflect.isPending && (
+                {!reflect.isPending && !isComplete && (
                   <div className="mt-3 border-t border-[var(--lw-navy)]/10 pt-5">
                     <label htmlFor="sage-follow-up" className="sr-only">Continue the conversation</label>
                     <textarea id="sage-follow-up" value={followUp} onChange={(event) => setFollowUp(event.target.value)} placeholder="What feels most true—or what else do you remember?" className="min-h-24 w-full resize-y rounded-sm border border-[var(--lw-navy)]/18 bg-[var(--lw-cream)] px-4 py-3 text-sm leading-relaxed text-[var(--lw-ink)] outline-none transition focus:border-[var(--lw-gold)] focus:ring-2 focus:ring-[var(--lw-gold)]/25" maxLength={1500} />
                     <div className="mt-3 flex justify-end"><button onClick={() => send(followUp)} disabled={followUp.trim().length < 20} className="inline-flex items-center gap-2 bg-[var(--lw-navy)] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[var(--lw-navy-soft)] disabled:cursor-not-allowed disabled:opacity-45 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--lw-gold)] focus-visible:ring-offset-2">Continue <ArrowUp className="h-4 w-4" /></button></div>
+                  </div>
+                )}
+                {isComplete && (
+                  <div className="mt-3 rounded-sm border border-[var(--lw-gold)]/35 bg-[var(--lw-gold-soft)] p-5 text-center">
+                    <p className="font-serif text-2xl text-[var(--lw-navy)]">This memory is complete.</p>
+                    <p className="mx-auto mt-2 max-w-lg text-sm leading-relaxed text-[var(--lw-ink-muted)]">Sage has gathered enough for this short exploration. Start another memory whenever you are ready.</p>
+                    <button onClick={reset} className="mt-4 inline-flex items-center gap-2 bg-[var(--lw-navy)] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[var(--lw-navy-soft)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--lw-gold)] focus-visible:ring-offset-2"><RotateCcw className="h-4 w-4" /> Explore another memory</button>
                   </div>
                 )}
               </div>
