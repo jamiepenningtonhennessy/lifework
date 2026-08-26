@@ -1787,3 +1787,18 @@
 - [x] Trace why the live counsellor portal still displays Role Specification as Step 7
 - [x] Remove the remaining client-facing Step 7 source or stale deployed output
 - [x] Test every client-dashboard entry point has exactly six stages and save a publish-ready checkpoint
+
+## Website Backup Restoration
+- [ ] Confirm the relevant backup packages, affected-account status, and intended restoration point
+- [ ] Obtain explicit confirmation of the one-time restoration scope before any restore action
+- [ ] Verify the restored website, database, domain connection, and required integrations
+
+## Sage Client Interview Redesign
+- [x] Identify the current prompt mechanics that make the Sage interview repetitive
+- [x] Draft a wider, coach-like Sage prompt that retains the E/S/F evidence-gathering purpose
+- [ ] Present the proposed prompt for user testing with sample life-history achievements before implementation
+
+## Shareable Sage Coaching Prototype
+- [x] Create a public prototype page where a colleague can enter a childhood memory and receive Sage’s new-style coaching question
+- [x] Add a server-side, prompt-bounded Sage conversation endpoint with transparent prototype framing
+- [x] Provide reset and follow-up interaction, automated tests, and a publish-ready shareable route

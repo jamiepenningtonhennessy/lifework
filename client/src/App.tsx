@@ -52,6 +52,7 @@ import CompanyUniversePage from "./pages/CompanyUniversePage";
 import BlogWriter from "./pages/ph/BlogWriter";
 import { isPenningtonHennessyHostname, isStandaloneLifeworkDomain } from "@/lib/lifeworkDomain";
 import LifeworkWebinar from "./pages/LifeworkWebinar";
+import SagePrototype from "./pages/SagePrototype";
 
 function RootRoute() {
   return isStandaloneLifeworkDomain()
@@ -92,6 +93,7 @@ function Router() {
       <Route path="/lifework/standalone" component={LifeworkStandalone} />
       <Route path="/webinar" component={LifeworkWebinar} />
       <Route path="/lifework/webinar" component={LifeworkWebinar} />
+      <Route path="/sage-lab">{() => <LifeworkLayout><SagePrototype /></LifeworkLayout>}</Route>
       <Route path="/ai-coaching" component={AICoaching} />
 
       {/* Results held — shown after completing VIA or IPIP (withheld until Wow Report session) ── */}

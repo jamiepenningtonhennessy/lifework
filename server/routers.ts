@@ -15,6 +15,7 @@ import { debriefChatRouter } from "./routers/debriefChat";
 import { blogWriterRouter } from "./routers/blogWriter";
 import { jobsRouter } from "./routers/jobs";
 import { jobSpecReviewRouter } from "./routers/jobSpecReview";
+import { sagePrototypeRouter } from "./routers/sagePrototype";
 import { ENV } from "./_core/env";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
@@ -3572,6 +3573,7 @@ export const appRouter = router({
   blogWriter: blogWriterRouter,
   jobs: jobsRouter,
   jobSpecReview: jobSpecReviewRouter,
+  sagePrototype: sagePrototypeRouter,
 });
 
 export type AppRouter = typeof appRouter;
