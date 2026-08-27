@@ -12,7 +12,28 @@ export const WEBINAR_SESSIONS = [
   },
 ] as const;
 
-export const TESTIMONIAL_VIDEO_PLACEHOLDER_COUNT = 5;
+export const WEBINAR_VALUE_THEMES = [
+  {
+    number: "01",
+    title: "A clearer pattern",
+    description: "Significant moments across a life can reveal the recurring conditions in which a person is most alive and effective.",
+  },
+  {
+    number: "02",
+    title: "Beyond the CV",
+    description: "The conversation looks beyond titles and milestones to understand the person, their strengths and the contribution they want to make.",
+  },
+  {
+    number: "03",
+    title: "Language for what matters",
+    description: "Lifework helps put precise language around the environments, relationships and challenges that allow someone to be fully themselves.",
+  },
+  {
+    number: "04",
+    title: "A considered next step",
+    description: "The result is not a prescribed answer, but a more thoughtful basis for career conversations, choices and change.",
+  },
+] as const;
 
 export const WEBINAR_AGENDA = [
   "Why CVs and career ladders are yesterday's solutions to yesterday's organisations.",

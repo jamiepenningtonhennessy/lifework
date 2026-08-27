@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest";
 import {
-  TESTIMONIAL_VIDEO_PLACEHOLDER_COUNT,
   WEBINAR_AGENDA,
   WEBINAR_BOOKING_URL,
   WEBINAR_SESSIONS,
+  WEBINAR_VALUE_THEMES,
 } from "../shared/lifeworkWebinar";
 
 describe("Lifework webinar landing-page content", () => {
@@ -14,9 +14,10 @@ describe("Lifework webinar landing-page content", () => {
     ]);
   });
 
-  it("uses a transparent interim registration destination and five testimonial slots", () => {
+  it("uses a transparent interim registration destination and four product-value themes", () => {
     expect(WEBINAR_BOOKING_URL).toMatch(/^mailto:/);
-    expect(TESTIMONIAL_VIDEO_PLACEHOLDER_COUNT).toBe(5);
+    expect(WEBINAR_VALUE_THEMES).toHaveLength(4);
+    expect(WEBINAR_VALUE_THEMES.map((theme) => theme.number)).toEqual(["01", "02", "03", "04"]);
   });
 
   it("uses the updated Lifework-focused discussion agenda", () => {

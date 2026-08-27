@@ -1837,3 +1837,8 @@
 - [x] Ask a varied, natural move-on question when Sage finishes each memory
 - [x] Count completed memories and offer an optional break-or-continue choice after the tenth
 - [x] Add regression coverage, validate both transitions, and save a publish-ready checkpoint
+
+## Webinar: What People Value in Lifework
+- [x] Replace all video placeholder cards with a four-theme non-testimonial value section
+- [x] Add polished Lifework-focused content and visual hierarchy without quotes, ratings, or client attributions
+- [x] Add regression coverage, validate the redesigned section, and save a publish-ready checkpoint

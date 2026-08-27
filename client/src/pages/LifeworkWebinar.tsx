@@ -6,16 +6,15 @@ import {
   ChevronDown,
   Clock3,
   Mail,
-  Play,
   Sparkles,
   UserRound,
   Video,
 } from "lucide-react";
 import {
-  TESTIMONIAL_VIDEO_PLACEHOLDER_COUNT,
   WEBINAR_AGENDA,
   WEBINAR_BOOKING_URL,
   WEBINAR_SESSIONS,
+  WEBINAR_VALUE_THEMES,
 } from "@shared/lifeworkWebinar";
 import { isStandaloneLifeworkDomain, lifeworkLandingPath } from "@/lib/lifeworkDomain";
 
@@ -216,42 +215,47 @@ export default function LifeworkWebinar() {
             ))}
           </div>
           <p className="mx-auto mt-7 max-w-2xl text-center text-xs leading-relaxed" style={{ color: "rgba(255,255,255,0.55)" }}>
-            This draft uses email registration while the event-booking service is chosen. It can be switched to an Eventbrite registration link or embedded booking form without changing the page design.
+            Places are limited. Request a place in the session that suits you.
           </p>
         </div>
       </section>
 
       <section className="py-20 sm:py-24" style={{ background: "var(--lw-cream)" }}>
         <div className="container max-w-6xl">
-          <div className="mb-10 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-            <div>
-              <p className="lw-eyebrow mb-4" style={{ color: "var(--lw-gold)" }}>Real stories, in their own words</p>
-              <h2 className="font-serif text-4xl font-semibold" style={{ color: "var(--lw-navy)" }}>Hear from people who have done Lifework</h2>
-            </div>
-            <p className="max-w-sm text-sm leading-relaxed" style={{ color: "var(--lw-ink-muted)" }}>
-              Five video positions are ready for your approved client stories.
+          <div className="mb-12 max-w-3xl">
+            <p className="lw-eyebrow mb-4" style={{ color: "var(--lw-gold)" }}>The value of a different question</p>
+            <h2 className="font-serif text-4xl font-semibold leading-tight sm:text-5xl" style={{ color: "var(--lw-navy)" }}>
+              What people value in Lifework
+            </h2>
+            <p className="mt-5 max-w-2xl text-base leading-relaxed" style={{ color: "var(--lw-ink-muted)" }}>
+              A better next move starts with a fuller understanding of the person making it.
             </p>
           </div>
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
-            {Array.from({ length: TESTIMONIAL_VIDEO_PLACEHOLDER_COUNT }, (_, index) => (
-              <div
-                key={index}
-                className="group relative aspect-[4/5] overflow-hidden p-5"
-                style={{ background: "var(--lw-navy)", border: "1px solid rgba(201,151,58,0.35)" }}
-              >
-                <div className="absolute inset-0 opacity-20" style={{ backgroundImage: "linear-gradient(135deg, transparent 45%, rgba(201,151,58,0.65) 45%, transparent 46%)" }} />
-                <div className="relative flex h-full flex-col justify-between">
-                  <span className="text-xs uppercase tracking-[0.12em]" style={{ color: "var(--lw-gold)" }}>Video {String(index + 1).padStart(2, "0")}</span>
-                  <div>
-                    <span className="mb-4 flex h-12 w-12 items-center justify-center rounded-full" style={{ background: "var(--lw-gold)", color: "var(--lw-navy)" }}>
-                      <Play className="ml-0.5 h-5 w-5 fill-current" aria-hidden="true" />
-                    </span>
-                    <p className="font-serif text-xl leading-tight text-white">Client story to be added</p>
+          <div className="grid overflow-hidden border sm:grid-cols-2" style={{ borderColor: "rgba(201,151,58,0.4)" }}>
+            {WEBINAR_VALUE_THEMES.map((theme, index) => {
+              const isNavyPanel = index === 0 || index === 3;
+              return (
+                <article
+                  key={theme.number}
+                  className="relative min-h-60 p-7 sm:p-9"
+                  style={{
+                    background: isNavyPanel ? "var(--lw-navy)" : "rgba(255,255,255,0.72)",
+                    borderRight: index % 2 === 0 ? "1px solid rgba(201,151,58,0.32)" : undefined,
+                    borderBottom: index < 2 ? "1px solid rgba(201,151,58,0.32)" : undefined,
+                  }}
+                >
+                  <span className="text-xs font-semibold tracking-[0.16em]" style={{ color: "var(--lw-gold)" }}>{theme.number}</span>
+                  <div className="mt-10 max-w-sm">
+                    <h3 className="font-serif text-3xl font-semibold leading-tight" style={{ color: isNavyPanel ? "white" : "var(--lw-navy)" }}>
+                      {theme.title}
+                    </h3>
+                    <p className="mt-4 text-[0.95rem] leading-relaxed" style={{ color: isNavyPanel ? "rgba(255,255,255,0.72)" : "var(--lw-ink-muted)" }}>
+                      {theme.description}
+                    </p>
                   </div>
-                  <span className="text-xs" style={{ color: "rgba(255,255,255,0.58)" }}>Approved video placeholder</span>
-                </div>
-              </div>
-            ))}
+                </article>
+              );
+            })}
           </div>
         </div>
       </section>
