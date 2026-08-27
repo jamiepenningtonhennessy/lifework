@@ -1853,3 +1853,8 @@
 - [x] Add the supplied Zoom registration URL to the 16 September 12:30 BST session only
 - [x] Retain the existing destination for the 24 September session pending its supplied Zoom link
 - [x] Update regression coverage, verify both session links, and save a publish-ready checkpoint
+
+## Webinar Session Registration: 24 September
+- [x] Add the supplied Zoom registration URL to the 24 September 18:00 BST session
+- [x] Verify both session cards use their correct Zoom registration destinations
+- [x] Save a publish-ready checkpoint for the completed webinar registration links

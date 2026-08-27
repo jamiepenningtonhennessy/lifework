@@ -10,7 +10,7 @@ export const WEBINAR_SESSIONS = [
   {
     title: "An introduction to Lifework",
     timing: "18:00 BST on 24 September",
-    registrationUrl: WEBINAR_BOOKING_URL,
+    registrationUrl: "https://us02web.zoom.us/meeting/register/fPl8rbYYSOCWSS39PHzqYA",
   },
 ] as const;
 
