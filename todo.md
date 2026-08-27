@@ -1848,3 +1848,8 @@
 - [x] Build administrator-only controls to create, edit, approve, archive, and remove testimonial records
 - [x] Display only approved, current testimonials in the public webinar page with appropriate empty states
 - [x] Add regression coverage, validate authorization and public rendering, then save a publish-ready checkpoint
+
+## Webinar Session Registration Links
+- [x] Add the supplied Zoom registration URL to the 16 September 12:30 BST session only
+- [x] Retain the existing destination for the 24 September session pending its supplied Zoom link
+- [x] Update regression coverage, verify both session links, and save a publish-ready checkpoint

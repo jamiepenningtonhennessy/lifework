@@ -8,8 +8,16 @@ import {
 describe("Lifework webinar landing-page content", () => {
   it("contains the two confirmed Lifework webinar sessions without supplementary card detail", () => {
     expect(WEBINAR_SESSIONS).toEqual([
-      { title: "An introduction to Lifework", timing: "12:30 BST on 16 September" },
-      { title: "An introduction to Lifework", timing: "18:00 BST on 24 September" },
+      {
+        title: "An introduction to Lifework",
+        timing: "12:30 BST on 16 September",
+        registrationUrl: "https://us02web.zoom.us/meeting/register/fuGdT3CTTiyJj1Ax1fBPAw",
+      },
+      {
+        title: "An introduction to Lifework",
+        timing: "18:00 BST on 24 September",
+        registrationUrl: WEBINAR_BOOKING_URL,
+      },
     ]);
   });
 

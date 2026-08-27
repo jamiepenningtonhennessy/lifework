@@ -206,7 +206,7 @@ export default function LifeworkWebinar() {
                   {session.timing}
                 </p>
                 <a
-                  href={WEBINAR_BOOKING_URL}
+                  href={session.registrationUrl}
                   className="mt-7 inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.12em]"
                   style={{ color: "var(--lw-navy)", textDecoration: "none", borderBottom: "1px solid var(--lw-gold)", paddingBottom: "0.35rem" }}
                 >
