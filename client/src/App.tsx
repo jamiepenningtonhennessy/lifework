@@ -54,6 +54,7 @@ import { isPenningtonHennessyHostname, isStandaloneLifeworkDomain } from "@/lib/
 import LifeworkWebinar from "./pages/LifeworkWebinar";
 import SagePrototype from "./pages/SagePrototype";
 import TestimonialsManager from "./pages/TestimonialsManager";
+import TestimonialDraftSubmission from "./pages/TestimonialDraftSubmission";
 
 function RootRoute() {
   return isStandaloneLifeworkDomain()
@@ -94,6 +95,7 @@ function Router() {
       <Route path="/lifework/standalone" component={LifeworkStandalone} />
       <Route path="/webinar" component={LifeworkWebinar} />
       <Route path="/lifework/webinar" component={LifeworkWebinar} />
+      <Route path="/feedback" component={TestimonialDraftSubmission} />
       <Route path="/sage-lab">{() => <LifeworkLayout><SagePrototype /></LifeworkLayout>}</Route>
       <Route path="/ai-coaching" component={AICoaching} />
 

@@ -1858,3 +1858,9 @@
 - [x] Add the supplied Zoom registration URL to the 24 September 18:00 BST session
 - [x] Verify both session cards use their correct Zoom registration destinations
 - [x] Save a publish-ready checkpoint for the completed webinar registration links
+
+## Open Testimonial Draft Submissions
+- [x] Create an open, colleague-facing testimonial form that mirrors the administrator submission form
+- [x] Enforce draft-only public submissions with source, permission, validation, and abuse safeguards
+- [x] Keep approval, publication, edit history, and testimonial management exclusive to administrators
+- [x] Add regression coverage, validate the open submission page, and save a publish-ready checkpoint

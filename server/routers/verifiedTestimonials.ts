@@ -18,6 +18,31 @@ const testimonialFields = z.object({
   consentConfirmed: z.boolean(),
 });
 
+const publicDraftFields = testimonialFields.extend({
+  website: z.string().max(0).optional(),
+});
+
+const PUBLIC_DRAFT_WINDOW_MS = 60 * 60 * 1000;
+const PUBLIC_DRAFT_LIMIT = 3;
+const publicDraftAttempts = new Map<string, number[]>();
+
+export function canSubmitPublicTestimonialDraft(requesterKey: string, now = Date.now()) {
+  const recentAttempts = (publicDraftAttempts.get(requesterKey) ?? []).filter(
+    (attemptedAt) => attemptedAt > now - PUBLIC_DRAFT_WINDOW_MS,
+  );
+  if (recentAttempts.length >= PUBLIC_DRAFT_LIMIT) {
+    publicDraftAttempts.set(requesterKey, recentAttempts);
+    return false;
+  }
+  recentAttempts.push(now);
+  publicDraftAttempts.set(requesterKey, recentAttempts);
+  return true;
+}
+
+export function resetPublicTestimonialDraftAttempts() {
+  publicDraftAttempts.clear();
+}
+
 async function findTestimonial(id: number) {
   const db = await getDb();
   if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
@@ -32,6 +57,38 @@ async function findTestimonial(id: number) {
 
 export const verifiedTestimonialsRouter = router({
   publicList: publicProcedure.query(async () => getApprovedVerifiedTestimonials()),
+
+  submitDraft: publicProcedure.input(publicDraftFields).mutation(async ({ ctx, input }) => {
+    // Honeypot field: bots receive a neutral response without creating a record.
+    if (input.website) return { success: true, submitted: false };
+    if (!input.consentConfirmed) {
+      throw new TRPCError({
+        code: "BAD_REQUEST",
+        message: "Please confirm that public-display permission has been obtained before submitting a draft.",
+      });
+    }
+
+    const forwardedFor = ctx.req.headers["x-forwarded-for"];
+    const forwardedAddress = Array.isArray(forwardedFor) ? forwardedFor[0] : forwardedFor;
+    const requesterKey = String(forwardedAddress ?? ctx.req.ip ?? "unknown").split(",")[0].trim();
+    if (!canSubmitPublicTestimonialDraft(requesterKey || "unknown")) {
+      throw new TRPCError({
+        code: "TOO_MANY_REQUESTS",
+        message: "Thank you. Please wait a little while before submitting another draft.",
+      });
+    }
+
+    const db = await getDb();
+    if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+    await db.insert(verifiedTestimonials).values({
+      quote: input.quote,
+      attribution: input.attribution,
+      sourceReference: input.sourceReference,
+      consentConfirmed: true,
+      status: "draft",
+    });
+    return { success: true, submitted: true };
+  }),
 
   list: adminProcedure.query(async () => {
     const db = await getDb();
