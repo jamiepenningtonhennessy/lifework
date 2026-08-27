@@ -87,13 +87,13 @@ export default function LifeworkWebinar() {
         <div className="container relative grid min-h-[610px] items-end gap-10 py-20 lg:grid-cols-[1.2fr_0.8fr] lg:py-28">
           <div className="max-w-3xl">
             <p className="lw-eyebrow mb-6" style={{ color: "var(--lw-gold)" }}>
-              Live online webinars · September 2026
+              Live online webinars · 16th & 24th September 2026
             </p>
             <h1 className="font-serif text-5xl font-semibold leading-[0.98] text-white sm:text-6xl lg:text-7xl">
-              The work that fits you may already be <em style={{ color: "var(--lw-gold)" }}>visible in your life.</em>
+              Are you <em style={{ color: "var(--lw-gold)" }}>wasting your life?</em>
             </h1>
             <p className="mt-8 max-w-2xl text-lg leading-relaxed" style={{ color: "rgba(255,255,255,0.76)" }}>
-              Join an intimate live conversation about career clarity, dependable strengths and how to make a more truthful next move—without reducing yourself to a job title or a list of preferences.
+              Join an intimate live conversation about career clarity, dependable strengths and personal understanding—without reducing yourself to a job title or a list of preferences.
             </p>
             <div className="mt-10 flex flex-col gap-4 sm:flex-row">
               <GoldButton href="#reserve">See the sessions</GoldButton>
@@ -131,7 +131,7 @@ export default function LifeworkWebinar() {
           <div>
             <p className="lw-eyebrow mb-4" style={{ color: "var(--lw-gold)" }}>A different starting point</p>
             <h2 className="font-serif text-4xl font-semibold leading-tight" style={{ color: "var(--lw-navy)" }}>
-              Your future is rarely discovered by looking only forwards.
+              We look at the person behind the behaviour—not the behaviour itself.
             </h2>
           </div>
           <div className="space-y-5 text-[1.05rem] leading-relaxed" style={{ color: "var(--lw-ink-muted)" }}>
@@ -193,19 +193,17 @@ export default function LifeworkWebinar() {
             <p className="lw-eyebrow mb-4" style={{ color: "var(--lw-gold)" }}>September webinars</p>
             <h2 className="font-serif text-4xl font-semibold text-white">Choose the session that suits you</h2>
             <p className="mx-auto mt-4 max-w-xl text-sm leading-relaxed" style={{ color: "rgba(255,255,255,0.7)" }}>
-              Both sessions cover the same core conversation. Exact dates and times will be confirmed before the registration link goes live.
+              Both sessions offer the same introduction to Lifework.
             </p>
           </div>
           <div className="grid gap-5 md:grid-cols-2">
             {WEBINAR_SESSIONS.map((session) => (
-              <article key={session.label} className="p-7 sm:p-8" style={{ background: "var(--lw-cream)", borderTop: "3px solid var(--lw-gold)" }}>
-                <p className="text-xs font-bold uppercase tracking-[0.14em]" style={{ color: "var(--lw-gold)" }}>{session.label}</p>
-                <h3 className="mt-4 font-serif text-3xl font-semibold" style={{ color: "var(--lw-navy)" }}>{session.title}</h3>
+              <article key={session.timing} className="p-7 sm:p-8" style={{ background: "var(--lw-cream)", borderTop: "3px solid var(--lw-gold)" }}>
+                <h3 className="font-serif text-3xl font-semibold" style={{ color: "var(--lw-navy)" }}>{session.title}</h3>
                 <p className="mt-5 flex items-start gap-2 text-sm" style={{ color: "var(--lw-ink-muted)" }}>
                   <CalendarDays className="mt-0.5 h-4 w-4 shrink-0" style={{ color: "var(--lw-gold)" }} />
                   {session.timing}
                 </p>
-                <p className="mt-4 text-sm leading-relaxed" style={{ color: "var(--lw-ink-muted)" }}>{session.detail}</p>
                 <a
                   href={WEBINAR_BOOKING_URL}
                   className="mt-7 inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.12em]"

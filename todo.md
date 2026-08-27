@@ -1787,3 +1787,28 @@
 - [x] Trace why the live counsellor portal still displays Role Specification as Step 7
 - [x] Remove the remaining client-facing Step 7 source or stale deployed output
 - [x] Test every client-dashboard entry point has exactly six stages and save a publish-ready checkpoint
+
+## Website Backup Restoration
+- [ ] Confirm the relevant backup packages, affected-account status, and intended restoration point
+- [ ] Obtain explicit confirmation of the one-time restoration scope before any restore action
+- [ ] Verify the restored website, database, domain connection, and required integrations
+
+## Managed Preview Blank Screen
+- [ ] Trace why the managed project preview root is blank while the webinar route renders in the development service
+- [ ] Correct the preview runtime or routing issue without changing public-page behaviour
+- [ ] Validate both the root preview and `/webinar`, then save a publish-ready checkpoint
+
+## Webinar Copy Refinement
+- [x] Review the applied webinar copy edits for accuracy, readability, and layout fit
+- [x] Refine wording or punctuation where the visual edits require it
+- [x] Validate the webinar page, add regression coverage, and save a publish-ready checkpoint
+
+## Webinar Session Card Simplification
+- [x] Update both cards to use the headline “An introduction to Lifework”
+- [x] Set the 16 September 12:30 BST and 24 September 18:00 BST timings, removing supplementary detail
+- [ ] Retain only the Request a place links, validate the cards, and save a publish-ready checkpoint
+
+## Sage and Webinar Revision Reconciliation
+- [ ] Preserve the approved webinar edits and merge the latest Sage prototype checkpoint without overwriting either revision
+- [ ] Validate the combined `/sage-lab` and `/webinar` experience after reconciliation
+- [ ] Save the reconciled website as a publish-ready checkpoint
