@@ -1806,12 +1806,12 @@
 ## Webinar Session Card Simplification
 - [x] Update both cards to use the headline “An introduction to Lifework”
 - [x] Set the 16 September 12:30 BST and 24 September 18:00 BST timings, removing supplementary detail
-- [ ] Retain only the Request a place links, validate the cards, and save a publish-ready checkpoint
+- [x] Retain only the Request a place links, validate the cards, and save a publish-ready checkpoint
 
 ## Sage and Webinar Revision Reconciliation
-- [ ] Preserve the approved webinar edits and merge the latest Sage prototype checkpoint without overwriting either revision
-- [ ] Validate the combined `/sage-lab` and `/webinar` experience after reconciliation
-- [ ] Save the reconciled website as a publish-ready checkpoint
+- [x] Preserve the approved webinar edits and merge the latest Sage prototype checkpoint without overwriting either revision
+- [x] Validate the combined `/sage-lab` and `/webinar` experience after reconciliation
+- [x] Save the reconciled website as a publish-ready checkpoint
 
 ## Sage Client Interview Redesign
 - [x] Identify the current prompt mechanics that make the Sage interview repetitive
