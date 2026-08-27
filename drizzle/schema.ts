@@ -398,6 +398,26 @@ export const leads = mysqlTable("leads", {
 export type Lead = typeof leads.$inferSelect;
 export type InsertLead = typeof leads.$inferInsert;
 
+// ─── Verified Testimonials ───────────────────────────────────────────────────
+// Public pages may display only records approved by an administrator after the
+// underlying source and client permission have both been recorded.
+export const verifiedTestimonials = mysqlTable("verified_testimonials", {
+  id: int("id").autoincrement().primaryKey(),
+  quote: text("quote").notNull(),
+  attribution: varchar("attribution", { length: 160 }).notNull(),
+  sourceReference: text("sourceReference").notNull(),
+  consentConfirmed: boolean("consentConfirmed").default(false).notNull(),
+  status: mysqlEnum("status", ["draft", "approved", "archived"]).default("draft").notNull(),
+  approvedByUserId: int("approvedByUserId"),
+  approvedAt: timestamp("approvedAt"),
+  archivedAt: timestamp("archivedAt"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type VerifiedTestimonial = typeof verifiedTestimonials.$inferSelect;
+export type InsertVerifiedTestimonial = typeof verifiedTestimonials.$inferInsert;
+
 // ─── Counsellor PIN Settings ───────────────────────────────────────────────
 // Stores a bcrypt-hashed PIN for the counsellor dashboard gate.
 // Only one row ever exists (id = 1). PIN is set by the admin owner.

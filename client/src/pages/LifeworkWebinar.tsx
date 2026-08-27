@@ -6,6 +6,7 @@ import {
   ChevronDown,
   Clock3,
   Mail,
+  Quote,
   Sparkles,
   UserRound,
   Video,
@@ -14,9 +15,9 @@ import {
   WEBINAR_AGENDA,
   WEBINAR_BOOKING_URL,
   WEBINAR_SESSIONS,
-  WEBINAR_VALUE_THEMES,
 } from "@shared/lifeworkWebinar";
 import { isStandaloneLifeworkDomain, lifeworkLandingPath } from "@/lib/lifeworkDomain";
+import { trpc } from "@/lib/trpc";
 
 const BRAND_LOGO_URL =
   "https://d2xsxph8kpxj0f.cloudfront.net/107696804/kFbbE6kqNApXGDFpQJUGV7/lifework-logo-onnavy_1f7a4c72.png";
@@ -50,6 +51,7 @@ export default function LifeworkWebinar() {
   const [expandedAgenda, setExpandedAgenda] = useState<number | null>(0);
   const homeHref = lifeworkLandingPath();
   const isStandaloneDomain = isStandaloneLifeworkDomain();
+  const { data: approvedTestimonials, isLoading: isLoadingTestimonials } = trpc.verifiedTestimonials.publicList.useQuery();
 
   return (
     <main className="min-h-screen overflow-x-hidden" style={{ background: "var(--lw-cream)", color: "var(--lw-ink)" }}>
@@ -231,32 +233,44 @@ export default function LifeworkWebinar() {
               A better next move starts with a fuller understanding of the person making it.
             </p>
           </div>
-          <div className="grid overflow-hidden border sm:grid-cols-2" style={{ borderColor: "rgba(201,151,58,0.4)" }}>
-            {WEBINAR_VALUE_THEMES.map((theme, index) => {
-              const isNavyPanel = index === 0 || index === 3;
-              return (
-                <article
-                  key={theme.number}
-                  className="relative min-h-60 p-7 sm:p-9"
-                  style={{
-                    background: isNavyPanel ? "var(--lw-navy)" : "rgba(255,255,255,0.72)",
-                    borderRight: index % 2 === 0 ? "1px solid rgba(201,151,58,0.32)" : undefined,
-                    borderBottom: index < 2 ? "1px solid rgba(201,151,58,0.32)" : undefined,
-                  }}
-                >
-                  <span className="text-xs font-semibold tracking-[0.16em]" style={{ color: "var(--lw-gold)" }}>{theme.number}</span>
-                  <div className="mt-10 max-w-sm">
-                    <h3 className="font-serif text-3xl font-semibold leading-tight" style={{ color: isNavyPanel ? "white" : "var(--lw-navy)" }}>
-                      {theme.title}
-                    </h3>
-                    <p className="mt-4 text-[0.95rem] leading-relaxed" style={{ color: isNavyPanel ? "rgba(255,255,255,0.72)" : "var(--lw-ink-muted)" }}>
-                      {theme.description}
-                    </p>
-                  </div>
-                </article>
-              );
-            })}
-          </div>
+          {isLoadingTestimonials ? (
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div className="h-64 animate-pulse" style={{ background: "rgba(26,39,68,0.08)" }} />
+              <div className="h-64 animate-pulse" style={{ background: "rgba(26,39,68,0.08)" }} />
+            </div>
+          ) : approvedTestimonials?.length ? (
+            <div className="grid overflow-hidden border sm:grid-cols-2" style={{ borderColor: "rgba(201,151,58,0.4)" }}>
+              {approvedTestimonials.map((testimonial, index) => {
+                const isNavyPanel = index % 4 === 0 || index % 4 === 3;
+                return (
+                  <article
+                    key={testimonial.id}
+                    className="flex min-h-64 flex-col justify-between p-7 sm:p-9"
+                    style={{
+                      background: isNavyPanel ? "var(--lw-navy)" : "rgba(255,255,255,0.72)",
+                      borderRight: index % 2 === 0 ? "1px solid rgba(201,151,58,0.32)" : undefined,
+                      borderBottom: index < approvedTestimonials.length - 2 ? "1px solid rgba(201,151,58,0.32)" : undefined,
+                    }}
+                  >
+                    <Quote className="h-6 w-6" style={{ color: "var(--lw-gold)" }} aria-hidden="true" />
+                    <blockquote className="mt-8 font-serif text-2xl leading-snug" style={{ color: isNavyPanel ? "white" : "var(--lw-navy)" }}>
+                      “{testimonial.quote}”
+                    </blockquote>
+                    <cite className="mt-7 text-xs font-semibold uppercase tracking-[0.14em] not-italic" style={{ color: "var(--lw-gold)" }}>
+                      — {testimonial.attribution}
+                    </cite>
+                  </article>
+                );
+              })}
+            </div>
+          ) : (
+            <div className="border p-8 sm:p-10" style={{ background: "rgba(255,255,255,0.7)", borderColor: "rgba(201,151,58,0.4)" }}>
+              <p className="font-serif text-3xl" style={{ color: "var(--lw-navy)" }}>Verified feedback will appear here.</p>
+              <p className="mt-3 max-w-xl text-sm leading-relaxed" style={{ color: "var(--lw-ink-muted)" }}>
+                We publish feedback only after the original source and permission to display it have been recorded.
+              </p>
+            </div>
+          )}
         </div>
       </section>
 

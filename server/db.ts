@@ -17,6 +17,7 @@ import {
   chatSessions,
   careerExplorerSessions,
   coachingAnnexes,
+  verifiedTestimonials,
   type HistoricalClient,
   type InsertHistoricalClient,
   type ChatSession,
@@ -77,6 +78,22 @@ export async function getUserByOpenId(openId: string) {
   if (!db) return null;
   const result = await db.select().from(users).where(eq(users.openId, openId)).limit(1);
   return result[0] ?? null;
+}
+
+// ─── Verified Testimonials ───────────────────────────────────────────────────
+
+export async function getApprovedVerifiedTestimonials() {
+  const db = await getDb();
+  if (!db) throw new Error("DB not available");
+  return db
+    .select({
+      id: verifiedTestimonials.id,
+      quote: verifiedTestimonials.quote,
+      attribution: verifiedTestimonials.attribution,
+    })
+    .from(verifiedTestimonials)
+    .where(eq(verifiedTestimonials.status, "approved"))
+    .orderBy(desc(verifiedTestimonials.approvedAt));
 }
 
 // ─── Client Profiles ─────────────────────────────────────────────────────────

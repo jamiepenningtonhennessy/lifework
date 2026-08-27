@@ -53,6 +53,7 @@ import BlogWriter from "./pages/ph/BlogWriter";
 import { isPenningtonHennessyHostname, isStandaloneLifeworkDomain } from "@/lib/lifeworkDomain";
 import LifeworkWebinar from "./pages/LifeworkWebinar";
 import SagePrototype from "./pages/SagePrototype";
+import TestimonialsManager from "./pages/TestimonialsManager";
 
 function RootRoute() {
   return isStandaloneLifeworkDomain()
@@ -129,6 +130,7 @@ function Router() {
       <Route path="/dashboard">{() => <LifeworkLayout><ClientDashboard /></LifeworkLayout>}</Route>
       <Route path="/counselor">{() => <CounsellorPinGate><CounselorDashboard /></CounsellorPinGate>}</Route>
       <Route path="/counselor/universe">{() => <CounsellorPinGate><CompanyUniversePage /></CounsellorPinGate>}</Route>
+      <Route path="/counselor/testimonials">{() => <CounsellorPinGate><TestimonialsManager /></CounsellorPinGate>}</Route>
       <Route path="/counselor/client/:id/career-explorer">{(params) => <CounsellorPinGate><CounsellorCareerExplorer /></CounsellorPinGate>}</Route>
       <Route path="/counselor/client/:id/portal">{(params) => <CounsellorPinGate><CounsellorPortalPage /></CounsellorPinGate>}</Route>
       <Route path="/counselor/client/:id">{(params) => <CounsellorPinGate><ClientProfile /></CounsellorPinGate>}</Route>

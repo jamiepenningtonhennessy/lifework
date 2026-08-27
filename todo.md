@@ -1842,3 +1842,9 @@
 - [x] Replace all video placeholder cards with a four-theme non-testimonial value section
 - [x] Add polished Lifework-focused content and visual hierarchy without quotes, ratings, or client attributions
 - [x] Add regression coverage, validate the redesigned section, and save a publish-ready checkpoint
+
+## Verified Testimonial Management
+- [x] Define a permission- and source-backed testimonial record with explicit approval status
+- [x] Build administrator-only controls to create, edit, approve, archive, and remove testimonial records
+- [x] Display only approved, current testimonials in the public webinar page with appropriate empty states
+- [x] Add regression coverage, validate authorization and public rendering, then save a publish-ready checkpoint

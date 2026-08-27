@@ -16,6 +16,7 @@ import { blogWriterRouter } from "./routers/blogWriter";
 import { jobsRouter } from "./routers/jobs";
 import { jobSpecReviewRouter } from "./routers/jobSpecReview";
 import { sagePrototypeRouter } from "./routers/sagePrototype";
+import { verifiedTestimonialsRouter } from "./routers/verifiedTestimonials";
 import { ENV } from "./_core/env";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
@@ -3574,6 +3575,7 @@ export const appRouter = router({
   jobs: jobsRouter,
   jobSpecReview: jobSpecReviewRouter,
   sagePrototype: sagePrototypeRouter,
+  verifiedTestimonials: verifiedTestimonialsRouter,
 });
 
 export type AppRouter = typeof appRouter;
