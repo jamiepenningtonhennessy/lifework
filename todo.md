@@ -1794,9 +1794,9 @@
 - [ ] Verify the restored website, database, domain connection, and required integrations
 
 ## Managed Preview Blank Screen
-- [ ] Trace why the managed project preview root is blank while the webinar route renders in the development service
-- [ ] Correct the preview runtime or routing issue without changing public-page behaviour
-- [ ] Validate both the root preview and `/webinar`, then save a publish-ready checkpoint
+- [x] Trace why the managed project preview root is blank while the webinar route renders in the development service
+- [x] Correct the preview runtime or routing issue without changing public-page behaviour
+- [x] Validate both the root preview and `/webinar`, then save a publish-ready checkpoint
 
 ## Webinar Copy Refinement
 - [x] Review the applied webinar copy edits for accuracy, readability, and layout fit
@@ -1812,3 +1812,28 @@
 - [ ] Preserve the approved webinar edits and merge the latest Sage prototype checkpoint without overwriting either revision
 - [ ] Validate the combined `/sage-lab` and `/webinar` experience after reconciliation
 - [ ] Save the reconciled website as a publish-ready checkpoint
+
+## Sage Client Interview Redesign
+- [x] Identify the current prompt mechanics that make the Sage interview repetitive
+- [x] Draft a wider, coach-like Sage prompt that retains the E/S/F evidence-gathering purpose
+- [ ] Present the proposed prompt for user testing with sample life-history achievements before implementation
+
+## Shareable Sage Coaching Prototype
+- [x] Create a public prototype page where a colleague can enter a childhood memory and receive Sage’s new-style coaching question
+- [x] Add a server-side, prompt-bounded Sage conversation endpoint with transparent prototype framing
+- [x] Provide reset and follow-up interaction, automated tests, and a publish-ready shareable route
+
+## Sage Opening Response: Question Before Interpretation
+- [x] Add an explicit first-turn rule that an embodied, experience-near question comes before interpretation
+- [x] Add regression coverage and test the revised response against the colleague feedback scenario
+- [x] Save a publish-ready checkpoint for the refined Sage prototype
+
+## Sage Prototype: E/S/F Tags and Activity Limits
+- [x] Add an Enjoyable, Satisfying or Fulfilling selection control when entering a memory
+- [x] Limit Sage to a varied total of three to five questions per activity and provide a clear close-out state
+- [x] Add regression coverage, validate the varied question flow, and save a publish-ready checkpoint
+
+## Sage Prototype: Activity Transitions and Tenth-Memory Pause
+- [x] Ask a varied, natural move-on question when Sage finishes each memory
+- [x] Count completed memories and offer an optional break-or-continue choice after the tenth
+- [x] Add regression coverage, validate both transitions, and save a publish-ready checkpoint
