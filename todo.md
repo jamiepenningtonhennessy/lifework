@@ -1869,3 +1869,8 @@
 - [x] Review approved testimonial availability and the existing public checkerboard rendering
 - [x] Replace the checkerboard with a refined approved-only testimonial presentation
 - [x] Add regression coverage, visually validate the revised section, and save a publish-ready checkpoint
+
+## Webinar Testimonial Format Consistency
+- [x] Remove the navy lead-quote treatment from the webinar testimonial section
+- [x] Present every approved testimonial in the same light-grey, editorial format
+- [x] Validate the standardized presentation and save a publish-ready checkpoint
