@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  arrangeEditorialTestimonials,
   canApproveTestimonial,
 } from "../shared/verifiedTestimonials";
 import { appRouter } from "./routers";
@@ -33,5 +34,15 @@ describe("verified testimonial safeguards", () => {
     expect(canSubmitPublicTestimonialDraft("colleague-1", now + 2)).toBe(true);
     expect(canSubmitPublicTestimonialDraft("colleague-1", now + 3)).toBe(false);
     expect(canSubmitPublicTestimonialDraft("colleague-1", now + 3_600_001)).toBe(true);
+  });
+
+  it("arranges approved testimonials as one editorial lead quote followed by supporting quotes", () => {
+    const arranged = arrangeEditorialTestimonials([
+      { id: 10, quote: "A fuller understanding of who I am.", attribution: "A. Person" },
+      { id: 11, quote: "A clearer sense of direction.", attribution: "B. Person" },
+      { id: 12, quote: "A better way to make decisions.", attribution: "C. Person" },
+    ]);
+    expect(arranged.featured?.id).toBe(10);
+    expect(arranged.supporting.map((testimonial) => testimonial.id)).toEqual([11, 12]);
   });
 });

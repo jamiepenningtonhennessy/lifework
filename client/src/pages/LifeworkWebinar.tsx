@@ -18,6 +18,7 @@ import {
 } from "@shared/lifeworkWebinar";
 import { isStandaloneLifeworkDomain, lifeworkLandingPath } from "@/lib/lifeworkDomain";
 import { trpc } from "@/lib/trpc";
+import { arrangeEditorialTestimonials } from "@shared/verifiedTestimonials";
 
 const BRAND_LOGO_URL =
   "https://d2xsxph8kpxj0f.cloudfront.net/107696804/kFbbE6kqNApXGDFpQJUGV7/lifework-logo-onnavy_1f7a4c72.png";
@@ -52,6 +53,7 @@ export default function LifeworkWebinar() {
   const homeHref = lifeworkLandingPath();
   const isStandaloneDomain = isStandaloneLifeworkDomain();
   const { data: approvedTestimonials, isLoading: isLoadingTestimonials } = trpc.verifiedTestimonials.publicList.useQuery();
+  const testimonialDisplay = arrangeEditorialTestimonials(approvedTestimonials ?? []);
 
   return (
     <main className="min-h-screen overflow-x-hidden" style={{ background: "var(--lw-cream)", color: "var(--lw-ink)" }}>
@@ -239,29 +241,34 @@ export default function LifeworkWebinar() {
               <div className="h-64 animate-pulse" style={{ background: "rgba(26,39,68,0.08)" }} />
             </div>
           ) : approvedTestimonials?.length ? (
-            <div className="grid overflow-hidden border sm:grid-cols-2" style={{ borderColor: "rgba(201,151,58,0.4)" }}>
-              {approvedTestimonials.map((testimonial, index) => {
-                const isNavyPanel = index % 4 === 0 || index % 4 === 3;
-                return (
-                  <article
-                    key={testimonial.id}
-                    className="flex min-h-64 flex-col justify-between p-7 sm:p-9"
-                    style={{
-                      background: isNavyPanel ? "var(--lw-navy)" : "rgba(255,255,255,0.72)",
-                      borderRight: index % 2 === 0 ? "1px solid rgba(201,151,58,0.32)" : undefined,
-                      borderBottom: index < approvedTestimonials.length - 2 ? "1px solid rgba(201,151,58,0.32)" : undefined,
-                    }}
-                  >
-                    <Quote className="h-6 w-6" style={{ color: "var(--lw-gold)" }} aria-hidden="true" />
-                    <blockquote className="mt-8 font-serif text-2xl leading-snug" style={{ color: isNavyPanel ? "white" : "var(--lw-navy)" }}>
-                      “{testimonial.quote}”
-                    </blockquote>
-                    <cite className="mt-7 text-xs font-semibold uppercase tracking-[0.14em] not-italic" style={{ color: "var(--lw-gold)" }}>
-                      — {testimonial.attribution}
-                    </cite>
-                  </article>
-                );
-              })}
+            <div>
+              {testimonialDisplay.featured && (
+                <article className="relative overflow-hidden border px-7 py-10 sm:px-12 sm:py-14" style={{ background: "var(--lw-navy)", borderColor: "var(--lw-gold)" }}>
+                  <span aria-hidden="true" className="absolute -right-3 -top-10 font-serif text-[12rem] leading-none" style={{ color: "rgba(201,151,58,0.12)" }}>“</span>
+                  <Quote className="relative h-7 w-7" style={{ color: "var(--lw-gold)" }} aria-hidden="true" />
+                  <blockquote className="relative mt-8 max-w-4xl font-serif text-3xl leading-[1.18] text-white sm:text-4xl">
+                    “{testimonialDisplay.featured.quote}”
+                  </blockquote>
+                  <cite className="relative mt-8 block text-xs font-semibold uppercase tracking-[0.16em] not-italic" style={{ color: "var(--lw-gold)" }}>
+                    — {testimonialDisplay.featured.attribution}
+                  </cite>
+                </article>
+              )}
+              {testimonialDisplay.supporting.length > 0 && (
+                <div className="mt-10 grid gap-x-10 gap-y-10 md:grid-cols-3">
+                  {testimonialDisplay.supporting.map((testimonial) => (
+                    <article key={testimonial.id} className="border-t pt-6" style={{ borderColor: "var(--lw-gold)" }}>
+                      <Quote className="h-5 w-5" style={{ color: "var(--lw-gold)" }} aria-hidden="true" />
+                      <blockquote className="mt-5 font-serif text-2xl leading-snug" style={{ color: "var(--lw-navy)" }}>
+                        “{testimonial.quote}”
+                      </blockquote>
+                      <cite className="mt-6 block text-xs font-semibold uppercase tracking-[0.14em] not-italic" style={{ color: "var(--lw-gold)" }}>
+                        — {testimonial.attribution}
+                      </cite>
+                    </article>
+                  ))}
+                </div>
+              )}
             </div>
           ) : (
             <div className="border p-8 sm:p-10" style={{ background: "rgba(255,255,255,0.7)", borderColor: "rgba(201,151,58,0.4)" }}>

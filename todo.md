@@ -1864,3 +1864,8 @@
 - [x] Enforce draft-only public submissions with source, permission, validation, and abuse safeguards
 - [x] Keep approval, publication, edit history, and testimonial management exclusive to administrators
 - [x] Add regression coverage, validate the open submission page, and save a publish-ready checkpoint
+
+## Webinar Testimonial Display Redesign
+- [x] Review approved testimonial availability and the existing public checkerboard rendering
+- [x] Replace the checkerboard with a refined approved-only testimonial presentation
+- [x] Add regression coverage, visually validate the revised section, and save a publish-ready checkpoint

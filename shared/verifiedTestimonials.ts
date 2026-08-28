@@ -7,6 +7,19 @@ export type TestimonialApprovalInput = {
   consentConfirmed: boolean;
 };
 
+export type PublicTestimonial = {
+  id: number;
+  quote: string;
+  attribution: string;
+};
+
 export function canApproveTestimonial(input: TestimonialApprovalInput): boolean {
   return input.consentConfirmed && input.sourceReference.trim().length > 0;
+}
+
+export function arrangeEditorialTestimonials(testimonials: PublicTestimonial[]) {
+  return {
+    featured: testimonials.at(0) ?? null,
+    supporting: testimonials.slice(1),
+  };
 }
