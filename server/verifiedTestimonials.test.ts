@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   canApproveTestimonial,
+  TESTIMONIAL_PAGE_OPTIONS,
 } from "../shared/verifiedTestimonials";
 import { appRouter } from "./routers";
 import {
@@ -15,14 +16,25 @@ describe("verified testimonial safeguards", () => {
     expect(canApproveTestimonial({ sourceReference: "Dated client email", consentConfirmed: false })).toBe(false);
   });
 
-  it("registers a separate public approved-only query and protected management router", () => {
+  it("registers approved-only page placement queries and protected placement management", () => {
     const procedures = appRouter._def.procedures;
     expect(procedures["verifiedTestimonials.publicList"]).toBeDefined();
+    expect(procedures["verifiedTestimonials.publicForPage"]).toBeDefined();
     expect(procedures["verifiedTestimonials.submitDraft"]).toBeDefined();
     expect(procedures["verifiedTestimonials.create"]).toBeDefined();
     expect(procedures["verifiedTestimonials.approve"]).toBeDefined();
+    expect(procedures["verifiedTestimonials.placements"]).toBeDefined();
+    expect(procedures["verifiedTestimonials.setPlacement"]).toBeDefined();
+    expect(procedures["verifiedTestimonials.reorderPlacement"]).toBeDefined();
     expect(procedures["verifiedTestimonials.archive"]).toBeDefined();
     expect(procedures["verifiedTestimonials.remove"]).toBeDefined();
+  });
+
+  it("registers named pages explicitly before a testimonial widget can use them", () => {
+    expect(TESTIMONIAL_PAGE_OPTIONS).toEqual(expect.arrayContaining([
+      expect.objectContaining({ key: "webinar", label: "Webinar page" }),
+      expect.objectContaining({ key: "lifework_home", label: "Lifework home page" }),
+    ]));
   });
 
   it("limits open testimonial draft submissions without exposing approval actions", () => {

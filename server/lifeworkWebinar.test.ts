@@ -1,9 +1,16 @@
 import { describe, expect, it } from "vitest";
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 import {
   WEBINAR_AGENDA,
   WEBINAR_BOOKING_URL,
   WEBINAR_SESSIONS,
 } from "../shared/lifeworkWebinar";
+
+const webinarPageSource = readFileSync(
+  resolve(process.cwd(), "client/src/pages/LifeworkWebinar.tsx"),
+  "utf8",
+);
 
 describe("Lifework webinar landing-page content", () => {
   it("contains the two confirmed Lifework webinar sessions without supplementary card detail", () => {
@@ -31,5 +38,9 @@ describe("Lifework webinar landing-page content", () => {
       "How the Lifework journey reveals what needs to be present for you to be fully you.",
       "The Lifework process, and how you can benefit from it.",
     ]);
+  });
+
+  it("draws public feedback from the webinar-specific approved placement list", () => {
+    expect(webinarPageSource).toContain('publicForPage.useQuery({ pageKey: "webinar" })');
   });
 });

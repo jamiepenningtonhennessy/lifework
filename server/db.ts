@@ -1,4 +1,4 @@
-import { eq, desc, and, isNotNull } from "drizzle-orm";
+import { asc, eq, desc, and, isNotNull } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
 import {
   InsertUser,
@@ -18,6 +18,7 @@ import {
   careerExplorerSessions,
   coachingAnnexes,
   verifiedTestimonials,
+  testimonialPlacements,
   type HistoricalClient,
   type InsertHistoricalClient,
   type ChatSession,
@@ -94,6 +95,26 @@ export async function getApprovedVerifiedTestimonials() {
     .from(verifiedTestimonials)
     .where(eq(verifiedTestimonials.status, "approved"))
     .orderBy(desc(verifiedTestimonials.approvedAt));
+}
+
+export async function getApprovedVerifiedTestimonialsForPage(pageKey: string) {
+  const db = await getDb();
+  if (!db) throw new Error("DB not available");
+  return db
+    .select({
+      id: verifiedTestimonials.id,
+      quote: verifiedTestimonials.quote,
+      attribution: verifiedTestimonials.attribution,
+      sortOrder: testimonialPlacements.sortOrder,
+    })
+    .from(testimonialPlacements)
+    .innerJoin(verifiedTestimonials, eq(testimonialPlacements.testimonialId, verifiedTestimonials.id))
+    .where(and(
+      eq(testimonialPlacements.pageKey, pageKey),
+      eq(verifiedTestimonials.status, "approved"),
+      eq(verifiedTestimonials.consentConfirmed, true),
+    ))
+    .orderBy(asc(testimonialPlacements.sortOrder), asc(testimonialPlacements.id));
 }
 
 // ─── Client Profiles ─────────────────────────────────────────────────────────

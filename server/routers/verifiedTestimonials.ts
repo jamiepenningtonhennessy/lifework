@@ -1,14 +1,15 @@
-import { desc, eq } from "drizzle-orm";
+import { and, asc, desc, eq } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
-import { verifiedTestimonials } from "../../drizzle/schema";
+import { testimonialPlacements, verifiedTestimonials } from "../../drizzle/schema";
 import {
   TESTIMONIAL_ATTRIBUTION_LIMIT,
   TESTIMONIAL_QUOTE_LIMIT,
   TESTIMONIAL_SOURCE_REFERENCE_LIMIT,
   canApproveTestimonial,
+  TESTIMONIAL_PAGE_KEYS,
 } from "../../shared/verifiedTestimonials";
-import { getApprovedVerifiedTestimonials, getDb } from "../db";
+import { getApprovedVerifiedTestimonials, getApprovedVerifiedTestimonialsForPage, getDb } from "../db";
 import { adminProcedure, publicProcedure, router } from "../_core/trpc";
 
 const testimonialFields = z.object({
@@ -21,6 +22,8 @@ const testimonialFields = z.object({
 const publicDraftFields = testimonialFields.extend({
   website: z.string().max(0).optional(),
 });
+
+const placementPageInput = z.object({ pageKey: z.enum(TESTIMONIAL_PAGE_KEYS) });
 
 const PUBLIC_DRAFT_WINDOW_MS = 60 * 60 * 1000;
 const PUBLIC_DRAFT_LIMIT = 3;
@@ -57,6 +60,9 @@ async function findTestimonial(id: number) {
 
 export const verifiedTestimonialsRouter = router({
   publicList: publicProcedure.query(async () => getApprovedVerifiedTestimonials()),
+  publicForPage: publicProcedure
+    .input(placementPageInput)
+    .query(async ({ input }) => getApprovedVerifiedTestimonialsForPage(input.pageKey)),
 
   submitDraft: publicProcedure.input(publicDraftFields).mutation(async ({ ctx, input }) => {
     // Honeypot field: bots receive a neutral response without creating a record.
@@ -95,6 +101,75 @@ export const verifiedTestimonialsRouter = router({
     if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
     return db.select().from(verifiedTestimonials).orderBy(desc(verifiedTestimonials.createdAt));
   }),
+
+  placements: adminProcedure
+    .input(placementPageInput)
+    .query(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+      return db
+        .select({
+          id: testimonialPlacements.id,
+          testimonialId: testimonialPlacements.testimonialId,
+          pageKey: testimonialPlacements.pageKey,
+          sortOrder: testimonialPlacements.sortOrder,
+          quote: verifiedTestimonials.quote,
+          attribution: verifiedTestimonials.attribution,
+        })
+        .from(testimonialPlacements)
+        .innerJoin(verifiedTestimonials, eq(testimonialPlacements.testimonialId, verifiedTestimonials.id))
+        .where(eq(testimonialPlacements.pageKey, input.pageKey))
+        .orderBy(asc(testimonialPlacements.sortOrder), asc(testimonialPlacements.id));
+    }),
+
+  setPlacement: adminProcedure
+    .input(placementPageInput.extend({ testimonialId: z.number().int().positive(), assigned: z.boolean() }))
+    .mutation(async ({ input }) => {
+      const { db, testimonial } = await findTestimonial(input.testimonialId);
+      if (input.assigned) {
+        if (testimonial.status !== "approved" || !testimonial.consentConfirmed) {
+          throw new TRPCError({ code: "BAD_REQUEST", message: "Only approved testimonials with recorded permission can be placed on a public page." });
+        }
+        const [existing] = await db
+          .select({ id: testimonialPlacements.id })
+          .from(testimonialPlacements)
+          .where(and(eq(testimonialPlacements.testimonialId, input.testimonialId), eq(testimonialPlacements.pageKey, input.pageKey)))
+          .limit(1);
+        if (!existing) {
+          const existingPlacements = await db
+            .select({ sortOrder: testimonialPlacements.sortOrder })
+            .from(testimonialPlacements)
+            .where(eq(testimonialPlacements.pageKey, input.pageKey));
+          const nextOrder = Math.max(-1, ...existingPlacements.map((placement) => placement.sortOrder)) + 1;
+          await db.insert(testimonialPlacements).values({ testimonialId: input.testimonialId, pageKey: input.pageKey, sortOrder: nextOrder });
+        }
+      } else {
+        await db
+          .delete(testimonialPlacements)
+          .where(and(eq(testimonialPlacements.testimonialId, input.testimonialId), eq(testimonialPlacements.pageKey, input.pageKey)));
+      }
+      return { success: true };
+    }),
+
+  reorderPlacement: adminProcedure
+    .input(placementPageInput.extend({ placementId: z.number().int().positive(), direction: z.enum(["up", "down"]) }))
+    .mutation(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+      const placements = await db
+        .select({ id: testimonialPlacements.id, sortOrder: testimonialPlacements.sortOrder })
+        .from(testimonialPlacements)
+        .where(eq(testimonialPlacements.pageKey, input.pageKey))
+        .orderBy(asc(testimonialPlacements.sortOrder), asc(testimonialPlacements.id));
+      const index = placements.findIndex((placement) => placement.id === input.placementId);
+      if (index < 0) throw new TRPCError({ code: "NOT_FOUND", message: "Placement not found for this page." });
+      const adjacent = placements[input.direction === "up" ? index - 1 : index + 1];
+      if (!adjacent) return { success: true, moved: false };
+      const current = placements[index];
+      await db.update(testimonialPlacements).set({ sortOrder: adjacent.sortOrder }).where(eq(testimonialPlacements.id, current.id));
+      await db.update(testimonialPlacements).set({ sortOrder: current.sortOrder }).where(eq(testimonialPlacements.id, adjacent.id));
+      return { success: true, moved: true };
+    }),
 
   create: adminProcedure.input(testimonialFields).mutation(async ({ input }) => {
     const db = await getDb();

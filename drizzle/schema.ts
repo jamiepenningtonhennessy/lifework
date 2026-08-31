@@ -8,6 +8,7 @@ import {
   varchar,
   json,
   boolean,
+  uniqueIndex,
 } from "drizzle-orm/mysql-core";
 
 // ─── Lead Magnet Downloads ─────────────────────────────────────────────────
@@ -417,6 +418,27 @@ export const verifiedTestimonials = mysqlTable("verified_testimonials", {
 
 export type VerifiedTestimonial = typeof verifiedTestimonials.$inferSelect;
 export type InsertVerifiedTestimonial = typeof verifiedTestimonials.$inferInsert;
+
+// ─── Testimonial Page Placements ─────────────────────────────────────────────
+// A single approved testimonial can be deliberately placed on more than one
+// registered public page. Each page maintains its own display order.
+export const testimonialPlacements = mysqlTable(
+  "testimonial_placements",
+  {
+    id: int("id").autoincrement().primaryKey(),
+    testimonialId: int("testimonialId").notNull(),
+    pageKey: varchar("pageKey", { length: 64 }).notNull(),
+    sortOrder: int("sortOrder").default(0).notNull(),
+    createdAt: timestamp("createdAt").defaultNow().notNull(),
+    updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+  },
+  (table) => [
+    uniqueIndex("testimonial_placements_testimonial_page_unique").on(table.testimonialId, table.pageKey),
+  ],
+);
+
+export type TestimonialPlacement = typeof testimonialPlacements.$inferSelect;
+export type InsertTestimonialPlacement = typeof testimonialPlacements.$inferInsert;
 
 // ─── Counsellor PIN Settings ───────────────────────────────────────────────
 // Stores a bcrypt-hashed PIN for the counsellor dashboard gate.

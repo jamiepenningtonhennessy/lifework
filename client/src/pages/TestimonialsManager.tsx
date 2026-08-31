@@ -3,9 +3,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { trpc } from "@/lib/trpc";
-import { Check, ChevronLeft, FileCheck2, Loader2, Pencil, Plus, Quote, Trash2 } from "lucide-react";
+import { Check, ChevronDown, ChevronLeft, ChevronUp, FileCheck2, Loader2, Pencil, Plus, Quote, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { useLocation } from "wouter";
+import { TESTIMONIAL_PAGE_OPTIONS, type TestimonialPageKey } from "../../../shared/verifiedTestimonials";
 
 type TestimonialForm = {
   quote: string;
@@ -41,12 +42,18 @@ export default function TestimonialsManager() {
   const utils = trpc.useUtils();
   const [form, setForm] = useState<TestimonialForm>(EMPTY_FORM);
   const [editingId, setEditingId] = useState<number | null>(null);
+  const [selectedPageKey, setSelectedPageKey] = useState<TestimonialPageKey>("webinar");
   const isAdmin = user?.role === "admin";
   const testimonials = trpc.verifiedTestimonials.list.useQuery(undefined, { enabled: isAdmin });
+  const placements = trpc.verifiedTestimonials.placements.useQuery({ pageKey: selectedPageKey }, { enabled: isAdmin });
+  const selectedPage = TESTIMONIAL_PAGE_OPTIONS.find((page) => page.key === selectedPageKey)!;
+  const placedTestimonialIds = new Set((placements.data ?? []).map((placement) => placement.testimonialId));
 
   const refresh = () => {
     void utils.verifiedTestimonials.list.invalidate();
     void utils.verifiedTestimonials.publicList.invalidate();
+    void utils.verifiedTestimonials.publicForPage.invalidate();
+    void utils.verifiedTestimonials.placements.invalidate();
   };
 
   const create = trpc.verifiedTestimonials.create.useMutation({
@@ -65,9 +72,11 @@ export default function TestimonialsManager() {
   const approve = trpc.verifiedTestimonials.approve.useMutation({ onSuccess: refresh });
   const archive = trpc.verifiedTestimonials.archive.useMutation({ onSuccess: refresh });
   const remove = trpc.verifiedTestimonials.remove.useMutation({ onSuccess: refresh });
+  const setPlacement = trpc.verifiedTestimonials.setPlacement.useMutation({ onSuccess: refresh });
+  const reorderPlacement = trpc.verifiedTestimonials.reorderPlacement.useMutation({ onSuccess: refresh });
 
   const isSaving = create.isPending || update.isPending;
-  const mutationError = create.error ?? update.error ?? approve.error ?? archive.error ?? remove.error;
+  const mutationError = create.error ?? update.error ?? approve.error ?? archive.error ?? remove.error ?? setPlacement.error ?? reorderPlacement.error;
 
   const updateField = <K extends keyof TestimonialForm>(field: K, value: TestimonialForm[K]) => {
     setForm((current) => ({ ...current, [field]: value }));
@@ -168,7 +177,48 @@ export default function TestimonialsManager() {
           </div>
         </section>
 
-        <section>
+        <section className="space-y-10">
+          <section className="border p-6 sm:p-8" style={{ background: "rgba(255,255,255,0.72)", borderColor: "rgba(201,151,58,0.4)" }}>
+            <p className="lw-eyebrow" style={{ color: "var(--lw-gold)" }}>Where it appears</p>
+            <h2 className="mt-3 font-serif text-3xl font-semibold" style={{ color: "var(--lw-navy)" }}>Page placement</h2>
+            <p className="mt-3 text-sm leading-relaxed" style={{ color: "var(--lw-ink-muted)" }}>
+              Select a page, choose from approved feedback, then set its order for that page. Each public page keeps its own independent list.
+            </p>
+            <label className="mt-6 block text-sm font-semibold" style={{ color: "var(--lw-navy)" }}>
+              Public page
+              <select
+                value={selectedPageKey}
+                onChange={(event) => setSelectedPageKey(event.target.value as TestimonialPageKey)}
+                className="mt-2 w-full border bg-white px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-[var(--lw-gold)]"
+                style={{ borderColor: "rgba(201,151,58,0.45)", color: "var(--lw-navy)" }}
+              >
+                {TESTIMONIAL_PAGE_OPTIONS.map((page) => <option key={page.key} value={page.key}>{page.label}</option>)}
+              </select>
+            </label>
+            <div className="mt-6 border-t pt-5" style={{ borderColor: "rgba(201,151,58,0.25)" }}>
+              <div className="flex items-end justify-between gap-4">
+                <div><p className="text-sm font-semibold" style={{ color: "var(--lw-navy)" }}>Selected for {selectedPage.label}</p><p className="mt-1 text-xs" style={{ color: "var(--lw-ink-muted)" }}>{placements.data?.length ?? 0} configured</p></div>
+              </div>
+              {placements.isLoading ? (
+                <div className="mt-4 flex min-h-20 items-center justify-center border" style={{ borderColor: "rgba(201,151,58,0.25)" }}><Loader2 className="h-5 w-5 animate-spin" style={{ color: "var(--lw-gold)" }} /></div>
+              ) : placements.data?.length === 0 ? (
+                <p className="mt-4 border p-4 text-sm leading-relaxed" style={{ background: "white", borderColor: "rgba(201,151,58,0.25)", color: "var(--lw-ink-muted)" }}>No approved feedback is selected for this page yet.</p>
+              ) : (
+                <ol className="mt-4 space-y-2">
+                  {placements.data?.map((placement, index) => (
+                    <li key={placement.id} className="flex items-center gap-3 border bg-white p-3" style={{ borderColor: "rgba(201,151,58,0.25)" }}>
+                      <span className="w-5 text-xs font-semibold" style={{ color: "var(--lw-gold)" }}>{String(index + 1).padStart(2, "0")}</span>
+                      <span className="min-w-0 flex-1 truncate text-sm" style={{ color: "var(--lw-navy)" }}>— {placement.attribution}</span>
+                      <Button size="icon" variant="ghost" aria-label={`Move ${placement.attribution} up`} disabled={index === 0 || reorderPlacement.isPending} onClick={() => reorderPlacement.mutate({ pageKey: selectedPageKey, placementId: placement.id, direction: "up" })}><ChevronUp className="h-4 w-4" /></Button>
+                      <Button size="icon" variant="ghost" aria-label={`Move ${placement.attribution} down`} disabled={index === (placements.data?.length ?? 0) - 1 || reorderPlacement.isPending} onClick={() => reorderPlacement.mutate({ pageKey: selectedPageKey, placementId: placement.id, direction: "down" })}><ChevronDown className="h-4 w-4" /></Button>
+                    </li>
+                  ))}
+                </ol>
+              )}
+            </div>
+          </section>
+
+          <section>
           <div className="flex items-end justify-between gap-4">
             <div>
               <p className="lw-eyebrow" style={{ color: "var(--lw-gold)" }}>Publication register</p>
@@ -191,6 +241,7 @@ export default function TestimonialsManager() {
                   <div className="mt-5 flex flex-wrap gap-2">
                     <Button size="sm" variant="outline" onClick={() => edit(testimonial)} className="gap-1.5"><Pencil className="h-3.5 w-3.5" />Edit</Button>
                     {testimonial.status !== "approved" && <Button size="sm" disabled={!testimonial.consentConfirmed || !testimonial.sourceReference.trim() || approve.isPending} onClick={() => approve.mutate({ id: testimonial.id })} className="gap-1.5" style={{ background: "var(--lw-gold)", color: "var(--lw-navy)" }}><Check className="h-3.5 w-3.5" />Approve for public page</Button>}
+                    {testimonial.status === "approved" && <Button size="sm" variant="outline" disabled={setPlacement.isPending} onClick={() => setPlacement.mutate({ testimonialId: testimonial.id, pageKey: selectedPageKey, assigned: !placedTestimonialIds.has(testimonial.id) })}>{placedTestimonialIds.has(testimonial.id) ? `Remove from ${selectedPage.label}` : `Add to ${selectedPage.label}`}</Button>}
                     {testimonial.status !== "archived" && <Button size="sm" variant="outline" disabled={archive.isPending} onClick={() => archive.mutate({ id: testimonial.id })}>Archive</Button>}
                     <Button size="sm" variant="ghost" disabled={remove.isPending} onClick={() => { if (window.confirm("Remove this testimonial record permanently?")) remove.mutate({ id: testimonial.id }); }} className="gap-1.5 text-red-700 hover:text-red-700"><Trash2 className="h-3.5 w-3.5" />Remove</Button>
                   </div>
@@ -198,6 +249,7 @@ export default function TestimonialsManager() {
               ))}
             </div>
           )}
+          </section>
         </section>
       </div>
     </main>

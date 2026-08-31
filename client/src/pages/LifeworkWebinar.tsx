@@ -51,7 +51,7 @@ export default function LifeworkWebinar() {
   const [expandedAgenda, setExpandedAgenda] = useState<number | null>(0);
   const homeHref = lifeworkLandingPath();
   const isStandaloneDomain = isStandaloneLifeworkDomain();
-  const { data: approvedTestimonials, isLoading: isLoadingTestimonials } = trpc.verifiedTestimonials.publicList.useQuery();
+  const { data: approvedTestimonials, isLoading: isLoadingTestimonials } = trpc.verifiedTestimonials.publicForPage.useQuery({ pageKey: "webinar" });
 
   return (
     <main className="min-h-screen overflow-x-hidden" style={{ background: "var(--lw-cream)", color: "var(--lw-ink)" }}>

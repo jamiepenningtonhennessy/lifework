@@ -1874,3 +1874,9 @@
 - [x] Remove the navy lead-quote treatment from the webinar testimonial section
 - [x] Present every approved testimonial in the same light-grey, editorial format
 - [x] Validate the standardized presentation and save a publish-ready checkpoint
+
+## Page-Specific Testimonial Placements
+- [x] Define a separate placement record that links approved testimonials to named public pages with display order
+- [x] Add administrator controls to select, reorder, and remove testimonial placements for each page
+- [x] Update public page queries to render only their configured approved testimonials in the chosen order
+- [x] Add regression coverage and publish-ready validation for page-specific placement management
