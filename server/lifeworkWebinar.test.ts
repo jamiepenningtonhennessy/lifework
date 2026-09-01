@@ -44,14 +44,18 @@ describe("Lifework webinar landing-page content", () => {
     expect(webinarPageSource).toContain('publicForPage.useQuery({ pageKey: "webinar" })');
   });
 
-  it("places a registration call after the second-section headline and repeats it in the final page block", () => {
-    const headlineIndex = webinarPageSource.indexOf("We look at the person behind the behaviour");
-    const firstRegistrationIndex = webinarPageSource.indexOf("<GoldButton href=\"#reserve\">Request a place</GoldButton>", headlineIndex);
-    const finalSectionIndex = webinarPageSource.indexOf("You do not need to have your next move worked out");
-    const finalRegistrationIndex = webinarPageSource.indexOf("<GoldButton href=\"#reserve\">Request a place</GoldButton>", finalSectionIndex);
-    expect(headlineIndex).toBeGreaterThan(-1);
-    expect(firstRegistrationIndex).toBeGreaterThan(headlineIndex);
-    expect(finalRegistrationIndex).toBeGreaterThan(finalSectionIndex);
-    expect(webinarPageSource).not.toContain("Request a September place");
+  it("places the full booking module before the Lifework introduction and repeats it at the page end", () => {
+    const firstBookingIndex = webinarPageSource.indexOf('<WebinarBookingModule id="reserve" />');
+    const introductionIndex = webinarPageSource.indexOf('<section id="main-content"');
+    const finalBookingIndex = webinarPageSource.lastIndexOf("<WebinarBookingModule />");
+    const footerIndex = webinarPageSource.indexOf("<footer");
+    const bookingModuleUses = webinarPageSource.match(/<WebinarBookingModule(?: id="reserve")? \/>/g) ?? [];
+
+    expect(bookingModuleUses).toHaveLength(2);
+    expect(firstBookingIndex).toBeGreaterThan(-1);
+    expect(firstBookingIndex).toBeLessThan(introductionIndex);
+    expect(finalBookingIndex).toBeGreaterThan(introductionIndex);
+    expect(finalBookingIndex).toBeLessThan(footerIndex);
+    expect(webinarPageSource).not.toContain('<GoldButton href="#reserve">Request a place</GoldButton>');
   });
 });

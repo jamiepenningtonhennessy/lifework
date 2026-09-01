@@ -1900,3 +1900,8 @@
 - [x] Add a registration link directly below the blue second-section headline
 - [x] Add a repeated registration invitation as the final page block
 - [x] Validate the revised registration path and layout, then save a publish-ready checkpoint
+
+## Webinar Full Booking Module Placement
+- [x] Move the complete two-session booking module before the A different starting point section
+- [x] Repeat the complete two-session booking module as the final main page block
+- [x] Remove the smaller standalone Request a place calls and validate the revised booking journey

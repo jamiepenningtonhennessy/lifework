@@ -7,7 +7,6 @@ import {
   Clock3,
   Mail,
   Quote,
-  Sparkles,
   UserRound,
   Video,
 } from "lucide-react";
@@ -44,6 +43,44 @@ function GoldButton({
       {children}
       <ArrowRight className="h-4 w-4" aria-hidden="true" />
     </a>
+  );
+}
+
+function WebinarBookingModule({ id }: { id?: string }) {
+  return (
+    <section id={id} className="py-20 sm:py-24" style={{ background: "var(--lw-navy-mid)" }}>
+      <div className="container max-w-5xl">
+        <div className="mb-12 text-center">
+          <p className="lw-eyebrow mb-4" style={{ color: "var(--lw-gold)" }}>September webinars</p>
+          <h2 className="font-serif text-4xl font-semibold text-white">Choose the session that suits you</h2>
+          <p className="mx-auto mt-4 max-w-xl text-sm leading-relaxed" style={{ color: "rgba(255,255,255,0.7)" }}>
+            Both sessions offer the same introduction to Lifework.
+          </p>
+        </div>
+        <div className="grid gap-5 md:grid-cols-2">
+          {WEBINAR_SESSIONS.map((session) => (
+            <article key={session.timing} className="p-7 sm:p-8" style={{ background: "var(--lw-cream)", borderTop: "3px solid var(--lw-gold)" }}>
+              <h3 className="font-serif text-3xl font-semibold" style={{ color: "var(--lw-navy)" }}>{session.title}</h3>
+              <p className="mt-5 flex items-start gap-2 text-sm" style={{ color: "var(--lw-ink-muted)" }}>
+                <CalendarDays className="mt-0.5 h-4 w-4 shrink-0" style={{ color: "var(--lw-gold)" }} />
+                {session.timing}
+              </p>
+              <a
+                href={session.registrationUrl}
+                className="mt-7 inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.12em]"
+                style={{ color: "var(--lw-navy)", textDecoration: "none", borderBottom: "1px solid var(--lw-gold)", paddingBottom: "0.35rem" }}
+              >
+                <Mail className="h-4 w-4" style={{ color: "var(--lw-gold)" }} />
+                Request a place
+              </a>
+            </article>
+          ))}
+        </div>
+        <p className="mx-auto mt-7 max-w-2xl text-center text-xs leading-relaxed" style={{ color: "rgba(255,255,255,0.55)" }}>
+          Places are limited. Request a place in the session that suits you.
+        </p>
+      </div>
+    </section>
   );
 }
 
@@ -126,6 +163,8 @@ export default function LifeworkWebinar() {
         </div>
       </section>
 
+      <WebinarBookingModule id="reserve" />
+
       <section id="main-content" className="py-20 sm:py-24" style={{ background: "var(--lw-cream)" }}>
         <div className="container grid gap-12 lg:grid-cols-[0.8fr_1.2fr] lg:gap-20">
           <div>
@@ -133,9 +172,6 @@ export default function LifeworkWebinar() {
             <h2 className="font-serif text-4xl font-semibold leading-tight" style={{ color: "var(--lw-navy)" }}>
               We look at the person behind the behaviour—not the behaviour itself.
             </h2>
-            <div className="mt-8">
-              <GoldButton href="#reserve">Request a place</GoldButton>
-            </div>
           </div>
           <div className="space-y-5 text-[1.05rem] leading-relaxed" style={{ color: "var(--lw-ink-muted)" }}>
             <p>
@@ -190,40 +226,6 @@ export default function LifeworkWebinar() {
         </div>
       </section>
 
-      <section id="reserve" className="py-20 sm:py-24" style={{ background: "var(--lw-navy-mid)" }}>
-        <div className="container max-w-5xl">
-          <div className="mb-12 text-center">
-            <p className="lw-eyebrow mb-4" style={{ color: "var(--lw-gold)" }}>September webinars</p>
-            <h2 className="font-serif text-4xl font-semibold text-white">Choose the session that suits you</h2>
-            <p className="mx-auto mt-4 max-w-xl text-sm leading-relaxed" style={{ color: "rgba(255,255,255,0.7)" }}>
-              Both sessions offer the same introduction to Lifework.
-            </p>
-          </div>
-          <div className="grid gap-5 md:grid-cols-2">
-            {WEBINAR_SESSIONS.map((session) => (
-              <article key={session.timing} className="p-7 sm:p-8" style={{ background: "var(--lw-cream)", borderTop: "3px solid var(--lw-gold)" }}>
-                <h3 className="font-serif text-3xl font-semibold" style={{ color: "var(--lw-navy)" }}>{session.title}</h3>
-                <p className="mt-5 flex items-start gap-2 text-sm" style={{ color: "var(--lw-ink-muted)" }}>
-                  <CalendarDays className="mt-0.5 h-4 w-4 shrink-0" style={{ color: "var(--lw-gold)" }} />
-                  {session.timing}
-                </p>
-                <a
-                  href={session.registrationUrl}
-                  className="mt-7 inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.12em]"
-                  style={{ color: "var(--lw-navy)", textDecoration: "none", borderBottom: "1px solid var(--lw-gold)", paddingBottom: "0.35rem" }}
-                >
-                  <Mail className="h-4 w-4" style={{ color: "var(--lw-gold)" }} />
-                  Request a place
-                </a>
-              </article>
-            ))}
-          </div>
-          <p className="mx-auto mt-7 max-w-2xl text-center text-xs leading-relaxed" style={{ color: "rgba(255,255,255,0.55)" }}>
-            Places are limited. Request a place in the session that suits you.
-          </p>
-        </div>
-      </section>
-
       <section className="py-20 sm:py-24" style={{ background: "var(--lw-cream)" }}>
         <div className="container max-w-6xl">
           <div className="mb-12 max-w-3xl">
@@ -265,20 +267,7 @@ export default function LifeworkWebinar() {
         </div>
       </section>
 
-      <section className="py-24" style={{ background: "var(--lw-navy)" }}>
-        <div className="container max-w-3xl text-center">
-          <Sparkles className="mx-auto h-6 w-6" style={{ color: "var(--lw-gold)" }} />
-          <h2 className="mt-6 font-serif text-4xl font-semibold leading-tight text-white sm:text-5xl">
-            You do not need to have your next move worked out before you join us.
-          </h2>
-          <p className="mx-auto mt-6 max-w-2xl text-base leading-relaxed" style={{ color: "rgba(255,255,255,0.72)" }}>
-            Come with the question you have. Leave with a more illuminating way of approaching it.
-          </p>
-          <div className="mt-10">
-            <GoldButton href="#reserve">Request a place</GoldButton>
-          </div>
-        </div>
-      </section>
+      <WebinarBookingModule />
 
       <footer className="py-8" style={{ background: "var(--lw-navy-mid)", borderTop: "1px solid rgba(201,151,58,0.22)" }}>
         <div className="container flex flex-col items-center justify-between gap-4 text-center sm:flex-row sm:text-left">
