@@ -97,7 +97,6 @@ export default function LifeworkWebinar() {
               Join an intimate live conversation about career clarity, dependable strengths and personal understanding—without reducing yourself to a job title or a list of preferences.
             </p>
             <div className="mt-10 flex flex-col gap-4 sm:flex-row">
-              <GoldButton href="#reserve">See the sessions</GoldButton>
               <GoldButton href="#what-you-will-leave-with" secondary>
                 What you will learn
               </GoldButton>
@@ -134,6 +133,9 @@ export default function LifeworkWebinar() {
             <h2 className="font-serif text-4xl font-semibold leading-tight" style={{ color: "var(--lw-navy)" }}>
               We look at the person behind the behaviour—not the behaviour itself.
             </h2>
+            <div className="mt-8">
+              <GoldButton href="#reserve">Request a place</GoldButton>
+            </div>
           </div>
           <div className="space-y-5 text-[1.05rem] leading-relaxed" style={{ color: "var(--lw-ink-muted)" }}>
             <p>
@@ -273,7 +275,7 @@ export default function LifeworkWebinar() {
             Come with the question you have. Leave with a more illuminating way of approaching it.
           </p>
           <div className="mt-10">
-            <GoldButton href="#reserve">Request a September place</GoldButton>
+            <GoldButton href="#reserve">Request a place</GoldButton>
           </div>
         </div>
       </section>

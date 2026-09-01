@@ -1880,3 +1880,23 @@
 - [x] Add administrator controls to select, reorder, and remove testimonial placements for each page
 - [x] Update public page queries to render only their configured approved testimonials in the chosen order
 - [x] Add regression coverage and publish-ready validation for page-specific placement management
+
+## Lifework Testimonial Outreach Contacts
+- [x] Define the completed-Lifework participation criteria for testimonial outreach
+- [x] Extract eligible participants, identify usable email addresses, and remove duplicates
+- [x] Create and verify an Excel outreach contact list with a concise data-quality summary
+
+## Lifework LinkedIn Webinar Post Outlines
+- [x] Adapt the City-and-Dragon storytelling framework to Lifework’s webinar audience and message
+- [x] Draft six differentiated LinkedIn post outlines with story arc, core message, and registration call to action
+- [x] Deliver the outlines in a reusable planning format for LinkedIn writing
+
+## Lifework Simple Sales Stories LinkedIn Outlines
+- [x] Adapt the Simple Sales Stories formats to Lifework’s webinar audience without inventing client evidence
+- [x] Draft six differentiated post outlines using authorised real-example placeholders and webinar calls to action
+- [x] Deliver the outlines in a reusable planning format for LinkedIn writing
+
+## Webinar Registration Call-to-Action Placement
+- [x] Add a registration link directly below the blue second-section headline
+- [x] Add a repeated registration invitation as the final page block
+- [x] Validate the revised registration path and layout, then save a publish-ready checkpoint

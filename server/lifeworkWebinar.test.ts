@@ -43,4 +43,15 @@ describe("Lifework webinar landing-page content", () => {
   it("draws public feedback from the webinar-specific approved placement list", () => {
     expect(webinarPageSource).toContain('publicForPage.useQuery({ pageKey: "webinar" })');
   });
+
+  it("places a registration call after the second-section headline and repeats it in the final page block", () => {
+    const headlineIndex = webinarPageSource.indexOf("We look at the person behind the behaviour");
+    const firstRegistrationIndex = webinarPageSource.indexOf("<GoldButton href=\"#reserve\">Request a place</GoldButton>", headlineIndex);
+    const finalSectionIndex = webinarPageSource.indexOf("You do not need to have your next move worked out");
+    const finalRegistrationIndex = webinarPageSource.indexOf("<GoldButton href=\"#reserve\">Request a place</GoldButton>", finalSectionIndex);
+    expect(headlineIndex).toBeGreaterThan(-1);
+    expect(firstRegistrationIndex).toBeGreaterThan(headlineIndex);
+    expect(finalRegistrationIndex).toBeGreaterThan(finalSectionIndex);
+    expect(webinarPageSource).not.toContain("Request a September place");
+  });
 });
