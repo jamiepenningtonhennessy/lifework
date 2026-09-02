@@ -119,6 +119,7 @@ export default function LifeworkStandalone() {
   const [showCodeModal, setShowCodeModal] = useState(false);
   const [accessCode, setAccessCode] = useState("");
   const [codeError, setCodeError] = useState("");
+  const { data: homeTestimonials, isLoading: isLoadingHomeTestimonials } = trpc.verifiedTestimonials.publicForPage.useQuery({ pageKey: "lifework_home" });
 
   const verifyCode = trpc.auth.verifyAccessCode.useMutation({
     onSuccess: (data) => {
@@ -344,24 +345,23 @@ export default function LifeworkStandalone() {
               A compass for every stage of life
             </h2>
           </div>
-          <div className="grid md:grid-cols-2 gap-6">
-            <Testimonial
-              quote="I finally understood why some things feel effortless and others feel like swimming upstream. That changed everything."
-              attribution="Graduate, choosing between Law and Psychology"
-            />
-            <Testimonial
-              quote="I had spent twelve years building a career that looked right on paper. Lifework helped me understand why it never felt right — and what would."
-              attribution="Senior Manager, mid-career transition"
-            />
-            <Testimonial
-              quote="I kept telling myself I was out of date. Lifework showed me that the skills I was most worried about losing were actually the ones I'd spent five years strengthening."
-              attribution="Professional, returning to work after a career break"
-            />
-            <Testimonial
-              quote="I had assumed retirement meant stepping back. Lifework helped me see it as stepping forward — into something I actually chose."
-              attribution="Director, approaching retirement"
-            />
-          </div>
+          {isLoadingHomeTestimonials ? (
+            <div className="grid gap-6 md:grid-cols-2" aria-label="Loading approved feedback">
+              {[0, 1, 2, 3].map((index) => <div key={index} className="h-40 animate-pulse" style={{ background: "rgba(26,39,68,0.08)" }} />)}
+            </div>
+          ) : homeTestimonials?.length ? (
+            <div className="grid gap-6 md:grid-cols-2">
+              {homeTestimonials.slice(0, 4).map((testimonial) => (
+                <Testimonial key={testimonial.id} quote={testimonial.quote} attribution={testimonial.attribution} />
+              ))}
+            </div>
+          ) : (
+            <div className="p-8 text-center" style={{ background: "white", borderLeft: `3px solid ${GOLD}` }}>
+              <p style={{ color: NAVY, fontFamily: "'Cormorant Garamond', Georgia, serif", fontSize: "1.3rem" }}>
+                Verified feedback selected for this page will appear here.
+              </p>
+            </div>
+          )}
         </div>
       </section>
 

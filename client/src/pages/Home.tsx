@@ -18,6 +18,7 @@ export default function Home() {
   const [accessCode, setAccessCode] = useState("");
   const [codeError, setCodeError] = useState("");
   const [codeVerified, setCodeVerified] = useState(false);
+  const { data: homeTestimonials, isLoading: isLoadingHomeTestimonials } = trpc.verifiedTestimonials.publicForPage.useQuery({ pageKey: "lifework_home" });
 
   const verifyCode = trpc.auth.verifyAccessCode.useMutation({
     onSuccess: (data) => {
@@ -345,37 +346,30 @@ export default function Home() {
               A compass for every stage of life
             </h2>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {[
-              {
-                quote: "I finally understood why some things feel effortless and others feel like swimming upstream. That changed everything.",
-                attribution: "Graduate, choosing between Law and Psychology",
-              },
-              {
-                quote: "I had spent twelve years building a career that looked right on paper. Lifework helped me understand why it never felt right — and what would.",
-                attribution: "Senior Manager, mid-career transition",
-              },
-              {
-                quote: "I kept telling myself I was out of date. Lifework showed me that the skills I was most worried about losing were actually the ones I'd spent five years strengthening.",
-                attribution: "Professional, returning to work after a career break",
-              },
-              {
-                quote: "I had assumed retirement meant stepping back. Lifework helped me see it as stepping forward — into something I actually chose.",
-                attribution: "Director, approaching retirement",
-              },
-            ].map((item, i) => (
-              <div key={i} className="p-8"
-                style={{ background: "white", borderLeft: "3px solid var(--lw-gold)", borderBottom: "1px solid rgba(201,151,58,0.2)" }}>
-                <blockquote className="font-serif italic leading-relaxed mb-4"
-                  style={{ fontSize: "1rem", color: "var(--lw-navy)", lineHeight: 1.7 }}>
-                  "{item.quote}"
-                </blockquote>
-                <p style={{ fontSize: "0.75rem", color: "var(--lw-navy-light)", letterSpacing: "0.06em", textTransform: "uppercase" }}>
-                  — {item.attribution}
-                </p>
-              </div>
-            ))}
-          </div>
+          {isLoadingHomeTestimonials ? (
+            <div className="grid grid-cols-1 gap-8 md:grid-cols-2" aria-label="Loading approved feedback">
+              {[0, 1, 2, 3].map((index) => <div key={index} className="h-44 animate-pulse" style={{ background: "rgba(26,39,68,0.08)" }} />)}
+            </div>
+          ) : homeTestimonials?.length ? (
+            <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
+              {homeTestimonials.slice(0, 4).map((testimonial) => (
+                <div key={testimonial.id} className="p-8"
+                  style={{ background: "white", borderLeft: "3px solid var(--lw-gold)", borderBottom: "1px solid rgba(201,151,58,0.2)" }}>
+                  <blockquote className="mb-4 font-serif italic leading-relaxed"
+                    style={{ fontSize: "1rem", color: "var(--lw-navy)", lineHeight: 1.7 }}>
+                    “{testimonial.quote}”
+                  </blockquote>
+                  <p style={{ fontSize: "0.75rem", color: "var(--lw-navy-light)", letterSpacing: "0.06em", textTransform: "uppercase" }}>
+                    — {testimonial.attribution}
+                  </p>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="border p-8 text-center" style={{ background: "rgba(255,255,255,0.72)", borderColor: "rgba(201,151,58,0.35)" }}>
+              <p className="font-serif text-xl" style={{ color: "var(--lw-navy)" }}>Verified feedback selected for this page will appear here.</p>
+            </div>
+          )}
         </div>
       </section>
 

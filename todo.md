@@ -1905,3 +1905,8 @@
 - [x] Move the complete two-session booking module before the A different starting point section
 - [x] Repeat the complete two-session booking module as the final main page block
 - [x] Remove the smaller standalone Request a place calls and validate the revised booking journey
+
+## Home Page Configurable Testimonial Widget
+- [x] Remove the home page’s hard-coded testimonial cards and placeholder attributions
+- [x] Render up to four approved testimonials selected and ordered for the Lifework home page in the master Feedback page
+- [x] Add regression coverage, validate the approved-only home widget, and save a publish-ready checkpoint
