@@ -1916,3 +1916,7 @@
 - [x] Prepare a slide-by-slide simplification plan that preserves each slide’s essential information
 - [x] Create and review a webinar-ready slide deck with the same slide count and sequence
 - [x] Deliver the simplified presentation and supporting analysis
+
+## Myers–Briggs 16-Box Grid Graphic
+- [x] Create and validate a Lifework-styled 16-box Myers–Briggs personality-type grid for webinar use
+- [x] Deliver the presentation-ready graphic
