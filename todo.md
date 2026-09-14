@@ -1920,3 +1920,7 @@
 ## Myers–Briggs 16-Box Grid Graphic
 - [x] Create and validate a Lifework-styled 16-box Myers–Briggs personality-type grid for webinar use
 - [x] Deliver the presentation-ready graphic
+
+## Lifework LinkedIn Post Graphics
+- [x] Create three square navy-and-gold LinkedIn graphics based on the supplied colleague reference and career-reflection post
+- [x] Review and deliver the three presentation-ready graphics
