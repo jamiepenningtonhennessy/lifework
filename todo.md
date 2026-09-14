@@ -1910,3 +1910,9 @@
 - [x] Remove the home page’s hard-coded testimonial cards and placeholder attributions
 - [x] Render up to four approved testimonials selected and ordered for the Lifework home page in the master Feedback page
 - [x] Add regression coverage, validate the approved-only home widget, and save a publish-ready checkpoint
+
+## Architecture of Character Webinar Deck
+- [x] Audit the supplied presentation’s slide count, narrative sequence, dense text, and visual complexity
+- [x] Prepare a slide-by-slide simplification plan that preserves each slide’s essential information
+- [x] Create and review a webinar-ready slide deck with the same slide count and sequence
+- [x] Deliver the simplified presentation and supporting analysis
