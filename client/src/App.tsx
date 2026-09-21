@@ -57,6 +57,22 @@ import TestimonialsManager from "./pages/TestimonialsManager";
 import TestimonialDraftSubmission from "./pages/TestimonialDraftSubmission";
 import LifeworkLandingConcepts from "./pages/LifeworkLandingConcepts";
 
+function DomainDocumentBranding() {
+  useEffect(() => {
+    const isLifeworkPath = isStandaloneLifeworkDomain();
+    const title = isLifeworkPath ? "LifeworkPath" : "Pennington Hennessy";
+    const description = isLifeworkPath
+      ? "LifeworkPath career analysis: find work that fits who you are."
+      : "Professional development coaching and training for lawyers and professional services firms. Pennington Hennessy.";
+
+    document.title = title;
+    document.querySelector<HTMLMetaElement>('meta[name="description"]')?.setAttribute("content", description);
+    document.querySelector<HTMLMetaElement>('meta[name="apple-mobile-web-app-title"]')?.setAttribute("content", title);
+  }, []);
+
+  return null;
+}
+
 function RootRoute() {
   return isStandaloneLifeworkDomain()
     ? <LifeworkLandingConcepts forcedConcept="field-notes" reviewOnly={false} />
@@ -189,6 +205,7 @@ function Router() {
 function App() {
   return (
     <ErrorBoundary>
+      <DomainDocumentBranding />
       <ThemeProvider defaultTheme="light">
         <TooltipProvider>
           <Toaster />

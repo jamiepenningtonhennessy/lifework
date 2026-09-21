@@ -1946,3 +1946,7 @@
 ## LifeworkPath Guide Typeface Correction (2026-09-21)
 - [x] Restore Cormorant serif treatment to every guide-headline line and gold emphasis
 - [x] Verify the guide heading matches the section-heading font at desktop and mobile widths
+
+## LifeworkPath Browser-Tab Branding (2026-09-21)
+- [x] Show LifeworkPath in the browser tab when the standalone site opens
+- [x] Preserve appropriate Pennington Hennessy branding for the separate PH domain and validate hostname-aware metadata

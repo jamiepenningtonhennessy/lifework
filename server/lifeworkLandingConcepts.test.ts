@@ -7,6 +7,7 @@ const conceptSource = readFileSync(
   "utf8",
 );
 const appSource = readFileSync(resolve(process.cwd(), "client/src/App.tsx"), "utf8");
+const htmlSource = readFileSync(resolve(process.cwd(), "client/index.html"), "utf8");
 
 describe("Lifework landing page", () => {
   it("retains three separate review routes and selects Field Notes for the public standalone home", () => {
@@ -15,6 +16,15 @@ describe("Lifework landing page", () => {
     expect(appSource).toContain('path="/lifework-designs/field-notes"');
     expect(appSource).toContain('path="/" component={RootRoute}');
     expect(appSource).toContain('<LifeworkLandingConcepts forcedConcept="field-notes" reviewOnly={false} />');
+  });
+
+  it("uses LifeworkPath tab branding on the standalone host while preserving PH metadata elsewhere", () => {
+    expect(htmlSource).toContain("<title>LifeworkPath</title>");
+    expect(htmlSource).toContain('name="apple-mobile-web-app-title" content="LifeworkPath"');
+    expect(appSource).toContain('const title = isLifeworkPath ? "LifeworkPath" : "Pennington Hennessy";');
+    expect(appSource).toContain('document.title = title;');
+    expect(appSource).toContain('meta[name="description"]');
+    expect(appSource).toContain('meta[name="apple-mobile-web-app-title"]');
   });
 
   it("retains the existing public landing-page copy and approved testimonial source", () => {
