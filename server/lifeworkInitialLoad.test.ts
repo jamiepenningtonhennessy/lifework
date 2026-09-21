@@ -34,7 +34,8 @@ describe("LifeworkPath initial-load routing", () => {
   });
 
   it("keeps the Manus visual-editing runtime out of production visitor bundles", () => {
-    expect(viteSource).toContain('defineConfig(({ mode }) => ({');
-    expect(viteSource).toContain('...(mode === "production" ? [] : [vitePluginManusRuntime()]),');
+    expect(viteSource).toContain('const isProductionBuild = process.env.NODE_ENV === "production" || process.argv.includes("build");');
+    expect(viteSource).toContain('...(isProductionBuild ? [] : [vitePluginManusRuntime()]),');
+    expect(viteSource).toContain("export default defineConfig({");
   });
 });
