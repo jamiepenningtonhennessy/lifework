@@ -1931,4 +1931,5 @@
 - [x] Audit the attached WOW report and document its Quiet Authority visual system
 - [x] Build three review-only, copy-preserving Lifework landing-page concepts
 - [x] Visually validate the three concepts and provide individual review links
-- [ ] Apply the selected concept to the public LifeworkPath landing page only after approval
+- [x] Apply the selected Field Notes concept to the public LifeworkPath landing page
+- [x] Remove blue background panels, including the final quotation and footer treatment

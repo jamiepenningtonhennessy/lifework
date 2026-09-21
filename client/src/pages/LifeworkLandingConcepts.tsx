@@ -1,6 +1,11 @@
-import { ArrowRight, Download } from "lucide-react";
+import { FormEvent, useState } from "react";
+import { ArrowRight, Download, X } from "lucide-react";
 import { useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
+import { useAuth } from "@/_core/hooks/useAuth";
+import { getLoginUrl } from "@/const";
+import { lifeworkLandingPath } from "@/lib/lifeworkDomain";
+import { canEnterCounsellorWorkspace } from "@shared/counsellorAccess";
 
 export const landingConcepts = [
   {
@@ -24,6 +29,11 @@ export const landingConcepts = [
 ] as const;
 
 type ConceptSlug = (typeof landingConcepts)[number]["slug"];
+
+type LifeworkLandingConceptsProps = {
+  forcedConcept?: ConceptSlug;
+  reviewOnly?: boolean;
+};
 
 type Audience = {
   stage: string;
@@ -109,8 +119,8 @@ const conceptCss = `
   .lw-concept .lc-topnav { display: flex; align-items: center; gap: 18px; }
   .lw-concept .lc-tag, .lw-concept .lc-running, .lw-concept .lc-kicker, .lw-concept .lc-micro, .lw-concept .lc-rail-title, .lw-concept .lc-foot { font-family: "Libre Franklin", Inter, sans-serif; font-size: 0.62rem; line-height: 1.45; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; }
   .lw-concept .lc-running { text-align: right; color: var(--muted); }
-  .lw-concept .lc-sign-in { border: 1px solid var(--navy); background: transparent; padding: 9px 14px; color: var(--navy); text-decoration: none; transition: background 160ms ease-out, color 160ms ease-out; }
-  .lw-concept .lc-sign-in:hover { color: var(--paper); background: var(--navy); }
+  .lw-concept .lc-sign-in { border: 1px solid var(--navy); background: transparent; padding: 9px 14px; color: var(--navy); text-decoration: none; transition: background 160ms ease-out, color 160ms ease-out; font-family: "Libre Franklin", Inter, sans-serif; font-size: 0.62rem; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; cursor: pointer; }
+  .lw-concept .lc-sign-in:hover { color: var(--navy); background: var(--paper-deep); }
   .lw-concept .lc-review { background: var(--navy); color: rgba(255,255,255,0.7); padding: 10px 0; }
   .lw-concept .lc-review-inner { width: min(1180px, calc(100% - 48px)); margin: 0 auto; display: flex; justify-content: space-between; align-items: center; gap: 20px; }
   .lw-concept .lc-review-links { display: flex; gap: 0; overflow-x: auto; }
@@ -130,10 +140,10 @@ const conceptCss = `
   .lw-concept .lc-hero h1 em { color: var(--gold); font-style: italic; }
   .lw-concept .lc-intro { max-width: 40rem; margin: 34px 0 0; color: var(--ink); font-size: 1.17rem; line-height: 1.62; }
   .lw-concept .lc-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 34px; }
-  .lw-concept .lc-button { display: inline-flex; align-items: center; gap: 12px; border: 1px solid var(--gold); padding: 14px 18px; background: var(--gold); color: var(--navy); font-family: "Libre Franklin", Inter, sans-serif; font-size: 0.64rem; font-weight: 700; letter-spacing: 0.15em; text-decoration: none; text-transform: uppercase; transition: transform 160ms ease-out, background 160ms ease-out; }
+  .lw-concept .lc-button { display: inline-flex; align-items: center; gap: 12px; border: 1px solid var(--gold); padding: 14px 18px; background: var(--gold); color: var(--navy); font-family: "Libre Franklin", Inter, sans-serif; font-size: 0.64rem; font-weight: 700; letter-spacing: 0.15em; text-decoration: none; text-transform: uppercase; transition: transform 160ms ease-out, background 160ms ease-out; cursor: pointer; }
   .lw-concept .lc-button:hover { background: #cca04c; transform: translateY(-1px); }
   .lw-concept .lc-button.lc-button--quiet { background: transparent; border-color: var(--navy); color: var(--navy); }
-  .lw-concept .lc-button.lc-button--quiet:hover { background: var(--navy); color: var(--paper); }
+  .lw-concept .lc-button.lc-button--quiet:hover { background: var(--paper-deep); color: var(--navy); }
   .lw-concept .lc-section { padding: 104px 0; }
   .lw-concept .lc-section-grid { display: grid; grid-template-columns: 146px minmax(0, 1fr); }
   .lw-concept .lc-section-rail { border-right: 1px solid var(--rule); padding-right: 24px; }
@@ -174,13 +184,13 @@ const conceptCss = `
   .lw-concept .lc-testimonial blockquote { margin: 0; color: var(--navy); font-family: "Cormorant Garamond", Georgia, serif; font-size: 1.48rem; font-style: italic; font-weight: 500; line-height: 1.28; }
   .lw-concept .lc-testimonial cite { display: block; margin-top: 20px; color: var(--muted); font-family: "Libre Franklin", Inter, sans-serif; font-size: 0.59rem; font-style: normal; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase; }
   .lw-concept .lc-empty { padding: 36px 0; color: var(--muted); font-style: italic; border-bottom: 1px solid var(--rule); }
-  .lw-concept .lc-closing { padding: 110px 0 78px; background: var(--navy); text-align: center; }
-  .lw-concept .lc-quote { max-width: 840px; margin: 0 auto; color: var(--paper); font-family: "Cormorant Garamond", Georgia, serif; font-size: clamp(2rem, 4vw, 3.7rem); font-style: italic; font-weight: 500; line-height: 1.05; letter-spacing: -0.03em; }
+  .lw-concept .lc-closing { padding: 110px 0 78px; background: var(--paper-deep); border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule); text-align: center; }
+  .lw-concept .lc-quote { max-width: 840px; margin: 0 auto; color: var(--navy); font-family: "Cormorant Garamond", Georgia, serif; font-size: clamp(2rem, 4vw, 3.7rem); font-style: italic; font-weight: 500; line-height: 1.05; letter-spacing: -0.03em; }
   .lw-concept .lc-quote-source { margin-top: 28px; color: var(--gold); font-family: "Libre Franklin", Inter, sans-serif; font-size: 0.62rem; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; }
-  .lw-concept .lc-footer { border-top: 1px solid rgba(255,255,255,0.18); background: var(--navy); color: rgba(255,255,255,0.56); }
+  .lw-concept .lc-footer { border-top: 1px solid var(--rule); background: var(--paper); color: var(--muted); }
   .lw-concept .lc-footer-inner { min-height: 84px; display: flex; align-items: center; justify-content: space-between; gap: 24px; }
-  .lw-concept .lc-footer .lc-wordmark { color: var(--paper); }
-  .lw-concept .lc-footer-copy { color: rgba(255,255,255,0.56); font-size: 0.78rem; }
+  .lw-concept .lc-footer .lc-wordmark { color: var(--navy); }
+  .lw-concept .lc-footer-copy { color: var(--muted); font-size: 0.78rem; }
   .lw-concept .lc-footer-copy a, .lw-concept .lc-privacy { color: var(--gold); text-decoration: none; }
 
   /* Concept 02: title-page composition */
@@ -212,7 +222,11 @@ const conceptCss = `
   .lw-concept[data-concept="field-notes"] .lc-video { background: var(--paper-deep); color: var(--ink); }
   .lw-concept[data-concept="field-notes"] .lc-video .lc-section-heading { color: var(--navy); }
   .lw-concept[data-concept="field-notes"] .lc-video .lc-copy { color: var(--ink); }
-  .lw-concept[data-concept="field-notes"] .lc-video-frame { background: var(--navy); border-color: var(--navy); }
+  .lw-concept[data-concept="field-notes"] .lc-video-frame { background: #fffdf9; border-color: rgba(184,134,47,0.7); }
+  .lw-concept[data-concept="field-notes"] .lc-review { background: var(--paper-deep); color: var(--navy); border-bottom: 1px solid var(--rule); }
+  .lw-concept[data-concept="field-notes"] .lc-review-link { border-color: var(--rule); color: var(--muted); }
+  .lw-concept[data-concept="field-notes"] .lc-review-link:last-child { border-color: var(--rule); }
+  .lw-concept[data-concept="field-notes"] .lc-review-link[data-active="true"] { color: var(--navy); }
   .lw-concept[data-concept="field-notes"] .lc-stage { min-height: 340px; }
   .lw-concept[data-concept="field-notes"] .lc-invitation { background: var(--paper); }
   .lw-concept[data-concept="field-notes"] .lc-testimonial-grid { grid-template-columns: repeat(4, 1fr); gap: 0; }
@@ -220,6 +234,15 @@ const conceptCss = `
   .lw-concept[data-concept="field-notes"] .lc-testimonial:nth-child(odd), .lw-concept[data-concept="field-notes"] .lc-testimonial:nth-child(even) { padding-left: 0; padding-right: 20px; border-right: 1px solid var(--rule); }
   .lw-concept[data-concept="field-notes"] .lc-testimonial:last-child { border-right: 0; }
   .lw-concept[data-concept="field-notes"] .lc-testimonial blockquote { font-size: 1.25rem; }
+  .lw-concept .lc-modal-backdrop { align-items: center; background: rgba(57, 46, 29, 0.26); display: flex; inset: 0; justify-content: center; padding: 24px; position: fixed; z-index: 100; }
+  .lw-concept .lc-modal { background: var(--paper); border: 1px solid var(--rule-strong); box-shadow: 0 20px 65px rgba(28,36,53,0.18); max-width: 480px; padding: 38px; position: relative; width: 100%; }
+  .lw-concept .lc-modal-close { background: transparent; border: 0; color: var(--navy); cursor: pointer; padding: 8px; position: absolute; right: 13px; top: 13px; }
+  .lw-concept .lc-modal-title { color: var(--navy); font-family: "Cormorant Garamond", Georgia, serif; font-size: 2.15rem; font-weight: 500; line-height: 1; margin: 0 0 14px; }
+  .lw-concept .lc-modal-copy { color: var(--ink); font-size: 0.98rem; line-height: 1.6; margin: 0 0 22px; }
+  .lw-concept .lc-modal-label { color: var(--navy); display: block; font-family: "Libre Franklin", Inter, sans-serif; font-size: 0.61rem; font-weight: 700; letter-spacing: 0.16em; margin-bottom: 8px; text-transform: uppercase; }
+  .lw-concept .lc-modal-input { background: #fffdf9; border: 1px solid var(--rule-strong); color: var(--ink); font-family: "Source Serif 4", Georgia, serif; font-size: 1.1rem; padding: 12px; width: 100%; }
+  .lw-concept .lc-modal-error { color: #a04538; font-size: 0.9rem; margin: 12px 0 0; }
+  .lw-concept .lc-modal .lc-button { margin-top: 22px; width: 100%; justify-content: center; }
 
   @media (max-width: 800px) {
     .lw-concept .lc-shell, .lw-concept .lc-review-inner { width: min(100% - 32px, 1180px); }
@@ -248,38 +271,68 @@ function getSlug(location: string): ConceptSlug {
   return match?.slug ?? "journal";
 }
 
-function Header({ concept }: { concept: ConceptSlug }) {
+type HeaderProps = {
+  concept: ConceptSlug;
+  reviewOnly: boolean;
+  isAuthenticated: boolean;
+  userName?: string | null;
+  canOpenCounsellorWorkspace: boolean;
+  onBeginJourney: () => void;
+  onOpenDashboard: () => void;
+  onOpenCounsellor: () => void;
+};
+
+function Header({
+  concept,
+  reviewOnly,
+  isAuthenticated,
+  userName,
+  canOpenCounsellorWorkspace,
+  onBeginJourney,
+  onOpenDashboard,
+  onOpenCounsellor,
+}: HeaderProps) {
   return (
     <>
-      <div className="lc-review">
-        <div className="lc-review-inner">
-          <span className="lc-tag">Review-only landing-page directions</span>
-          <nav className="lc-review-links" aria-label="Landing-page design options">
-            {landingConcepts.map((item) => (
-              <a
-                key={item.slug}
-                href={`/lifework-designs/${item.slug}`}
-                data-active={item.slug === concept}
-                className="lc-review-link lc-tag"
-              >
-                <span>{item.number}</span><span className="lc-concept-name"> {item.name}</span>
-              </a>
-            ))}
-          </nav>
+      {reviewOnly && (
+        <div className="lc-review">
+          <div className="lc-review-inner">
+            <span className="lc-tag">Review-only landing-page directions</span>
+            <nav className="lc-review-links" aria-label="Landing-page design options">
+              {landingConcepts.map((item) => (
+                <a
+                  key={item.slug}
+                  href={`/lifework-designs/${item.slug}`}
+                  data-active={item.slug === concept}
+                  className="lc-review-link lc-tag"
+                >
+                  <span>{item.number}</span><span className="lc-concept-name"> {item.name}</span>
+                </a>
+              ))}
+            </nav>
+          </div>
         </div>
-      </div>
+      )}
       <header className="lc-shell lc-running-header">
-        <a href="/" className="lc-wordmark" aria-label="Lifework home">Life<em>work</em></a>
+        <a href={reviewOnly ? "/lifework-designs/field-notes" : "/"} className="lc-wordmark" aria-label="Lifework home">Life<em>work</em></a>
         <div className="lc-running">Career Analysis · Positive Psychology</div>
         <div className="lc-topnav">
-          <a href="/" className="lc-sign-in lc-tag">Sign In</a>
+          {isAuthenticated ? (
+            <>
+              <span className="lc-running">Welcome, {userName?.split(" ")[0]}</span>
+              {canOpenCounsellorWorkspace && <button type="button" onClick={onOpenCounsellor} className="lc-sign-in">Counsellor View</button>}
+              <button type="button" onClick={onOpenDashboard} className="lc-button">My Dashboard</button>
+            </>
+          ) : (
+            <button type="button" onClick={onBeginJourney} className="lc-sign-in">Sign In</button>
+          )}
         </div>
       </header>
     </>
   );
 }
 
-function Hero({ concept }: { concept: ConceptSlug }) {
+function Hero({ concept, onBeginJourney }: { concept: ConceptSlug; onBeginJourney: () => void }) {
   return (
     <section className="lc-hero">
       <div className="lc-shell lc-hero-grid">
@@ -295,7 +348,7 @@ function Hero({ concept }: { concept: ConceptSlug }) {
           <h1>What if the right career<br /><em>already lives inside you?</em></h1>
           <p className="lc-intro">You have spent years acquiring experience, skills, and wisdom. But somewhere along the way, the noise of other people's expectations may have drowned out the signal of what genuinely energises you. Lifework helps you find it again.</p>
           <div className="lc-actions">
-            <a className="lc-button" href="/">Begin Your Journey <ArrowRight size={16} /></a>
+            <button type="button" className="lc-button" onClick={onBeginJourney}>Begin Your Journey <ArrowRight size={16} /></button>
             <a className="lc-button lc-button--quiet" href="mailto:jamie@penningtonhennessy.com">Ask Jamie a Question</a>
           </div>
         </div>
@@ -387,7 +440,7 @@ function Plan() {
   );
 }
 
-function Invitation() {
+function Invitation({ onBeginJourney }: { onBeginJourney: () => void }) {
   return (
     <section className="lc-section lc-invitation">
       <div className="lc-invitation-inner">
@@ -396,9 +449,9 @@ function Invitation() {
         <div className="lc-copy"><p>The risk is not that you will fail. The risk is spending another five years — or ten — doing work that never quite fits. Not because the right work doesn't exist, but because you never took the time to find out what it was.</p></div>
         <div className="lc-actions">
           <a className="lc-button" href="mailto:jamie@penningtonhennessy.com?subject=Lifework%20Enquiry">Email Jamie to Get Started <ArrowRight size={16} /></a>
-          <a className="lc-button lc-button--quiet" href="/">I Have an Access Code</a>
+          <button type="button" className="lc-button lc-button--quiet" onClick={onBeginJourney}>I Have an Access Code</button>
         </div>
-        <p className="lc-copy" style={{ marginTop: 26, fontSize: "0.92rem" }}>Already a client? <a href="/" style={{ color: "var(--gold)" }}>Sign in here</a></p>
+        <p className="lc-copy" style={{ marginTop: 26, fontSize: "0.92rem" }}>Already a client? <button type="button" onClick={onBeginJourney} style={{ color: "var(--gold)", background: "transparent", border: 0, cursor: "pointer", fontFamily: "inherit", fontSize: "inherit", padding: 0, textDecoration: "underline" }}>Sign in here</button></p>
       </div>
     </section>
   );
@@ -456,21 +509,120 @@ function Footer() {
   );
 }
 
-export default function LifeworkLandingConcepts() {
+type AccessCodeModalProps = {
+  accessCode: string;
+  error: string;
+  isVerifying: boolean;
+  onAccessCodeChange: (value: string) => void;
+  onClose: () => void;
+  onSubmit: (event: FormEvent<HTMLFormElement>) => void;
+};
+
+function AccessCodeModal({
+  accessCode,
+  error,
+  isVerifying,
+  onAccessCodeChange,
+  onClose,
+  onSubmit,
+}: AccessCodeModalProps) {
+  return (
+    <div className="lc-modal-backdrop" role="presentation" onMouseDown={onClose}>
+      <form className="lc-modal" onSubmit={onSubmit} onMouseDown={(event) => event.stopPropagation()}>
+        <button type="button" className="lc-modal-close" onClick={onClose} aria-label="Close access-code form"><X size={20} /></button>
+        <div className="lc-kicker">Client Access</div>
+        <h2 className="lc-modal-title">Begin with your<br /><em>access code.</em></h2>
+        <p className="lc-modal-copy">Enter the code supplied by your counsellor to begin your Lifework journey.</p>
+        <label className="lc-modal-label" htmlFor="lifework-access-code">Access Code</label>
+        <input
+          id="lifework-access-code"
+          className="lc-modal-input"
+          value={accessCode}
+          onChange={(event) => onAccessCodeChange(event.target.value)}
+          autoComplete="off"
+          autoFocus
+        />
+        {error && <p className="lc-modal-error" role="alert">{error}</p>}
+        <button type="submit" className="lc-button" disabled={isVerifying}>{isVerifying ? "Checking…" : "Continue"} <ArrowRight size={16} /></button>
+      </form>
+    </div>
+  );
+}
+
+export default function LifeworkLandingConcepts({ forcedConcept, reviewOnly = true }: LifeworkLandingConceptsProps) {
+  const { user, isAuthenticated } = useAuth();
   const [location] = useLocation();
-  const concept = getSlug(location);
+  const [, navigate] = useLocation();
+  const concept = forcedConcept ?? getSlug(location);
+  const [showCodeModal, setShowCodeModal] = useState(false);
+  const [accessCode, setAccessCode] = useState("");
+  const [codeError, setCodeError] = useState("");
+
+  const verifyCode = trpc.auth.verifyAccessCode.useMutation({
+    onSuccess: (data) => {
+      if (data.valid) {
+        setCodeError("");
+        sessionStorage.setItem("lw_access_granted", "1");
+        window.location.href = getLoginUrl(lifeworkLandingPath());
+        return;
+      }
+      setCodeError("That code doesn't match. Please check with your counsellor.");
+    },
+    onError: () => setCodeError("Something went wrong. Please try again."),
+  });
+
+  const handleBeginJourney = () => {
+    if (isAuthenticated) {
+      navigate("/dashboard");
+      return;
+    }
+    if (sessionStorage.getItem("lw_access_granted") === "1") {
+      window.location.href = getLoginUrl(lifeworkLandingPath());
+      return;
+    }
+    setCodeError("");
+    setShowCodeModal(true);
+  };
+
+  const handleSubmitCode = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (!accessCode.trim()) {
+      setCodeError("Please enter your access code.");
+      return;
+    }
+    verifyCode.mutate({ code: accessCode.trim() });
+  };
 
   return (
     <div className="lw-concept" data-concept={concept}>
       <style>{conceptCss}</style>
-      <Header concept={concept} />
-      <Hero concept={concept} />
+      <Header
+        concept={concept}
+        reviewOnly={reviewOnly}
+        isAuthenticated={isAuthenticated}
+        userName={user?.name}
+        canOpenCounsellorWorkspace={canEnterCounsellorWorkspace(user?.role)}
+        onBeginJourney={handleBeginJourney}
+        onOpenDashboard={() => navigate("/dashboard")}
+        onOpenCounsellor={() => navigate("/counselor")}
+      />
+      <Hero concept={concept} onBeginJourney={handleBeginJourney} />
       <Guide concept={concept} />
       <VideoSection />
       <Plan />
-      <Invitation />
+      <Invitation onBeginJourney={handleBeginJourney} />
       <Testimonials concept={concept} />
       <Footer />
+      {showCodeModal && (
+        <AccessCodeModal
+          accessCode={accessCode}
+          error={codeError}
+          isVerifying={verifyCode.isPending}
+          onAccessCodeChange={setAccessCode}
+          onClose={() => setShowCodeModal(false)}
+          onSubmit={handleSubmitCode}
+        />
+      )}
     </div>
   );
 }

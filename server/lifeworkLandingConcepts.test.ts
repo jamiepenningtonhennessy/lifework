@@ -8,15 +8,13 @@ const conceptSource = readFileSync(
 );
 const appSource = readFileSync(resolve(process.cwd(), "client/src/App.tsx"), "utf8");
 
-describe("Lifework landing-page concepts", () => {
-  it("offers three separate review-only routes without replacing the public home route", () => {
+describe("Lifework landing page", () => {
+  it("retains three separate review routes and selects Field Notes for the public standalone home", () => {
     expect(appSource).toContain('path="/lifework-designs/journal"');
     expect(appSource).toContain('path="/lifework-designs/title-page"');
     expect(appSource).toContain('path="/lifework-designs/field-notes"');
     expect(appSource).toContain('path="/" component={RootRoute}');
-    expect(appSource).toContain('window.location.hostname.endsWith(".manus.computer")');
-    expect(appSource).toContain('window.location.hostname === "plumtrees-kfbbe6kq.manus.space"');
-    expect(appSource).toContain('Redirect to="/lifework-designs/journal"');
+    expect(appSource).toContain('<LifeworkLandingConcepts forcedConcept="field-notes" reviewOnly={false} />');
   });
 
   it("retains the existing public landing-page copy and approved testimonial source", () => {
@@ -35,5 +33,19 @@ describe("Lifework landing-page concepts", () => {
     expect(conceptSource).toContain("--paper: #f6f1e9");
     expect(conceptSource).toContain("--gold: #b8862f");
     expect(conceptSource).toContain("lc-section-rail");
+  });
+
+  it("keeps the selected Field Notes experience free of blue panels, including the final quotation and footer", () => {
+    expect(conceptSource).toContain('.lw-concept .lc-closing { padding: 110px 0 78px; background: var(--paper-deep)');
+    expect(conceptSource).toContain('.lw-concept .lc-footer { border-top: 1px solid var(--rule); background: var(--paper)');
+    expect(conceptSource).toContain('.lw-concept[data-concept="field-notes"] .lc-video { background: var(--paper-deep)');
+    expect(conceptSource).toContain('.lw-concept[data-concept="field-notes"] .lc-video-frame { background: #fffdf9');
+  });
+
+  it("preserves the access-code journey on the selected public landing page", () => {
+    expect(conceptSource).toContain('trpc.auth.verifyAccessCode.useMutation');
+    expect(conceptSource).toContain('sessionStorage.setItem("lw_access_granted", "1")');
+    expect(conceptSource).toContain('getLoginUrl(lifeworkLandingPath())');
+    expect(conceptSource).toContain('Enter the code supplied by your counsellor');
   });
 });

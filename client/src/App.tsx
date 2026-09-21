@@ -58,15 +58,8 @@ import TestimonialDraftSubmission from "./pages/TestimonialDraftSubmission";
 import LifeworkLandingConcepts from "./pages/LifeworkLandingConcepts";
 
 function RootRoute() {
-  const isProjectPreview = typeof window !== "undefined" && (
-    window.location.hostname.endsWith(".manus.computer")
-    || window.location.hostname === "plumtrees-kfbbe6kq.manus.space"
-  );
-  if (isProjectPreview) {
-    return <Redirect to="/lifework-designs/journal" />;
-  }
   return isStandaloneLifeworkDomain()
-    ? <LifeworkLayout><Home /></LifeworkLayout>
+    ? <LifeworkLandingConcepts forcedConcept="field-notes" reviewOnly={false} />
     : <PHHome />;
 }
 
@@ -101,9 +94,9 @@ function Router() {
       <Route path="/lifework/pricing" component={LifeworkPricing} />
       <Route path="/lifework-standalone" component={LifeworkStandalone} />
       <Route path="/lifework/standalone" component={LifeworkStandalone} />
-      <Route path="/lifework-designs/journal" component={LifeworkLandingConcepts} />
-      <Route path="/lifework-designs/title-page" component={LifeworkLandingConcepts} />
-      <Route path="/lifework-designs/field-notes" component={LifeworkLandingConcepts} />
+      <Route path="/lifework-designs/journal">{() => <LifeworkLandingConcepts />}</Route>
+      <Route path="/lifework-designs/title-page">{() => <LifeworkLandingConcepts />}</Route>
+      <Route path="/lifework-designs/field-notes">{() => <LifeworkLandingConcepts />}</Route>
       <Route path="/webinar" component={LifeworkWebinar} />
       <Route path="/lifework/webinar" component={LifeworkWebinar} />
       <Route path="/feedback" component={TestimonialDraftSubmission} />
