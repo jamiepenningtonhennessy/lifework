@@ -1924,3 +1924,11 @@
 ## Lifework LinkedIn Post Graphics
 - [x] Create three square navy-and-gold LinkedIn graphics based on the supplied colleague reference and career-reflection post
 - [x] Review and deliver the three presentation-ready graphics
+- [x] Recreate all three LinkedIn graphics with bolder, more prominent gold linework
+- [x] Review and deliver the revised bold-linework graphic set
+
+## LifeworkPath Landing-Page Brand Separation (2026-09-21)
+- [x] Audit the attached WOW report and document its Quiet Authority visual system
+- [x] Build three review-only, copy-preserving Lifework landing-page concepts
+- [x] Visually validate the three concepts and provide individual review links
+- [ ] Apply the selected concept to the public LifeworkPath landing page only after approval

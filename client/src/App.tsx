@@ -55,6 +55,7 @@ import LifeworkWebinar from "./pages/LifeworkWebinar";
 import SagePrototype from "./pages/SagePrototype";
 import TestimonialsManager from "./pages/TestimonialsManager";
 import TestimonialDraftSubmission from "./pages/TestimonialDraftSubmission";
+import LifeworkLandingConcepts from "./pages/LifeworkLandingConcepts";
 
 function RootRoute() {
   return isStandaloneLifeworkDomain()
@@ -93,6 +94,9 @@ function Router() {
       <Route path="/lifework/pricing" component={LifeworkPricing} />
       <Route path="/lifework-standalone" component={LifeworkStandalone} />
       <Route path="/lifework/standalone" component={LifeworkStandalone} />
+      <Route path="/lifework-designs/journal" component={LifeworkLandingConcepts} />
+      <Route path="/lifework-designs/title-page" component={LifeworkLandingConcepts} />
+      <Route path="/lifework-designs/field-notes" component={LifeworkLandingConcepts} />
       <Route path="/webinar" component={LifeworkWebinar} />
       <Route path="/lifework/webinar" component={LifeworkWebinar} />
       <Route path="/feedback" component={TestimonialDraftSubmission} />
