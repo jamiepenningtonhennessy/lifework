@@ -151,8 +151,8 @@ const conceptCss = `
   .lw-concept .lc-section-heading { margin: 0 0 26px; color: var(--navy); font-family: "Cormorant Garamond", Georgia, serif; font-size: clamp(2.45rem, 4vw, 4.15rem); font-weight: 500; line-height: 0.96; letter-spacing: -0.035em; }
   .lw-concept .lc-section-heading em { color: var(--gold); font-style: italic; }
   .lw-concept .lc-guide-heading { font-size: clamp(2.15rem, 3.55vw, 3.55rem); }
-  .lw-concept .lc-guide-heading .lc-guide-line { white-space: nowrap; }
-  .lw-concept .lc-guide-heading .lc-guide-gold { color: var(--gold); }
+  .lw-concept .lc-guide-heading .lc-guide-line { font-family: inherit; white-space: nowrap; }
+  .lw-concept .lc-guide-heading .lc-guide-gold { color: var(--gold); font-family: inherit; }
   .lw-concept .lc-copy { max-width: 41rem; color: var(--ink); font-size: 1.04rem; line-height: 1.7; }
   .lw-concept .lc-copy p { margin: 0 0 16px; }
   .lw-concept .lc-audience-list { margin-top: 42px; border-top: 1px solid var(--rule-strong); }

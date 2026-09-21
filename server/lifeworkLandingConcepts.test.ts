@@ -61,7 +61,7 @@ describe("Lifework landing page", () => {
     expect(conceptSource).toContain('className="lc-section-heading lc-guide-heading"');
     expect(conceptSource).toContain('We understand what</span><br />');
     expect(conceptSource).toContain('this <span className="lc-guide-gold">feels like.</span>');
-    expect(conceptSource).toContain('.lc-guide-heading .lc-guide-line { white-space: nowrap; }');
-    expect(conceptSource).toContain('.lc-guide-heading .lc-guide-gold { color: var(--gold); }');
+    expect(conceptSource).toContain('.lc-guide-heading .lc-guide-line { font-family: inherit; white-space: nowrap; }');
+    expect(conceptSource).toContain('.lc-guide-heading .lc-guide-gold { color: var(--gold); font-family: inherit; }');
   });
 });

@@ -1942,3 +1942,7 @@
 ## LifeworkPath Guide Headline Refinement (2026-09-21)
 - [x] Set the guide headline as an intentional two-line composition
 - [x] Apply muted-gold emphasis to “feels like” and validate responsive presentation
+
+## LifeworkPath Guide Typeface Correction (2026-09-21)
+- [x] Restore Cormorant serif treatment to every guide-headline line and gold emphasis
+- [x] Verify the guide heading matches the section-heading font at desktop and mobile widths
