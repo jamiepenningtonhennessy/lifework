@@ -48,4 +48,11 @@ describe("Lifework landing page", () => {
     expect(conceptSource).toContain('getLoginUrl(lifeworkLandingPath())');
     expect(conceptSource).toContain('Enter the code supplied by your counsellor');
   });
+
+  it("uses the independent LifeworkPath contact address and omits PH service attribution", () => {
+    expect(conceptSource).toContain('mailto:jamie@lifeworkpath.com');
+    expect(conceptSource).toContain('Email Jamie — jamie@lifeworkpath.com');
+    expect(conceptSource).not.toContain('penningtonhennessy.com');
+    expect(conceptSource).not.toContain('Pennington Hennessy');
+  });
 });

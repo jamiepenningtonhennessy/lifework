@@ -1933,3 +1933,8 @@
 - [x] Visually validate the three concepts and provide individual review links
 - [x] Apply the selected Field Notes concept to the public LifeworkPath landing page
 - [x] Remove blue background panels, including the final quotation and footer treatment
+
+## LifeworkPath Landing-Page Independence (2026-09-21)
+- [x] Replace Pennington Hennessy contact details with the LifeworkPath address
+- [x] Remove Pennington Hennessy service attribution from the public landing-page footer
+- [x] Validate the independent public landing-page presentation and save a checkpoint

@@ -349,7 +349,7 @@ function Hero({ concept, onBeginJourney }: { concept: ConceptSlug; onBeginJourne
           <p className="lc-intro">You have spent years acquiring experience, skills, and wisdom. But somewhere along the way, the noise of other people's expectations may have drowned out the signal of what genuinely energises you. Lifework helps you find it again.</p>
           <div className="lc-actions">
             <button type="button" className="lc-button" onClick={onBeginJourney}>Begin Your Journey <ArrowRight size={16} /></button>
-            <a className="lc-button lc-button--quiet" href="mailto:jamie@penningtonhennessy.com">Ask Jamie a Question</a>
+            <a className="lc-button lc-button--quiet" href="mailto:jamie@lifeworkpath.com">Ask Jamie a Question</a>
           </div>
         </div>
       </div>
@@ -448,7 +448,7 @@ function Invitation({ onBeginJourney }: { onBeginJourney: () => void }) {
         <h2 className="lc-section-heading">The right career already lives inside you.<br /><em>Let's find it together.</em></h2>
         <div className="lc-copy"><p>The risk is not that you will fail. The risk is spending another five years — or ten — doing work that never quite fits. Not because the right work doesn't exist, but because you never took the time to find out what it was.</p></div>
         <div className="lc-actions">
-          <a className="lc-button" href="mailto:jamie@penningtonhennessy.com?subject=Lifework%20Enquiry">Email Jamie to Get Started <ArrowRight size={16} /></a>
+          <a className="lc-button" href="mailto:jamie@lifeworkpath.com?subject=Lifework%20Enquiry">Email Jamie to Get Started <ArrowRight size={16} /></a>
           <button type="button" className="lc-button lc-button--quiet" onClick={onBeginJourney}>I Have an Access Code</button>
         </div>
         <p className="lc-copy" style={{ marginTop: 26, fontSize: "0.92rem" }}>Already a client? <button type="button" onClick={onBeginJourney} style={{ color: "var(--gold)", background: "transparent", border: 0, cursor: "pointer", fontFamily: "inherit", fontSize: "inherit", padding: 0, textDecoration: "underline" }}>Sign in here</button></p>
@@ -494,14 +494,13 @@ function Footer() {
           <blockquote className="lc-quote">“The most important thing is to find out what is important to you — not what others think should be important.”</blockquote>
           <div className="lc-quote-source">— Bernard Haldane, Dependable Strengths</div>
           <div className="lc-actions" style={{ justifyContent: "center" }}>
-            <a className="lc-button" href="mailto:jamie@penningtonhennessy.com?subject=Lifework%20Enquiry">Email Jamie — jamie@penningtonhennessy.com <ArrowRight size={16} /></a>
+            <a className="lc-button" href="mailto:jamie@lifeworkpath.com?subject=Lifework%20Enquiry">Email Jamie — jamie@lifeworkpath.com <ArrowRight size={16} /></a>
           </div>
         </div>
       </section>
       <footer className="lc-footer">
         <div className="lc-shell lc-footer-inner">
           <a href="/" className="lc-wordmark">Life<em>work</em></a>
-          <p className="lc-footer-copy">Inspired by the work of Bernard Haldane · A <a href="https://www.penningtonhennessy.com" target="_blank" rel="noreferrer">Pennington Hennessy</a> service</p>
           <a href="/data-security" className="lc-privacy lc-tag">Data Security &amp; Privacy</a>
         </div>
       </footer>
