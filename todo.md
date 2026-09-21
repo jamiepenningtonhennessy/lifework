@@ -1938,3 +1938,7 @@
 - [x] Replace Pennington Hennessy contact details with the LifeworkPath address
 - [x] Remove Pennington Hennessy service attribution from the public landing-page footer
 - [x] Validate the independent public landing-page presentation and save a checkpoint
+
+## LifeworkPath Guide Headline Refinement (2026-09-21)
+- [x] Set the guide headline as an intentional two-line composition
+- [x] Apply muted-gold emphasis to “feels like” and validate responsive presentation

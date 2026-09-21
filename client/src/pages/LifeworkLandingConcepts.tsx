@@ -150,6 +150,9 @@ const conceptCss = `
   .lw-concept .lc-section-main { padding-left: clamp(40px, 7vw, 112px); }
   .lw-concept .lc-section-heading { margin: 0 0 26px; color: var(--navy); font-family: "Cormorant Garamond", Georgia, serif; font-size: clamp(2.45rem, 4vw, 4.15rem); font-weight: 500; line-height: 0.96; letter-spacing: -0.035em; }
   .lw-concept .lc-section-heading em { color: var(--gold); font-style: italic; }
+  .lw-concept .lc-guide-heading { font-size: clamp(2.15rem, 3.55vw, 3.55rem); }
+  .lw-concept .lc-guide-heading .lc-guide-line { white-space: nowrap; }
+  .lw-concept .lc-guide-heading .lc-guide-gold { color: var(--gold); }
   .lw-concept .lc-copy { max-width: 41rem; color: var(--ink); font-size: 1.04rem; line-height: 1.7; }
   .lw-concept .lc-copy p { margin: 0 0 16px; }
   .lw-concept .lc-audience-list { margin-top: 42px; border-top: 1px solid var(--rule-strong); }
@@ -375,7 +378,10 @@ function Guide({ concept }: { concept: ConceptSlug }) {
         <div className="lc-section-main lc-guide-layout">
           <div>
             <div className="lc-kicker">The Guide</div>
-            <h2 className="lc-section-heading">We understand what this<br />feels like.</h2>
+            <h2 className="lc-section-heading lc-guide-heading">
+              <span className="lc-guide-line">We understand what</span><br />
+              <span className="lc-guide-line">this <span className="lc-guide-gold">feels like.</span></span>
+            </h2>
             <div className="lc-copy">
               <p>Whether you are a graduate standing at a crossroads, a mid-career professional who has built a life that looks right on paper but feels hollow, someone returning to work after years away, or a senior leader asking what comes next — the question is the same: <em>what is actually mine?</em></p>
               <p>Lifework is built on thirty years of working with lawyers, professionals, and individuals at every stage of life. The methodology is rooted in Bernard Haldane's Dependable Strengths research — the insight that the most reliable guide to a fulfilling career is not a questionnaire about preferences, but a careful reading of the life you have already lived.</p>

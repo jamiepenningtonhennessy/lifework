@@ -20,7 +20,8 @@ describe("Lifework landing page", () => {
   it("retains the existing public landing-page copy and approved testimonial source", () => {
     expect(conceptSource).toContain("What if the right career");
     expect(conceptSource).toContain("already lives inside you?");
-    expect(conceptSource).toContain("We understand what this");
+    expect(conceptSource).toContain("We understand what</span>");
+    expect(conceptSource).toContain('this <span className="lc-guide-gold">feels like.</span>');
     expect(conceptSource).toContain("Three stages.");
     expect(conceptSource).toContain("A lifetime of clarity.");
     expect(conceptSource).toContain('publicForPage.useQuery({ pageKey: "lifework_home" })');
@@ -54,5 +55,13 @@ describe("Lifework landing page", () => {
     expect(conceptSource).toContain('Email Jamie — jamie@lifeworkpath.com');
     expect(conceptSource).not.toContain('penningtonhennessy.com');
     expect(conceptSource).not.toContain('Pennington Hennessy');
+  });
+
+  it("composes the guide headline on two deliberate lines with muted-gold emphasis", () => {
+    expect(conceptSource).toContain('className="lc-section-heading lc-guide-heading"');
+    expect(conceptSource).toContain('We understand what</span><br />');
+    expect(conceptSource).toContain('this <span className="lc-guide-gold">feels like.</span>');
+    expect(conceptSource).toContain('.lc-guide-heading .lc-guide-line { white-space: nowrap; }');
+    expect(conceptSource).toContain('.lc-guide-heading .lc-guide-gold { color: var(--gold); }');
   });
 });
