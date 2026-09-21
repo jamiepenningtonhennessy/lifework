@@ -14,6 +14,9 @@ describe("Lifework landing-page concepts", () => {
     expect(appSource).toContain('path="/lifework-designs/title-page"');
     expect(appSource).toContain('path="/lifework-designs/field-notes"');
     expect(appSource).toContain('path="/" component={RootRoute}');
+    expect(appSource).toContain('window.location.hostname.endsWith(".manus.computer")');
+    expect(appSource).toContain('window.location.hostname === "plumtrees-kfbbe6kq.manus.space"');
+    expect(appSource).toContain('Redirect to="/lifework-designs/journal"');
   });
 
   it("retains the existing public landing-page copy and approved testimonial source", () => {

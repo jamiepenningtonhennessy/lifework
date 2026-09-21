@@ -58,6 +58,13 @@ import TestimonialDraftSubmission from "./pages/TestimonialDraftSubmission";
 import LifeworkLandingConcepts from "./pages/LifeworkLandingConcepts";
 
 function RootRoute() {
+  const isProjectPreview = typeof window !== "undefined" && (
+    window.location.hostname.endsWith(".manus.computer")
+    || window.location.hostname === "plumtrees-kfbbe6kq.manus.space"
+  );
+  if (isProjectPreview) {
+    return <Redirect to="/lifework-designs/journal" />;
+  }
   return isStandaloneLifeworkDomain()
     ? <LifeworkLayout><Home /></LifeworkLayout>
     : <PHHome />;
