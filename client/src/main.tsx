@@ -1,66 +1,36 @@
-import { trpc } from "@/lib/trpc";
-import { UNAUTHED_ERR_MSG } from '@shared/const';
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { httpBatchLink, TRPCClientError } from "@trpc/client";
-import { createRoot } from "react-dom/client";
-import superjson from "superjson";
-import App from "./App";
-import { getLoginUrl } from "./const";
 import "./index.css";
+import { shouldLoadStandaloneLanding } from "./lib/lifeworkDomain";
 
-const queryClient = new QueryClient();
+const rootElement = document.getElementById("root");
 
-const redirectToLoginIfUnauthorized = (error: unknown) => {
-  if (!(error instanceof TRPCClientError)) return;
-  if (typeof window === "undefined") return;
+if (!rootElement) {
+  throw new Error("Application root element was not found.");
+}
 
-  const isUnauthorized = error.message === UNAUTHED_ERR_MSG;
+const useStandaloneLanding = shouldLoadStandaloneLanding(
+  window.location.hostname,
+  window.location.pathname,
+);
 
-  if (!isUnauthorized) return;
+const bootstrapMessage = rootElement.querySelector<HTMLElement>(".site-bootstrap__message");
+if (bootstrapMessage && !useStandaloneLanding) {
+  bootstrapMessage.textContent = "Opening Pennington Hennessy";
+}
 
-  window.location.href = getLoginUrl();
+const showBootstrapError = () => {
+  rootElement.innerHTML = "";
+  const message = document.createElement("p");
+  message.textContent = "LifeworkPath could not open just now. Please refresh the page.";
+  message.style.cssText = "margin: 0; padding: 48px 24px; color: #112238; font: 500 18px/1.5 Georgia, serif; text-align: center;";
+  rootElement.appendChild(message);
 };
 
-queryClient.getQueryCache().subscribe(event => {
-  if (event.type === "updated" && event.action.type === "error") {
-    const error = event.query.state.error;
-    redirectToLoginIfUnauthorized(error);
-    console.error("[API Query Error]", error);
-  }
-});
-
-queryClient.getMutationCache().subscribe(event => {
-  if (event.type === "updated" && event.action.type === "error") {
-    const error = event.mutation.state.error;
-    redirectToLoginIfUnauthorized(error);
-    console.error("[API Mutation Error]", error);
-  }
-});
-
-const trpcClient = trpc.createClient({
-  links: [
-    httpBatchLink({
-      // Bind directly to the browser origin so portal previews on deep routes
-      // always reach the API endpoint rather than an SPA fallback document.
-      url: `${window.location.origin}/api/trpc`,
-      transformer: superjson,
-      headers: {
-        accept: "application/json",
-      },
-      fetch(input, init) {
-        return globalThis.fetch(input, {
-          ...(init ?? {}),
-          credentials: "include",
-        });
-      },
-    }),
-  ],
-});
-
-createRoot(document.getElementById("root")!).render(
-  <trpc.Provider client={trpcClient} queryClient={queryClient}>
-    <QueryClientProvider client={queryClient}>
-      <App />
-    </QueryClientProvider>
-  </trpc.Provider>
-);
+if (useStandaloneLanding) {
+  void import("./lifeworkPathMain")
+    .then(({ mountLifeworkPath }) => mountLifeworkPath(rootElement))
+    .catch(showBootstrapError);
+} else {
+  void import("./appMain")
+    .then(({ mountApplication }) => mountApplication(rootElement))
+    .catch(showBootstrapError);
+}

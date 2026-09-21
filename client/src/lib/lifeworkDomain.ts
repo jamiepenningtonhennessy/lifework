@@ -23,6 +23,14 @@ export function isStandaloneLifeworkDomain(): boolean {
   return typeof window !== "undefined" && isStandaloneLifeworkHostname(window.location.hostname);
 }
 
+/**
+ * Keeps the public LifeworkPath landing page independent from the much larger
+ * authenticated application bundle, while preserving all dashboard and deep-link routes.
+ */
+export function shouldLoadStandaloneLanding(hostname: string | null | undefined, pathname: string): boolean {
+  return isStandaloneLifeworkHostname(hostname) && (pathname === "/" || pathname === "");
+}
+
 /** Returns whether a hostname is one of the public Pennington Hennessy website hosts. */
 export function isPenningtonHennessyHostname(hostname: string | null | undefined): boolean {
   return hostname === "penningtonhennessy.com" || hostname === "www.penningtonhennessy.com";

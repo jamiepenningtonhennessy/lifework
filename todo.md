@@ -1950,3 +1950,8 @@
 ## LifeworkPath Browser-Tab Branding (2026-09-21)
 - [x] Show LifeworkPath in the browser tab when the standalone site opens
 - [x] Preserve appropriate Pennington Hennessy branding for the separate PH domain and validate hostname-aware metadata
+
+## LifeworkPath Initial-Load Performance (2026-09-21)
+- [ ] Separate the standalone landing page from the internal application bundle
+- [ ] Preserve existing standalone deep-link and app navigation behaviour
+- [ ] Validate the reduced public bundle, live first-load path, and production build

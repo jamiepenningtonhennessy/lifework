@@ -18,6 +18,23 @@
     <link rel="apple-touch-icon" href="/icon-192.png" />
     <meta name="description" content="LifeworkPath career analysis: find work that fits who you are." />
 
+    <style>
+      .site-bootstrap {
+        align-items: center;
+        background: #f6f1e9;
+        color: #112238;
+        display: flex;
+        flex-direction: column;
+        font-family: Georgia, serif;
+        justify-content: center;
+        min-height: 100vh;
+        text-align: center;
+      }
+      .site-bootstrap__wordmark { font-size: 2rem; letter-spacing: -0.04em; }
+      .site-bootstrap__wordmark em { color: #b8862f; font-style: italic; }
+      .site-bootstrap__message { font: 600 0.66rem/1.4 Inter, sans-serif; letter-spacing: 0.15em; margin: 18px 0 0; text-transform: uppercase; }
+    </style>
+
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -25,7 +42,7 @@
   </head>
 
   <body>
-    <div id="root"></div>
+    <div id="root"><div class="site-bootstrap" role="status" aria-live="polite"><div class="site-bootstrap__wordmark">Life<em>work</em></div><p class="site-bootstrap__message">Opening LifeworkPath</p></div></div>
     <script type="module" src="/src/main.tsx"></script>
     <script
       defer
