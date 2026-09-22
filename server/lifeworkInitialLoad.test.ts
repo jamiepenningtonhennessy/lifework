@@ -10,10 +10,12 @@ const htmlSource = readFileSync(resolve(process.cwd(), "client/index.html"), "ut
 const viteSource = readFileSync(resolve(process.cwd(), "vite.config.ts"), "utf8");
 
 describe("LifeworkPath initial-load routing", () => {
-  it("selects the lightweight landing entry only for standalone root visits", () => {
+  it("selects the lightweight public entry for standalone root and coach-partner visits", () => {
     expect(shouldLoadStandaloneLanding("lifeworkpath.com", "/")).toBe(true);
     expect(shouldLoadStandaloneLanding("www.lifeworkpath.com", "/")).toBe(true);
     expect(shouldLoadStandaloneLanding("plumtrees-kfbbe6kq.manus.space", "/")).toBe(true);
+    expect(shouldLoadStandaloneLanding("lifeworkpath.com", "/coaches")).toBe(true);
+    expect(shouldLoadStandaloneLanding("lifeworkpath.com", "/coaches/")).toBe(true);
     expect(shouldLoadStandaloneLanding("lifeworkpath.com", "/dashboard")).toBe(false);
     expect(shouldLoadStandaloneLanding("penningtonhennessy.com", "/")).toBe(false);
   });
@@ -23,6 +25,7 @@ describe("LifeworkPath initial-load routing", () => {
     expect(mainSource).toContain('void import("./appMain")');
     expect(mainSource).not.toContain('import App from "./App"');
     expect(landingMainSource).toContain('import LifeworkLandingConcepts from "./pages/LifeworkLandingConcepts"');
+    expect(landingMainSource).toContain('import LifeworkCoachPartner from "./pages/LifeworkCoachPartner"');
     expect(appMainSource).toContain('import App from "./App"');
   });
 

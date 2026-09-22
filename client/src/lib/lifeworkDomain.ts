@@ -28,7 +28,8 @@ export function isStandaloneLifeworkDomain(): boolean {
  * authenticated application bundle, while preserving all dashboard and deep-link routes.
  */
 export function shouldLoadStandaloneLanding(hostname: string | null | undefined, pathname: string): boolean {
-  return isStandaloneLifeworkHostname(hostname) && (pathname === "/" || pathname === "");
+  const publicLandingPaths = new Set(["/", "", "/coaches", "/coaches/"]);
+  return isStandaloneLifeworkHostname(hostname) && publicLandingPaths.has(pathname);
 }
 
 /** Returns whether a hostname is one of the public Pennington Hennessy website hosts. */

@@ -1955,3 +1955,28 @@
 - [ ] Separate the standalone landing page from the internal application bundle
 - [ ] Preserve existing standalone deep-link and app navigation behaviour
 - [ ] Validate the reduced public bundle, live first-load path, and production build
+
+## Lifework Community Contact Sheet (2026-09-21)
+- [x] Identify completed Lifework participant records
+- [x] Validate a minimal name-and-email contact list
+- [x] Create and verify a private Google Sheet for the list
+
+## Lifework Community Roster Update (2026-09-21)
+- [x] Reconcile webinar registrants with the existing completed-participant contacts
+- [x] Add Lifework completion, webinar sign-up and webinar-attendance fields
+- [x] Verify the consolidated Google Sheet
+
+## Lifework Community Roster Name Split (2026-09-21)
+- [x] Read the current sheet without overwriting attendance entries
+- [x] Split the Name field into First name and Last name columns
+- [x] Verify the name split and attendance preservation
+
+## Lifework Community Roster Filing (2026-09-21)
+- [x] Locate the My Drive / Lifework / webinar folder
+- [x] Move the community roster into that folder
+- [x] Verify the new Google Drive location
+
+## Lifework Coach-Partner Landing Page (2026-09-22)
+- [x] Shape coach-partner copy from the supplied opportunity brief
+- [x] Build an on-brand public landing page with Jamie contact CTA
+- [x] Validate page routing, responsiveness, and production build
