@@ -1980,3 +1980,8 @@
 - [x] Shape coach-partner copy from the supplied opportunity brief
 - [x] Build an on-brand public landing page with Jamie contact CTA
 - [x] Validate page routing, responsiveness, and production build
+
+## Maria Furster Life-History Diagnosis (2026-09-22)
+- [x] Inspect Maria Furster's saved life-history state and event count
+- [x] Identify the precise completion or transition condition blocking progress
+- [x] Apply and validate the least-invasive repair

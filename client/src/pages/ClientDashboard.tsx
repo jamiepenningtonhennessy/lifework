@@ -55,7 +55,7 @@ const STEPS = [
     icon: <Sparkles className="w-5 h-5" />,
     title: "3. Sage — Exploring your Life History",
     description:
-      "Sage will read what you have written and add depth by asking you some reflective questions. This conversation typically takes 45–90 minutes at your own pace. You must complete at least 20 events with Sage before moving on to the psychometric assessments.",
+      "Sage will read what you have written and add depth by asking reflective questions. Once you have recorded at least 20 life-history events and saved your Sage conversation, the psychometric assessments become available.",
     path: null,
     statusKey: "sageStatus",
     cta: null,
@@ -94,8 +94,6 @@ const STEPS = [
     ctaInProgress: "Continue with Alistair",
   },
 ];
-
-const SAGE_REQUIRED = 20;
 
 // ─── First-login password banner ─────────────────────────────────────────────
 const BANNER_KEY = "lw_password_banner_dismissed";
@@ -167,15 +165,18 @@ function SageGatePanel({
   required,
   total,
   unlocked,
+  sageConversationCompleted,
+  hasMinimumEvents,
+  remainingEvents,
 }: {
   enriched: number;
   required: number;
   total: number;
   unlocked: boolean;
+  sageConversationCompleted: boolean;
+  hasMinimumEvents: boolean;
+  remainingEvents: number;
 }) {
-  const pct = Math.min(100, Math.round((enriched / required) * 100));
-  const remaining = Math.max(0, required - enriched);
-
   if (unlocked) {
     return (
       <div
@@ -188,10 +189,10 @@ function SageGatePanel({
         <CheckCircle2 className="w-5 h-5 flex-shrink-0 text-green-500" />
         <div>
           <p className="text-sm font-semibold text-green-700">
-            Sage stage complete — {enriched} of {total} events explored
+            Sage stage complete — ready for Psychometrics
           </p>
           <p className="text-xs text-green-600 mt-0.5">
-            You have met the minimum of {required} events. You may continue chatting with Sage at any time, or proceed to the Psychometrics step.
+            Your saved Sage conversation and {total} life-history events meet the requirement. Sage has added supplementary detail to {enriched} event{enriched === 1 ? "" : "s"}; you may continue chatting at any time.
           </p>
         </div>
       </div>
@@ -210,41 +211,41 @@ function SageGatePanel({
       <div className="flex items-center gap-2">
         <AlertCircle className="w-4 h-4 flex-shrink-0" style={{ color: "var(--lw-gold)" }} />
         <p className="text-sm font-semibold" style={{ color: "var(--lw-navy)" }}>
-          {enriched === 0
-            ? "Start your conversation with Sage below"
-            : `${remaining} more event${remaining === 1 ? "" : "s"} to explore before Psychometrics unlocks`}
+          {!hasMinimumEvents
+            ? `${remainingEvents} more life-history event${remainingEvents === 1 ? "" : "s"} needed before Psychometrics unlocks`
+            : "Complete and save your conversation with Sage"}
         </p>
       </div>
 
-      {/* Progress bar */}
+      {/* Written-life-history requirement */}
       <div>
         <div className="flex items-center justify-between mb-1.5">
           <span className="text-xs" style={{ color: "var(--lw-navy)", opacity: 0.7 }}>
-            Events explored by Sage
+            Life-history events recorded
           </span>
           <span className="text-xs font-bold" style={{ color: "var(--lw-gold)" }}>
-            {enriched} / {required}
+            {total} / {required}
           </span>
         </div>
         <div className="h-2.5 rounded-full overflow-hidden" style={{ background: "rgba(201,151,58,0.15)" }}>
           <div
             className="h-full rounded-full transition-all duration-500"
             style={{
-              width: `${pct}%`,
+              width: `${Math.min(100, Math.round((total / required) * 100))}%`,
               background: "var(--lw-gold)",
             }}
           />
         </div>
-        {total > required && (
+        {hasMinimumEvents && (
           <p className="text-xs mt-1.5" style={{ color: "rgba(0,0,0,0.45)" }}>
-            You have {total} events in your life history. Sage needs to explore at least {required} of them.
+            You have enough life-history material. {sageConversationCompleted ? "Your Sage conversation is saved." : "Save your Sage conversation when you are ready to finish."}
           </p>
         )}
       </div>
 
       {/* Explanatory note */}
       <p className="text-xs leading-relaxed" style={{ color: "rgba(0,0,0,0.55)" }}>
-        The Psychometrics step will unlock automatically once Sage has explored {required} of your events. Keep the conversation going — each event Sage investigates adds depth to your eventual report.
+        Sage enrichment adds useful supporting detail to the report, but a particular event does not need an extra written note for your conversation to count.
       </p>
     </div>
   );
@@ -265,7 +266,15 @@ export function DashboardBody({
   userId,
 }: {
   profile: any;
-  enrichmentStatus: { total: number; enriched: number; required: number; unlocked: boolean } | undefined;
+  enrichmentStatus: {
+    total: number;
+    enriched: number;
+    requiredEvents: number;
+    unlocked: boolean;
+    sageConversationCompleted: boolean;
+    hasMinimumEvents: boolean;
+    remainingEvents: number;
+  } | undefined;
   loadingProfile: boolean;
   displayName?: string;
   onNavigate: (path: string) => void;
@@ -290,8 +299,11 @@ export function DashboardBody({
   // Sage is "completed" when the gate is met
   const sageUnlocked = enrichmentStatus?.unlocked ?? false;
   const sageEnriched = enrichmentStatus?.enriched ?? 0;
-  const sageRequired = enrichmentStatus?.required ?? SAGE_REQUIRED;
+  const sageRequired = enrichmentStatus?.requiredEvents ?? 20;
   const sageTotal = enrichmentStatus?.total ?? 0;
+  const sageConversationCompleted = enrichmentStatus?.sageConversationCompleted ?? false;
+  const sageHasMinimumEvents = enrichmentStatus?.hasMinimumEvents ?? false;
+  const sageRemainingEvents = enrichmentStatus?.remainingEvents ?? 20;
 
   // Progress counts only steps that have a meaningful statusKey
   const trackableSteps = STEPS.filter((s) => s.statusKey);
@@ -381,7 +393,7 @@ export function DashboardBody({
                 <p>
                   You will then have a conversation with <strong className="text-foreground">Sage</strong>, our AI career coach,
                   who will have read everything you have written. Sage's role is to explore and draw out the depth and detail
-                  that lies beneath the surface of your story. <strong className="text-foreground">You must complete at least {SAGE_REQUIRED} events with Sage</strong> before the psychometric assessments become available — this conversation is the heart of the process.
+                  that lies beneath the surface of your story. <strong className="text-foreground">Record at least 20 life-history events, then save your Sage conversation</strong> before the psychometric assessments become available — this conversation is the heart of the process.
                 </p>
                 <p>
                   Once Sage has explored enough of your story, you will complete two short psychometric assessments: the{" "}
@@ -549,11 +561,14 @@ export function DashboardBody({
                                 required={sageRequired}
                                 total={sageTotal}
                                 unlocked={sageUnlocked}
+                                sageConversationCompleted={sageConversationCompleted}
+                                hasMinimumEvents={sageHasMinimumEvents}
+                                remainingEvents={sageRemainingEvents}
                               />
                               {/* Chat button */}
                               <ChatToPeter
                                 section="life_history"
-                                buttonLabel={sageEnriched === 0 ? "Begin conversation with Sage" : "Continue conversation with Sage"}
+                                buttonLabel={sageConversationCompleted ? "Review conversation with Sage" : sageEnriched === 0 ? "Begin conversation with Sage" : "Continue conversation with Sage"}
                                 sectionDescription="Sage has read your Life History and Background. She would like to explore what you have written and ask some reflective questions to deepen your self-understanding."
                               />
                             </div>
@@ -584,20 +599,22 @@ export function DashboardBody({
                                   Complete your Sage conversation first
                                 </p>
                                 <p className="text-xs leading-relaxed" style={{ color: "rgba(0,0,0,0.55)" }}>
-                                  Sage must explore at least <strong>{sageRequired} events</strong> from your life history before the psychometric assessments become available. You have completed <strong>{sageEnriched}</strong> so far — <strong>{Math.max(0, sageRequired - sageEnriched)} more</strong> to go. Return to Step 3 above to continue your conversation with Sage.
+                                  {sageHasMinimumEvents
+                                    ? "Please complete and save your Sage conversation before the psychometric assessments become available."
+                                    : <>Add at least <strong>{sageRequired} life-history events</strong> before the psychometric assessments become available. You have recorded <strong>{sageTotal}</strong> so far — <strong>{sageRemainingEvents} more</strong> to go.</>}
                                 </p>
                                 <div className="mt-2">
                                   <div className="flex items-center justify-between mb-1">
-                                    <span className="text-xs" style={{ color: "rgba(0,0,0,0.45)" }}>Sage progress</span>
+                                    <span className="text-xs" style={{ color: "rgba(0,0,0,0.45)" }}>Life-history progress</span>
                                     <span className="text-xs font-bold" style={{ color: "var(--lw-gold)" }}>
-                                      {sageEnriched}/{sageRequired}
+                                      {sageTotal}/{sageRequired}
                                     </span>
                                   </div>
                                   <div className="h-2 rounded-full overflow-hidden" style={{ background: "rgba(201,151,58,0.15)" }}>
                                     <div
                                       className="h-full rounded-full transition-all duration-500"
                                       style={{
-                                        width: `${Math.min(100, Math.round((sageEnriched / sageRequired) * 100))}%`,
+                                        width: `${Math.min(100, Math.round((sageTotal / sageRequired) * 100))}%`,
                                         background: "var(--lw-gold)",
                                       }}
                                     />

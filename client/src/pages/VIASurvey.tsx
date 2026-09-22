@@ -77,16 +77,16 @@ export default function VIASurvey() {
               Psychometrics not yet unlocked
             </h1>
             <p className="text-sm leading-relaxed" style={{ color: "rgba(0,0,0,0.6)" }}>
-              You need to complete at least <strong>{enrichmentStatus.required} events</strong> with Sage before starting the VIA survey.
-              You have completed <strong>{enrichmentStatus.enriched}</strong> so far.
-              Please return to your dashboard and continue your conversation with Sage.
+              {enrichmentStatus.blocker === "events"
+                ? <>You need at least <strong>{enrichmentStatus.requiredEvents} life-history events</strong> before starting the VIA survey. You have recorded <strong>{enrichmentStatus.total}</strong> so far.</>
+                : <>Please return to your dashboard and complete and save your conversation with Sage before starting the VIA survey.</>}
             </p>
           </div>
           <div className="h-2 rounded-full overflow-hidden" style={{ background: "rgba(201,151,58,0.15)" }}>
             <div
               className="h-full rounded-full"
               style={{
-                width: `${Math.min(100, Math.round((enrichmentStatus.enriched / enrichmentStatus.required) * 100))}%`,
+                width: `${Math.min(100, Math.round((enrichmentStatus.total / enrichmentStatus.requiredEvents) * 100))}%`,
                 background: "var(--lw-gold)",
               }}
             />

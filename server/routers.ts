@@ -80,6 +80,7 @@ import mammoth from "mammoth";
 import { getViaQuestionsForClient, scoreVia, VIA_STRENGTHS } from "../shared/via-data";
 import { scoreIpip, ipipCareerNarrative } from "../shared/ipip-data";
 import { canEnterCounsellorWorkspace } from "../shared/counsellorAccess";
+import { getPsychometricsGate } from "../shared/lifeworkProgress";
 
 // ─── Helper: require counselor/admin role ────────────────────────────────────
 const counselorProcedure = protectedProcedure.use(({ ctx, next }) => {
@@ -195,9 +196,8 @@ const profileRouter = router({
   getEnrichmentStatus: protectedProcedure.query(async ({ ctx }) => {
     const profile = await getOrCreateClientProfile(ctx.user.id);
     const { total, enriched } = await getEnrichmentCounts(profile.id);
-    const required = 20; // Always require 20 enriched regardless of total achievements entered
-    const unlocked = enriched >= required;
-    return { total, enriched, required, unlocked };
+    const gate = getPsychometricsGate(total, profile.sageStatus);
+    return { total, enriched, ...gate };
   }),
 
   /**
@@ -662,23 +662,21 @@ const viaRouter = router({
     .input(z.object({ answers: z.record(z.string(), z.number()) }))
     .mutation(async ({ ctx, input }) => {
       const profile = await getOrCreateClientProfile(ctx.user.id);
-      // Gate: client must have entered at least 20 achievements AND Sage must have enriched
-      // all 20 before psychometrics can be submitted.
-      // The minimum-20 check prevents the edge case where a client with 0 achievements
-      // passes the gate because min(0,20)=0 and 0>=0 is trivially true.
-      const PSYCHOMETRICS_MIN_ACHIEVEMENTS = 20;
-      const { total: viaTotal, enriched: viaEnriched } = await getEnrichmentCounts(profile.id);
-      if (viaTotal < PSYCHOMETRICS_MIN_ACHIEVEMENTS) {
+      // Gate: clients need a sufficiently rich written history and a saved Sage
+      // conversation. Enrichment is supplementary report analysis, not a proxy
+      // for whether Sage has meaningfully explored the client's story.
+      const { total: viaTotal } = await getEnrichmentCounts(profile.id);
+      const viaGate = getPsychometricsGate(viaTotal, profile.sageStatus);
+      if (!viaGate.hasMinimumEvents) {
         throw new TRPCError({
           code: "FORBIDDEN",
-          message: `Please complete your life history first. You need at least ${PSYCHOMETRICS_MIN_ACHIEVEMENTS} achievements before the VIA survey becomes available (you currently have ${viaTotal}).`,
+          message: `Please complete your life history first. You need at least ${viaGate.requiredEvents} achievements before the VIA survey becomes available (you currently have ${viaTotal}).`,
         });
       }
-      const viaRequired = Math.min(viaTotal, 20);
-      if (viaEnriched < viaRequired) {
+      if (!viaGate.sageConversationCompleted) {
         throw new TRPCError({
           code: "FORBIDDEN",
-          message: `Please complete the Sage life history conversation. Sage has explored ${viaEnriched} of your ${viaTotal} achievements; ${viaRequired} must be explored before you can submit the VIA survey.`,
+          message: "Please complete and save your Sage life history conversation before starting the VIA survey.",
         });
       }
       // Convert string keys to numbers
@@ -713,21 +711,20 @@ const ipipRouter = router({
     .input(z.object({ answers: z.record(z.string(), z.number()) }))
     .mutation(async ({ ctx, input }) => {
       const profile = await getOrCreateClientProfile(ctx.user.id);
-      // Gate: client must have entered at least 20 achievements AND Sage must have enriched
-      // all 20 before psychometrics can be submitted.
-      const PSYCHOMETRICS_MIN_ACHIEVEMENTS_IPIP = 20;
-      const { total: ipipTotal, enriched: ipipEnriched } = await getEnrichmentCounts(profile.id);
-      if (ipipTotal < PSYCHOMETRICS_MIN_ACHIEVEMENTS_IPIP) {
+      // See VIA above: supplementary enrichment must never be used as a
+      // completion lock after a client has saved a meaningful Sage conversation.
+      const { total: ipipTotal } = await getEnrichmentCounts(profile.id);
+      const ipipGate = getPsychometricsGate(ipipTotal, profile.sageStatus);
+      if (!ipipGate.hasMinimumEvents) {
         throw new TRPCError({
           code: "FORBIDDEN",
-          message: `Please complete your life history first. You need at least ${PSYCHOMETRICS_MIN_ACHIEVEMENTS_IPIP} achievements before the personality survey becomes available (you currently have ${ipipTotal}).`,
+          message: `Please complete your life history first. You need at least ${ipipGate.requiredEvents} achievements before the personality survey becomes available (you currently have ${ipipTotal}).`,
         });
       }
-      const ipipRequired = Math.min(ipipTotal, 20);
-      if (ipipEnriched < ipipRequired) {
+      if (!ipipGate.sageConversationCompleted) {
         throw new TRPCError({
           code: "FORBIDDEN",
-          message: `Please complete the Sage life history conversation. Sage has explored ${ipipEnriched} of your ${ipipTotal} achievements; ${ipipRequired} must be explored before you can submit the personality survey.`,
+          message: "Please complete and save your Sage life history conversation before starting the personality survey.",
         });
       }
       const numericAnswers: Record<number, number> = {};
@@ -1219,10 +1216,11 @@ const counselorRouter = router({
   getClientEnrichmentStatus: counselorProcedure
     .input(z.object({ clientId: z.number() }))
     .query(async ({ input }) => {
+      const profile = await getClientProfileById(input.clientId);
+      if (!profile) throw new TRPCError({ code: "NOT_FOUND" });
       const { total, enriched } = await getEnrichmentCounts(input.clientId);
-      const required = 20;
-      const unlocked = enriched >= required;
-      return { total, enriched, required, unlocked };
+      const gate = getPsychometricsGate(total, profile.sageStatus);
+      return { total, enriched, ...gate };
     }),
 
   saveNotes: counselorProcedure
