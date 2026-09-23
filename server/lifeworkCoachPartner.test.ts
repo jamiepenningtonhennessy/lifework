@@ -20,9 +20,20 @@ describe("Lifework coach-partner landing page", () => {
     expect(pageSource).toContain("Six stages");
     expect(pageSource).toContain("Two AI guides");
     expect(pageSource).toContain("The WOW Report");
-    expect(pageSource).toContain("£1,000");
-    expect(pageSource).toContain("£500");
-    expect(pageSource).toContain("£250 per client");
+  });
+
+  it("keeps the partnership section editorial and community-focused", () => {
+    expect(pageSource).toContain('className="lcp-section lcp-partnership"');
+    expect(pageSource).toContain("Coaching need not");
+    expect(pageSource).toContain("be solitary.");
+    expect(pageSource).toContain("meaningful belonging");
+    expect(pageSource).not.toContain("The commercial model");
+    expect(pageSource).not.toContain("Simple terms.");
+    expect(pageSource).not.toContain("Terms and belonging");
+    expect(pageSource).not.toContain("£1,000");
+    expect(pageSource).not.toContain("£500");
+    expect(pageSource).not.toContain("£250 per client");
+    expect(pageSource).not.toContain(".lcp-terms { background: var(--lcp-navy)");
   });
 
   it("ends with the requested direct Jamie contact call to action", () => {

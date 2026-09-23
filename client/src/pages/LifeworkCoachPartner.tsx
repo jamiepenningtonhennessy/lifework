@@ -124,26 +124,19 @@ export default function LifeworkCoachPartner() {
           </div>
         </section>
 
-        <section className="lcp-section lcp-terms" aria-labelledby="terms-heading">
+        <section className="lcp-section lcp-partnership" aria-labelledby="partnership-heading">
           <div className="lcp-shell lcp-grid">
             <aside className="lcp-section-rail" aria-hidden="true">
               <div className="lcp-rail-number">05</div>
               <div className="lcp-rail-label">The partnership</div>
-              <div className="lcp-rail-note">Terms and belonging</div>
             </aside>
-            <div className="lcp-main lcp-terms-layout">
-              <article className="lcp-terms-panel">
-                <div className="lcp-kicker">The commercial model</div>
-                <h2 id="terms-heading">Simple terms.<br /><em>Clear value.</em></h2>
-                <p>Your first step is a pack of four Lifework credits for <strong>£1,000</strong>. Each credit funds one complete client journey: life-history analysis, the WOW Report, and the coaching conversation you deliver.</p>
-                <p>You set a suggested client fee of <strong>£500</strong> per journey. That means a clear margin of <strong>£250 per client</strong>, alongside a premium service that gives clients a tangible and memorable outcome.</p>
-              </article>
-              <article className="lcp-community-panel">
+            <div className="lcp-main lcp-partnership-main">
+              <div className="lcp-community-panel">
                 <div className="lcp-kicker">The community</div>
-                <h3>Coaching need not be solitary.</h3>
+                <h2 id="partnership-heading">Coaching need not<br /><em>be solitary.</em></h2>
                 <p>There is rarely a natural home for coaches between client sessions: somewhere that keeps you curious, sharp and connected to peers who care about the same work.</p>
                 <p>The Lifework coach community is being built around meaningful belonging. It is not simply a webinar series or a noisy social group; it is a small, thoughtful circle of practitioners developing their work together.</p>
-              </article>
+              </div>
             </div>
           </div>
         </section>
@@ -240,18 +233,10 @@ const coachPartnerCss = `
   .lcp-benefit-grid article:nth-child(even) { padding-left: 0; }
   .lcp-benefit-grid svg { color: var(--lcp-gold); flex: 0 0 auto; margin-top: 4px; }
   .lcp-benefit-grid p { font-size: 1rem; line-height: 1.55; margin: 0; }
-  .lcp-terms { background: var(--lcp-navy); color: rgba(255,255,255,0.78); }
-  .lcp-terms .lcp-section-rail { border-color: rgba(255,255,255,0.16); }
-  .lcp-terms .lcp-rail-label { color: var(--lcp-paper); }
-  .lcp-terms .lcp-rail-note { color: rgba(255,255,255,0.58); }
-  .lcp-terms-layout { display: grid; gap: clamp(30px, 5vw, 72px); grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .lcp-terms-panel { border: 1px solid rgba(255,255,255,0.22); padding: clamp(28px, 4vw, 50px); }
-  .lcp-terms-panel h2 { color: var(--lcp-paper); font-size: clamp(2.4rem, 3.7vw, 3.8rem); }
-  .lcp-terms-panel p, .lcp-community-panel p { font-size: 1rem; line-height: 1.65; }
-  .lcp-terms-panel p:first-of-type { margin-top: 28px; }
-  .lcp-terms-panel strong { color: #dfbd78; }
-  .lcp-community-panel { padding: clamp(16px, 3vw, 28px) 0; }
-  .lcp-community-panel h3 { color: var(--lcp-paper); font-size: clamp(2rem, 3vw, 2.85rem); line-height: 0.98; }
+  .lcp-partnership { background: var(--lcp-paper); }
+  .lcp-partnership-main { max-width: 770px; }
+  .lcp-community-panel p { font-size: 1rem; line-height: 1.65; }
+  .lcp-community-panel p:first-of-type { margin-top: 28px; }
   .lcp-community-panel p { margin: 22px 0 0; }
   .lcp-closing { background: var(--lcp-paper-deep); border-bottom: 1px solid var(--lcp-rule); padding: 112px 0 100px; text-align: center; }
   .lcp-closing-inner { max-width: 880px; }
@@ -271,14 +256,13 @@ const coachPartnerCss = `
     .lcp-rail, .lcp-section-rail { display: none; }
     .lcp-hero-copy, .lcp-main { padding-left: 0; }
     .lcp-hero-copy { padding: 82px 0 70px; }
-    .lcp-challenge-layout, .lcp-terms-layout { grid-template-columns: 1fr; }
+    .lcp-challenge-layout { grid-template-columns: 1fr; }
     .lcp-challenge-layout { gap: 28px; }
     .lcp-section { padding: 76px 0; }
     .lcp-evidence-grid, .lcp-benefit-grid { grid-template-columns: 1fr; }
     .lcp-evidence-grid article, .lcp-evidence-grid article:last-child { border-bottom: 1px solid var(--lcp-rule); border-right: 0; margin: 0; min-height: 0; padding: 24px 0; }
     .lcp-evidence-grid article:last-child { border-bottom: 0; }
     .lcp-benefit-grid article, .lcp-benefit-grid article:nth-child(odd) { border-right: 0; margin-right: 0; min-height: 0; padding: 22px 0; }
-    .lcp-terms-panel { padding: 30px 24px; }
     .lcp-closing { padding: 82px 0 72px; }
     .lcp-footer-inner { align-items: flex-start; flex-direction: column; padding: 26px 0; }
     .lcp-footer span { text-align: left; }

@@ -2013,3 +2013,8 @@
 ## LifeworkPath Module Five Removal (2026-09-23)
 - [x] Remove the Three stages module from the public landing-page flow
 - [x] Verify that testimonials lead directly into the invitation and the production build passes
+
+## Lifework Coach-Partner Partnership Section Simplification (2026-09-23)
+- [x] Remove the commercial model panel and “terms and belonging” language
+- [x] Recolour the partnership section to match the warm-paper page treatment
+- [x] Verify the simplified section and production build
