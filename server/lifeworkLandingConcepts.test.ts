@@ -8,6 +8,8 @@ const conceptSource = readFileSync(
 );
 const appSource = readFileSync(resolve(process.cwd(), "client/src/App.tsx"), "utf8");
 const htmlSource = readFileSync(resolve(process.cwd(), "client/index.html"), "utf8");
+const coreServerSource = readFileSync(resolve(process.cwd(), "server/_core/index.ts"), "utf8");
+const storageProxySource = readFileSync(resolve(process.cwd(), "server/_core/storageProxy.ts"), "utf8");
 
 describe("Lifework landing page", () => {
   it("retains three separate review routes and selects Field Notes for the public standalone home", () => {
@@ -51,6 +53,15 @@ describe("Lifework landing page", () => {
     expect(conceptSource).toContain('.lw-concept .lc-footer { border-top: 1px solid var(--rule); background: var(--paper)');
     expect(conceptSource).toContain('.lw-concept[data-concept="field-notes"] .lc-video { background: var(--paper-deep)');
     expect(conceptSource).toContain('.lw-concept[data-concept="field-notes"] .lc-video-frame { background: #fffdf9');
+  });
+
+  it("uses the supplied opening-page video through the managed storage proxy", () => {
+    expect(conceptSource).toContain('src="/manus-storage/lifeworkpathopen_02c49e08.mp4"');
+    expect(conceptSource).toContain('preload="metadata"');
+    expect(coreServerSource).toContain('import { registerStorageProxy } from "./storageProxy";');
+    expect(coreServerSource).toContain('registerStorageProxy(app);');
+    expect(storageProxySource).toContain('app.get("/manus-storage/*"');
+    expect(storageProxySource).toContain('v1/storage/presign/get');
   });
 
   it("preserves the access-code journey on the selected public landing page", () => {

@@ -1992,6 +1992,11 @@
 - [x] Review the script for timing, tone and on-brand language
 
 ## Maria Furster Dashboard Access Diagnosis (2026-09-23)
-- [ ] Inspect Maria Furster's account state and current client access route
-- [ ] Reproduce the standalone LifeworkPath dashboard-button behaviour
-- [ ] Repair and validate the client and counsellor-preview access path
+- [x] Inspect Maria Furster's account state and current client access route
+- [x] Reproduce the standalone LifeworkPath dashboard-button behaviour
+- [x] Repair and validate the client and counsellor-preview access path
+
+## LifeworkPath Opening Video Replacement (2026-09-23)
+- [x] Upload the supplied LifeworkPath opening video to managed web storage
+- [x] Replace the existing How it works video source on the public landing page
+- [x] Verify the new video source, layout and production build

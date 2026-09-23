@@ -412,7 +412,7 @@ function VideoSection() {
           <h2 className="lc-section-heading">The story of Lifework —<br /><em>in five minutes.</em></h2>
           <div className="lc-copy"><p>Rooted in positive psychology, anchored in your own life story.</p></div>
           <div className="lc-video-frame">
-            <video src="https://d2xsxph8kpxj0f.cloudfront.net/107696804/kFbbE6kqNApXGDFpQJUGV7/lifework-overview_10b2a812.mp4" controls playsInline title="Lifework Overview" />
+            <video src="/manus-storage/lifeworkpathopen_02c49e08.mp4" controls playsInline preload="metadata" title="Lifework: how it works" />
           </div>
         </div>
       </div>
