@@ -2000,3 +2000,7 @@
 - [x] Upload the supplied LifeworkPath opening video to managed web storage
 - [x] Replace the existing How it works video source on the public landing page
 - [x] Verify the new video source, layout and production build
+
+## LifeworkPath Module Three Heading (2026-09-23)
+- [x] Change the How it works heading from five minutes to four minutes
+- [x] Verify the revised heading and production build
