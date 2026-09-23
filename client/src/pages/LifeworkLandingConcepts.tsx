@@ -1,10 +1,8 @@
 import { FormEvent, useState } from "react";
 import { ArrowRight, Download, X } from "lucide-react";
-import { useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { getLoginUrl } from "@/const";
-import { lifeworkLandingPath } from "@/lib/lifeworkDomain";
 import { canEnterCounsellorWorkspace } from "@shared/counsellorAccess";
 
 export const landingConcepts = [
@@ -556,19 +554,25 @@ function AccessCodeModal({
 
 export default function LifeworkLandingConcepts({ forcedConcept, reviewOnly = true }: LifeworkLandingConceptsProps) {
   const { user, isAuthenticated } = useAuth();
-  const [location] = useLocation();
-  const [, navigate] = useLocation();
+  const location = typeof window === "undefined" ? "/" : window.location.pathname;
   const concept = forcedConcept ?? getSlug(location);
   const [showCodeModal, setShowCodeModal] = useState(false);
   const [accessCode, setAccessCode] = useState("");
   const [codeError, setCodeError] = useState("");
+
+  // The public landing is deliberately a small standalone entry bundle. App
+  // routes therefore need a full page navigation so main.tsx can load the
+  // authenticated application bundle for /dashboard or /counselor.
+  const openAppRoute = (path: string) => {
+    window.location.assign(path);
+  };
 
   const verifyCode = trpc.auth.verifyAccessCode.useMutation({
     onSuccess: (data) => {
       if (data.valid) {
         setCodeError("");
         sessionStorage.setItem("lw_access_granted", "1");
-        window.location.href = getLoginUrl(lifeworkLandingPath());
+        window.location.href = getLoginUrl("/dashboard");
         return;
       }
       setCodeError("That code doesn't match. Please check with your counsellor.");
@@ -578,11 +582,11 @@ export default function LifeworkLandingConcepts({ forcedConcept, reviewOnly = tr
 
   const handleBeginJourney = () => {
     if (isAuthenticated) {
-      navigate("/dashboard");
+      openAppRoute("/dashboard");
       return;
     }
     if (sessionStorage.getItem("lw_access_granted") === "1") {
-      window.location.href = getLoginUrl(lifeworkLandingPath());
+      window.location.href = getLoginUrl("/dashboard");
       return;
     }
     setCodeError("");
@@ -608,8 +612,8 @@ export default function LifeworkLandingConcepts({ forcedConcept, reviewOnly = tr
         userName={user?.name}
         canOpenCounsellorWorkspace={canEnterCounsellorWorkspace(user?.role)}
         onBeginJourney={handleBeginJourney}
-        onOpenDashboard={() => navigate("/dashboard")}
-        onOpenCounsellor={() => navigate("/counselor")}
+        onOpenDashboard={() => openAppRoute("/dashboard")}
+        onOpenCounsellor={() => openAppRoute("/counselor")}
       />
       <Hero concept={concept} onBeginJourney={handleBeginJourney} />
       <Guide concept={concept} />

@@ -56,8 +56,16 @@ describe("Lifework landing page", () => {
   it("preserves the access-code journey on the selected public landing page", () => {
     expect(conceptSource).toContain('trpc.auth.verifyAccessCode.useMutation');
     expect(conceptSource).toContain('sessionStorage.setItem("lw_access_granted", "1")');
-    expect(conceptSource).toContain('getLoginUrl(lifeworkLandingPath())');
+    expect(conceptSource).toContain('getLoginUrl("/dashboard")');
     expect(conceptSource).toContain('Enter the code supplied by your counsellor');
+  });
+
+  it("uses a full-page application transition for the authenticated dashboard", () => {
+    expect(conceptSource).toContain('const openAppRoute = (path: string) => {');
+    expect(conceptSource).toContain('window.location.assign(path);');
+    expect(conceptSource).toContain('onOpenDashboard={() => openAppRoute("/dashboard")}');
+    expect(conceptSource).toContain('onOpenCounsellor={() => openAppRoute("/counselor")}');
+    expect(conceptSource).not.toContain('navigate("/dashboard")');
   });
 
   it("uses the independent LifeworkPath contact address and omits PH service attribution", () => {

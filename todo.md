@@ -1985,3 +1985,13 @@
 - [x] Inspect Maria Furster's saved life-history state and event count
 - [x] Identify the precise completion or transition condition blocking progress
 - [x] Apply and validate the least-invasive repair
+
+## Lifework Pain-Led Landing Video Script (2026-09-23)
+- [x] Shape a three-minute audience-first narrative around professional dissatisfaction, purposeful delay and the Lifework difference
+- [x] Write a NotebookLM-ready spoken video script with an invitation to get in touch
+- [x] Review the script for timing, tone and on-brand language
+
+## Maria Furster Dashboard Access Diagnosis (2026-09-23)
+- [ ] Inspect Maria Furster's account state and current client access route
+- [ ] Reproduce the standalone LifeworkPath dashboard-button behaviour
+- [ ] Repair and validate the client and counsellor-preview access path
