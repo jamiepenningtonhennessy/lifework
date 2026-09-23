@@ -2009,3 +2009,7 @@
 - [x] Move testimonials from module five to module four and renumber subsequent modules
 - [x] Change the testimonials title to “What people say about Lifework” with “about Lifework” in gold
 - [x] Verify the revised module order, numbering and production build
+
+## LifeworkPath Module Five Removal (2026-09-23)
+- [x] Remove the Three stages module from the public landing-page flow
+- [x] Verify that testimonials lead directly into the invitation and the production build passes

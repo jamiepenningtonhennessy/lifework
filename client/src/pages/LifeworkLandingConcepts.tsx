@@ -67,27 +67,6 @@ const audiences: Audience[] = [
   },
 ];
 
-const stages = [
-  {
-    step: "01",
-    title: "Your Past",
-    subtitle: "The story of who you are",
-    desc: "A structured life history interview explores your achievements decade by decade — from childhood to today. Not your CV. The moments when you were most fully yourself, mapped across Emotions, Skills, and Values.",
-  },
-  {
-    step: "02",
-    title: "Your Present",
-    subtitle: "Lenses, not labels",
-    desc: "Validated psychometric tools — VIA Character Strengths and a Big Five personality profile — are used not to categorise you, but as fresh angles on the same timeline. They add depth and insight to what your life history has already revealed.",
-  },
-  {
-    step: "03",
-    title: "Your Future",
-    subtitle: "Wisdom for the road ahead",
-    desc: "Sage, your AI career coach, reads everything you have written and asks the reflective questions that help you see the pattern clearly. Your counsellor then brings it all together — a compass, not a prescription, for what comes next.",
-  },
-] as const;
-
 const conceptCss = `
   .lw-concept {
     --paper: #f6f1e9;
@@ -420,30 +399,6 @@ function VideoSection() {
   );
 }
 
-function Plan() {
-  return (
-    <section className="lc-section">
-      <div className="lc-shell lc-section-grid">
-        <SectionRail num="05" label="The Plan" sub="Three stages" />
-        <div className="lc-section-main">
-          <div className="lc-kicker">The Plan</div>
-          <h2 className="lc-section-heading">Three stages.<br /><em>A lifetime of clarity.</em></h2>
-          <div className="lc-stages">
-            {stages.map((stage) => (
-              <article className="lc-stage" key={stage.step}>
-                <div className="lc-stage-num">{stage.step}</div>
-                <h3>{stage.title}</h3>
-                <div className="lc-stage-sub">{stage.subtitle}</div>
-                <p>{stage.desc}</p>
-              </article>
-            ))}
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-}
-
 function Invitation({ onBeginJourney }: { onBeginJourney: () => void }) {
   return (
     <section className="lc-section lc-invitation">
@@ -619,7 +574,6 @@ export default function LifeworkLandingConcepts({ forcedConcept, reviewOnly = tr
       <Guide concept={concept} />
       <VideoSection />
       <Testimonials concept={concept} />
-      <Plan />
       <Invitation onBeginJourney={handleBeginJourney} />
       <Footer />
       {showCodeModal && (

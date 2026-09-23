@@ -29,13 +29,13 @@ describe("Lifework landing page", () => {
     expect(appSource).toContain('meta[name="apple-mobile-web-app-title"]');
   });
 
-  it("retains the existing public landing-page copy and approved testimonial source", () => {
+  it("retains the core landing-page copy and approved testimonial source", () => {
     expect(conceptSource).toContain("What if the right career");
     expect(conceptSource).toContain("already lives inside you?");
     expect(conceptSource).toContain("We understand what</span>");
     expect(conceptSource).toContain('this <span className="lc-guide-gold">feels like.</span>');
-    expect(conceptSource).toContain("Three stages.");
-    expect(conceptSource).toContain("A lifetime of clarity.");
+    expect(conceptSource).not.toContain("Three stages.");
+    expect(conceptSource).not.toContain("A lifetime of clarity.");
     expect(conceptSource).toContain('publicForPage.useQuery({ pageKey: "lifework_home" })');
   });
 
@@ -64,15 +64,16 @@ describe("Lifework landing page", () => {
     expect(storageProxySource).toContain('v1/storage/presign/get');
   });
 
-  it("places testimonials in module four before the renumbered plan", () => {
+  it("places testimonials in module four directly before the invitation", () => {
     expect(conceptSource).toContain('SectionRail num="04" label="What people say" sub="In their own words"');
     expect(conceptSource).toContain('<h2 className="lc-section-heading">What people say<br /><em>about Lifework</em></h2>');
-    expect(conceptSource).toContain('SectionRail num="05" label="The Plan" sub="Three stages"');
+    expect(conceptSource).not.toContain('function Plan()');
+    expect(conceptSource).not.toContain('SectionRail num="05" label="The Plan"');
 
     const renderOrder = conceptSource.slice(conceptSource.indexOf('<Hero concept={concept}'));
     expect(renderOrder.indexOf('<VideoSection />')).toBeLessThan(renderOrder.indexOf('<Testimonials concept={concept} />'));
-    expect(renderOrder.indexOf('<Testimonials concept={concept} />')).toBeLessThan(renderOrder.indexOf('<Plan />'));
-    expect(renderOrder.indexOf('<Plan />')).toBeLessThan(renderOrder.indexOf('<Invitation onBeginJourney={handleBeginJourney} />'));
+    expect(renderOrder.indexOf('<Testimonials concept={concept} />')).toBeLessThan(renderOrder.indexOf('<Invitation onBeginJourney={handleBeginJourney} />'));
+    expect(renderOrder).not.toContain('<Plan />');
   });
 
   it("preserves the access-code journey on the selected public landing page", () => {
