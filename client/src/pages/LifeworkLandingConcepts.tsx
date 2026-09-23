@@ -424,7 +424,7 @@ function Plan() {
   return (
     <section className="lc-section">
       <div className="lc-shell lc-section-grid">
-        <SectionRail num="04" label="The Plan" sub="Three stages" />
+        <SectionRail num="05" label="The Plan" sub="Three stages" />
         <div className="lc-section-main">
           <div className="lc-kicker">The Plan</div>
           <h2 className="lc-section-heading">Three stages.<br /><em>A lifetime of clarity.</em></h2>
@@ -466,10 +466,10 @@ function Testimonials({ concept }: { concept: ConceptSlug }) {
   return (
     <section className="lc-section lc-testimonials">
       <div className="lc-shell lc-section-grid">
-        <SectionRail num="05" label="What Success Looks Like" sub="A compass for every stage" />
+        <SectionRail num="04" label="What people say" sub="In their own words" />
         <div className="lc-section-main">
-          <div className="lc-kicker">What Success Looks Like</div>
-          <h2 className="lc-section-heading">A compass for every<br /><em>stage of life.</em></h2>
+          <div className="lc-kicker">Testimonials</div>
+          <h2 className="lc-section-heading">What people say<br /><em>about Lifework</em></h2>
           {isLoading ? (
             <div className="lc-empty">Loading approved feedback…</div>
           ) : testimonials?.length ? (
@@ -618,9 +618,9 @@ export default function LifeworkLandingConcepts({ forcedConcept, reviewOnly = tr
       <Hero concept={concept} onBeginJourney={handleBeginJourney} />
       <Guide concept={concept} />
       <VideoSection />
+      <Testimonials concept={concept} />
       <Plan />
       <Invitation onBeginJourney={handleBeginJourney} />
-      <Testimonials concept={concept} />
       <Footer />
       {showCodeModal && (
         <AccessCodeModal

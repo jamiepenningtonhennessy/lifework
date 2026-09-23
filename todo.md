@@ -2004,3 +2004,8 @@
 ## LifeworkPath Module Three Heading (2026-09-23)
 - [x] Change the How it works heading from five minutes to four minutes
 - [x] Verify the revised heading and production build
+
+## LifeworkPath Testimonials Module Reorder (2026-09-23)
+- [x] Move testimonials from module five to module four and renumber subsequent modules
+- [x] Change the testimonials title to “What people say about Lifework” with “about Lifework” in gold
+- [x] Verify the revised module order, numbering and production build

@@ -64,6 +64,17 @@ describe("Lifework landing page", () => {
     expect(storageProxySource).toContain('v1/storage/presign/get');
   });
 
+  it("places testimonials in module four before the renumbered plan", () => {
+    expect(conceptSource).toContain('SectionRail num="04" label="What people say" sub="In their own words"');
+    expect(conceptSource).toContain('<h2 className="lc-section-heading">What people say<br /><em>about Lifework</em></h2>');
+    expect(conceptSource).toContain('SectionRail num="05" label="The Plan" sub="Three stages"');
+
+    const renderOrder = conceptSource.slice(conceptSource.indexOf('<Hero concept={concept}'));
+    expect(renderOrder.indexOf('<VideoSection />')).toBeLessThan(renderOrder.indexOf('<Testimonials concept={concept} />'));
+    expect(renderOrder.indexOf('<Testimonials concept={concept} />')).toBeLessThan(renderOrder.indexOf('<Plan />'));
+    expect(renderOrder.indexOf('<Plan />')).toBeLessThan(renderOrder.indexOf('<Invitation onBeginJourney={handleBeginJourney} />'));
+  });
+
   it("preserves the access-code journey on the selected public landing page", () => {
     expect(conceptSource).toContain('trpc.auth.verifyAccessCode.useMutation');
     expect(conceptSource).toContain('sessionStorage.setItem("lw_access_granted", "1")');
