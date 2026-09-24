@@ -2037,3 +2037,8 @@
 - [x] Move webinar testimonials directly below the first session-booking module
 - [x] Renumber following webinar sections and preserve the closing booking module
 - [x] Verify the reordered webinar page and production build
+
+## Three-Module Webinar Flow (2026-09-24)
+- [x] Remove the Are you wasting your life hero and the approach module
+- [x] Place What we will explore together first, booking second and testimonials third
+- [x] Verify the streamlined webinar layout and production build

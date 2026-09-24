@@ -54,24 +54,23 @@ describe("Lifework webinar landing-page content", () => {
     expect(webinarPageSource).toContain('publicForPage.useQuery({ pageKey: "webinar" })');
   });
 
-  it("places the full booking module before the Lifework introduction and repeats it at the page end", () => {
-    const firstBookingIndex = webinarPageSource.indexOf('<WebinarBookingModule id="reserve" number="02" />');
-    const introductionIndex = webinarPageSource.indexOf('<section id="main-content"');
-    const finalBookingIndex = webinarPageSource.lastIndexOf('<WebinarBookingModule number="06" />');
+  it("uses one booking module between the agenda and testimonials", () => {
+    const agendaIndex = webinarPageSource.indexOf('<section id="main-content" className="wb-section wb-agenda-section">');
+    const bookingIndex = webinarPageSource.indexOf('<WebinarBookingModule id="reserve" number="02" />');
+    const testimonialIndex = webinarPageSource.indexOf('<section className="wb-section wb-testimonials">');
     const footerIndex = webinarPageSource.indexOf("<footer");
-    const bookingModuleUses = webinarPageSource.match(/<WebinarBookingModule(?: id="reserve")? number="(?:02|06)" \/>/g) ?? [];
+    const bookingModuleUses = webinarPageSource.match(/<WebinarBookingModule id="reserve" number="02" \/>/g) ?? [];
 
-    expect(bookingModuleUses).toHaveLength(2);
-    expect(firstBookingIndex).toBeGreaterThan(-1);
-    expect(firstBookingIndex).toBeLessThan(introductionIndex);
-    expect(finalBookingIndex).toBeGreaterThan(introductionIndex);
-    expect(finalBookingIndex).toBeLessThan(footerIndex);
-    expect(webinarPageSource).not.toContain('<GoldButton href="#reserve">Request a place</GoldButton>');
+    expect(bookingModuleUses).toHaveLength(1);
+    expect(agendaIndex).toBeGreaterThan(-1);
+    expect(agendaIndex).toBeLessThan(bookingIndex);
+    expect(bookingIndex).toBeLessThan(testimonialIndex);
+    expect(testimonialIndex).toBeLessThan(footerIndex);
+    expect(webinarPageSource).not.toContain('<WebinarBookingModule number="06" />');
   });
 
   it("places each Request a place action directly beside its session time", () => {
     expect(webinarPageSource).toContain('All four sessions offer the same introduction to Lifework.');
-    expect(webinarPageSource).toContain('Live online webinars · 6th &amp; 22nd October 2026');
     expect(webinarPageSource).toContain('View the October sessions');
     expect(webinarPageSource).toContain('className="wb-session-meta"');
 
@@ -97,19 +96,18 @@ describe("Lifework webinar landing-page content", () => {
     expect(webinarPageSource).not.toContain('A Pennington Hennessy service');
   });
 
-  it("places testimonials directly after module two and renumbers the following sections", () => {
-    const firstBookingIndex = webinarPageSource.indexOf('<WebinarBookingModule id="reserve" number="02" />');
+  it("uses the requested three-module agenda-to-booking-to-testimonial flow", () => {
+    const agendaIndex = webinarPageSource.indexOf('<section id="main-content" className="wb-section wb-agenda-section">');
+    const bookingIndex = webinarPageSource.indexOf('<WebinarBookingModule id="reserve" number="02" />');
     const testimonialIndex = webinarPageSource.indexOf('<section className="wb-section wb-testimonials">');
-    const introductionIndex = webinarPageSource.indexOf('<section id="main-content"');
-    const agendaIndex = webinarPageSource.indexOf('<section id="what-you-will-leave-with"');
-    const finalBookingIndex = webinarPageSource.indexOf('<WebinarBookingModule number="06" />');
 
-    expect(firstBookingIndex).toBeLessThan(testimonialIndex);
-    expect(testimonialIndex).toBeLessThan(introductionIndex);
-    expect(introductionIndex).toBeLessThan(agendaIndex);
-    expect(agendaIndex).toBeLessThan(finalBookingIndex);
+    expect(agendaIndex).toBeLessThan(bookingIndex);
+    expect(bookingIndex).toBeLessThan(testimonialIndex);
+    expect(webinarPageSource).toContain('SectionRail number="01" label="In the webinar"');
+    expect(webinarPageSource).toContain('<WebinarBookingModule id="reserve" number="02" />');
     expect(webinarPageSource).toContain('SectionRail number="03" label="What people say"');
-    expect(webinarPageSource).toContain('SectionRail number="04" label="The approach"');
-    expect(webinarPageSource).toContain('SectionRail number="05" label="In the webinar"');
+    expect(webinarPageSource).not.toContain('<section className="wb-hero">');
+    expect(webinarPageSource).not.toContain('We look at the person');
+    expect(webinarPageSource).not.toContain('SectionRail number="04"');
   });
 });

@@ -1,15 +1,5 @@
 import { useState } from "react";
-import {
-  ArrowRight,
-  CalendarDays,
-  Check,
-  ChevronDown,
-  Clock3,
-  Mail,
-  Quote,
-  UserRound,
-  Video,
-} from "lucide-react";
+import { CalendarDays, ChevronDown, Mail, Quote } from "lucide-react";
 import {
   WEBINAR_AGENDA,
   WEBINAR_SESSIONS,
@@ -24,15 +14,6 @@ function SectionRail({ number, label, sublabel }: { number: string; label: strin
       <div className="wb-rail-label">{label}</div>
       <div className="wb-rail-sublabel">{sublabel}</div>
     </aside>
-  );
-}
-
-function GoldButton({ href, children, quiet = false }: { href: string; children: React.ReactNode; quiet?: boolean }) {
-  return (
-    <a className={`wb-button${quiet ? " wb-button--quiet" : ""}`} href={href}>
-      {children}
-      <ArrowRight size={16} aria-hidden="true" />
-    </a>
   );
 }
 
@@ -85,35 +66,36 @@ export default function LifeworkWebinar() {
         <a className="wb-sign-in" href="#reserve">View the October sessions</a>
       </header>
 
-      <section className="wb-hero">
-        <div className="wb-shell wb-hero-grid">
-          <SectionRail number="01" label="Live webinars" sublabel="A better starting point" />
-          <div className="wb-hero-main">
-            <div className="wb-hero-copy">
-              <div className="wb-kicker">Live online webinars · 6th &amp; 22nd October 2026</div>
-              <h1>Are you <em>wasting your life?</em></h1>
-              <p className="wb-intro">Join an intimate live conversation about career clarity, dependable strengths and personal understanding—without reducing yourself to a job title or a list of preferences.</p>
-              <div className="wb-actions">
-                <GoldButton href="#what-you-will-leave-with" quiet>What you will learn</GoldButton>
-              </div>
-              <div className="wb-details" aria-label="Webinar details">
-                <span><Clock3 size={16} aria-hidden="true" />45 minutes live</span>
-                <span><Video size={16} aria-hidden="true" />Online conversation</span>
-                <span><UserRound size={16} aria-hidden="true" />For people at a crossroads</span>
-              </div>
+      <section id="main-content" className="wb-section wb-agenda-section">
+        <div className="wb-shell wb-section-grid">
+          <SectionRail number="01" label="In the webinar" sublabel="An honest conversation" />
+          <div className="wb-section-main">
+            <div className="wb-kicker">In the webinar</div>
+            <h2 className="wb-section-heading">What we will<br /><em>explore together.</em></h2>
+            <p className="wb-copy wb-agenda-intro">A live, practical introduction—not a generic career-planning lecture.</p>
+            <div className="wb-agenda-list">
+              {WEBINAR_AGENDA.map((item, index) => {
+                const isExpanded = expandedAgenda === index;
+                return (
+                  <article key={item} className="wb-agenda-item">
+                    <button type="button" onClick={() => setExpandedAgenda(isExpanded ? null : index)} aria-expanded={isExpanded}>
+                      <span className="wb-agenda-summary">
+                        <span className="wb-agenda-number">0{index + 1}</span>
+                        <span>{item}</span>
+                      </span>
+                      <ChevronDown className={isExpanded ? "wb-chevron wb-chevron--open" : "wb-chevron"} size={20} aria-hidden="true" />
+                    </button>
+                    {isExpanded && (
+                      <p>
+                        {index === 0 && "We will challenge the assumption that the answer can be found in a job description alone."}
+                        {index === 1 && "We will explain why recurring stories of achievement can be more revealing than an inventory of preferences."}
+                        {index === 2 && "You will leave with a more useful frame for the decision you are facing now."}
+                      </p>
+                    )}
+                  </article>
+                );
+              })}
             </div>
-            <aside className="wb-fit-panel">
-              <div className="wb-kicker">This conversation is for you if…</div>
-              <ul>
-                {[
-                  "Your career looks right on paper, but no longer feels quite right inside.",
-                  "You are considering a change, a return, or a more meaningful next chapter.",
-                  "You want a better question than: “What job should I apply for?”",
-                ].map((point) => (
-                  <li key={point}><Check size={16} aria-hidden="true" />{point}</li>
-                ))}
-              </ul>
-            </aside>
           </div>
         </div>
       </section>
@@ -148,58 +130,6 @@ export default function LifeworkWebinar() {
           </div>
         </div>
       </section>
-
-      <section id="main-content" className="wb-section">
-        <div className="wb-shell wb-section-grid">
-          <SectionRail number="04" label="The approach" sublabel="A different starting point" />
-          <div className="wb-section-main wb-introduction-layout">
-            <div>
-              <div className="wb-kicker">A different starting point</div>
-              <h2 className="wb-section-heading">We look at the person<br /><em>behind the behaviour.</em></h2>
-            </div>
-            <div className="wb-copy">
-              <p>Lifework begins with the evidence of your own life: the moments when you have felt most alive, most effective and most like yourself. Those moments often reveal a dependable pattern of strengths that a conventional CV cannot show.</p>
-              <p>In this live webinar, we will introduce the Lifework approach and show how it can bring clarity to the questions that matter when work, identity and possibility are in motion.</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section id="what-you-will-leave-with" className="wb-section wb-agenda-section">
-        <div className="wb-shell wb-section-grid">
-          <SectionRail number="05" label="In the webinar" sublabel="An honest conversation" />
-          <div className="wb-section-main">
-            <div className="wb-kicker">In the webinar</div>
-            <h2 className="wb-section-heading">What we will<br /><em>explore together.</em></h2>
-            <p className="wb-copy wb-agenda-intro">A live, practical introduction—not a generic career-planning lecture.</p>
-            <div className="wb-agenda-list">
-              {WEBINAR_AGENDA.map((item, index) => {
-                const isExpanded = expandedAgenda === index;
-                return (
-                  <article key={item} className="wb-agenda-item">
-                    <button type="button" onClick={() => setExpandedAgenda(isExpanded ? null : index)} aria-expanded={isExpanded}>
-                      <span className="wb-agenda-summary">
-                        <span className="wb-agenda-number">0{index + 1}</span>
-                        <span>{item}</span>
-                      </span>
-                      <ChevronDown className={isExpanded ? "wb-chevron wb-chevron--open" : "wb-chevron"} size={20} aria-hidden="true" />
-                    </button>
-                    {isExpanded && (
-                      <p>
-                        {index === 0 && "We will challenge the assumption that the answer can be found in a job description alone."}
-                        {index === 1 && "We will explain why recurring stories of achievement can be more revealing than an inventory of preferences."}
-                        {index === 2 && "You will leave with a more useful frame for the decision you are facing now."}
-                      </p>
-                    )}
-                  </article>
-                );
-              })}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <WebinarBookingModule number="06" />
 
       <footer className="wb-footer">
         <div className="wb-shell wb-footer-inner">
