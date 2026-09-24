@@ -2032,3 +2032,8 @@
 - [x] Translate the current Lifework warm-paper editorial system to the webinar page
 - [x] Preserve all October session times, Zoom links, agenda and testimonial behaviour
 - [x] Verify desktop and mobile webinar presentation and production build
+
+## Webinar Testimonial Reorder (2026-09-24)
+- [x] Move webinar testimonials directly below the first session-booking module
+- [x] Renumber following webinar sections and preserve the closing booking module
+- [x] Verify the reordered webinar page and production build

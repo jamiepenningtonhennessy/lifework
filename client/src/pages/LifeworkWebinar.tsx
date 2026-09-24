@@ -120,9 +120,38 @@ export default function LifeworkWebinar() {
 
       <WebinarBookingModule id="reserve" number="02" />
 
+      <section className="wb-section wb-testimonials">
+        <div className="wb-shell wb-section-grid">
+          <SectionRail number="03" label="What people say" sublabel="In their own words" />
+          <div className="wb-section-main">
+            <div className="wb-kicker">The value of a different question</div>
+            <h2 className="wb-section-heading">What people value<br /><em>in Lifework.</em></h2>
+            <p className="wb-copy">A better next move starts with a fuller understanding of the person making it.</p>
+            {isLoadingTestimonials ? (
+              <div className="wb-testimonial-loading" aria-label="Loading approved feedback" />
+            ) : approvedTestimonials?.length ? (
+              <div className="wb-testimonial-grid">
+                {approvedTestimonials.map((testimonial) => (
+                  <article key={testimonial.id} className="wb-testimonial">
+                    <Quote size={21} aria-hidden="true" />
+                    <blockquote>“{testimonial.quote}”</blockquote>
+                    <cite>— {testimonial.attribution}</cite>
+                  </article>
+                ))}
+              </div>
+            ) : (
+              <div className="wb-empty-feedback">
+                <p>Verified feedback selected for this page will appear here.</p>
+                <span>We publish feedback only after the original source and permission to display it have been recorded.</span>
+              </div>
+            )}
+          </div>
+        </div>
+      </section>
+
       <section id="main-content" className="wb-section">
         <div className="wb-shell wb-section-grid">
-          <SectionRail number="03" label="The approach" sublabel="A different starting point" />
+          <SectionRail number="04" label="The approach" sublabel="A different starting point" />
           <div className="wb-section-main wb-introduction-layout">
             <div>
               <div className="wb-kicker">A different starting point</div>
@@ -138,7 +167,7 @@ export default function LifeworkWebinar() {
 
       <section id="what-you-will-leave-with" className="wb-section wb-agenda-section">
         <div className="wb-shell wb-section-grid">
-          <SectionRail number="04" label="In the webinar" sublabel="An honest conversation" />
+          <SectionRail number="05" label="In the webinar" sublabel="An honest conversation" />
           <div className="wb-section-main">
             <div className="wb-kicker">In the webinar</div>
             <h2 className="wb-section-heading">What we will<br /><em>explore together.</em></h2>
@@ -166,35 +195,6 @@ export default function LifeworkWebinar() {
                 );
               })}
             </div>
-          </div>
-        </div>
-      </section>
-
-      <section className="wb-section wb-testimonials">
-        <div className="wb-shell wb-section-grid">
-          <SectionRail number="05" label="What people say" sublabel="In their own words" />
-          <div className="wb-section-main">
-            <div className="wb-kicker">The value of a different question</div>
-            <h2 className="wb-section-heading">What people value<br /><em>in Lifework.</em></h2>
-            <p className="wb-copy">A better next move starts with a fuller understanding of the person making it.</p>
-            {isLoadingTestimonials ? (
-              <div className="wb-testimonial-loading" aria-label="Loading approved feedback" />
-            ) : approvedTestimonials?.length ? (
-              <div className="wb-testimonial-grid">
-                {approvedTestimonials.map((testimonial) => (
-                  <article key={testimonial.id} className="wb-testimonial">
-                    <Quote size={21} aria-hidden="true" />
-                    <blockquote>“{testimonial.quote}”</blockquote>
-                    <cite>— {testimonial.attribution}</cite>
-                  </article>
-                ))}
-              </div>
-            ) : (
-              <div className="wb-empty-feedback">
-                <p>Verified feedback selected for this page will appear here.</p>
-                <span>We publish feedback only after the original source and permission to display it have been recorded.</span>
-              </div>
-            )}
           </div>
         </div>
       </section>

@@ -96,4 +96,20 @@ describe("Lifework webinar landing-page content", () => {
     expect(webinarPageSource).not.toContain('var(--lw-navy-mid)');
     expect(webinarPageSource).not.toContain('A Pennington Hennessy service');
   });
+
+  it("places testimonials directly after module two and renumbers the following sections", () => {
+    const firstBookingIndex = webinarPageSource.indexOf('<WebinarBookingModule id="reserve" number="02" />');
+    const testimonialIndex = webinarPageSource.indexOf('<section className="wb-section wb-testimonials">');
+    const introductionIndex = webinarPageSource.indexOf('<section id="main-content"');
+    const agendaIndex = webinarPageSource.indexOf('<section id="what-you-will-leave-with"');
+    const finalBookingIndex = webinarPageSource.indexOf('<WebinarBookingModule number="06" />');
+
+    expect(firstBookingIndex).toBeLessThan(testimonialIndex);
+    expect(testimonialIndex).toBeLessThan(introductionIndex);
+    expect(introductionIndex).toBeLessThan(agendaIndex);
+    expect(agendaIndex).toBeLessThan(finalBookingIndex);
+    expect(webinarPageSource).toContain('SectionRail number="03" label="What people say"');
+    expect(webinarPageSource).toContain('SectionRail number="04" label="The approach"');
+    expect(webinarPageSource).toContain('SectionRail number="05" label="In the webinar"');
+  });
 });
