@@ -2023,3 +2023,7 @@
 - [x] Replace the September sessions with four October webinar times
 - [x] Place each Request a place action immediately beside its session time
 - [x] Keep registration destinations ready for the new links and verify responsive layout and production build
+
+## October Webinar Registration Links (2026-09-24)
+- [x] Connect the 6 October 12:30 BST session to its supplied Zoom registration page
+- [x] Verify the updated session destination and production build

@@ -18,22 +18,22 @@ describe("Lifework webinar landing-page content", () => {
       {
         title: "An introduction to Lifework",
         timing: "12:30 BST on 6 October",
-        registrationUrl: WEBINAR_BOOKING_URL,
+        registrationUrl: "https://us02web.zoom.us/meeting/register/NpjpJ7hIR9K9ueQCqlWFmA",
       },
       {
         title: "An introduction to Lifework",
         timing: "18:00 BST on 6 October",
-        registrationUrl: WEBINAR_BOOKING_URL,
+        registrationUrl: "https://us02web.zoom.us/meeting/register/fYzJ1jWhR_eWipnCf4f3zQ",
       },
       {
         title: "An introduction to Lifework",
         timing: "12:30 BST on 22 October",
-        registrationUrl: WEBINAR_BOOKING_URL,
+        registrationUrl: "https://us02web.zoom.us/meeting/register/ZP01ENWWR_aagFOe0zKvdw",
       },
       {
         title: "An introduction to Lifework",
         timing: "18:00 BST on 22 October",
-        registrationUrl: WEBINAR_BOOKING_URL,
+        registrationUrl: "https://us02web.zoom.us/meeting/register/tQZi33I6SPeA3rneUdyr0w",
       },
     ]);
   });
