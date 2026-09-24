@@ -57,7 +57,7 @@ describe("Lifework webinar landing-page content", () => {
   it("uses one booking module between the agenda and testimonials", () => {
     const agendaIndex = webinarPageSource.indexOf('<section id="main-content" className="wb-section wb-agenda-section">');
     const bookingIndex = webinarPageSource.indexOf('<WebinarBookingModule id="reserve" number="02" />');
-    const testimonialIndex = webinarPageSource.indexOf('<section className="wb-section wb-testimonials">');
+    const testimonialIndex = webinarPageSource.indexOf('<section id="testimonials" className="wb-section wb-testimonials">');
     const footerIndex = webinarPageSource.indexOf("<footer");
     const bookingModuleUses = webinarPageSource.match(/<WebinarBookingModule id="reserve" number="02" \/>/g) ?? [];
 
@@ -71,7 +71,7 @@ describe("Lifework webinar landing-page content", () => {
 
   it("places each Request a place action directly beside its session time", () => {
     expect(webinarPageSource).toContain('All four sessions offer the same introduction to Lifework.');
-    expect(webinarPageSource).toContain('View the October sessions');
+    expect(webinarPageSource).toContain('Book a place');
     expect(webinarPageSource).toContain('className="wb-session-meta"');
 
     const sessionTimingIndex = webinarPageSource.indexOf('{session.timing}');
@@ -99,7 +99,7 @@ describe("Lifework webinar landing-page content", () => {
   it("uses the requested three-module agenda-to-booking-to-testimonial flow", () => {
     const agendaIndex = webinarPageSource.indexOf('<section id="main-content" className="wb-section wb-agenda-section">');
     const bookingIndex = webinarPageSource.indexOf('<WebinarBookingModule id="reserve" number="02" />');
-    const testimonialIndex = webinarPageSource.indexOf('<section className="wb-section wb-testimonials">');
+    const testimonialIndex = webinarPageSource.indexOf('<section id="testimonials" className="wb-section wb-testimonials">');
 
     expect(agendaIndex).toBeLessThan(bookingIndex);
     expect(bookingIndex).toBeLessThan(testimonialIndex);
@@ -109,5 +109,14 @@ describe("Lifework webinar landing-page content", () => {
     expect(webinarPageSource).not.toContain('<section className="wb-hero">');
     expect(webinarPageSource).not.toContain('We look at the person');
     expect(webinarPageSource).not.toContain('SectionRail number="04"');
+  });
+
+  it("offers smooth-scrolling top links to booking and testimonials", () => {
+    expect(webinarPageSource).toContain('className="wb-topnav"');
+    expect(webinarPageSource).toContain('href="#reserve">Book a place</a>');
+    expect(webinarPageSource).toContain('href="#testimonials">Testimonials</a>');
+    expect(webinarPageSource).toContain('id="testimonials" className="wb-section wb-testimonials"');
+    expect(webinarPageSource).toContain('html { scroll-behavior: smooth; }');
+    expect(webinarPageSource).toContain('@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; }');
   });
 });

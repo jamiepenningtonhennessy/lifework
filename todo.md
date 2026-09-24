@@ -2042,3 +2042,8 @@
 - [x] Remove the Are you wasting your life hero and the approach module
 - [x] Place What we will explore together first, booking second and testimonials third
 - [x] Verify the streamlined webinar layout and production build
+
+## Webinar Anchor Navigation (2026-09-24)
+- [x] Add top-page links to booking and testimonials
+- [x] Enable smooth anchor scrolling with reduced-motion support
+- [x] Verify anchor navigation across desktop and mobile

@@ -63,7 +63,10 @@ export default function LifeworkWebinar() {
       <header className="wb-shell wb-header">
         <a href={homeHref} className="wb-wordmark" aria-label="Lifework home">Life<em>work</em></a>
         <div className="wb-running-title">Career Analysis · Positive Psychology</div>
-        <a className="wb-sign-in" href="#reserve">View the October sessions</a>
+        <nav className="wb-topnav" aria-label="Webinar page sections">
+          <a className="wb-top-link" href="#reserve">Book a place</a>
+          <a className="wb-top-link" href="#testimonials">Testimonials</a>
+        </nav>
       </header>
 
       <section id="main-content" className="wb-section wb-agenda-section">
@@ -102,7 +105,7 @@ export default function LifeworkWebinar() {
 
       <WebinarBookingModule id="reserve" number="02" />
 
-      <section className="wb-section wb-testimonials">
+      <section id="testimonials" className="wb-section wb-testimonials">
         <div className="wb-shell wb-section-grid">
           <SectionRail number="03" label="What people say" sublabel="In their own words" />
           <div className="wb-section-main">
@@ -143,6 +146,7 @@ export default function LifeworkWebinar() {
 }
 
 const webinarCss = `
+  html { scroll-behavior: smooth; }
   .lw-webinar {
     --wb-paper: #f6f1e9;
     --wb-paper-deep: #eee5d5;
@@ -165,10 +169,11 @@ const webinarCss = `
   .lw-webinar .wb-header { min-height: 74px; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 24px; border-bottom: 1px solid var(--wb-rule); }
   .lw-webinar .wb-wordmark { color: var(--wb-navy); font-family: "Cormorant Garamond", Georgia, serif; font-size: 1.6rem; font-weight: 600; letter-spacing: -0.04em; text-decoration: none; }
   .lw-webinar .wb-wordmark em { color: var(--wb-gold); font-style: italic; }
-  .lw-webinar .wb-running-title, .lw-webinar .wb-sign-in, .lw-webinar .wb-kicker, .lw-webinar .wb-rail-label, .lw-webinar .wb-footer span, .lw-webinar .wb-footer a:not(.wb-wordmark) { font-family: "Libre Franklin", Inter, sans-serif; font-size: 0.61rem; font-weight: 700; letter-spacing: 0.16em; line-height: 1.4; text-transform: uppercase; }
+  .lw-webinar .wb-running-title, .lw-webinar .wb-top-link, .lw-webinar .wb-kicker, .lw-webinar .wb-rail-label, .lw-webinar .wb-footer span, .lw-webinar .wb-footer a:not(.wb-wordmark) { font-family: "Libre Franklin", Inter, sans-serif; font-size: 0.61rem; font-weight: 700; letter-spacing: 0.16em; line-height: 1.4; text-transform: uppercase; }
   .lw-webinar .wb-running-title { color: var(--wb-muted); text-align: center; }
-  .lw-webinar .wb-sign-in { justify-self: end; border: 1px solid var(--wb-navy); padding: 9px 14px; color: var(--wb-navy); text-decoration: none; transition: background 160ms ease-out; }
-  .lw-webinar .wb-sign-in:hover { background: var(--wb-paper-deep); }
+  .lw-webinar .wb-topnav { justify-self: end; display: flex; align-items: center; gap: 18px; }
+  .lw-webinar .wb-top-link { padding: 9px 0 7px; border-bottom: 1px solid transparent; color: var(--wb-navy); text-decoration: none; transition: border-color 160ms ease-out, color 160ms ease-out; }
+  .lw-webinar .wb-top-link:hover, .lw-webinar .wb-top-link:focus-visible { border-color: var(--wb-gold); color: var(--wb-gold); outline: 0; }
   .lw-webinar .wb-hero { border-bottom: 1px solid var(--wb-rule); }
   .lw-webinar .wb-hero-grid, .lw-webinar .wb-section-grid { display: grid; grid-template-columns: 92px minmax(0, 1fr); }
   .lw-webinar .wb-section-rail { border-right: 1px solid var(--wb-rule); padding: 6px 16px 0 0; }
@@ -245,12 +250,13 @@ const webinarCss = `
   .lw-webinar .wb-footer-inner { display: flex; min-height: 86px; align-items: center; justify-content: space-between; gap: 24px; }
   .lw-webinar .wb-footer span { color: var(--wb-muted); text-align: center; }
   .lw-webinar .wb-footer a:not(.wb-wordmark) { color: var(--wb-gold); text-decoration: none; }
-  @media (prefers-reduced-motion: reduce) { .lw-webinar *, .lw-webinar *::before, .lw-webinar *::after { scroll-behavior: auto !important; transition-duration: 0.01ms !important; } }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } .lw-webinar *, .lw-webinar *::before, .lw-webinar *::after { scroll-behavior: auto !important; transition-duration: 0.01ms !important; } }
   @media (max-width: 800px) {
     .lw-webinar .wb-shell { width: min(100% - 32px, 1180px); }
     .lw-webinar .wb-header { grid-template-columns: 1fr auto; min-height: 68px; }
     .lw-webinar .wb-running-title { display: none; }
-    .lw-webinar .wb-sign-in { font-size: 0.53rem; padding: 8px 10px; }
+    .lw-webinar .wb-topnav { gap: 11px; }
+    .lw-webinar .wb-top-link { font-size: 0.49rem; letter-spacing: 0.12em; }
     .lw-webinar .wb-hero-grid, .lw-webinar .wb-section-grid { grid-template-columns: 1fr; }
     .lw-webinar .wb-section-rail { display: none; }
     .lw-webinar .wb-hero-main { min-height: 0; grid-template-columns: 1fr; gap: 44px; padding: 80px 0 64px; }
