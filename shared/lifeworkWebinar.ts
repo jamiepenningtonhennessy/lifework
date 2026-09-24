@@ -1,16 +1,26 @@
 export const WEBINAR_BOOKING_URL =
-  "mailto:jamie@penningtonhennessy.com?subject=Lifework%20September%20webinar%20registration";
+  "mailto:jamie@lifeworkpath.com?subject=Lifework%20October%20webinar%20registration";
 
 export const WEBINAR_SESSIONS = [
   {
     title: "An introduction to Lifework",
-    timing: "12:30 BST on 16 September",
-    registrationUrl: "https://us02web.zoom.us/meeting/register/fuGdT3CTTiyJj1Ax1fBPAw",
+    timing: "12:30 BST on 6 October",
+    registrationUrl: WEBINAR_BOOKING_URL,
   },
   {
     title: "An introduction to Lifework",
-    timing: "18:00 BST on 24 September",
-    registrationUrl: "https://us02web.zoom.us/meeting/register/fPl8rbYYSOCWSS39PHzqYA",
+    timing: "18:00 BST on 6 October",
+    registrationUrl: WEBINAR_BOOKING_URL,
+  },
+  {
+    title: "An introduction to Lifework",
+    timing: "12:30 BST on 22 October",
+    registrationUrl: WEBINAR_BOOKING_URL,
+  },
+  {
+    title: "An introduction to Lifework",
+    timing: "18:00 BST on 22 October",
+    registrationUrl: WEBINAR_BOOKING_URL,
   },
 ] as const;
 

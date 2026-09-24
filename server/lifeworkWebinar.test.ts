@@ -13,23 +13,33 @@ const webinarPageSource = readFileSync(
 );
 
 describe("Lifework webinar landing-page content", () => {
-  it("contains the two confirmed Lifework webinar sessions without supplementary card detail", () => {
+  it("contains the four October Lifework webinar sessions with interim registration destinations", () => {
     expect(WEBINAR_SESSIONS).toEqual([
       {
         title: "An introduction to Lifework",
-        timing: "12:30 BST on 16 September",
-        registrationUrl: "https://us02web.zoom.us/meeting/register/fuGdT3CTTiyJj1Ax1fBPAw",
+        timing: "12:30 BST on 6 October",
+        registrationUrl: WEBINAR_BOOKING_URL,
       },
       {
         title: "An introduction to Lifework",
-        timing: "18:00 BST on 24 September",
-        registrationUrl: "https://us02web.zoom.us/meeting/register/fPl8rbYYSOCWSS39PHzqYA",
+        timing: "18:00 BST on 6 October",
+        registrationUrl: WEBINAR_BOOKING_URL,
+      },
+      {
+        title: "An introduction to Lifework",
+        timing: "12:30 BST on 22 October",
+        registrationUrl: WEBINAR_BOOKING_URL,
+      },
+      {
+        title: "An introduction to Lifework",
+        timing: "18:00 BST on 22 October",
+        registrationUrl: WEBINAR_BOOKING_URL,
       },
     ]);
   });
 
   it("uses a transparent interim registration destination", () => {
-    expect(WEBINAR_BOOKING_URL).toMatch(/^mailto:/);
+    expect(WEBINAR_BOOKING_URL).toBe("mailto:jamie@lifeworkpath.com?subject=Lifework%20October%20webinar%20registration");
   });
 
   it("uses the updated Lifework-focused discussion agenda", () => {
@@ -57,5 +67,17 @@ describe("Lifework webinar landing-page content", () => {
     expect(finalBookingIndex).toBeGreaterThan(introductionIndex);
     expect(finalBookingIndex).toBeLessThan(footerIndex);
     expect(webinarPageSource).not.toContain('<GoldButton href="#reserve">Request a place</GoldButton>');
+  });
+
+  it("places each Request a place action directly beside its session time", () => {
+    expect(webinarPageSource).toContain('All four sessions offer the same introduction to Lifework.');
+    expect(webinarPageSource).toContain('Live online webinars · 6th & 22nd October 2026');
+    expect(webinarPageSource).toContain('View the October sessions');
+    expect(webinarPageSource).toContain('flex flex-wrap items-center gap-x-5 gap-y-3 text-sm');
+
+    const sessionTimingIndex = webinarPageSource.indexOf('{session.timing}');
+    const requestPlaceIndex = webinarPageSource.indexOf('Request a place', sessionTimingIndex);
+    expect(sessionTimingIndex).toBeGreaterThan(-1);
+    expect(requestPlaceIndex).toBeGreaterThan(sessionTimingIndex);
   });
 });

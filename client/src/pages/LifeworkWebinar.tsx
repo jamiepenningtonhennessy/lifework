@@ -51,28 +51,30 @@ function WebinarBookingModule({ id }: { id?: string }) {
     <section id={id} className="py-20 sm:py-24" style={{ background: "var(--lw-navy-mid)" }}>
       <div className="container max-w-5xl">
         <div className="mb-12 text-center">
-          <p className="lw-eyebrow mb-4" style={{ color: "var(--lw-gold)" }}>September webinars</p>
+          <p className="lw-eyebrow mb-4" style={{ color: "var(--lw-gold)" }}>October webinars</p>
           <h2 className="font-serif text-4xl font-semibold text-white">Choose the session that suits you</h2>
           <p className="mx-auto mt-4 max-w-xl text-sm leading-relaxed" style={{ color: "rgba(255,255,255,0.7)" }}>
-            Both sessions offer the same introduction to Lifework.
+            All four sessions offer the same introduction to Lifework.
           </p>
         </div>
         <div className="grid gap-5 md:grid-cols-2">
           {WEBINAR_SESSIONS.map((session) => (
             <article key={session.timing} className="p-7 sm:p-8" style={{ background: "var(--lw-cream)", borderTop: "3px solid var(--lw-gold)" }}>
               <h3 className="font-serif text-3xl font-semibold" style={{ color: "var(--lw-navy)" }}>{session.title}</h3>
-              <p className="mt-5 flex items-start gap-2 text-sm" style={{ color: "var(--lw-ink-muted)" }}>
-                <CalendarDays className="mt-0.5 h-4 w-4 shrink-0" style={{ color: "var(--lw-gold)" }} />
-                {session.timing}
-              </p>
-              <a
-                href={session.registrationUrl}
-                className="mt-7 inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.12em]"
-                style={{ color: "var(--lw-navy)", textDecoration: "none", borderBottom: "1px solid var(--lw-gold)", paddingBottom: "0.35rem" }}
-              >
-                <Mail className="h-4 w-4" style={{ color: "var(--lw-gold)" }} />
-                Request a place
-              </a>
+              <div className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-3 text-sm" style={{ color: "var(--lw-ink-muted)" }}>
+                <span className="inline-flex items-center gap-2">
+                  <CalendarDays className="h-4 w-4 shrink-0" style={{ color: "var(--lw-gold)" }} />
+                  {session.timing}
+                </span>
+                <a
+                  href={session.registrationUrl}
+                  className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.12em]"
+                  style={{ color: "var(--lw-navy)", textDecoration: "none", borderBottom: "1px solid var(--lw-gold)", paddingBottom: "0.35rem" }}
+                >
+                  <Mail className="h-4 w-4" style={{ color: "var(--lw-gold)" }} />
+                  Request a place
+                </a>
+              </div>
             </article>
           ))}
         </div>
@@ -109,7 +111,7 @@ export default function LifeworkWebinar() {
             className="hidden text-xs font-semibold uppercase tracking-[0.12em] sm:inline-flex"
             style={{ color: "var(--lw-gold)", textDecoration: "none" }}
           >
-            View the September sessions
+            View the October sessions
           </a>
         </div>
       </nav>
@@ -125,7 +127,7 @@ export default function LifeworkWebinar() {
         <div className="container relative grid min-h-[610px] items-end gap-10 py-20 lg:grid-cols-[1.2fr_0.8fr] lg:py-28">
           <div className="max-w-3xl">
             <p className="lw-eyebrow mb-6" style={{ color: "var(--lw-gold)" }}>
-              Live online webinars · 16th & 24th September 2026
+              Live online webinars · 6th & 22nd October 2026
             </p>
             <h1 className="font-serif text-5xl font-semibold leading-[0.98] text-white sm:text-6xl lg:text-7xl">
               Are you <em style={{ color: "var(--lw-gold)" }}>wasting your life?</em>

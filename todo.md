@@ -2018,3 +2018,8 @@
 - [x] Remove the commercial model panel and “terms and belonging” language
 - [x] Recolour the partnership section to match the warm-paper page treatment
 - [x] Verify the simplified section and production build
+
+## October Webinar Session Cards (2026-09-24)
+- [x] Replace the September sessions with four October webinar times
+- [x] Place each Request a place action immediately beside its session time
+- [x] Keep registration destinations ready for the new links and verify responsive layout and production build
