@@ -55,11 +55,11 @@ describe("Lifework webinar landing-page content", () => {
   });
 
   it("places the full booking module before the Lifework introduction and repeats it at the page end", () => {
-    const firstBookingIndex = webinarPageSource.indexOf('<WebinarBookingModule id="reserve" />');
+    const firstBookingIndex = webinarPageSource.indexOf('<WebinarBookingModule id="reserve" number="02" />');
     const introductionIndex = webinarPageSource.indexOf('<section id="main-content"');
-    const finalBookingIndex = webinarPageSource.lastIndexOf("<WebinarBookingModule />");
+    const finalBookingIndex = webinarPageSource.lastIndexOf('<WebinarBookingModule number="06" />');
     const footerIndex = webinarPageSource.indexOf("<footer");
-    const bookingModuleUses = webinarPageSource.match(/<WebinarBookingModule(?: id="reserve")? \/>/g) ?? [];
+    const bookingModuleUses = webinarPageSource.match(/<WebinarBookingModule(?: id="reserve")? number="(?:02|06)" \/>/g) ?? [];
 
     expect(bookingModuleUses).toHaveLength(2);
     expect(firstBookingIndex).toBeGreaterThan(-1);
@@ -71,13 +71,29 @@ describe("Lifework webinar landing-page content", () => {
 
   it("places each Request a place action directly beside its session time", () => {
     expect(webinarPageSource).toContain('All four sessions offer the same introduction to Lifework.');
-    expect(webinarPageSource).toContain('Live online webinars · 6th & 22nd October 2026');
+    expect(webinarPageSource).toContain('Live online webinars · 6th &amp; 22nd October 2026');
     expect(webinarPageSource).toContain('View the October sessions');
-    expect(webinarPageSource).toContain('flex flex-wrap items-center gap-x-5 gap-y-3 text-sm');
+    expect(webinarPageSource).toContain('className="wb-session-meta"');
 
     const sessionTimingIndex = webinarPageSource.indexOf('{session.timing}');
     const requestPlaceIndex = webinarPageSource.indexOf('Request a place', sessionTimingIndex);
     expect(sessionTimingIndex).toBeGreaterThan(-1);
     expect(requestPlaceIndex).toBeGreaterThan(sessionTimingIndex);
+  });
+
+  it("uses the current warm-paper Lifework editorial system", () => {
+    expect(webinarPageSource).toContain('className="lw-webinar"');
+    expect(webinarPageSource).toContain('--wb-paper: #f6f1e9');
+    expect(webinarPageSource).toContain('--wb-paper-deep: #eee5d5');
+    expect(webinarPageSource).toContain('--wb-navy: #1a2744');
+    expect(webinarPageSource).toContain('--wb-gold: #b8862f');
+    expect(webinarPageSource).toContain('"Cormorant Garamond"');
+    expect(webinarPageSource).toContain('"Libre Franklin"');
+    expect(webinarPageSource).toContain('className="wb-shell wb-header"');
+    expect(webinarPageSource).toContain('className="wb-section wb-booking"');
+    expect(webinarPageSource).toContain('className="wb-section wb-testimonials"');
+    expect(webinarPageSource).toContain('Career Analysis · Positive Psychology');
+    expect(webinarPageSource).not.toContain('var(--lw-navy-mid)');
+    expect(webinarPageSource).not.toContain('A Pennington Hennessy service');
   });
 });

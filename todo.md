@@ -2027,3 +2027,8 @@
 ## October Webinar Registration Links (2026-09-24)
 - [x] Connect the 6 October 12:30 BST session to its supplied Zoom registration page
 - [x] Verify the updated session destination and production build
+
+## Lifework Webinar Editorial Rebrand (2026-09-24)
+- [x] Translate the current Lifework warm-paper editorial system to the webinar page
+- [x] Preserve all October session times, Zoom links, agenda and testimonial behaviour
+- [x] Verify desktop and mobile webinar presentation and production build

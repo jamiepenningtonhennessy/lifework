@@ -12,75 +12,58 @@ import {
 } from "lucide-react";
 import {
   WEBINAR_AGENDA,
-  WEBINAR_BOOKING_URL,
   WEBINAR_SESSIONS,
 } from "@shared/lifeworkWebinar";
-import { isStandaloneLifeworkDomain, lifeworkLandingPath } from "@/lib/lifeworkDomain";
+import { lifeworkLandingPath } from "@/lib/lifeworkDomain";
 import { trpc } from "@/lib/trpc";
 
-const BRAND_LOGO_URL =
-  "https://d2xsxph8kpxj0f.cloudfront.net/107696804/kFbbE6kqNApXGDFpQJUGV7/lifework-logo-onnavy_1f7a4c72.png";
-
-function GoldButton({
-  href,
-  children,
-  secondary = false,
-}: {
-  href: string;
-  children: React.ReactNode;
-  secondary?: boolean;
-}) {
+function SectionRail({ number, label, sublabel }: { number: string; label: string; sublabel: string }) {
   return (
-    <a
-      href={href}
-      className="inline-flex items-center justify-center gap-2 px-6 py-3.5 text-xs font-bold uppercase tracking-[0.12em] transition-transform duration-150 active:scale-[0.97] hover:opacity-90"
-      style={
-        secondary
-          ? { border: "1px solid rgba(255,255,255,0.52)", color: "white", textDecoration: "none" }
-          : { background: "var(--lw-gold)", color: "var(--lw-navy)", textDecoration: "none" }
-      }
-    >
+    <aside className="wb-section-rail" aria-hidden="true">
+      <div className="wb-rail-number">{number}</div>
+      <div className="wb-rail-label">{label}</div>
+      <div className="wb-rail-sublabel">{sublabel}</div>
+    </aside>
+  );
+}
+
+function GoldButton({ href, children, quiet = false }: { href: string; children: React.ReactNode; quiet?: boolean }) {
+  return (
+    <a className={`wb-button${quiet ? " wb-button--quiet" : ""}`} href={href}>
       {children}
-      <ArrowRight className="h-4 w-4" aria-hidden="true" />
+      <ArrowRight size={16} aria-hidden="true" />
     </a>
   );
 }
 
-function WebinarBookingModule({ id }: { id?: string }) {
+function WebinarBookingModule({ id, number }: { id?: string; number: string }) {
   return (
-    <section id={id} className="py-20 sm:py-24" style={{ background: "var(--lw-navy-mid)" }}>
-      <div className="container max-w-5xl">
-        <div className="mb-12 text-center">
-          <p className="lw-eyebrow mb-4" style={{ color: "var(--lw-gold)" }}>October webinars</p>
-          <h2 className="font-serif text-4xl font-semibold text-white">Choose the session that suits you</h2>
-          <p className="mx-auto mt-4 max-w-xl text-sm leading-relaxed" style={{ color: "rgba(255,255,255,0.7)" }}>
-            All four sessions offer the same introduction to Lifework.
-          </p>
+    <section id={id} className="wb-section wb-booking">
+      <div className="wb-shell wb-section-grid">
+        <SectionRail number={number} label="October webinars" sublabel="Choose your session" />
+        <div className="wb-section-main">
+          <div className="wb-kicker">October webinars</div>
+          <h2 className="wb-section-heading">Choose the session<br /><em>that suits you.</em></h2>
+          <p className="wb-copy wb-booking-intro">All four sessions offer the same introduction to Lifework.</p>
+          <div className="wb-session-grid">
+            {WEBINAR_SESSIONS.map((session) => (
+              <article key={session.timing} className="wb-session-card">
+                <h3>{session.title}</h3>
+                <div className="wb-session-meta">
+                  <span className="wb-session-time">
+                    <CalendarDays size={16} aria-hidden="true" />
+                    {session.timing}
+                  </span>
+                  <a className="wb-session-link" href={session.registrationUrl}>
+                    <Mail size={15} aria-hidden="true" />
+                    Request a place
+                  </a>
+                </div>
+              </article>
+            ))}
+          </div>
+          <p className="wb-booking-note">Places are limited. Request a place in the session that suits you.</p>
         </div>
-        <div className="grid gap-5 md:grid-cols-2">
-          {WEBINAR_SESSIONS.map((session) => (
-            <article key={session.timing} className="p-7 sm:p-8" style={{ background: "var(--lw-cream)", borderTop: "3px solid var(--lw-gold)" }}>
-              <h3 className="font-serif text-3xl font-semibold" style={{ color: "var(--lw-navy)" }}>{session.title}</h3>
-              <div className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-3 text-sm" style={{ color: "var(--lw-ink-muted)" }}>
-                <span className="inline-flex items-center gap-2">
-                  <CalendarDays className="h-4 w-4 shrink-0" style={{ color: "var(--lw-gold)" }} />
-                  {session.timing}
-                </span>
-                <a
-                  href={session.registrationUrl}
-                  className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.12em]"
-                  style={{ color: "var(--lw-navy)", textDecoration: "none", borderBottom: "1px solid var(--lw-gold)", paddingBottom: "0.35rem" }}
-                >
-                  <Mail className="h-4 w-4" style={{ color: "var(--lw-gold)" }} />
-                  Request a place
-                </a>
-              </div>
-            </article>
-          ))}
-        </div>
-        <p className="mx-auto mt-7 max-w-2xl text-center text-xs leading-relaxed" style={{ color: "rgba(255,255,255,0.55)" }}>
-          Places are limited. Request a place in the session that suits you.
-        </p>
       </div>
     </section>
   );
@@ -89,199 +72,273 @@ function WebinarBookingModule({ id }: { id?: string }) {
 export default function LifeworkWebinar() {
   const [expandedAgenda, setExpandedAgenda] = useState<number | null>(0);
   const homeHref = lifeworkLandingPath();
-  const isStandaloneDomain = isStandaloneLifeworkDomain();
   const { data: approvedTestimonials, isLoading: isLoadingTestimonials } = trpc.verifiedTestimonials.publicForPage.useQuery({ pageKey: "webinar" });
 
   return (
-    <main className="min-h-screen overflow-x-hidden" style={{ background: "var(--lw-cream)", color: "var(--lw-ink)" }}>
-      <a
-        href="#main-content"
-        className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[70] focus:bg-white focus:px-4 focus:py-3 focus:text-sm"
-      >
-        Skip to content
-      </a>
+    <main className="lw-webinar">
+      <style>{webinarCss}</style>
+      <a href="#main-content" className="wb-skip-link">Skip to content</a>
 
-      <nav className="relative z-30" style={{ background: "var(--lw-navy)", borderBottom: "1px solid rgba(201,151,58,0.28)" }}>
-        <div className="container flex h-18 items-center justify-between gap-6 py-4">
-          <a href={homeHref} className="flex items-center" aria-label="Lifework home">
-            <img src={BRAND_LOGO_URL} alt="Lifework" className="h-8 w-auto object-contain" />
-          </a>
-          <a
-            href="#reserve"
-            className="hidden text-xs font-semibold uppercase tracking-[0.12em] sm:inline-flex"
-            style={{ color: "var(--lw-gold)", textDecoration: "none" }}
-          >
-            View the October sessions
-          </a>
-        </div>
-      </nav>
+      <header className="wb-shell wb-header">
+        <a href={homeHref} className="wb-wordmark" aria-label="Lifework home">Life<em>work</em></a>
+        <div className="wb-running-title">Career Analysis · Positive Psychology</div>
+        <a className="wb-sign-in" href="#reserve">View the October sessions</a>
+      </header>
 
-      <section className="relative overflow-hidden" style={{ background: "var(--lw-navy)" }}>
-        <div
-          className="absolute inset-0 opacity-40"
-          style={{
-            backgroundImage:
-              "radial-gradient(circle at 87% 22%, rgba(201,151,58,0.32) 0, transparent 22%), radial-gradient(circle at 70% 90%, rgba(42,58,94,0.9) 0, transparent 32%)",
-          }}
-        />
-        <div className="container relative grid min-h-[610px] items-end gap-10 py-20 lg:grid-cols-[1.2fr_0.8fr] lg:py-28">
-          <div className="max-w-3xl">
-            <p className="lw-eyebrow mb-6" style={{ color: "var(--lw-gold)" }}>
-              Live online webinars · 6th & 22nd October 2026
-            </p>
-            <h1 className="font-serif text-5xl font-semibold leading-[0.98] text-white sm:text-6xl lg:text-7xl">
-              Are you <em style={{ color: "var(--lw-gold)" }}>wasting your life?</em>
-            </h1>
-            <p className="mt-8 max-w-2xl text-lg leading-relaxed" style={{ color: "rgba(255,255,255,0.76)" }}>
-              Join an intimate live conversation about career clarity, dependable strengths and personal understanding—without reducing yourself to a job title or a list of preferences.
-            </p>
-            <div className="mt-10 flex flex-col gap-4 sm:flex-row">
-              <GoldButton href="#what-you-will-leave-with" secondary>
-                What you will learn
-              </GoldButton>
+      <section className="wb-hero">
+        <div className="wb-shell wb-hero-grid">
+          <SectionRail number="01" label="Live webinars" sublabel="A better starting point" />
+          <div className="wb-hero-main">
+            <div className="wb-hero-copy">
+              <div className="wb-kicker">Live online webinars · 6th &amp; 22nd October 2026</div>
+              <h1>Are you <em>wasting your life?</em></h1>
+              <p className="wb-intro">Join an intimate live conversation about career clarity, dependable strengths and personal understanding—without reducing yourself to a job title or a list of preferences.</p>
+              <div className="wb-actions">
+                <GoldButton href="#what-you-will-leave-with" quiet>What you will learn</GoldButton>
+              </div>
+              <div className="wb-details" aria-label="Webinar details">
+                <span><Clock3 size={16} aria-hidden="true" />45 minutes live</span>
+                <span><Video size={16} aria-hidden="true" />Online conversation</span>
+                <span><UserRound size={16} aria-hidden="true" />For people at a crossroads</span>
+              </div>
             </div>
-            <div className="mt-12 flex flex-wrap gap-x-8 gap-y-3 text-sm" style={{ color: "rgba(255,255,255,0.68)" }}>
-              <span className="inline-flex items-center gap-2"><Clock3 className="h-4 w-4" style={{ color: "var(--lw-gold)" }} /> 45 minutes live</span>
-              <span className="inline-flex items-center gap-2"><Video className="h-4 w-4" style={{ color: "var(--lw-gold)" }} /> Online conversation</span>
-              <span className="inline-flex items-center gap-2"><UserRound className="h-4 w-4" style={{ color: "var(--lw-gold)" }} /> For people at a crossroads</span>
-            </div>
-          </div>
-
-          <aside className="relative mb-2 p-7 sm:p-8" style={{ background: "rgba(245,240,232,0.97)", borderTop: "3px solid var(--lw-gold)" }}>
-            <p className="lw-eyebrow mb-5" style={{ color: "var(--lw-gold)" }}>This conversation is for you if…</p>
-            <ul className="space-y-5">
-              {[
-                "Your career looks right on paper, but no longer feels quite right inside.",
-                "You are considering a change, a return, or a more meaningful next chapter.",
-                "You want a better question than: “What job should I apply for?”",
-              ].map((point) => (
-                <li key={point} className="flex gap-3 text-[0.95rem] leading-relaxed" style={{ color: "var(--lw-navy)" }}>
-                  <Check className="mt-1 h-4 w-4 shrink-0" style={{ color: "var(--lw-gold)" }} />
-                  {point}
-                </li>
-              ))}
-            </ul>
-          </aside>
-        </div>
-      </section>
-
-      <WebinarBookingModule id="reserve" />
-
-      <section id="main-content" className="py-20 sm:py-24" style={{ background: "var(--lw-cream)" }}>
-        <div className="container grid gap-12 lg:grid-cols-[0.8fr_1.2fr] lg:gap-20">
-          <div>
-            <p className="lw-eyebrow mb-4" style={{ color: "var(--lw-gold)" }}>A different starting point</p>
-            <h2 className="font-serif text-4xl font-semibold leading-tight" style={{ color: "var(--lw-navy)" }}>
-              We look at the person behind the behaviour—not the behaviour itself.
-            </h2>
-          </div>
-          <div className="space-y-5 text-[1.05rem] leading-relaxed" style={{ color: "var(--lw-ink-muted)" }}>
-            <p>
-              Lifework begins with the evidence of your own life: the moments when you have felt most alive, most effective and most like yourself. Those moments often reveal a dependable pattern of strengths that a conventional CV cannot show.
-            </p>
-            <p>
-              In this live webinar, we will introduce the Lifework approach and show how it can bring clarity to the questions that matter when work, identity and possibility are in motion.
-            </p>
+            <aside className="wb-fit-panel">
+              <div className="wb-kicker">This conversation is for you if…</div>
+              <ul>
+                {[
+                  "Your career looks right on paper, but no longer feels quite right inside.",
+                  "You are considering a change, a return, or a more meaningful next chapter.",
+                  "You want a better question than: “What job should I apply for?”",
+                ].map((point) => (
+                  <li key={point}><Check size={16} aria-hidden="true" />{point}</li>
+                ))}
+              </ul>
+            </aside>
           </div>
         </div>
       </section>
 
-      <section id="what-you-will-leave-with" className="py-20 sm:py-24" style={{ background: "white", borderTop: "1px solid rgba(26,39,68,0.08)" }}>
-        <div className="container max-w-5xl">
-          <div className="mb-12 flex flex-col justify-between gap-6 sm:flex-row sm:items-end">
+      <WebinarBookingModule id="reserve" number="02" />
+
+      <section id="main-content" className="wb-section">
+        <div className="wb-shell wb-section-grid">
+          <SectionRail number="03" label="The approach" sublabel="A different starting point" />
+          <div className="wb-section-main wb-introduction-layout">
             <div>
-              <p className="lw-eyebrow mb-4" style={{ color: "var(--lw-gold)" }}>In the webinar</p>
-              <h2 className="font-serif text-4xl font-semibold" style={{ color: "var(--lw-navy)" }}>What we will explore together</h2>
+              <div className="wb-kicker">A different starting point</div>
+              <h2 className="wb-section-heading">We look at the person<br /><em>behind the behaviour.</em></h2>
             </div>
-            <p className="max-w-sm text-sm leading-relaxed" style={{ color: "var(--lw-ink-muted)" }}>
-              A live, practical introduction—not a generic career-planning lecture.
-            </p>
-          </div>
-          <div className="border-y" style={{ borderColor: "rgba(201,151,58,0.38)" }}>
-            {WEBINAR_AGENDA.map((item, index) => {
-              const isExpanded = expandedAgenda === index;
-              return (
-                <div key={item} style={{ borderBottom: index < WEBINAR_AGENDA.length - 1 ? "1px solid rgba(201,151,58,0.25)" : "none" }}>
-                  <button
-                    type="button"
-                    onClick={() => setExpandedAgenda(isExpanded ? null : index)}
-                    aria-expanded={isExpanded}
-                    className="flex w-full items-center justify-between gap-5 px-1 py-6 text-left transition-opacity hover:opacity-70"
-                  >
-                    <span className="flex items-start gap-5">
-                      <span className="font-serif text-2xl" style={{ color: "var(--lw-gold)" }}>0{index + 1}</span>
-                      <span className="text-lg leading-snug" style={{ color: "var(--lw-navy)" }}>{item}</span>
-                    </span>
-                    <ChevronDown className={`mt-1 h-5 w-5 shrink-0 transition-transform ${isExpanded ? "rotate-180" : ""}`} style={{ color: "var(--lw-gold)" }} />
-                  </button>
-                  {isExpanded && (
-                    <p className="max-w-3xl pb-6 pl-12 text-sm leading-relaxed sm:pl-14" style={{ color: "var(--lw-ink-muted)" }}>
-                      {index === 0 && "We will challenge the assumption that the answer can be found in a job description alone."}
-                      {index === 1 && "We will explain why recurring stories of achievement can be more revealing than an inventory of preferences."}
-                      {index === 2 && "You will leave with a more useful frame for the decision you are facing now."}
-                    </p>
-                  )}
-                </div>
-              );
-            })}
+            <div className="wb-copy">
+              <p>Lifework begins with the evidence of your own life: the moments when you have felt most alive, most effective and most like yourself. Those moments often reveal a dependable pattern of strengths that a conventional CV cannot show.</p>
+              <p>In this live webinar, we will introduce the Lifework approach and show how it can bring clarity to the questions that matter when work, identity and possibility are in motion.</p>
+            </div>
           </div>
         </div>
       </section>
 
-      <section className="py-20 sm:py-24" style={{ background: "var(--lw-cream)" }}>
-        <div className="container max-w-6xl">
-          <div className="mb-12 max-w-3xl">
-            <p className="lw-eyebrow mb-4" style={{ color: "var(--lw-gold)" }}>The value of a different question</p>
-            <h2 className="font-serif text-4xl font-semibold leading-tight sm:text-5xl" style={{ color: "var(--lw-navy)" }}>
-              What people value in Lifework
-            </h2>
-            <p className="mt-5 max-w-2xl text-base leading-relaxed" style={{ color: "var(--lw-ink-muted)" }}>
-              A better next move starts with a fuller understanding of the person making it.
-            </p>
+      <section id="what-you-will-leave-with" className="wb-section wb-agenda-section">
+        <div className="wb-shell wb-section-grid">
+          <SectionRail number="04" label="In the webinar" sublabel="An honest conversation" />
+          <div className="wb-section-main">
+            <div className="wb-kicker">In the webinar</div>
+            <h2 className="wb-section-heading">What we will<br /><em>explore together.</em></h2>
+            <p className="wb-copy wb-agenda-intro">A live, practical introduction—not a generic career-planning lecture.</p>
+            <div className="wb-agenda-list">
+              {WEBINAR_AGENDA.map((item, index) => {
+                const isExpanded = expandedAgenda === index;
+                return (
+                  <article key={item} className="wb-agenda-item">
+                    <button type="button" onClick={() => setExpandedAgenda(isExpanded ? null : index)} aria-expanded={isExpanded}>
+                      <span className="wb-agenda-summary">
+                        <span className="wb-agenda-number">0{index + 1}</span>
+                        <span>{item}</span>
+                      </span>
+                      <ChevronDown className={isExpanded ? "wb-chevron wb-chevron--open" : "wb-chevron"} size={20} aria-hidden="true" />
+                    </button>
+                    {isExpanded && (
+                      <p>
+                        {index === 0 && "We will challenge the assumption that the answer can be found in a job description alone."}
+                        {index === 1 && "We will explain why recurring stories of achievement can be more revealing than an inventory of preferences."}
+                        {index === 2 && "You will leave with a more useful frame for the decision you are facing now."}
+                      </p>
+                    )}
+                  </article>
+                );
+              })}
+            </div>
           </div>
-          {isLoadingTestimonials ? (
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div className="h-64 animate-pulse" style={{ background: "rgba(26,39,68,0.08)" }} />
-              <div className="h-64 animate-pulse" style={{ background: "rgba(26,39,68,0.08)" }} />
-            </div>
-          ) : approvedTestimonials?.length ? (
-            <div className="grid gap-5 md:grid-cols-2">
-              {approvedTestimonials.map((testimonial) => (
-                <article key={testimonial.id} className="flex min-h-64 flex-col justify-between border p-7 sm:p-9" style={{ background: "#EAE8E2", borderColor: "rgba(201,151,58,0.42)" }}>
-                  <Quote className="h-6 w-6" style={{ color: "var(--lw-gold)" }} aria-hidden="true" />
-                  <blockquote className="mt-8 font-serif text-2xl leading-snug" style={{ color: "var(--lw-navy)" }}>
-                    “{testimonial.quote}”
-                  </blockquote>
-                  <cite className="mt-7 text-xs font-semibold uppercase tracking-[0.14em] not-italic" style={{ color: "var(--lw-gold)" }}>
-                    — {testimonial.attribution}
-                  </cite>
-                </article>
-              ))}
-            </div>
-          ) : (
-            <div className="border p-8 sm:p-10" style={{ background: "rgba(255,255,255,0.7)", borderColor: "rgba(201,151,58,0.4)" }}>
-              <p className="font-serif text-3xl" style={{ color: "var(--lw-navy)" }}>Verified feedback will appear here.</p>
-              <p className="mt-3 max-w-xl text-sm leading-relaxed" style={{ color: "var(--lw-ink-muted)" }}>
-                We publish feedback only after the original source and permission to display it have been recorded.
-              </p>
-            </div>
-          )}
         </div>
       </section>
 
-      <WebinarBookingModule />
+      <section className="wb-section wb-testimonials">
+        <div className="wb-shell wb-section-grid">
+          <SectionRail number="05" label="What people say" sublabel="In their own words" />
+          <div className="wb-section-main">
+            <div className="wb-kicker">The value of a different question</div>
+            <h2 className="wb-section-heading">What people value<br /><em>in Lifework.</em></h2>
+            <p className="wb-copy">A better next move starts with a fuller understanding of the person making it.</p>
+            {isLoadingTestimonials ? (
+              <div className="wb-testimonial-loading" aria-label="Loading approved feedback" />
+            ) : approvedTestimonials?.length ? (
+              <div className="wb-testimonial-grid">
+                {approvedTestimonials.map((testimonial) => (
+                  <article key={testimonial.id} className="wb-testimonial">
+                    <Quote size={21} aria-hidden="true" />
+                    <blockquote>“{testimonial.quote}”</blockquote>
+                    <cite>— {testimonial.attribution}</cite>
+                  </article>
+                ))}
+              </div>
+            ) : (
+              <div className="wb-empty-feedback">
+                <p>Verified feedback selected for this page will appear here.</p>
+                <span>We publish feedback only after the original source and permission to display it have been recorded.</span>
+              </div>
+            )}
+          </div>
+        </div>
+      </section>
 
-      <footer className="py-8" style={{ background: "var(--lw-navy-mid)", borderTop: "1px solid rgba(201,151,58,0.22)" }}>
-        <div className="container flex flex-col items-center justify-between gap-4 text-center sm:flex-row sm:text-left">
-          <a href={homeHref} className="flex items-center" aria-label="Lifework home">
-            <img src={BRAND_LOGO_URL} alt="Lifework" className="h-7 w-auto object-contain" />
-          </a>
-          <p className="text-xs" style={{ color: "rgba(255,255,255,0.52)" }}>
-            Inspired by the work of Bernard Haldane · A Pennington Hennessy service
-            {!isStandaloneDomain && " · Lifework webinar draft"}
-          </p>
+      <WebinarBookingModule number="06" />
+
+      <footer className="wb-footer">
+        <div className="wb-shell wb-footer-inner">
+          <a href={homeHref} className="wb-wordmark">Life<em>work</em></a>
+          <span>Career Analysis · Positive Psychology</span>
+          <a href="/data-security">Data Security &amp; Privacy</a>
         </div>
       </footer>
     </main>
   );
 }
+
+const webinarCss = `
+  .lw-webinar {
+    --wb-paper: #f6f1e9;
+    --wb-paper-deep: #eee5d5;
+    --wb-navy: #1a2744;
+    --wb-ink: #1c2435;
+    --wb-gold: #b8862f;
+    --wb-muted: #667084;
+    --wb-rule: rgba(26, 39, 68, 0.16);
+    --wb-rule-strong: rgba(26, 39, 68, 0.35);
+    min-height: 100vh;
+    overflow-x: hidden;
+    background: var(--wb-paper);
+    color: var(--wb-ink);
+    font-family: "Source Serif 4", Georgia, serif;
+  }
+  .lw-webinar *, .lw-webinar *::before, .lw-webinar *::after { box-sizing: border-box; }
+  .lw-webinar .wb-shell { width: min(1180px, calc(100% - 48px)); margin: 0 auto; }
+  .lw-webinar .wb-skip-link { position: fixed; top: 12px; left: 12px; transform: translateY(-160%); z-index: 100; padding: 11px 15px; background: #fffdf9; color: var(--wb-navy); font-family: "Libre Franklin", Inter, sans-serif; font-size: 0.72rem; font-weight: 700; text-decoration: none; }
+  .lw-webinar .wb-skip-link:focus { transform: translateY(0); outline: 2px solid var(--wb-gold); }
+  .lw-webinar .wb-header { min-height: 74px; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 24px; border-bottom: 1px solid var(--wb-rule); }
+  .lw-webinar .wb-wordmark { color: var(--wb-navy); font-family: "Cormorant Garamond", Georgia, serif; font-size: 1.6rem; font-weight: 600; letter-spacing: -0.04em; text-decoration: none; }
+  .lw-webinar .wb-wordmark em { color: var(--wb-gold); font-style: italic; }
+  .lw-webinar .wb-running-title, .lw-webinar .wb-sign-in, .lw-webinar .wb-kicker, .lw-webinar .wb-rail-label, .lw-webinar .wb-footer span, .lw-webinar .wb-footer a:not(.wb-wordmark) { font-family: "Libre Franklin", Inter, sans-serif; font-size: 0.61rem; font-weight: 700; letter-spacing: 0.16em; line-height: 1.4; text-transform: uppercase; }
+  .lw-webinar .wb-running-title { color: var(--wb-muted); text-align: center; }
+  .lw-webinar .wb-sign-in { justify-self: end; border: 1px solid var(--wb-navy); padding: 9px 14px; color: var(--wb-navy); text-decoration: none; transition: background 160ms ease-out; }
+  .lw-webinar .wb-sign-in:hover { background: var(--wb-paper-deep); }
+  .lw-webinar .wb-hero { border-bottom: 1px solid var(--wb-rule); }
+  .lw-webinar .wb-hero-grid, .lw-webinar .wb-section-grid { display: grid; grid-template-columns: 92px minmax(0, 1fr); }
+  .lw-webinar .wb-section-rail { border-right: 1px solid var(--wb-rule); padding: 6px 16px 0 0; }
+  .lw-webinar .wb-hero .wb-section-rail { padding-top: 108px; }
+  .lw-webinar .wb-rail-number { color: var(--wb-gold); font-family: "Cormorant Garamond", Georgia, serif; font-size: 3rem; font-style: italic; line-height: 0.8; }
+  .lw-webinar .wb-rail-label { margin-top: 17px; color: var(--wb-navy); font-size: 0.55rem; }
+  .lw-webinar .wb-rail-sublabel { margin-top: 5px; color: var(--wb-muted); font-size: 0.78rem; font-style: italic; line-height: 1.3; }
+  .lw-webinar .wb-hero-main { min-height: 620px; display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(275px, 0.65fr); align-items: center; gap: clamp(40px, 7vw, 105px); padding: 78px 0 72px clamp(30px, 6vw, 84px); }
+  .lw-webinar .wb-hero-copy { max-width: 690px; }
+  .lw-webinar .wb-kicker { display: flex; align-items: center; gap: 10px; margin: 0 0 21px; color: var(--wb-gold); }
+  .lw-webinar .wb-kicker::before { display: block; width: 30px; height: 1px; background: var(--wb-gold); content: ""; }
+  .lw-webinar h1, .lw-webinar h2, .lw-webinar h3 { margin: 0; color: var(--wb-navy); font-family: "Cormorant Garamond", Georgia, serif; font-weight: 500; letter-spacing: -0.043em; }
+  .lw-webinar h1 { font-size: clamp(3.4rem, 7.15vw, 6.7rem); line-height: 0.91; }
+  .lw-webinar h1 em, .lw-webinar h2 em { color: var(--wb-gold); font-style: italic; }
+  .lw-webinar .wb-intro { max-width: 43rem; margin: 33px 0 0; font-size: 1.17rem; line-height: 1.63; }
+  .lw-webinar .wb-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 34px; }
+  .lw-webinar .wb-button { display: inline-flex; align-items: center; gap: 12px; border: 1px solid var(--wb-gold); padding: 14px 18px; background: var(--wb-gold); color: var(--wb-navy); font-family: "Libre Franklin", Inter, sans-serif; font-size: 0.64rem; font-weight: 700; letter-spacing: 0.15em; text-decoration: none; text-transform: uppercase; transition: background 160ms ease-out, transform 160ms ease-out; }
+  .lw-webinar .wb-button:hover { background: #cca04c; transform: translateY(-1px); }
+  .lw-webinar .wb-button:active { transform: scale(0.97); }
+  .lw-webinar .wb-button--quiet { border-color: var(--wb-navy); background: transparent; color: var(--wb-navy); }
+  .lw-webinar .wb-button--quiet:hover { background: var(--wb-paper-deep); }
+  .lw-webinar .wb-details { display: flex; flex-wrap: wrap; gap: 16px 28px; margin-top: 42px; color: var(--wb-muted); font-family: "Libre Franklin", Inter, sans-serif; font-size: 0.74rem; }
+  .lw-webinar .wb-details span { display: inline-flex; align-items: center; gap: 8px; }
+  .lw-webinar .wb-details svg { color: var(--wb-gold); }
+  .lw-webinar .wb-fit-panel { border-top: 1px solid var(--wb-rule-strong); border-bottom: 1px solid var(--wb-rule-strong); padding: 28px 0; }
+  .lw-webinar .wb-fit-panel ul { margin: 0; padding: 0; list-style: none; }
+  .lw-webinar .wb-fit-panel li { display: flex; gap: 12px; padding: 16px 0; border-bottom: 1px solid var(--wb-rule); font-size: 0.98rem; line-height: 1.5; }
+  .lw-webinar .wb-fit-panel li:last-child { padding-bottom: 0; border-bottom: 0; }
+  .lw-webinar .wb-fit-panel svg { flex: 0 0 auto; margin-top: 3px; color: var(--wb-gold); }
+  .lw-webinar .wb-section { padding: 104px 0; border-bottom: 1px solid var(--wb-rule); }
+  .lw-webinar .wb-section-main { padding-left: clamp(30px, 6vw, 84px); }
+  .lw-webinar .wb-section-heading { margin-bottom: 26px; font-size: clamp(2.5rem, 4.2vw, 4.4rem); line-height: 0.96; }
+  .lw-webinar .wb-copy { max-width: 43rem; color: var(--wb-ink); font-size: 1.04rem; line-height: 1.7; }
+  .lw-webinar .wb-copy p { margin: 0 0 17px; }
+  .lw-webinar .wb-booking { background: var(--wb-paper-deep); }
+  .lw-webinar .wb-booking-intro { margin: 0; color: var(--wb-muted); }
+  .lw-webinar .wb-session-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 34px; margin-top: 39px; border-top: 1px solid var(--wb-rule-strong); }
+  .lw-webinar .wb-session-card { padding: 26px 0 28px; border-bottom: 1px solid var(--wb-rule); }
+  .lw-webinar .wb-session-card:nth-child(odd) { border-right: 1px solid var(--wb-rule); padding-right: 34px; }
+  .lw-webinar .wb-session-card:nth-child(even) { padding-left: 34px; }
+  .lw-webinar .wb-session-card h3 { font-size: 1.8rem; line-height: 1.04; }
+  .lw-webinar .wb-session-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 14px 20px; margin-top: 20px; }
+  .lw-webinar .wb-session-time, .lw-webinar .wb-session-link { display: inline-flex; align-items: center; gap: 8px; }
+  .lw-webinar .wb-session-time { color: var(--wb-muted); font-size: 0.9rem; }
+  .lw-webinar .wb-session-time svg, .lw-webinar .wb-session-link svg { color: var(--wb-gold); }
+  .lw-webinar .wb-session-link { padding-bottom: 4px; border-bottom: 1px solid var(--wb-gold); color: var(--wb-navy); font-family: "Libre Franklin", Inter, sans-serif; font-size: 0.6rem; font-weight: 700; letter-spacing: 0.14em; text-decoration: none; text-transform: uppercase; }
+  .lw-webinar .wb-session-link:hover { color: var(--wb-gold); }
+  .lw-webinar .wb-booking-note { margin: 25px 0 0; color: var(--wb-muted); font-size: 0.82rem; font-style: italic; }
+  .lw-webinar .wb-introduction-layout { display: grid; grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr); gap: clamp(38px, 7vw, 110px); align-items: start; }
+  .lw-webinar .wb-agenda-section { background: #fffdf9; }
+  .lw-webinar .wb-agenda-intro { margin-bottom: 34px; color: var(--wb-muted); }
+  .lw-webinar .wb-agenda-list { border-top: 1px solid var(--wb-rule-strong); border-bottom: 1px solid var(--wb-rule-strong); }
+  .lw-webinar .wb-agenda-item { border-bottom: 1px solid var(--wb-rule); }
+  .lw-webinar .wb-agenda-item:last-child { border-bottom: 0; }
+  .lw-webinar .wb-agenda-item button { display: flex; width: 100%; align-items: center; justify-content: space-between; gap: 22px; padding: 24px 0; border: 0; background: transparent; color: var(--wb-navy); cursor: pointer; font: inherit; text-align: left; }
+  .lw-webinar .wb-agenda-summary { display: flex; align-items: flex-start; gap: 19px; font-size: 1.13rem; line-height: 1.45; }
+  .lw-webinar .wb-agenda-number { flex: 0 0 auto; color: var(--wb-gold); font-family: "Cormorant Garamond", Georgia, serif; font-size: 2rem; font-style: italic; line-height: 0.8; }
+  .lw-webinar .wb-chevron { flex: 0 0 auto; color: var(--wb-gold); transition: transform 160ms ease-out; }
+  .lw-webinar .wb-chevron--open { transform: rotate(180deg); }
+  .lw-webinar .wb-agenda-item p { max-width: 43rem; margin: -3px 0 0; padding: 0 0 24px 48px; color: var(--wb-muted); font-size: 0.96rem; line-height: 1.6; }
+  .lw-webinar .wb-testimonials { background: var(--wb-paper); }
+  .lw-webinar .wb-testimonial-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); margin-top: 38px; border-top: 1px solid var(--wb-rule-strong); }
+  .lw-webinar .wb-testimonial { min-height: 246px; padding: 29px 34px 29px 0; border-bottom: 1px solid var(--wb-rule); }
+  .lw-webinar .wb-testimonial:nth-child(odd) { border-right: 1px solid var(--wb-rule); margin-right: 34px; }
+  .lw-webinar .wb-testimonial:nth-child(even) { padding-left: 0; }
+  .lw-webinar .wb-testimonial svg { color: var(--wb-gold); }
+  .lw-webinar .wb-testimonial blockquote { margin: 21px 0 0; color: var(--wb-navy); font-family: "Cormorant Garamond", Georgia, serif; font-size: 1.46rem; font-style: italic; font-weight: 500; line-height: 1.28; }
+  .lw-webinar .wb-testimonial cite { display: block; margin-top: 20px; color: var(--wb-muted); font-family: "Libre Franklin", Inter, sans-serif; font-size: 0.59rem; font-style: normal; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase; }
+  .lw-webinar .wb-testimonial-loading { height: 244px; margin-top: 38px; border-top: 1px solid var(--wb-rule-strong); border-bottom: 1px solid var(--wb-rule); background: repeating-linear-gradient(90deg, transparent 0, transparent 19%, rgba(26,39,68,0.055) 20%, transparent 21%); }
+  .lw-webinar .wb-empty-feedback { max-width: 43rem; margin-top: 38px; padding: 26px 0; border-top: 1px solid var(--wb-rule-strong); border-bottom: 1px solid var(--wb-rule); }
+  .lw-webinar .wb-empty-feedback p { margin: 0; color: var(--wb-navy); font-family: "Cormorant Garamond", Georgia, serif; font-size: 1.8rem; }
+  .lw-webinar .wb-empty-feedback span { display: block; margin-top: 10px; color: var(--wb-muted); font-size: 0.92rem; line-height: 1.5; }
+  .lw-webinar .wb-footer { border-top: 1px solid var(--wb-rule); background: var(--wb-paper); }
+  .lw-webinar .wb-footer-inner { display: flex; min-height: 86px; align-items: center; justify-content: space-between; gap: 24px; }
+  .lw-webinar .wb-footer span { color: var(--wb-muted); text-align: center; }
+  .lw-webinar .wb-footer a:not(.wb-wordmark) { color: var(--wb-gold); text-decoration: none; }
+  @media (prefers-reduced-motion: reduce) { .lw-webinar *, .lw-webinar *::before, .lw-webinar *::after { scroll-behavior: auto !important; transition-duration: 0.01ms !important; } }
+  @media (max-width: 800px) {
+    .lw-webinar .wb-shell { width: min(100% - 32px, 1180px); }
+    .lw-webinar .wb-header { grid-template-columns: 1fr auto; min-height: 68px; }
+    .lw-webinar .wb-running-title { display: none; }
+    .lw-webinar .wb-sign-in { font-size: 0.53rem; padding: 8px 10px; }
+    .lw-webinar .wb-hero-grid, .lw-webinar .wb-section-grid { grid-template-columns: 1fr; }
+    .lw-webinar .wb-section-rail { display: none; }
+    .lw-webinar .wb-hero-main { min-height: 0; grid-template-columns: 1fr; gap: 44px; padding: 80px 0 64px; }
+    .lw-webinar h1 { font-size: clamp(3.15rem, 14vw, 4.65rem); }
+    .lw-webinar .wb-intro { font-size: 1.08rem; }
+    .lw-webinar .wb-details { gap: 14px 19px; margin-top: 34px; }
+    .lw-webinar .wb-fit-panel { padding: 24px 0; }
+    .lw-webinar .wb-section { padding: 76px 0; }
+    .lw-webinar .wb-section-main { padding-left: 0; }
+    .lw-webinar .wb-section-heading { font-size: clamp(2.4rem, 12vw, 3.4rem); }
+    .lw-webinar .wb-introduction-layout { grid-template-columns: 1fr; gap: 35px; }
+    .lw-webinar .wb-session-grid, .lw-webinar .wb-testimonial-grid { grid-template-columns: 1fr; }
+    .lw-webinar .wb-session-card, .lw-webinar .wb-session-card:nth-child(odd), .lw-webinar .wb-session-card:nth-child(even) { padding: 24px 0; border-right: 0; margin: 0; }
+    .lw-webinar .wb-session-card h3 { font-size: 1.65rem; }
+    .lw-webinar .wb-session-meta { align-items: flex-start; flex-direction: column; gap: 13px; }
+    .lw-webinar .wb-testimonial, .lw-webinar .wb-testimonial:nth-child(odd), .lw-webinar .wb-testimonial:nth-child(even) { min-height: 0; padding: 27px 0; border-right: 0; margin: 0; }
+    .lw-webinar .wb-testimonial blockquote { font-size: 1.34rem; }
+    .lw-webinar .wb-footer-inner { align-items: flex-start; flex-direction: column; padding: 25px 0; }
+    .lw-webinar .wb-footer span { text-align: left; }
+  }
+`;
