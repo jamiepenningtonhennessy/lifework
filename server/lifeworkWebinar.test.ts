@@ -13,18 +13,8 @@ const webinarPageSource = readFileSync(
 );
 
 describe("Lifework webinar landing-page content", () => {
-  it("contains the four October Lifework webinar sessions with interim registration destinations", () => {
+  it("contains only the two 22 October Lifework webinar sessions", () => {
     expect(WEBINAR_SESSIONS).toEqual([
-      {
-        title: "An introduction to Lifework",
-        timing: "12:30 BST on 6 October",
-        registrationUrl: "https://us02web.zoom.us/meeting/register/NpjpJ7hIR9K9ueQCqlWFmA",
-      },
-      {
-        title: "An introduction to Lifework",
-        timing: "18:00 BST on 6 October",
-        registrationUrl: "https://us02web.zoom.us/meeting/register/fYzJ1jWhR_eWipnCf4f3zQ",
-      },
       {
         title: "An introduction to Lifework",
         timing: "12:30 BST on 22 October",
@@ -36,6 +26,8 @@ describe("Lifework webinar landing-page content", () => {
         registrationUrl: "https://us02web.zoom.us/meeting/register/tQZi33I6SPeA3rneUdyr0w",
       },
     ]);
+    expect(WEBINAR_SESSIONS).toHaveLength(2);
+    expect(JSON.stringify(WEBINAR_SESSIONS)).not.toContain("6 October");
   });
 
   it("uses a transparent interim registration destination", () => {
@@ -70,7 +62,9 @@ describe("Lifework webinar landing-page content", () => {
   });
 
   it("places each Request a place action directly beside its session time", () => {
-    expect(webinarPageSource).toContain('All four sessions offer the same introduction to Lifework.');
+    expect(webinarPageSource).toContain('Choose the 12:30 or 18:00 BST session on 22 October.');
+    expect(webinarPageSource).toContain('label="22 October"');
+    expect(webinarPageSource).toContain('22 October webinar');
     expect(webinarPageSource).toContain('Book a place');
     expect(webinarPageSource).toContain('className="wb-session-meta"');
 

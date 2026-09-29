@@ -2047,3 +2047,8 @@
 - [x] Add top-page links to booking and testimonials
 - [x] Enable smooth anchor scrolling with reduced-motion support
 - [x] Verify anchor navigation across desktop and mobile
+
+## Webinar 6 October Session Removal (2026-09-29)
+- [x] Remove both 6 October sessions from the public configuration
+- [x] Reword booking copy for the remaining 22 October options
+- [x] Verify the two 22 October links and page layout

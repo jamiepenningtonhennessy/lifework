@@ -21,11 +21,11 @@ function WebinarBookingModule({ id, number }: { id?: string; number: string }) {
   return (
     <section id={id} className="wb-section wb-booking">
       <div className="wb-shell wb-section-grid">
-        <SectionRail number={number} label="October webinars" sublabel="Choose your session" />
+        <SectionRail number={number} label="22 October" sublabel="Choose your session" />
         <div className="wb-section-main">
-          <div className="wb-kicker">October webinars</div>
+          <div className="wb-kicker">22 October webinar</div>
           <h2 className="wb-section-heading">Choose the session<br /><em>that suits you.</em></h2>
-          <p className="wb-copy wb-booking-intro">All four sessions offer the same introduction to Lifework.</p>
+          <p className="wb-copy wb-booking-intro">Choose the 12:30 or 18:00 BST session on 22 October.</p>
           <div className="wb-session-grid">
             {WEBINAR_SESSIONS.map((session) => (
               <article key={session.timing} className="wb-session-card">

@@ -4,16 +4,6 @@ export const WEBINAR_BOOKING_URL =
 export const WEBINAR_SESSIONS = [
   {
     title: "An introduction to Lifework",
-    timing: "12:30 BST on 6 October",
-    registrationUrl: "https://us02web.zoom.us/meeting/register/NpjpJ7hIR9K9ueQCqlWFmA",
-  },
-  {
-    title: "An introduction to Lifework",
-    timing: "18:00 BST on 6 October",
-    registrationUrl: "https://us02web.zoom.us/meeting/register/fYzJ1jWhR_eWipnCf4f3zQ",
-  },
-  {
-    title: "An introduction to Lifework",
     timing: "12:30 BST on 22 October",
     registrationUrl: "https://us02web.zoom.us/meeting/register/ZP01ENWWR_aagFOe0zKvdw",
   },
