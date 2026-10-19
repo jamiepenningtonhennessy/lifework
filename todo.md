@@ -2052,3 +2052,8 @@
 - [x] Remove both 6 October sessions from the public configuration
 - [x] Reword booking copy for the remaining 22 October options
 - [x] Verify the two 22 October links and page layout
+
+## Alistair After Stage 6 Conversation Design Reference (2026-10-19)
+- [x] Audit the current post-report Alistair conversation design and coaching boundaries
+- [x] Create an anonymised internal reference for consultant accreditation materials
+- [x] Verify that the document contains no client reports, identifiers, or personal data
