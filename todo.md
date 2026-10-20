@@ -2063,3 +2063,9 @@
 - [x] Write a two-page overview of where Lifework and the 100-year-life perspective reinforce one another
 - [x] Write a second paper clarifying the meaningful differences and appropriate positioning
 - [x] Verify citations and remove all client-identifying material
+
+## Fictional Alistair Lifework Training Report (2026-10-20)
+- [x] Audit the supplied report’s section structure and generic visual language
+- [x] Build an independent fictional client profile, life history, scores and conclusions with no retained personal data
+- [x] Produce a branded, clearly labelled training-report PDF for coach accreditation
+- [x] Verify the PDF layout and confirm that no source-report identifiers or personal facts remain
