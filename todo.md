@@ -2057,3 +2057,9 @@
 - [x] Audit the current post-report Alistair conversation design and coaching boundaries
 - [x] Create an anonymised internal reference for consultant accreditation materials
 - [x] Verify that the document contains no client reports, identifiers, or personal data
+
+## Lifework and The 100-Year Life Positioning Papers (2026-10-20)
+- [x] Research the current public framing of Living the 100-Year Life
+- [x] Write a two-page overview of where Lifework and the 100-year-life perspective reinforce one another
+- [x] Write a second paper clarifying the meaningful differences and appropriate positioning
+- [x] Verify citations and remove all client-identifying material
