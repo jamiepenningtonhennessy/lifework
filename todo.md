@@ -2069,3 +2069,9 @@
 - [x] Build an independent fictional client profile, life history, scores and conclusions with no retained personal data
 - [x] Produce a branded, clearly labelled training-report PDF for coach accreditation
 - [x] Verify the PDF layout and confirm that no source-report identifiers or personal facts remain
+
+## Fictional Alistair Report Voice and Rendering Revision (2026-10-22)
+- [x] Rewrite the client-facing narrative in Alistair’s first-person voice
+- [x] Remove training-only and machine-prompt language from the client report body
+- [x] Repair all Typst conditional-rendering artefacts in score and content helpers
+- [x] Compile, privacy-check and visually inspect the corrected report
