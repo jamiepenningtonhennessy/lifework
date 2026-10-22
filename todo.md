@@ -2075,3 +2075,8 @@
 - [x] Remove training-only and machine-prompt language from the client report body
 - [x] Repair all Typst conditional-rendering artefacts in score and content helpers
 - [x] Compile, privacy-check and visually inspect the corrected report
+
+## Fictional Alistair Report Direct-Address Revision (2026-10-22)
+- [x] Redraft the fictional report throughout in direct client address using “you” and “your”
+- [x] Preserve the fictional-data notice while removing any remaining first-person report voice
+- [x] Compile, run content checks and visually inspect the revised PDF
