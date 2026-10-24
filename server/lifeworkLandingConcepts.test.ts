@@ -55,8 +55,9 @@ describe("Lifework landing page", () => {
     expect(conceptSource).toContain('.lw-concept[data-concept="field-notes"] .lc-video-frame { background: #fffdf9');
   });
 
-  it("uses the supplied opening-page video through the managed storage proxy", () => {
-    expect(conceptSource).toContain('src="/manus-storage/lifeworkpathopen_02c49e08.mp4"');
+  it("uses the approved two-minute Lifework film through the managed storage proxy", () => {
+    expect(conceptSource).toContain('src="/manus-storage/lifework_homepage_editorial_slidefilm_retimed_48dd0749.mp4"');
+    expect(conceptSource).toContain('<em>in two minutes.</em>');
     expect(conceptSource).toContain('preload="metadata"');
     expect(coreServerSource).toContain('import { registerStorageProxy } from "./storageProxy";');
     expect(coreServerSource).toContain('registerStorageProxy(app);');

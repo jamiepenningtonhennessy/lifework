@@ -2108,3 +2108,8 @@
 - [x] Hold “Look beneath the surface” for approximately five seconds longer before the pattern slide
 - [x] Advance “Give shape to what you already sense” by approximately five seconds
 - [x] Start “When the evidence is clear” at 01:48 and recheck all affected transitions
+
+## LifeworkPath Homepage Video Replacement (2026-10-24)
+- [x] Upload the approved retimed Lifework slide-film to managed website storage
+- [x] Point the homepage video player to the managed video path
+- [x] Validate the homepage player’s source, metadata loading and production build

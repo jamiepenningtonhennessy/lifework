@@ -388,10 +388,10 @@ function VideoSection() {
         <SectionRail num="03" label="How it works" sub="The story of Lifework" />
         <div className="lc-section-main">
           <div className="lc-kicker">How it works</div>
-          <h2 className="lc-section-heading">The story of Lifework —<br /><em>in four minutes.</em></h2>
+          <h2 className="lc-section-heading">The story of Lifework —<br /><em>in two minutes.</em></h2>
           <div className="lc-copy"><p>Rooted in positive psychology, anchored in your own life story.</p></div>
           <div className="lc-video-frame">
-            <video src="/manus-storage/lifeworkpathopen_02c49e08.mp4" controls playsInline preload="metadata" title="Lifework: how it works" />
+            <video src="/manus-storage/lifework_homepage_editorial_slidefilm_retimed_48dd0749.mp4" controls playsInline preload="metadata" title="Lifework: how it works" />
           </div>
         </div>
       </div>
