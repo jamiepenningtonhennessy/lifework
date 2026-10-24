@@ -2086,3 +2086,8 @@
 - [x] Transcribe the existing narration and select a natural Scottish male voice
 - [x] Replace the voiceover while retaining the original visual edit and suitable non-narration audio
 - [x] Verify the final video’s synchronisation, audio streams and playback
+
+## Short Pain-Led Lifework Homepage Video Script (2026-10-24)
+- [x] Audit the supplied Garr Reynolds presentation and its existing high-level narration
+- [x] Write a pain-led Lifework script that explains the recognition the process gives clients
+- [x] Confirm that the spoken narration is below three minutes and suitable for later visual development
