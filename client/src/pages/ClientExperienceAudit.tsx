@@ -6,6 +6,7 @@ import {
   Compass,
   FileText,
   LockKeyhole,
+  Mail,
   MessageSquare,
   PlayCircle,
   ShieldCheck,
@@ -18,15 +19,19 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { DashboardBody } from "./ClientDashboard";
 
-type AuditScreen = "dashboard" | "interview" | "background" | "sage" | "via" | "ipip" | "alistair" | "video";
+type AuditScreen = "dashboard" | "interview" | "background" | "sage" | "via" | "ipip" | "coaching" | "alistair" | "video";
 
 const AUDIT_ROOT = "/counselor/client-audit";
 const HOMEPAGE_FILM = "/manus-storage/lifework_homepage_editorial_slidefilm_retimed_48dd0749.mp4";
+const LIFE_HISTORY_STAGE_VIDEO_URL = "/manus-storage/lifework_step1_life_history_explainer_eeeee55c.mp4";
+const BACKGROUND_STAGE_VIDEO_URL = "/manus-storage/lifework_step2_background_career_explainer_839de757.mp4";
 const SAGE_STAGE_VIDEO_URL = "/manus-storage/lifework_stage3_sage_conversation_explainer_9ae1669b.mp4";
 const PSYCHOMETRICS_STAGE_VIDEO_URL = "/manus-storage/lifework_stage4_psychometrics_explainer_dce111a1.mp4";
+const FINAL_STAGE_VIDEO_URL = "/manus-storage/lifework_final_alistair_report_and_coaching_explainer_81089006.mp4";
+const COACHING_EMAIL_HREF = "mailto:coach@lifeworkpath.com?subject=Lifework%20coaching%20meeting&body=Hello%2C%0A%0AI%20have%20completed%20my%20Lifework%20evidence-gathering%20stages%20and%20would%20like%20to%20arrange%20a%20coaching%20meeting.%0A%0AMy%20name%20is%3A%20";
 const STAGE_VIDEOS = {
-  lifeHistory: { fileId: "1vYmcvxcjjK3kPiOib4l9aNlg9XSCIBSL", title: "Lifework introduction" },
-  background: { fileId: "1FQ9fnNAvFIvwPqqmwC_t7ODEOhj0w1ld", title: "Career, education and family" },
+  lifeHistory: { src: LIFE_HISTORY_STAGE_VIDEO_URL, title: "Life History Interview — a short introduction" },
+  background: { src: BACKGROUND_STAGE_VIDEO_URL, title: "Background and Career History — a short introduction" },
   via: { src: PSYCHOMETRICS_STAGE_VIDEO_URL, title: "Psychometrics in Lifework — a short introduction" },
   ipip: { fileId: "1t1UYw3YRal-UZ0efJrtr3H_IqH08ANsy", title: "IPIP-NEO Personality Survey" },
 } as const;
@@ -56,7 +61,7 @@ const auditPath = (screen: AuditScreen) =>
   screen === "dashboard" ? AUDIT_ROOT : `${AUDIT_ROOT}/${screen}`;
 
 function isAuditScreen(value: string | undefined): value is AuditScreen {
-  return ["dashboard", "interview", "background", "sage", "via", "ipip", "alistair", "video"].includes(value ?? "");
+  return ["dashboard", "interview", "background", "sage", "via", "ipip", "coaching", "alistair", "video"].includes(value ?? "");
 }
 
 const auditLinks: Array<{ screen: AuditScreen; label: string }> = [
@@ -66,6 +71,7 @@ const auditLinks: Array<{ screen: AuditScreen; label: string }> = [
   { screen: "sage", label: "Sage" },
   { screen: "via", label: "VIA" },
   { screen: "ipip", label: "Personality" },
+  { screen: "coaching", label: "Report & coaching" },
   { screen: "alistair", label: "Alistair" },
   { screen: "video", label: "Hosted video" },
 ];
@@ -199,6 +205,7 @@ function AuditDashboard() {
       "/background": "background",
       "/via": "via",
       "/ipip-survey": "ipip",
+      "/lifework-coaching": "coaching",
       "/career-explorer": "alistair",
     };
     navigate(auditPath(screenByClientPath[clientPath] ?? "dashboard"));
@@ -273,21 +280,22 @@ function BackgroundAudit() {
           <Card>
             <CardHeader><CardTitle className="flex items-center gap-2 font-serif text-xl"><UserRound className="h-5 w-5" style={{ color: "var(--lw-gold)" }} /> Family background</CardTitle></CardHeader>
             <CardContent className="space-y-4">
-              <p className="text-sm leading-relaxed text-muted-foreground">The opening state is intentionally empty and optional. It invites context without presuming that a client should disclose more than feels useful.</p>
-              <Textarea readOnly placeholder="If useful, add a little about the people, places or circumstances that shaped you." className="min-h-32" />
+              <p className="text-sm leading-relaxed text-muted-foreground">The live page begins with two parent or guardian occupation fields and a reflective family narrative. It invites useful context without presuming that a client must disclose more than feels helpful.</p>
+              <Textarea readOnly placeholder="What were three rules that I would need to know to be a happy and well-regarded member of your household?" className="min-h-32" />
               <p className="text-xs text-muted-foreground">Nothing is saved in audit mode.</p>
             </CardContent>
           </Card>
           <Card>
-            <CardHeader><CardTitle className="flex items-center gap-2 font-serif text-xl"><FileText className="h-5 w-5" style={{ color: "var(--lw-gold)" }} /> Career timeline</CardTitle></CardHeader>
+            <CardHeader><CardTitle className="flex items-center gap-2 font-serif text-xl"><FileText className="h-5 w-5" style={{ color: "var(--lw-gold)" }} /> Career history</CardTitle></CardHeader>
             <CardContent className="space-y-4">
-              <p className="text-sm leading-relaxed text-muted-foreground">A new client sees an empty timeline and can add a role, period of study or meaningful transition when ready.</p>
-              <div className="rounded-lg border border-dashed p-6 text-center" style={{ borderColor: "rgba(201,151,58,0.45)" }}>
+              <p className="text-sm leading-relaxed text-muted-foreground">A client can upload their CV, then answer: “Now tell us what you have really enjoyed in your career.” The live reflection field makes room for the moments, people and ways of working they genuinely enjoyed.</p>
+              <div className="rounded-lg border border-dashed p-5 text-center" style={{ borderColor: "rgba(201,151,58,0.45)" }}>
                 <FileText className="mx-auto h-7 w-7" style={{ color: "var(--lw-gold)" }} />
-                <p className="mt-3 text-sm font-medium" style={{ color: "var(--lw-navy)" }}>No timeline entries yet</p>
-                <p className="mt-1 text-xs text-muted-foreground">The first entry can be work, study, a break or a turning point.</p>
+                <p className="mt-3 text-sm font-medium" style={{ color: "var(--lw-navy)" }}>Upload your CV</p>
+                <p className="mt-1 text-xs text-muted-foreground">PDF or Word document; it is used alongside the reflections the client chooses to add.</p>
               </div>
-              <Button disabled variant="outline" className="w-full">Add your first timeline entry — audit only</Button>
+              <Textarea readOnly placeholder="Write freely about what you have really enjoyed in your career…" className="min-h-28" />
+              <Button disabled variant="outline" className="w-full">Upload CV — audit only</Button>
             </CardContent>
           </Card>
         </div>
@@ -355,7 +363,7 @@ function AssessmentAudit({ type }: { type: "via" | "ipip" }) {
 
   return (
     <>
-      <AuditScreenHeader title={title} eyebrow={eyebrow} next={{ label: isVia ? "Personality profile" : "Alistair", screen: isVia ? "ipip" : "alistair" }} />
+      <AuditScreenHeader title={title} eyebrow={eyebrow} next={{ label: isVia ? "Personality profile" : "Report & coaching", screen: isVia ? "ipip" : "coaching" }} />
       <AuditIntro title={isVia ? "A further lens on what matters" : "A picture of working preferences"}>
         <StageVideoEmbed video={isVia ? STAGE_VIDEOS.via : STAGE_VIDEOS.ipip} />
         <Card className="mx-auto max-w-3xl">
@@ -379,6 +387,48 @@ function AssessmentAudit({ type }: { type: "via" | "ipip" }) {
               <Button variant="outline" onClick={() => navigate(auditPath("dashboard"))}>Back to dashboard</Button>
               <Button disabled style={{ background: "var(--lw-gold)", color: "var(--lw-navy)" }}>Next question — audit only</Button>
             </div>
+          </CardContent>
+        </Card>
+      </AuditIntro>
+    </>
+  );
+}
+
+function CoachingAudit() {
+  return (
+    <>
+      <AuditScreenHeader title="Your WoW report and coaching meeting" eyebrow="Step 5 of 6 · after both psychometrics" next={{ label: "Alistair", screen: "alistair" }} />
+      <AuditIntro title="Now we draw the whole picture together.">
+        <div className="mb-8 overflow-hidden rounded-xl border" style={{ borderColor: "rgba(201,151,58,0.38)", background: "var(--lw-navy)" }}>
+          <video
+            src={FINAL_STAGE_VIDEO_URL}
+            controls
+            playsInline
+            preload="metadata"
+            title="Your Lifework report and coaching conversation — a short introduction"
+            className="block aspect-video w-full"
+          />
+        </div>
+        <p className="max-w-2xl text-sm leading-relaxed" style={{ color: "var(--lw-navy-mid)" }}>
+          In the live journey this page opens only after both psychometrics are complete. It introduces the report-and-coaching stage before the client contacts the coaching team.
+        </p>
+        <Card className="mt-8 overflow-hidden border-[var(--lw-gold)]/30">
+          <CardContent className="grid gap-7 p-6 sm:grid-cols-[1fr_auto] sm:items-center sm:p-8">
+            <div>
+              <div className="mb-3 flex items-center gap-2" style={{ color: "var(--lw-gold)" }}>
+                <Mail className="h-5 w-5" />
+                <span className="text-xs font-semibold uppercase tracking-[0.15em]">Arrange your meeting</span>
+              </div>
+              <h2 className="font-serif text-3xl font-semibold" style={{ color: "var(--lw-navy)" }}>Book the conversation that brings your report to life.</h2>
+              <p className="mt-3 max-w-xl text-sm leading-relaxed" style={{ color: "var(--lw-navy-mid)" }}>
+                The live page invites the client to email the Lifework coaching team. Once a meeting is booked, the report is sent to the client and their coach so both can arrive ready to explore it.
+              </p>
+            </div>
+            <a href={COACHING_EMAIL_HREF} className="shrink-0">
+              <Button className="gap-2 px-5 py-6 text-base" style={{ background: "var(--lw-gold)", color: "white" }}>
+                <Mail className="h-5 w-5" /> Email coach@lifeworkpath.com
+              </Button>
+            </a>
           </CardContent>
         </Card>
       </AuditIntro>
@@ -451,6 +501,7 @@ export default function ClientExperienceAudit() {
       {screen === "sage" && <SageAudit />}
       {screen === "via" && <AssessmentAudit type="via" />}
       {screen === "ipip" && <AssessmentAudit type="ipip" />}
+      {screen === "coaching" && <CoachingAudit />}
       {screen === "alistair" && <AlistairAudit />}
       {screen === "video" && <VideoAudit />}
     </div>

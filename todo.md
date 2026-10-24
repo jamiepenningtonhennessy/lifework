@@ -2256,3 +2256,10 @@
 - [x] Add a clear mailto action to coach@lifeworkpath.com and explain that the report follows a booked coaching meeting
 - [x] Link the client dashboard’s fifth stage to this page only after both psychometrics are complete
 - [x] Validate media URLs, access gating, mailto payload, responsive layouts and production build
+
+## Client Audit Walkthrough Synchronisation (2026-10-24)
+- [x] Replace the Life History and Background audit embeds with the same managed films now used on the live client pages
+- [x] Rework the audit Career History opening state to mirror the CV-plus-reflective-account experience
+- [x] Add the final report-and-coaching page, approved Alistair film and mailto preview to the audit walkthrough
+- [x] Update audit navigation and regression coverage for the full current client-stage sequence
+- [x] Validate the synchronised audit layout, media source safety and production build
