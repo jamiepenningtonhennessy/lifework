@@ -132,8 +132,6 @@ function FamilyForm() {
       </p>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
-         <Label>Father's Occupation</Label>
-         <Input className="mt-1" value={form.fatherOccupation} onChange={(e) => handleChange("fatherOccupation", e.target.value)} placeholder="e.g. Engineer, Teacher" />
           <Label>Parent / Guardian 1 — Occupation</Label>
           <Input className="mt-1" value={form.fatherOccupation} onChange={(e) => handleChange("fatherOccupation", e.target.value)} placeholder="e.g. Engineer, Teacher" />
         </div>
@@ -152,7 +150,7 @@ function FamilyForm() {
       </div>
       <div>
         <Label>Family narrative</Label>
-        <p className="text-xs text-muted-foreground mt-0.5 mb-1">Describe the atmosphere and culture of your family home. What were the unspoken rules? What was valued?</p>
+        <p className="text-xs text-muted-foreground mt-0.5 mb-1">What were three rules that I would need to know to be a happy and well-regarded member of your household? And what might your family motto have been, if you had been asked for one?</p>
         <Textarea className="mt-1" rows={4} value={form.familyNarrative} onChange={(e) => handleChange("familyNarrative", e.target.value)} placeholder="Our family was…" />
       </div>
       <div>

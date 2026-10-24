@@ -2159,3 +2159,8 @@
 - [x] Upload the approved Life History slide-film to managed website storage
 - [x] Replace the Life History client-page Google Drive iframe with the managed video player
 - [x] Verify the live media source, duration, responsive player and production build
+
+## Family Background Form Refinement (2026-10-24)
+- [x] Remove the redundant Father’s Occupation field while retaining Parent / Guardian 1 and 2 occupation fields
+- [x] Replace the Family Narrative prompt with the household-rules and family-motto question
+- [x] Validate the client form layout and production build
