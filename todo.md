@@ -2149,3 +2149,8 @@
 - [x] Create a text-led cream, navy and gold Step 1 film using the existing Lifework wordmark and slide-film grammar
 - [x] Verify synchronisation, readable holds, visual continuity and playable final media
 - [x] Prepare the finished Life History explainer for later replacement of the live stage video
+
+## Step 1 Slide-Film Layout Corrections (2026-10-24)
+- [x] Reveal the Models, Questions and Pattern work cards in their visual left-to-right order
+- [x] Move the outside-in explanatory copy further clear of its vertical divider
+- [x] Re-render and visually check the corrected measured master
