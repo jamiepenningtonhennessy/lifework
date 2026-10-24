@@ -2124,3 +2124,10 @@
 - [x] Move How it works from module 03 to module 02
 - [x] Renumber the remaining homepage modules in their revised order
 - [x] Validate the revised order, video placement and responsive page build
+
+## First-Engagement Counsellor Client Audit (2026-10-24)
+- [x] Reset the fictional audit dashboard to a genuinely first-visit client state
+- [x] Rework each audit screen to show its blank or opening client experience rather than completed data
+- [x] Add direct counsellor audit navigation between first-engagement screens without changing the real client journey locks
+- [x] Ensure Sage’s opening audit prompt moves directly to a coaching question, without an interpretive conclusion
+- [x] Validate the first-engagement sequence, hosted video and production build

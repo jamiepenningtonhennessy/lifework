@@ -2,10 +2,8 @@ import { useLocation, useParams } from "wouter";
 import {
   ArrowLeft,
   ArrowRight,
-  CheckCircle2,
   ClipboardList,
   Compass,
-  Eye,
   FileText,
   LockKeyhole,
   MessageSquare,
@@ -20,82 +18,91 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { DashboardBody } from "./ClientDashboard";
 
-type AuditScreen = "dashboard" | "interview" | "background" | "via" | "ipip" | "alistair" | "video";
+type AuditScreen = "dashboard" | "interview" | "background" | "sage" | "via" | "ipip" | "alistair" | "video";
 
 const AUDIT_ROOT = "/counselor/client-audit";
 const HOMEPAGE_FILM = "/manus-storage/lifework_homepage_editorial_slidefilm_retimed_48dd0749.mp4";
 
-const fictionalProfile = {
+/** A deliberately empty account state — no real profile, record or report is ever read. */
+const firstVisitProfile = {
   firstName: "Example",
   lastName: "Client",
-  interviewStatus: "completed",
-  backgroundStatus: "completed",
-  viaStatus: "completed",
-  ipipStatus: "completed",
-  careerExplorerUnlocked: true,
+  interviewStatus: "not_started",
+  backgroundStatus: "not_started",
+  viaStatus: "not_started",
+  ipipStatus: "not_started",
+  careerExplorerUnlocked: false,
 };
 
-const fictionalEnrichmentStatus = {
-  total: 24,
-  enriched: 8,
+const firstVisitEnrichmentStatus = {
+  total: 0,
+  enriched: 0,
   requiredEvents: 20,
-  unlocked: true,
-  sageConversationCompleted: true,
-  hasMinimumEvents: true,
-  remainingEvents: 0,
+  unlocked: false,
+  sageConversationCompleted: false,
+  hasMinimumEvents: false,
+  remainingEvents: 20,
 };
 
 const auditPath = (screen: AuditScreen) =>
   screen === "dashboard" ? AUDIT_ROOT : `${AUDIT_ROOT}/${screen}`;
 
 function isAuditScreen(value: string | undefined): value is AuditScreen {
-  return ["dashboard", "interview", "background", "via", "ipip", "alistair", "video"].includes(value ?? "");
+  return ["dashboard", "interview", "background", "sage", "via", "ipip", "alistair", "video"].includes(value ?? "");
 }
+
+const auditLinks: Array<{ screen: AuditScreen; label: string }> = [
+  { screen: "dashboard", label: "Dashboard" },
+  { screen: "interview", label: "Life history" },
+  { screen: "background", label: "Background" },
+  { screen: "sage", label: "Sage" },
+  { screen: "via", label: "VIA" },
+  { screen: "ipip", label: "Personality" },
+  { screen: "alistair", label: "Alistair" },
+  { screen: "video", label: "Hosted video" },
+];
 
 function AuditBanner({ screen }: { screen: AuditScreen }) {
   const [, navigate] = useLocation();
 
   return (
-    <div
-      className="border-b"
-      style={{ background: "var(--lw-gold)", borderColor: "rgba(17,34,56,0.18)", color: "var(--lw-navy)" }}
-    >
-      <div className="container flex flex-col gap-3 py-3 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex min-w-0 items-start gap-2 text-sm">
-          <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0" />
-          <div>
-            <span className="font-semibold">Counsellor audit mode</span>
-            <span className="hidden sm:inline"> — fictional sample data; nothing is saved or sent to a client.</span>
+    <div className="border-b" style={{ background: "var(--lw-gold)", borderColor: "rgba(17,34,56,0.18)", color: "var(--lw-navy)" }}>
+      <div className="container py-3">
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+          <div className="flex min-w-0 items-start gap-2 text-sm">
+            <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0" />
+            <div>
+              <span className="font-semibold">Counsellor audit mode</span>
+              <span className="hidden sm:inline"> — first-engagement screens, fictional state; nothing is saved or sent to a client.</span>
+            </div>
           </div>
-        </div>
-        <div className="flex flex-wrap items-center gap-2">
-          <Button
-            size="sm"
-            variant="outline"
-            onClick={() => navigate(auditPath("dashboard"))}
-            disabled={screen === "dashboard"}
-            className="border-[var(--lw-navy)]/45 bg-transparent text-[var(--lw-navy)] hover:bg-white/35"
-          >
-            <ClipboardList className="mr-1.5 h-3.5 w-3.5" /> Dashboard
-          </Button>
-          <Button
-            size="sm"
-            variant="outline"
-            onClick={() => navigate(auditPath("video"))}
-            disabled={screen === "video"}
-            className="border-[var(--lw-navy)]/45 bg-transparent text-[var(--lw-navy)] hover:bg-white/35"
-          >
-            <PlayCircle className="mr-1.5 h-3.5 w-3.5" /> Hosted video
-          </Button>
           <Button
             size="sm"
             variant="outline"
             onClick={() => navigate("/counselor")}
-            className="border-[var(--lw-navy)]/45 bg-transparent text-[var(--lw-navy)] hover:bg-white/35"
+            className="w-fit border-[var(--lw-navy)]/45 bg-transparent text-[var(--lw-navy)] hover:bg-white/35"
           >
             Return to counsellor desk
           </Button>
         </div>
+        <nav className="mt-3 flex gap-1.5 overflow-x-auto pb-0.5" aria-label="Audit screens">
+          {auditLinks.map((link) => (
+            <button
+              key={link.screen}
+              type="button"
+              onClick={() => navigate(auditPath(link.screen))}
+              aria-current={screen === link.screen ? "page" : undefined}
+              className="shrink-0 rounded-full border px-3 py-1.5 text-xs font-medium transition-colors"
+              style={{
+                borderColor: "rgba(17,34,56,0.3)",
+                background: screen === link.screen ? "var(--lw-navy)" : "rgba(255,255,255,0.22)",
+                color: screen === link.screen ? "white" : "var(--lw-navy)",
+              }}
+            >
+              {link.label}
+            </button>
+          ))}
+        </nav>
       </div>
     </div>
   );
@@ -139,9 +146,9 @@ function AuditIntro({ title, children }: { title: string; children: React.ReactN
   return (
     <div className="container max-w-4xl py-9 sm:py-12">
       <div className="mb-8 max-w-2xl">
-        <p className="mb-2 text-xs font-semibold uppercase tracking-[0.14em]" style={{ color: "var(--lw-gold)" }}>Fictional client walkthrough</p>
+        <p className="mb-2 text-xs font-semibold uppercase tracking-[0.14em]" style={{ color: "var(--lw-gold)" }}>First engagement audit</p>
         <h1 className="font-serif text-3xl font-semibold tracking-tight" style={{ color: "var(--lw-navy)" }}>{title}</h1>
-        <p className="mt-3 text-sm leading-relaxed text-muted-foreground">This is a visual, non-persistent audit of the screen a client would see. Form controls are illustrative only and do not affect any client record.</p>
+        <p className="mt-3 text-sm leading-relaxed text-muted-foreground">This shows the blank or opening state a new client first encounters. It is fictional and non-persistent, so you can inspect every stage without registering or changing a client record.</p>
       </div>
       {children}
     </div>
@@ -163,15 +170,12 @@ function AuditDashboard() {
 
   return (
     <DashboardBody
-      profile={fictionalProfile}
-      enrichmentStatus={fictionalEnrichmentStatus}
+      profile={firstVisitProfile}
+      enrichmentStatus={firstVisitEnrichmentStatus}
       loadingProfile={false}
       displayName="Example Client"
       onNavigate={auditNavigate}
       showAdminLink={false}
-      isPreview
-      allowPreviewNavigation
-      sagePreviewContext="This is a fictional audit client. They describe feeling most fulfilled when they make a complex question understandable, bring different people into a constructive conversation, and help a group decide what to do next. Ask one direct, open coaching question at a time. Do not state interpretations as conclusions before asking the question."
     />
   );
 }
@@ -179,40 +183,40 @@ function AuditDashboard() {
 function InterviewAudit() {
   return (
     <>
-      <AuditScreenHeader title="Life History Interview" eyebrow="Step 1 of 6" next={{ label: "Background", screen: "background" }} />
-      <AuditIntro title="A life in evidence">
+      <AuditScreenHeader title="Life History Interview" eyebrow="Step 1 of 6 · first visit" next={{ label: "Background", screen: "background" }} />
+      <AuditIntro title="Begin with one real moment">
         <div className="grid gap-5 lg:grid-cols-[1.05fr_0.95fr]">
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center gap-2 font-serif text-xl"><MessageSquare className="h-5 w-5" style={{ color: "var(--lw-gold)" }} /> Early years</CardTitle>
+              <CardTitle className="flex items-center gap-2 font-serif text-xl"><MessageSquare className="h-5 w-5" style={{ color: "var(--lw-gold)" }} /> Your first memory</CardTitle>
+              <p className="text-sm leading-relaxed text-muted-foreground">The client sees a calm invitation to start with any time they felt effective, engaged, satisfied or fulfilled. There is no expectation to tell their whole life story at once.</p>
             </CardHeader>
             <CardContent className="space-y-4">
-              <p className="text-sm leading-relaxed text-muted-foreground">The client is invited to add specific moments, not a chronological CV. Each moment asks what happened, what they did, and what made it satisfying, enjoyable or fulfilling.</p>
-              <div className="rounded-lg border p-4" style={{ borderColor: "rgba(201,151,58,0.35)", background: "rgba(201,151,58,0.06)" }}>
-                <p className="text-xs font-semibold uppercase tracking-[0.12em]" style={{ color: "var(--lw-gold)" }}>Example event</p>
-                <p className="mt-2 font-medium" style={{ color: "var(--lw-navy)" }}>Organising a school debate</p>
-                <p className="mt-1 text-sm leading-relaxed text-muted-foreground">A fictional example of planning the argument, drawing quieter people in, and helping the group arrive at a clear conclusion.</p>
-                <div className="mt-3 flex flex-wrap gap-2">
-                  <span className="rounded-full bg-white px-2.5 py-1 text-xs shadow-sm">Enjoyable</span>
-                  <span className="rounded-full bg-white px-2.5 py-1 text-xs shadow-sm">Satisfying</span>
-                </div>
+              <div>
+                <label className="mb-2 block text-sm font-medium" style={{ color: "var(--lw-navy)" }}>Give this moment a short title</label>
+                <Input readOnly placeholder="For example: organising a school play" />
               </div>
-              <Button disabled className="w-full gap-2" style={{ background: "var(--lw-gold)", color: "var(--lw-navy)" }}>
-                <Sparkles className="h-4 w-4" /> Add another event — audit only
-              </Button>
+              <div>
+                <label className="mb-2 block text-sm font-medium" style={{ color: "var(--lw-navy)" }}>What happened? What did you do?</label>
+                <Textarea readOnly placeholder="Write freely. You can return later to add detail or another moment." className="min-h-36" />
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {["Enjoyable", "Satisfying", "Fulfilling"].map((label) => <button key={label} type="button" className="rounded-full border border-border bg-background px-3 py-1.5 text-xs">{label}</button>)}
+              </div>
+              <Button disabled className="w-full gap-2" style={{ background: "var(--lw-gold)", color: "var(--lw-navy)" }}><Sparkles className="h-4 w-4" /> Save this memory — audit only</Button>
             </CardContent>
           </Card>
           <Card>
-            <CardHeader><CardTitle className="font-serif text-xl">Progress in context</CardTitle></CardHeader>
-            <CardContent className="space-y-4">
-              <div className="rounded-lg bg-muted p-4">
-                <p className="text-2xl font-semibold" style={{ color: "var(--lw-navy)" }}>24</p>
-                <p className="mt-1 text-sm text-muted-foreground">fictional life-history events recorded</p>
+            <CardHeader><CardTitle className="font-serif text-xl">What a new client needs to know</CardTitle></CardHeader>
+            <CardContent className="space-y-4 text-sm leading-relaxed text-muted-foreground">
+              <div className="rounded-lg p-4" style={{ background: "rgba(201,151,58,0.08)", border: "1px solid rgba(201,151,58,0.25)" }}>
+                <p className="font-medium" style={{ color: "var(--lw-navy)" }}>There is no right starting point.</p>
+                <p className="mt-1">The first memory can be from childhood, work, study, family life or any other period. It just needs to matter to them.</p>
               </div>
-              <p className="text-sm leading-relaxed text-muted-foreground">The live screen saves each event as the client works. This audit version deliberately does not save anything, so you can inspect the experience without creating an account or changing a record.</p>
-              <div className="border-t pt-4 text-sm" style={{ borderColor: "var(--border)" }}>
-                <p className="font-medium" style={{ color: "var(--lw-navy)" }}>What to check</p>
-                <p className="mt-1 leading-relaxed text-muted-foreground">Clarity of the prompts, pace, reassurance about saved progress, and whether a client understands what counts as an event.</p>
+              <p>The live journey saves progress as a client works. This audit holds nothing, so the page always returns to its first blank state.</p>
+              <div className="border-t pt-4" style={{ borderColor: "var(--border)" }}>
+                <p className="font-medium" style={{ color: "var(--lw-navy)" }}>Audit focus</p>
+                <p className="mt-1">Look for warmth, simplicity and whether the invitation feels achievable rather than like a demand for a polished autobiography.</p>
               </div>
             </CardContent>
           </Card>
@@ -225,31 +229,27 @@ function InterviewAudit() {
 function BackgroundAudit() {
   return (
     <>
-      <AuditScreenHeader title="Background & History" eyebrow="Step 2 of 6" next={{ label: "VIA survey", screen: "via" }} />
-      <AuditIntro title="The context around the story">
+      <AuditScreenHeader title="Background & History" eyebrow="Step 2 of 6 · first visit" next={{ label: "Sage", screen: "sage" }} />
+      <AuditIntro title="Add context only when it helps">
         <div className="grid gap-5 md:grid-cols-2">
           <Card>
             <CardHeader><CardTitle className="flex items-center gap-2 font-serif text-xl"><UserRound className="h-5 w-5" style={{ color: "var(--lw-gold)" }} /> Family background</CardTitle></CardHeader>
             <CardContent className="space-y-4">
-              <p className="text-sm leading-relaxed text-muted-foreground">A calm, optional way for clients to add the context that may have shaped their choices and opportunities.</p>
-              <Textarea readOnly value="Fictional audit example: a home where books, lively discussion and practical problem-solving were all valued." className="min-h-28 bg-muted/40" />
-              <p className="text-xs text-muted-foreground">Audit mode: no data is saved.</p>
+              <p className="text-sm leading-relaxed text-muted-foreground">The opening state is intentionally empty and optional. It invites context without presuming that a client should disclose more than feels useful.</p>
+              <Textarea readOnly placeholder="If useful, add a little about the people, places or circumstances that shaped you." className="min-h-32" />
+              <p className="text-xs text-muted-foreground">Nothing is saved in audit mode.</p>
             </CardContent>
           </Card>
           <Card>
             <CardHeader><CardTitle className="flex items-center gap-2 font-serif text-xl"><FileText className="h-5 w-5" style={{ color: "var(--lw-gold)" }} /> Career timeline</CardTitle></CardHeader>
-            <CardContent className="space-y-3">
-              {[
-                ["2011–2016", "Research and teaching", "Making difficult ideas useful to other people."],
-                ["2016–2022", "Programme leadership", "Bringing disciplines and stakeholders into a shared direction."],
-                ["2022–now", "Independent advisory work", "Helping groups decide what matters next."],
-              ].map(([period, role, detail]) => (
-                <div key={period} className="border-l-2 pl-4" style={{ borderColor: "var(--lw-gold)" }}>
-                  <p className="text-xs font-semibold uppercase tracking-[0.1em]" style={{ color: "var(--lw-gold)" }}>{period}</p>
-                  <p className="mt-1 text-sm font-medium" style={{ color: "var(--lw-navy)" }}>{role}</p>
-                  <p className="mt-0.5 text-sm text-muted-foreground">{detail}</p>
-                </div>
-              ))}
+            <CardContent className="space-y-4">
+              <p className="text-sm leading-relaxed text-muted-foreground">A new client sees an empty timeline and can add a role, period of study or meaningful transition when ready.</p>
+              <div className="rounded-lg border border-dashed p-6 text-center" style={{ borderColor: "rgba(201,151,58,0.45)" }}>
+                <FileText className="mx-auto h-7 w-7" style={{ color: "var(--lw-gold)" }} />
+                <p className="mt-3 text-sm font-medium" style={{ color: "var(--lw-navy)" }}>No timeline entries yet</p>
+                <p className="mt-1 text-xs text-muted-foreground">The first entry can be work, study, a break or a turning point.</p>
+              </div>
+              <Button disabled variant="outline" className="w-full">Add your first timeline entry — audit only</Button>
             </CardContent>
           </Card>
         </div>
@@ -258,22 +258,52 @@ function BackgroundAudit() {
   );
 }
 
-const viaQuestions = [
-  "I feel energised when I learn something that changes how I see a problem.",
-  "I enjoy finding a way to make a complicated idea clearer for someone else.",
-  "I notice when a group has lost sight of what it is trying to achieve.",
-];
+function SageAudit() {
+  return (
+    <>
+      <AuditScreenHeader title="Sage — Exploring your Life History" eyebrow="Step 3 of 6 · first available conversation" next={{ label: "VIA", screen: "via" }} />
+      <AuditIntro title="The first question, not a conclusion">
+        <div className="grid gap-5 lg:grid-cols-[1.1fr_0.9fr]">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 font-serif text-xl"><Sparkles className="h-5 w-5" style={{ color: "var(--lw-gold)" }} /> When Sage first opens</CardTitle>
+              <p className="text-sm leading-relaxed text-muted-foreground">On the dashboard Sage is initially locked. Once a client has begun their life history, this is the first conversational state they encounter.</p>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="max-w-[88%] rounded-2xl rounded-tl-sm bg-muted px-4 py-3 text-sm leading-relaxed" style={{ color: "var(--lw-navy)" }}>
+                What part of that moment felt most satisfying to you?
+              </div>
+              <div className="border-t pt-4" style={{ borderColor: "var(--border)" }}>
+                <Textarea readOnly placeholder="The client can answer in their own words…" className="min-h-24" />
+                <Button disabled className="mt-3 gap-2" style={{ background: "var(--lw-gold)", color: "var(--lw-navy)" }}>Send — audit only <ArrowRight className="h-3.5 w-3.5" /></Button>
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader><CardTitle className="font-serif text-xl">Coaching standard</CardTitle></CardHeader>
+            <CardContent className="space-y-4 text-sm leading-relaxed text-muted-foreground">
+              <p>The opening must move directly to a spacious question. Sage does not announce an interpretation, diagnosis or insight before giving the client room to say what the experience meant to them.</p>
+              <div className="rounded-lg p-4" style={{ background: "rgba(201,151,58,0.08)", border: "1px solid rgba(201,151,58,0.25)" }}>
+                <p className="font-medium" style={{ color: "var(--lw-navy)" }}>Audit focus</p>
+                <p className="mt-1">Listen for a pace that feels curious, unhurried and question-led — never like a lecture about the client.</p>
+              </div>
+              <p>The live conversation saves only in the actual client journey. This audit version never starts or persists a conversation.</p>
+            </CardContent>
+          </Card>
+        </div>
+      </AuditIntro>
+    </>
+  );
+}
 
 function AssessmentAudit({ type }: { type: "via" | "ipip" }) {
   const isVia = type === "via";
   const [, navigate] = useLocation();
   const title = isVia ? "VIA Character Strengths" : "Personality Profile";
-  const eyebrow = isVia ? "Step 4 of 6 · assessment one" : "Step 4 of 6 · assessment two";
-  const questions = isVia ? viaQuestions : [
-    "I enjoy exploring questions for which there is no immediate answer.",
-    "I prefer to have a clear plan before beginning something important.",
-    "I am comfortable bringing different viewpoints into a useful discussion.",
-  ];
+  const eyebrow = isVia ? "Step 4 of 6 · first question" : "Step 4 of 6 · first question";
+  const question = isVia
+    ? "I feel energised when I learn something that changes how I see a problem."
+    : "I enjoy exploring questions for which there is no immediate answer.";
 
   return (
     <>
@@ -281,31 +311,24 @@ function AssessmentAudit({ type }: { type: "via" | "ipip" }) {
       <AuditIntro title={isVia ? "A further lens on what matters" : "A picture of working preferences"}>
         <Card className="mx-auto max-w-3xl">
           <CardHeader>
-            <CardTitle className="font-serif text-xl">Illustrative question set</CardTitle>
-            <p className="text-sm leading-relaxed text-muted-foreground">The live assessment is longer. This is a short, non-scoring screen so you can review language, pacing and controls without generating results.</p>
+            <CardTitle className="font-serif text-xl">First available question</CardTitle>
+            <p className="text-sm leading-relaxed text-muted-foreground">In the real journey, these surveys unlock only after the Sage stage. This audit view shows the clean first question a client sees once access is granted, before any answer has been selected.</p>
           </CardHeader>
           <CardContent className="space-y-6">
-            {questions.map((question, index) => (
-              <div key={question} className="border-b pb-6 last:border-0 last:pb-0" style={{ borderColor: "var(--border)" }}>
-                <p className="mb-4 text-sm font-medium leading-relaxed" style={{ color: "var(--lw-navy)" }}><span style={{ color: "var(--lw-gold)" }}>{index + 1}.</span> {question}</p>
-                <div className="grid grid-cols-5 gap-2 text-center text-[11px] text-muted-foreground sm:gap-3">
-                  {["Strongly disagree", "Disagree", "Neither", "Agree", "Strongly agree"].map((label, ratingIndex) => (
-                    <button
-                      key={label}
-                      type="button"
-                      className={`rounded-md border px-1 py-2 transition-colors ${ratingIndex === 3 ? "border-[var(--lw-gold)] bg-[var(--lw-gold-light)]/20 text-[var(--lw-navy)]" : "border-border bg-background"}`}
-                      aria-label={label}
-                    >
-                      <span className="block text-base font-semibold">{ratingIndex + 1}</span>
-                      <span className="hidden pt-1 sm:block">{label}</span>
-                    </button>
-                  ))}
-                </div>
+            <div className="rounded-lg border p-5" style={{ borderColor: "rgba(201,151,58,0.35)" }}>
+              <p className="mb-5 text-sm font-medium leading-relaxed" style={{ color: "var(--lw-navy)" }}><span style={{ color: "var(--lw-gold)" }}>1.</span> {question}</p>
+              <div className="grid grid-cols-5 gap-2 text-center text-[11px] text-muted-foreground sm:gap-3">
+                {["Strongly disagree", "Disagree", "Neither", "Agree", "Strongly agree"].map((label, ratingIndex) => (
+                  <button key={label} type="button" className="rounded-md border border-border bg-background px-1 py-2" aria-label={label}>
+                    <span className="block text-base font-semibold">{ratingIndex + 1}</span>
+                    <span className="hidden pt-1 sm:block">{label}</span>
+                  </button>
+                ))}
               </div>
-            ))}
-            <div className="flex justify-between gap-3 pt-2">
+            </div>
+            <div className="flex justify-between gap-3">
               <Button variant="outline" onClick={() => navigate(auditPath("dashboard"))}>Back to dashboard</Button>
-              <Button disabled style={{ background: "var(--lw-gold)", color: "var(--lw-navy)" }}>{isVia ? "Continue — audit only" : "Finish — audit only"}</Button>
+              <Button disabled style={{ background: "var(--lw-gold)", color: "var(--lw-navy)" }}>Next question — audit only</Button>
             </div>
           </CardContent>
         </Card>
@@ -317,38 +340,28 @@ function AssessmentAudit({ type }: { type: "via" | "ipip" }) {
 function AlistairAudit() {
   return (
     <>
-      <AuditScreenHeader title="Explore with Alistair" eyebrow="Step 6 of 6" />
-      <AuditIntro title="A conversation after the report">
+      <AuditScreenHeader title="Explore with Alistair" eyebrow="Step 6 of 6 · first visit" />
+      <AuditIntro title="Visible only at the right point">
         <div className="grid gap-5 lg:grid-cols-[1.1fr_0.9fr]">
           <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 font-serif text-xl"><Compass className="h-5 w-5" style={{ color: "var(--lw-gold)" }} /> How Alistair appears to a client</CardTitle>
-              <p className="text-sm leading-relaxed text-muted-foreground">This screen is available after the counsellor has unlocked it. The audit version uses fictional material and does not open a real client conversation.</p>
-            </CardHeader>
+            <CardHeader><CardTitle className="flex items-center gap-2 font-serif text-xl"><Compass className="h-5 w-5" style={{ color: "var(--lw-gold)" }} /> The initial client state</CardTitle></CardHeader>
             <CardContent className="space-y-4">
-              <div className="max-w-[88%] rounded-2xl rounded-tl-sm bg-muted px-4 py-3 text-sm leading-relaxed" style={{ color: "var(--lw-navy)" }}>
-                You have described feeling most alive when you make a difficult question clearer and help people decide what to do next. Which recent piece of work comes closest to that for you?
-              </div>
-              <div className="ml-auto max-w-[78%] rounded-2xl rounded-tr-sm px-4 py-3 text-sm leading-relaxed text-white" style={{ background: "var(--lw-navy)" }}>
-                Leading a workshop where two teams finally agreed how to move a project forward.
-              </div>
-              <div className="max-w-[88%] rounded-2xl rounded-tl-sm bg-muted px-4 py-3 text-sm leading-relaxed" style={{ color: "var(--lw-navy)" }}>
-                What made it satisfying to you to help the group reach that point?
-              </div>
-              <div className="border-t pt-4" style={{ borderColor: "var(--border)" }}>
-                <Input disabled placeholder="Audit mode — messages are not sent or saved" />
+              <div className="rounded-lg border p-6 text-center" style={{ borderColor: "rgba(201,151,58,0.28)", background: "rgba(201,151,58,0.05)" }}>
+                <LockKeyhole className="mx-auto h-8 w-8" style={{ color: "var(--lw-gold)" }} />
+                <h2 className="mt-4 font-serif text-xl" style={{ color: "var(--lw-navy)" }}>Awaiting your counsellor</h2>
+                <p className="mx-auto mt-2 max-w-md text-sm leading-relaxed text-muted-foreground">Your counsellor will unlock this conversation once your Lifework report and coaching conversation are complete.</p>
               </div>
             </CardContent>
           </Card>
           <Card>
-            <CardHeader><CardTitle className="font-serif text-xl">What to audit here</CardTitle></CardHeader>
+            <CardHeader><CardTitle className="font-serif text-xl">Why the first encounter is locked</CardTitle></CardHeader>
             <CardContent className="space-y-4 text-sm leading-relaxed text-muted-foreground">
-              <p>Alistair should invite reflection through clear questions, rather than announcing an interpretation before the client has had room to think.</p>
-              <p>In the live client view, the conversation draws on that client’s completed Lifework report and is available only when a counsellor has intentionally opened it.</p>
+              <p>At first visit, Alistair is deliberately unavailable. He should not begin a conversation before there is a report and a completed coaching conversation to build on.</p>
               <div className="rounded-lg p-4" style={{ background: "rgba(201,151,58,0.08)", border: "1px solid rgba(201,151,58,0.25)" }}>
-                <p className="font-medium" style={{ color: "var(--lw-navy)" }}>Privacy boundary</p>
-                <p className="mt-1">This audit screen never loads, writes or displays a real person’s report or conversation.</p>
+                <p className="font-medium" style={{ color: "var(--lw-navy)" }}>Audit focus</p>
+                <p className="mt-1">Check that the boundary is clear, humane and does not imply that a client has done anything wrong.</p>
               </div>
+              <p>This page remains fictional and never loads a real client report or conversation.</p>
             </CardContent>
           </Card>
         </div>
@@ -364,14 +377,7 @@ function VideoAudit() {
       <AuditIntro title="The current Lifework homepage film">
         <Card className="mx-auto max-w-4xl overflow-hidden">
           <CardContent className="p-0">
-            <video
-              src={HOMEPAGE_FILM}
-              controls
-              playsInline
-              preload="metadata"
-              title="Lifework homepage film — counsellor audit"
-              className="block aspect-video w-full bg-[var(--lw-navy)]"
-            />
+            <video src={HOMEPAGE_FILM} controls playsInline preload="metadata" title="Lifework homepage film — counsellor audit" className="block aspect-video w-full bg-[var(--lw-navy)]" />
           </CardContent>
           <div className="border-t p-5" style={{ borderColor: "var(--border)" }}>
             <p className="font-serif text-lg" style={{ color: "var(--lw-navy)" }}>Hosted media, as a visitor sees it</p>
@@ -393,6 +399,7 @@ export default function ClientExperienceAudit() {
       {screen === "dashboard" && <AuditDashboard />}
       {screen === "interview" && <InterviewAudit />}
       {screen === "background" && <BackgroundAudit />}
+      {screen === "sage" && <SageAudit />}
       {screen === "via" && <AssessmentAudit type="via" />}
       {screen === "ipip" && <AssessmentAudit type="ipip" />}
       {screen === "alistair" && <AlistairAudit />}

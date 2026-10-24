@@ -18,29 +18,38 @@ describe("counsellor client-experience audit", () => {
     expect(counsellorDashboardSource).toContain("Client audit");
   });
 
-  it("uses an explicit fictional profile and makes no real profile or database calls", () => {
+  it("uses an explicit fictional first-visit profile and makes no real profile or database calls", () => {
     expect(auditSource).toContain('firstName: "Example"');
     expect(auditSource).toContain('lastName: "Client"');
-    expect(auditSource).toContain("fictional sample data; nothing is saved or sent to a client.");
+    expect(auditSource).toContain('interviewStatus: "not_started"');
+    expect(auditSource).toContain('backgroundStatus: "not_started"');
+    expect(auditSource).toContain('careerExplorerUnlocked: false');
+    expect(auditSource).toContain("first-engagement screens, fictional state; nothing is saved or sent to a client.");
     expect(auditSource).not.toContain("trpc.");
     expect(auditSource).not.toContain("useAuth(");
   });
 
-  it("exposes the client dashboard, representative client screens, Alistair view and hosted media", () => {
-    for (const screen of ["dashboard", "interview", "background", "via", "ipip", "alistair", "video"]) {
+  it("exposes the first engagement of each representative client screen, including Sage and hosted media", () => {
+    for (const screen of ["dashboard", "interview", "background", "sage", "via", "ipip", "alistair", "video"]) {
       expect(auditSource).toContain(`"${screen}"`);
     }
     expect(auditSource).toContain('src={HOMEPAGE_FILM}');
     expect(auditSource).toContain('title="Lifework homepage film — counsellor audit"');
-    expect(auditSource).toContain("allowPreviewNavigation");
-    expect(auditSource).toContain("sagePreviewContext");
+    expect(auditSource).toContain("First engagement audit");
+    expect(auditSource).toContain("The first question, not a conclusion");
+    expect(auditSource).toContain("What part of that moment felt most satisfying to you?");
+    expect(auditSource).not.toContain("You have described feeling most alive");
   });
 
-  it("permits only the fictional audit dashboard to navigate while keeping ordinary client previews read-only", () => {
+  it("keeps the real client dashboard and ordinary client previews read-only while audit navigation remains route-local", () => {
     expect(dashboardSource).toContain("allowPreviewNavigation = false");
     expect(dashboardSource).toContain("disabled={isPreview && !allowPreviewNavigation}");
     expect(dashboardSource).toContain("if (isPreview && isAlistair && !allowPreviewNavigation)");
     expect(dashboardSource).toContain("previewContext={isPreview ? (sagePreviewContext");
+    expect(auditSource).toContain("const auditPath = (screen: AuditScreen)");
+    expect(auditSource).toContain('"/interview": "interview"');
+    expect(auditSource).toContain('"/background": "background"');
+    expect(auditSource).not.toContain("allowPreviewNavigation");
   });
 
   it("limits the counsellor gate to approved counsellor and administrator roles", () => {
