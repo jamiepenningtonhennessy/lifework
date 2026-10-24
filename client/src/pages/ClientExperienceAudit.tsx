@@ -22,6 +22,12 @@ type AuditScreen = "dashboard" | "interview" | "background" | "sage" | "via" | "
 
 const AUDIT_ROOT = "/counselor/client-audit";
 const HOMEPAGE_FILM = "/manus-storage/lifework_homepage_editorial_slidefilm_retimed_48dd0749.mp4";
+const STAGE_VIDEOS = {
+  lifeHistory: { fileId: "1vYmcvxcjjK3kPiOib4l9aNlg9XSCIBSL", title: "Lifework introduction" },
+  background: { fileId: "1FQ9fnNAvFIvwPqqmwC_t7ODEOhj0w1ld", title: "Career, education and family" },
+  via: { fileId: "1bJfqf5QNyio-xtNa14AFHYE8L90-1MWr", title: "VIA Character Strengths — Introduction" },
+  ipip: { fileId: "1t1UYw3YRal-UZ0efJrtr3H_IqH08ANsy", title: "IPIP-NEO Personality Survey" },
+} as const;
 
 /** A deliberately empty account state — no real profile, record or report is ever read. */
 const firstVisitProfile = {
@@ -155,6 +161,23 @@ function AuditIntro({ title, children }: { title: string; children: React.ReactN
   );
 }
 
+/** Uses exactly the same Google Drive preview source as the matching live client page. */
+function StageVideoEmbed({ video }: { video: (typeof STAGE_VIDEOS)[keyof typeof STAGE_VIDEOS] }) {
+  return (
+    <div className="mb-8 overflow-hidden" style={{ border: "1px solid rgba(201,151,58,0.3)", background: "#000" }}>
+      <div className="relative aspect-video">
+        <iframe
+          src={`https://drive.google.com/file/d/${video.fileId}/preview`}
+          allow="autoplay"
+          allowFullScreen
+          title={video.title}
+          className="absolute inset-0 h-full w-full border-0"
+        />
+      </div>
+    </div>
+  );
+}
+
 function AuditDashboard() {
   const [, navigate] = useLocation();
   const auditNavigate = (clientPath: string) => {
@@ -185,6 +208,7 @@ function InterviewAudit() {
     <>
       <AuditScreenHeader title="Life History Interview" eyebrow="Step 1 of 6 · first visit" next={{ label: "Background", screen: "background" }} />
       <AuditIntro title="Begin with one real moment">
+        <StageVideoEmbed video={STAGE_VIDEOS.lifeHistory} />
         <div className="grid gap-5 lg:grid-cols-[1.05fr_0.95fr]">
           <Card>
             <CardHeader>
@@ -231,6 +255,7 @@ function BackgroundAudit() {
     <>
       <AuditScreenHeader title="Background & History" eyebrow="Step 2 of 6 · first visit" next={{ label: "Sage", screen: "sage" }} />
       <AuditIntro title="Add context only when it helps">
+        <StageVideoEmbed video={STAGE_VIDEOS.background} />
         <div className="grid gap-5 md:grid-cols-2">
           <Card>
             <CardHeader><CardTitle className="flex items-center gap-2 font-serif text-xl"><UserRound className="h-5 w-5" style={{ color: "var(--lw-gold)" }} /> Family background</CardTitle></CardHeader>
@@ -309,6 +334,7 @@ function AssessmentAudit({ type }: { type: "via" | "ipip" }) {
     <>
       <AuditScreenHeader title={title} eyebrow={eyebrow} next={{ label: isVia ? "Personality profile" : "Alistair", screen: isVia ? "ipip" : "alistair" }} />
       <AuditIntro title={isVia ? "A further lens on what matters" : "A picture of working preferences"}>
+        <StageVideoEmbed video={isVia ? STAGE_VIDEOS.via : STAGE_VIDEOS.ipip} />
         <Card className="mx-auto max-w-3xl">
           <CardHeader>
             <CardTitle className="font-serif text-xl">First available question</CardTitle>

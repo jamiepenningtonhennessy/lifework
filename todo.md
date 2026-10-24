@@ -2131,3 +2131,9 @@
 - [x] Add direct counsellor audit navigation between first-engagement screens without changing the real client journey locks
 - [x] Ensure Sage’s opening audit prompt moves directly to a coaching question, without an interpretive conclusion
 - [x] Validate the first-engagement sequence, hosted video and production build
+
+## First-Engagement Audit Stage Videos (2026-10-24)
+- [x] Map each real client-stage opening video and its live embed source
+- [x] Show the corresponding live Life History, Background, VIA and Personality video on each first-engagement audit screen
+- [x] Verify that the audit embeds match the actual client-page video sources without replacing the un-deployed Scottish VIA revision
+- [x] Validate responsive embeds, audit navigation and the production build
