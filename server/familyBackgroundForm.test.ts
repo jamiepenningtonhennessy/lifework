@@ -8,6 +8,12 @@ const backgroundSource = readFileSync(
 );
 
 describe("Family Background form", () => {
+  it("opens the Career History tab when the client page is given its review query", () => {
+    expect(backgroundSource).toContain('new URLSearchParams(window.location.search).get("tab") === "career"');
+    expect(backgroundSource).toContain('? "career"');
+    expect(backgroundSource).toContain(': "family"');
+  });
+
   it("uses inclusive parent or guardian occupation fields without a duplicate father field", () => {
     expect(backgroundSource).toContain("Parent / Guardian 1 — Occupation");
     expect(backgroundSource).toContain("Parent / Guardian 2 — Occupation");

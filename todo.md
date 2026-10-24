@@ -2164,3 +2164,8 @@
 - [x] Remove the redundant Father’s Occupation field while retaining Parent / Guardian 1 and 2 occupation fields
 - [x] Replace the Family Narrative prompt with the household-rules and family-motto question
 - [x] Validate the client form layout and production build
+
+## Career History Client-Screen Preview (2026-10-24)
+- [x] Add a safe query-based tab selection for direct review of the Background page’s Career History state
+- [x] Capture the real client-facing Career History form in the authenticated preview
+- [x] Validate the existing default Family Background state remains unchanged

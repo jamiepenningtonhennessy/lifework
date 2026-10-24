@@ -17,7 +17,11 @@ type Tab = "family" | "career";
 export default function Background() {
   const { isAuthenticated, loading } = useAuth();
   const [, navigate] = useLocation();
-  const [activeTab, setActiveTab] = useState<Tab>("family");
+  const [activeTab, setActiveTab] = useState<Tab>(() =>
+    new URLSearchParams(window.location.search).get("tab") === "career"
+      ? "career"
+      : "family"
+  );
   const utils = trpc.useUtils();
 
   if (!loading && !isAuthenticated) {
