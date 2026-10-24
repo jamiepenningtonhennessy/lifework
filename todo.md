@@ -2235,3 +2235,17 @@
 - [x] Visualise VIA as 24 character-strength points and OCEAN as five non-evaluative dimensions
 - [x] Verify spoken wording, readable holds, transitions, video/audio streams and final media playback
 - [x] Prepare the approved video for review before replacing any live VIA or IPIP/NEO page video
+
+## Final Alistair Report and Coaching Explainer (2026-10-24)
+- [x] Draft a concise final-stage narration that marks the completion of the client’s evidence-gathering work
+- [x] Explain Alistair’s role in drawing together observed patterns, possibilities and questions into the WoW report
+- [x] Explain report release after the coaching meeting is booked and the coach’s prepared, question-led role
+- [x] Make clear that Lifework informs the client’s choices rather than telling them what to do
+- [x] Plan a restrained, approved Alistair portrait introduction for the later matching slide-film
+
+## Final Alistair Report and Coaching Slide-Film (2026-10-24)
+- [x] Generate the final-stage narration in the established British female Lifework voice
+- [x] Produce a 16:9 text-led cream, navy and gold film with the supplied Alistair portrait shown once as an approved identity reference
+- [x] Visualise the completed evidence, WoW report, booked coaching meeting and client-owned next step without prescription
+- [x] Verify narration coverage, portrait framing, readable holds, transitions, streams and final playback
+- [x] Prepare the completed film for review before embedding it in the live client journey
