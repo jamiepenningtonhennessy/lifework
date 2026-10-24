@@ -2102,3 +2102,9 @@
 - [x] Produce the full narration in the selected brisk British female voice and measure its section timing
 - [x] Extend the approved editorial slide-film style across the full pain-to-recognition narrative
 - [x] Verify the complete video’s wordmark, timing, visual holds, audio and playback before delivery
+
+## Lifework Homepage Slide-Film Timing Corrections (2026-10-24)
+- [x] Reposition the 00:42 evidence-slide text clear of the vertical rule
+- [x] Hold “Look beneath the surface” for approximately five seconds longer before the pattern slide
+- [x] Advance “Give shape to what you already sense” by approximately five seconds
+- [x] Start “When the evidence is clear” at 01:48 and recheck all affected transitions
