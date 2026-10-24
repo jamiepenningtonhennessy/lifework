@@ -59,6 +59,7 @@ import TestimonialDraftSubmission from "./pages/TestimonialDraftSubmission";
 import LifeworkLandingConcepts from "./pages/LifeworkLandingConcepts";
 import LifeworkCoachPartner from "./pages/LifeworkCoachPartner";
 import SageFirstEncounterSample from "./pages/SageFirstEncounterSample";
+import FinalCoachingStage from "./pages/FinalCoachingStage";
 
 function DomainDocumentBranding() {
   useEffect(() => {
@@ -140,6 +141,7 @@ function Router() {
       <Route path="/coaching/lifework/ipip-results">{() => <LifeworkLayout><IpipResults /></LifeworkLayout>}</Route>
       <Route path="/coaching/lifework/ipip/results">{() => <LifeworkLayout><IpipResults /></LifeworkLayout>}</Route>
       <Route path="/coaching/lifework/my-report">{() => <LifeworkLayout><MyReport /></LifeworkLayout>}</Route>
+      <Route path="/coaching/lifework/lifework-coaching">{() => <LifeworkLayout><FinalCoachingStage /></LifeworkLayout>}</Route>
       <Route path="/coaching/lifework/career-explorer">{() => <LifeworkLayout><CareerExplorer /></LifeworkLayout>}</Route>
       <Route path="/coaching/lifework/jobs">{() => <LifeworkLayout><JobsExplorer /></LifeworkLayout>}</Route>
       <Route path="/coaching/lifework/webinar" component={LifeworkWebinar} />
@@ -179,6 +181,7 @@ function Router() {
       <Route path="/ipip-results">{() => <LifeworkLayout><IpipResults /></LifeworkLayout>}</Route>
       <Route path="/ipip/results">{() => <LifeworkLayout><IpipResults /></LifeworkLayout>}</Route>
       <Route path="/my-report">{() => <LifeworkLayout><MyReport /></LifeworkLayout>}</Route>
+      <Route path="/lifework-coaching">{() => <LifeworkLayout><FinalCoachingStage /></LifeworkLayout>}</Route>
       <Route path="/career-explorer">{() => <LifeworkLayout><CareerExplorer /></LifeworkLayout>}</Route>
 
       {/* ── Preview Mode (counsellor-only, no auth required) ── */}

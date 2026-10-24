@@ -23,10 +23,11 @@ type AuditScreen = "dashboard" | "interview" | "background" | "sage" | "via" | "
 const AUDIT_ROOT = "/counselor/client-audit";
 const HOMEPAGE_FILM = "/manus-storage/lifework_homepage_editorial_slidefilm_retimed_48dd0749.mp4";
 const SAGE_STAGE_VIDEO_URL = "/manus-storage/lifework_stage3_sage_conversation_explainer_9ae1669b.mp4";
+const PSYCHOMETRICS_STAGE_VIDEO_URL = "/manus-storage/lifework_stage4_psychometrics_explainer_dce111a1.mp4";
 const STAGE_VIDEOS = {
   lifeHistory: { fileId: "1vYmcvxcjjK3kPiOib4l9aNlg9XSCIBSL", title: "Lifework introduction" },
   background: { fileId: "1FQ9fnNAvFIvwPqqmwC_t7ODEOhj0w1ld", title: "Career, education and family" },
-  via: { fileId: "1bJfqf5QNyio-xtNa14AFHYE8L90-1MWr", title: "VIA Character Strengths — Introduction" },
+  via: { src: PSYCHOMETRICS_STAGE_VIDEO_URL, title: "Psychometrics in Lifework — a short introduction" },
   ipip: { fileId: "1t1UYw3YRal-UZ0efJrtr3H_IqH08ANsy", title: "IPIP-NEO Personality Survey" },
 } as const;
 
@@ -162,18 +163,29 @@ function AuditIntro({ title, children }: { title: string; children: React.ReactN
   );
 }
 
-/** Uses exactly the same Google Drive preview source as the matching live client page. */
+/** Uses the same managed or Google Drive video source as the matching live client page. */
 function StageVideoEmbed({ video }: { video: (typeof STAGE_VIDEOS)[keyof typeof STAGE_VIDEOS] }) {
   return (
     <div className="mb-8 overflow-hidden" style={{ border: "1px solid rgba(201,151,58,0.3)", background: "#000" }}>
       <div className="relative aspect-video">
-        <iframe
-          src={`https://drive.google.com/file/d/${video.fileId}/preview`}
-          allow="autoplay"
-          allowFullScreen
-          title={video.title}
-          className="absolute inset-0 h-full w-full border-0"
-        />
+        {"src" in video ? (
+          <video
+            src={video.src}
+            controls
+            playsInline
+            preload="metadata"
+            title={video.title}
+            className="absolute inset-0 h-full w-full"
+          />
+        ) : (
+          <iframe
+            src={`https://drive.google.com/file/d/${video.fileId}/preview`}
+            allow="autoplay"
+            allowFullScreen
+            title={video.title}
+            className="absolute inset-0 h-full w-full border-0"
+          />
+        )}
       </div>
     </div>
   );

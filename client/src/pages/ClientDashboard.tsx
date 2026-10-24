@@ -77,12 +77,12 @@ const STEPS = [
   {
     id: "lifework_coaching",
     icon: <Brain className="w-5 h-5" />,
-    title: "5. Lifework Coaching",
-    description: "Set up an exploration of your Lifework report with a Lifework Coach.",
-    path: null,
+    title: "5. Your WoW Report & Coaching",
+    description: "See how your evidence is drawn together, then arrange a coaching meeting to explore your Lifework report.",
+    path: "/lifework-coaching",
     statusKey: null,
-    cta: "Request a Coaching Date",
-    ctaInProgress: "Request a Coaching Date",
+    cta: "Arrange Coaching",
+    ctaInProgress: "Arrange Coaching",
   },
   {
     id: "ask_alistair",
@@ -461,6 +461,7 @@ export function DashboardBody({
 
                 const isPsychometrics = step.id === "psychometrics";
                 const isSage = step.id === "sage";
+                const isCoaching = step.id === "lifework_coaching";
                 const isAlistair = step.id === "ask_alistair";
 
                 let isLocked = false;
@@ -475,6 +476,9 @@ export function DashboardBody({
                   } else if (isSage) {
                     // Sage is locked until at least one of interview/background has been started
                     isLocked = !sagePrereqMet;
+                  } else if (isCoaching) {
+                    // The final stage opens only once both independent psychometric lenses are complete.
+                    isLocked = getStatus("viaStatus", "psychometrics") !== "completed";
                   } else if (isAlistair) {
                     // Alistair is locked until the counsellor explicitly unlocks this conversation.
                     isLocked = !canClientAccessAlistair((profile as any)?.careerExplorerUnlocked);
@@ -537,7 +541,7 @@ export function DashboardBody({
                                 In Progress
                               </span>
                             )}
-                            {isLocked && (isPsychometrics || isAlistair) && (
+                            {isLocked && (isPsychometrics || isCoaching || isAlistair) && (
                               <span
                                 className="text-xs px-2 py-0.5 rounded-full flex items-center gap-1"
                                 style={{
@@ -649,6 +653,16 @@ export function DashboardBody({
                             </div>
                           )}
 
+                          {/* Final report-and-coaching stage — unlocked after both psychometric lenses */}
+                          {isCoaching && isLocked && (
+                            <p
+                              className="text-xs mt-2"
+                              style={{ color: "rgba(0,0,0,0.44)" }}
+                            >
+                              Complete both the VIA Character Strengths and Personality Profile assessments to unlock your report-and-coaching stage.
+                            </p>
+                          )}
+
                           {/* Explore with Alistair — locked until counsellor unlocks it */}
                           {isAlistair && isLocked && (
                             <div
@@ -675,21 +689,6 @@ export function DashboardBody({
                         {/* CTA button (right side) — not for sage step */}
                         {step.id !== "sage" && (
                           <div className="flex-shrink-0 flex flex-col items-end gap-2">
-                            {/* Lifework Coaching: mailto button */}
-                            {step.id === "lifework_coaching" && !isLocked && (
-                              <a
-                                href={`mailto:jamie@penningtonhennessy.com?subject=${encodeURIComponent("I'm ready for coaching")}&body=${encodeURIComponent("Hi Jamie,\n\nI have finished my data input and want to set up a coaching date. Could you send me some possible timeslots?")}`}
-                              >
-                                <Button
-                                  size="sm"
-                                  className="bg-[var(--lw-gold)] hover:bg-[oklch(0.60_0.13_72)] text-white gap-1"
-                                >
-                                  {step.cta}
-                                  <ArrowRight className="w-3.5 h-3.5" />
-                                </Button>
-                              </a>
-                            )}
-
                             {step.path && !isLocked && (() => {
                               const ipipStatus = (profile as any)?.ipipStatus ?? "not_started";
                               const viaStatusVal = (profile as any)?.viaStatus ?? "not_started";

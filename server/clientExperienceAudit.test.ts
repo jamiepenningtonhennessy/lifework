@@ -46,12 +46,14 @@ describe("counsellor client-experience audit", () => {
     expect(auditSource).not.toContain("You have described feeling most alive");
   });
 
-  it("shows the same opening Google Drive videos that a client sees on the four relevant live stages", () => {
+  it("shows the same opening media that a client sees on the four relevant live stages", () => {
     expect(auditSource).toContain('lifeHistory: { fileId: "1vYmcvxcjjK3kPiOib4l9aNlg9XSCIBSL", title: "Lifework introduction" }');
     expect(auditSource).toContain('background: { fileId: "1FQ9fnNAvFIvwPqqmwC_t7ODEOhj0w1ld", title: "Career, education and family" }');
-    expect(auditSource).toContain('via: { fileId: "1bJfqf5QNyio-xtNa14AFHYE8L90-1MWr", title: "VIA Character Strengths — Introduction" }');
+    expect(auditSource).toContain('const PSYCHOMETRICS_STAGE_VIDEO_URL = "/manus-storage/lifework_stage4_psychometrics_explainer_dce111a1.mp4";');
+    expect(auditSource).toContain('via: { src: PSYCHOMETRICS_STAGE_VIDEO_URL, title: "Psychometrics in Lifework — a short introduction" }');
     expect(auditSource).toContain('ipip: { fileId: "1t1UYw3YRal-UZ0efJrtr3H_IqH08ANsy", title: "IPIP-NEO Personality Survey" }');
     expect(auditSource).toContain("https://drive.google.com/file/d/${video.fileId}/preview");
+    expect(auditSource).toContain('src={video.src}');
     expect(auditSource).toContain("StageVideoEmbed video={STAGE_VIDEOS.lifeHistory}");
     expect(auditSource).toContain("StageVideoEmbed video={STAGE_VIDEOS.background}");
     expect(auditSource).toContain("StageVideoEmbed video={isVia ? STAGE_VIDEOS.via : STAGE_VIDEOS.ipip}");

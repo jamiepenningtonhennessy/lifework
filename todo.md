@@ -2249,3 +2249,10 @@
 - [x] Visualise the completed evidence, WoW report, booked coaching meeting and client-owned next step without prescription
 - [x] Verify narration coverage, portrait framing, readable holds, transitions, streams and final playback
 - [x] Prepare the completed film for review before embedding it in the live client journey
+
+## Live Psychometrics and Final Coaching Stage Videos (2026-10-24)
+- [x] Upload the approved VIA and OCEAN slide-film and replace the live VIA introduction iframe with the managed player
+- [x] Create an authenticated final-stage report-and-coaching page with the approved Alistair film
+- [x] Add a clear mailto action to coach@lifeworkpath.com and explain that the report follows a booked coaching meeting
+- [x] Link the client dashboard’s fifth stage to this page only after both psychometrics are complete
+- [x] Validate media URLs, access gating, mailto payload, responsive layouts and production build
