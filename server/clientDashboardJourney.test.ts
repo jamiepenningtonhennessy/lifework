@@ -10,6 +10,10 @@ const counsellorPortalSource = readFileSync(
   resolve(process.cwd(), "client/src/pages/CounsellorPortalPage.tsx"),
   "utf8"
 );
+const interviewSource = readFileSync(
+  resolve(process.cwd(), "client/src/pages/Interview.tsx"),
+  "utf8"
+);
 
 describe("client dashboard Alistair journey", () => {
   it("makes Explore with Alistair the sixth and final client dashboard step", () => {
@@ -43,5 +47,14 @@ describe("client dashboard Alistair journey", () => {
     expect(counsellorPortalSource).toContain("<DashboardBody");
     expect(counsellorPortalSource).toContain("isPreview={true}");
     expect(counsellorPortalSource).not.toContain("Role Specification");
+  });
+
+  it("uses the approved managed Step 1 film rather than the retired Drive iframe", () => {
+    expect(interviewSource).toContain("<video");
+    expect(interviewSource).toContain('preload="metadata"');
+    expect(interviewSource).toContain(
+      "/manus-storage/lifework_step1_life_history_explainer_eeeee55c.mp4"
+    );
+    expect(interviewSource).not.toContain("1vYmcvxcjjK3kPiOib4l9aNlg9XSCIBSL");
   });
 });

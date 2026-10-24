@@ -2154,3 +2154,8 @@
 - [x] Reveal the Models, Questions and Pattern work cards in their visual left-to-right order
 - [x] Move the outside-in explanatory copy further clear of its vertical divider
 - [x] Re-render and visually check the corrected measured master
+
+## Live Step 1 Video Replacement (2026-10-24)
+- [x] Upload the approved Life History slide-film to managed website storage
+- [x] Replace the Life History client-page Google Drive iframe with the managed video player
+- [x] Verify the live media source, duration, responsive player and production build
