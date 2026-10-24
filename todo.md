@@ -2187,3 +2187,8 @@
 - [x] Produce a 16:9 cream, navy and gold text-led film using the site-matched Lifework wordmark
 - [x] Verify narration coverage, readable holds, transitions, codecs and representative frames
 - [x] Prepare the finished video for review before replacing the live client-stage embed
+
+## Live Background and Career History Video Replacement (2026-10-24)
+- [x] Upload the approved Background and Career History explainer to managed website storage
+- [x] Replace the current stage video embed with the managed Lifework player
+- [x] Verify video metadata, responsive client-page playback and the production build

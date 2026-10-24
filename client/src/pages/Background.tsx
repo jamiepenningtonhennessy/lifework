@@ -53,10 +53,12 @@ export default function Background() {
           style={{ border: "1px solid rgba(201,151,58,0.3)", background: "#000" }}
         >
           <div style={{ position: "relative", paddingBottom: "56.25%", height: 0 }}>
-            <iframe
-              src="https://drive.google.com/file/d/1FQ9fnNAvFIvwPqqmwC_t7ODEOhj0w1ld/preview"
-              allow="autoplay"
-              allowFullScreen
+            <video
+              src="/manus-storage/lifework_step2_background_career_explainer_839de757.mp4"
+              controls
+              preload="metadata"
+              playsInline
+              aria-label="Lifework Background and Career History explainer"
               style={{
                 position: "absolute",
                 top: 0,
@@ -65,8 +67,9 @@ export default function Background() {
                 height: "100%",
                 border: 0,
               }}
-              title="Career, education and family"
-            />
+            >
+              Your browser does not support embedded video.
+            </video>
           </div>
         </div>
 

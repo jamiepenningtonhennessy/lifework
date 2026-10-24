@@ -28,4 +28,12 @@ describe("Family Background form", () => {
       "And what might your family motto have been, if you had been asked for one?"
     );
   });
+
+  it("uses the approved managed Stage 2 explainer rather than the previous Drive iframe", () => {
+    expect(backgroundSource).toContain(
+      '/manus-storage/lifework_step2_background_career_explainer_839de757.mp4'
+    );
+    expect(backgroundSource).toContain("Lifework Background and Career History explainer");
+    expect(backgroundSource).not.toContain("1FQ9fnNAvFIvwPqqmwC_t7ODEOhj0w1ld/preview");
+  });
 });
