@@ -2091,3 +2091,8 @@
 - [x] Audit the supplied Garr Reynolds presentation and its existing high-level narration
 - [x] Write a pain-led Lifework script that explains the recognition the process gives clients
 - [x] Confirm that the spoken narration is below three minutes and suitable for later visual development
+
+## Lifework Homepage Slide-Film Proof of Concept (2026-10-24)
+- [x] Build the first third of the pain-led homepage script with the selected brisk British female narration
+- [x] Create a restrained cream, navy and gold editorial motion-graphics treatment based on the Garr-style presentation approach
+- [x] Verify timing, legibility, audio and representative frames in a playable proof-of-concept video
