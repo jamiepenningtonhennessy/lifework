@@ -2263,3 +2263,9 @@
 - [x] Add the final report-and-coaching page, approved Alistair film and mailto preview to the audit walkthrough
 - [x] Update audit navigation and regression coverage for the full current client-stage sequence
 - [x] Validate the synchronised audit layout, media source safety and production build
+
+## Standalone IPIP Video Removal (2026-10-24)
+- [x] Remove the IPIP-only video iframe from the live Personality Profile first page
+- [x] Keep the questionnaire, introductory written guidance and assessment gate unchanged
+- [x] Remove the corresponding retired video player from the counsellor audit IPIP first-engagement screen
+- [x] Update regression coverage and validate the revised client and audit flow in the production build

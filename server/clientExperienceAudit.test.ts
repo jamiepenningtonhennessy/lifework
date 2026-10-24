@@ -53,19 +53,18 @@ describe("counsellor client-experience audit", () => {
     expect(auditSource).toContain('background: { src: BACKGROUND_STAGE_VIDEO_URL, title: "Background and Career History — a short introduction" }');
     expect(auditSource).toContain('const PSYCHOMETRICS_STAGE_VIDEO_URL = "/manus-storage/lifework_stage4_psychometrics_explainer_dce111a1.mp4";');
     expect(auditSource).toContain('via: { src: PSYCHOMETRICS_STAGE_VIDEO_URL, title: "Psychometrics in Lifework — a short introduction" }');
-    expect(auditSource).toContain('ipip: { fileId: "1t1UYw3YRal-UZ0efJrtr3H_IqH08ANsy", title: "IPIP-NEO Personality Survey" }');
     expect(auditSource).toContain('const FINAL_STAGE_VIDEO_URL = "/manus-storage/lifework_final_alistair_report_and_coaching_explainer_81089006.mp4";');
     expect(auditSource).toContain('src={FINAL_STAGE_VIDEO_URL}');
     expect(auditSource).toContain('Email coach@lifeworkpath.com');
     expect(auditSource).toContain('Now tell us what you have really enjoyed in your career');
-    expect(auditSource).toContain("https://drive.google.com/file/d/${video.fileId}/preview");
     expect(auditSource).toContain('src={video.src}');
     expect(auditSource).toContain("StageVideoEmbed video={STAGE_VIDEOS.lifeHistory}");
     expect(auditSource).toContain("StageVideoEmbed video={STAGE_VIDEOS.background}");
-    expect(auditSource).toContain("StageVideoEmbed video={isVia ? STAGE_VIDEOS.via : STAGE_VIDEOS.ipip}");
+    expect(auditSource).toContain("{isVia && <StageVideoEmbed video={STAGE_VIDEOS.via} />}");
     expect(auditSource).toContain('"/lifework-coaching": "coaching"');
     expect(auditSource).not.toContain("1vYmcvxcjjK3kPiOib4l9aNlg9XSCIBSL");
     expect(auditSource).not.toContain("1FQ9fnNAvFIvwPqqmwC_t7ODEOhj0w1ld");
+    expect(auditSource).not.toContain("1t1UYw3YRal-UZ0efJrtr3H_IqH08ANsy");
     expect(auditSource).not.toContain("viaexplainer_scottish_male_voiceover");
   });
 

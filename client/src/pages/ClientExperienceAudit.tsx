@@ -33,7 +33,6 @@ const STAGE_VIDEOS = {
   lifeHistory: { src: LIFE_HISTORY_STAGE_VIDEO_URL, title: "Life History Interview — a short introduction" },
   background: { src: BACKGROUND_STAGE_VIDEO_URL, title: "Background and Career History — a short introduction" },
   via: { src: PSYCHOMETRICS_STAGE_VIDEO_URL, title: "Psychometrics in Lifework — a short introduction" },
-  ipip: { fileId: "1t1UYw3YRal-UZ0efJrtr3H_IqH08ANsy", title: "IPIP-NEO Personality Survey" },
 } as const;
 
 /** A deliberately empty account state — no real profile, record or report is ever read. */
@@ -169,29 +168,19 @@ function AuditIntro({ title, children }: { title: string; children: React.ReactN
   );
 }
 
-/** Uses the same managed or Google Drive video source as the matching live client page. */
+/** Uses the same managed video source as the matching live client page. */
 function StageVideoEmbed({ video }: { video: (typeof STAGE_VIDEOS)[keyof typeof STAGE_VIDEOS] }) {
   return (
     <div className="mb-8 overflow-hidden" style={{ border: "1px solid rgba(201,151,58,0.3)", background: "#000" }}>
       <div className="relative aspect-video">
-        {"src" in video ? (
-          <video
-            src={video.src}
-            controls
-            playsInline
-            preload="metadata"
-            title={video.title}
-            className="absolute inset-0 h-full w-full"
-          />
-        ) : (
-          <iframe
-            src={`https://drive.google.com/file/d/${video.fileId}/preview`}
-            allow="autoplay"
-            allowFullScreen
-            title={video.title}
-            className="absolute inset-0 h-full w-full border-0"
-          />
-        )}
+        <video
+          src={video.src}
+          controls
+          playsInline
+          preload="metadata"
+          title={video.title}
+          className="absolute inset-0 h-full w-full"
+        />
       </div>
     </div>
   );
@@ -365,7 +354,7 @@ function AssessmentAudit({ type }: { type: "via" | "ipip" }) {
     <>
       <AuditScreenHeader title={title} eyebrow={eyebrow} next={{ label: isVia ? "Personality profile" : "Report & coaching", screen: isVia ? "ipip" : "coaching" }} />
       <AuditIntro title={isVia ? "A further lens on what matters" : "A picture of working preferences"}>
-        <StageVideoEmbed video={isVia ? STAGE_VIDEOS.via : STAGE_VIDEOS.ipip} />
+        {isVia && <StageVideoEmbed video={STAGE_VIDEOS.via} />}
         <Card className="mx-auto max-w-3xl">
           <CardHeader>
             <CardTitle className="font-serif text-xl">First available question</CardTitle>
