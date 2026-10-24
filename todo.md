@@ -2218,3 +2218,13 @@
 - [x] Keep the route entirely non-persistent and free of client data, authentication, reports and write actions
 - [x] Make the sample route selectable on LifeworkPath without affecting protected counsellor audit access
 - [x] Verify the public URL, Sage video playback, source safety and production build
+
+## Public Sage Preview Route Deployment (2026-10-24)
+- [x] Publish the saved Sage client-preview route to the LifeworkPath live domain
+- [x] Confirm the public route resolves without sign-in or a 404 response
+
+## VIA and OCEAN Psychometrics Explainer Script (2026-10-24)
+- [x] Research the current official framing of VIA Character Strengths and the Five-Factor OCEAN model
+- [x] Explain why Lifework introduces psychometrics after life history and Sage rather than at the beginning
+- [x] Write a concise client-facing narration presenting both instruments as separate evidence-based lenses, never verdicts
+- [x] Include visual cues for a later text-led Lifework slide-film and verify a sub-two-minute timing
