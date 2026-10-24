@@ -2169,3 +2169,15 @@
 - [x] Add a safe query-based tab selection for direct review of the Background page’s Career History state
 - [x] Capture the real client-facing Career History form in the authenticated preview
 - [x] Validate the existing default Family Background state remains unchanged
+
+## Reflective Career Input Redesign (2026-10-24)
+- [x] Preserve existing career records but remove their role-card and manual-entry controls from the client Career History screen
+- [x] Add one saved reflective career account field beneath the CV upload action
+- [x] Include the saved reflection in the relevant report-generation context without exposing it elsewhere
+- [x] Apply the database migration and validate the revised client flow, persistence and build
+
+## Background and Career History Explainer Script (2026-10-24)
+- [x] Draft a short client-facing narration explaining the purpose of the Family Background and Career History stage
+- [x] Show the sequence from early nurturing environment to recurring conditions of fulfilment at work
+- [x] Keep the tone direct, reflective and non-interpretive, with visual beat cues for later slide-film production
+- [x] Verify the script stays within the two-minute explainer target

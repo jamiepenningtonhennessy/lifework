@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -296,7 +296,7 @@ function CvUploadCard() {
     >
       <div className="flex items-center gap-2 mb-2">
         <FileText className="w-4 h-4" style={{ color: "var(--lw-gold)" }} />
-        <span className="text-sm font-semibold" style={{ color: "var(--navy)" }}>Upload your CV <span className="font-normal text-muted-foreground">(optional alternative to filling in the form below)</span></span>
+        <span className="text-sm font-semibold" style={{ color: "var(--navy)" }}>Upload your CV</span>
       </div>
       <p className="text-xs text-muted-foreground mb-3">
         Upload a PDF or Word document and we will extract your career history automatically.
@@ -364,70 +364,45 @@ function CvUploadCard() {
 
 function CareerForm() {
   const utils = trpc.useUtils();
-  const { data: career = [], isLoading } = trpc.background.getCareer.useQuery();
-  const save = trpc.background.saveCareer.useMutation({
+  const { data: careerReflection, isLoading } = trpc.background.getCareerReflection.useQuery();
+  const [reflection, setReflection] = useState("");
+  const save = trpc.background.saveCareerReflection.useMutation({
     onSuccess: () => {
-      toast.success("Career record saved.");
-      utils.background.getCareer.invalidate();
-      setNewEntry({ organisation: "", role: "", yearFrom: "", yearTo: "", keyResponsibilities: "", whyLeft: "", highlights: "" });
-      setAdding(false);
+      toast.success("Career reflections saved.");
+      utils.background.getCareerReflection.invalidate();
     },
   });
-  const del = trpc.background.deleteCareer.useMutation({
-    onSuccess: () => utils.background.getCareer.invalidate(),
-  });
 
-  const [adding, setAdding] = useState(false);
-  const [newEntry, setNewEntry] = useState({ organisation: "", role: "", yearFrom: "", yearTo: "", keyResponsibilities: "", whyLeft: "", highlights: "" });
+  useEffect(() => {
+    setReflection(careerReflection?.careerReflection ?? "");
+  }, [careerReflection?.careerReflection]);
 
   if (isLoading) return <div className="flex justify-center py-12"><Loader2 className="w-6 h-6 animate-spin text-muted-foreground" /></div>;
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       <CvUploadCard />
-      <p className="text-sm text-muted-foreground">Or add each role manually, from earliest to most recent. Include voluntary or portfolio work.</p>
-      {career.map((c) => (
-        <Card key={c.id} className="border-border">
-          <CardContent className="pt-4 pb-4">
-            <div className="flex items-start justify-between gap-2">
-              <div>
-                <p className="font-medium text-foreground">{c.role} <span className="text-muted-foreground font-normal">at {c.organisation}</span></p>
-                <p className="text-xs text-muted-foreground">{c.yearFrom}{c.yearTo ? ` – ${c.yearTo}` : " – present"}</p>
-                {c.highlights && <p className="text-sm text-foreground mt-1">{c.highlights}</p>}
-              </div>
-              <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-destructive" onClick={() => del.mutate({ id: c.id })}>
-                <Trash2 className="w-4 h-4" />
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      ))}
-      {adding ? (
-        <Card className="border-[var(--lw-gold)] border-2">
-          <CardHeader className="pb-2"><CardTitle className="text-base font-serif">New Career Record</CardTitle></CardHeader>
-          <CardContent className="space-y-3">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <div><Label>Organisation *</Label><Input className="mt-1" value={newEntry.organisation} onChange={(e) => setNewEntry(n => ({ ...n, organisation: e.target.value }))} placeholder="Acme Ltd" /></div>
-              <div><Label>Role / Title</Label><Input className="mt-1" value={newEntry.role} onChange={(e) => setNewEntry(n => ({ ...n, role: e.target.value }))} placeholder="Marketing Manager" /></div>
-              <div className="grid grid-cols-2 gap-2">
-                <div><Label>From</Label><Input className="mt-1" value={newEntry.yearFrom} onChange={(e) => setNewEntry(n => ({ ...n, yearFrom: e.target.value }))} placeholder="2010" /></div>
-                <div><Label>To</Label><Input className="mt-1" value={newEntry.yearTo} onChange={(e) => setNewEntry(n => ({ ...n, yearTo: e.target.value }))} placeholder="2015 or present" /></div>
-              </div>
-            </div>
-            <div><Label>Key responsibilities</Label><Textarea className="mt-1" rows={2} value={newEntry.keyResponsibilities} onChange={(e) => setNewEntry(n => ({ ...n, keyResponsibilities: e.target.value }))} placeholder="What did you actually do day to day?" /></div>
-            <div><Label>Why did you leave?</Label><Textarea className="mt-1" rows={2} value={newEntry.whyLeft} onChange={(e) => setNewEntry(n => ({ ...n, whyLeft: e.target.value }))} placeholder="What prompted the move?" /></div>
-            <div><Label>Highlights / what you enjoyed</Label><Textarea className="mt-1" rows={2} value={newEntry.highlights} onChange={(e) => setNewEntry(n => ({ ...n, highlights: e.target.value }))} placeholder="The best parts of this role were…" /></div>
-            <div className="flex gap-2">
-              <Button onClick={() => save.mutate({ ...newEntry, sortOrder: career.length })} disabled={!newEntry.organisation || save.isPending} className="bg-[var(--lw-gold)] hover:bg-[oklch(0.60 0.13 72)] text-white">Save</Button>
-              <Button variant="outline" onClick={() => setAdding(false)}>Cancel</Button>
-            </div>
-          </CardContent>
-        </Card>
-      ) : (
-        <Button variant="outline" onClick={() => setAdding(true)} className="gap-2 w-full border-dashed">
-          <Plus className="w-4 h-4" /> Add Career Record
-        </Button>
-      )}
+      <div>
+        <Label htmlFor="career-reflection" className="text-base font-serif text-foreground">What you have really enjoyed in your career</Label>
+        <p className="text-sm text-muted-foreground leading-relaxed mt-1.5 mb-3">
+          Now tell us what you have really enjoyed in your career. Not the usual action-driven verbs of “achieved” and “led”, but the reflective ones, such as “I enjoyed working on my own when at BT because they valued my expertise” or “I was sad to leave the Co-op because they were incredibly kind to me”. We are exploring what is going on when you are truly fulfilled, so the more thoughts you have, the better.
+        </p>
+        <Textarea
+          id="career-reflection"
+          rows={12}
+          value={reflection}
+          onChange={(event) => setReflection(event.target.value)}
+          placeholder="Write freely about the moments, people, ways of working and places that gave you most energy…"
+        />
+      </div>
+      <Button
+        onClick={() => save.mutate({ careerReflection: reflection })}
+        disabled={save.isPending}
+        className="bg-[var(--lw-gold)] hover:bg-[oklch(0.60 0.13 72)] text-white"
+      >
+        {save.isPending ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
+        Save Career Reflections
+      </Button>
     </div>
   );
 }

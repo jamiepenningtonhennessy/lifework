@@ -610,6 +610,22 @@ const backgroundRouter = router({
       return { success: true };
     }),
 
+  getCareerReflection: protectedProcedure.query(async ({ ctx }) => {
+    const profile = await getOrCreateClientProfile(ctx.user.id);
+    return { careerReflection: profile.careerReflection ?? "" };
+  }),
+
+  saveCareerReflection: protectedProcedure
+    .input(z.object({ careerReflection: z.string().max(10000) }))
+    .mutation(async ({ ctx, input }) => {
+      const profile = await getOrCreateClientProfile(ctx.user.id);
+      await updateClientProfile(profile.id, {
+        careerReflection: input.careerReflection,
+        backgroundStatus: "completed",
+      });
+      return { success: true };
+    }),
+
   getCareer: protectedProcedure.query(async ({ ctx }) => {
     const profile = await getOrCreateClientProfile(ctx.user.id);
     return getCareerHistory(profile.id);

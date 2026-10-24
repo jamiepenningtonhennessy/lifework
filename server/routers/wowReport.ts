@@ -176,6 +176,11 @@ async function buildClientContext(clientId: number): Promise<{
     }
   }
 
+  if (profile.careerReflection?.trim()) {
+    lines.push("\n--- CLIENT'S REFLECTIONS ON CAREER FULFILMENT ---");
+    lines.push(profile.careerReflection.trim());
+  }
+
   if (viaRanked.length > 0) {
     lines.push("\n--- VIA CHARACTER STRENGTHS (ranked) ---");
     viaRanked.slice(0, 10).forEach((s, i) => {

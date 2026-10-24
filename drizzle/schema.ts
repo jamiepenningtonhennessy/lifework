@@ -84,6 +84,7 @@ export const clientProfiles = mysqlTable("client_profiles", {
   cvText: text("cvText"),                              // extracted plain text from CV
   cvOriginalName: varchar("cvOriginalName", { length: 256 }), // original filename
   cvUploadedAt: timestamp("cvUploadedAt"),
+  careerReflection: text("careerReflection"),          // client's own account of what felt fulfilling at work
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });
