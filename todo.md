@@ -2080,3 +2080,9 @@
 - [x] Redraft the fictional report throughout in direct client address using “you” and “your”
 - [x] Preserve the fictional-data notice while removing any remaining first-person report voice
 - [x] Compile, run content checks and visually inspect the revised PDF
+
+## VIA Explainer Scottish Voiceover Revision (2026-10-24)
+- [x] Inspect the supplied explainer’s video and audio streams, narration timing and music bed
+- [x] Transcribe the existing narration and select a natural Scottish male voice
+- [x] Replace the voiceover while retaining the original visual edit and suitable non-narration audio
+- [x] Verify the final video’s synchronisation, audio streams and playback
