@@ -2137,3 +2137,9 @@
 - [x] Show the corresponding live Life History, Background, VIA and Personality video on each first-engagement audit screen
 - [x] Verify that the audit embeds match the actual client-page video sources without replacing the un-deployed Scottish VIA revision
 - [x] Validate responsive embeds, audit navigation and the production build
+
+## Step 1 Life History Explainer Script (2026-10-24)
+- [x] Draft a sub-two-minute explanation of what the Life History Interview captures
+- [x] Make clear why Lifework begins with an unbounded account of lived experience rather than a predetermined model
+- [x] Include simple visual and narration cues for the later video production stage
+- [x] Verify the spoken timing and remove any interpretive AI-style conclusions
