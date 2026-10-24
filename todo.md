@@ -2143,3 +2143,9 @@
 - [x] Make clear why Lifework begins with an unbounded account of lived experience rather than a predetermined model
 - [x] Include simple visual and narration cues for the later video production stage
 - [x] Verify the spoken timing and remove any interpretive AI-style conclusions
+
+## Step 1 Life History Slide-Film (2026-10-24)
+- [x] Generate the approved two-minute Step 1 narration in the established brisk British female voice
+- [x] Create a text-led cream, navy and gold Step 1 film using the existing Lifework wordmark and slide-film grammar
+- [x] Verify synchronisation, readable holds, visual continuity and playable final media
+- [x] Prepare the finished Life History explainer for later replacement of the live stage video
