@@ -2199,3 +2199,10 @@
 - [x] Include the climbing-tree example as a direct coaching question and visual sequence
 - [x] Plan the supplied Sage portrait as a restrained, on-brand element in the later slide-film
 - [x] Verify the narration remains below two minutes
+
+## Sage Conversation Slide-Film (2026-10-24)
+- [x] Update the approved Sage narration with the revised Life History opening and reflective closing
+- [x] Generate the revised narration in the established British female Lifework voice
+- [x] Create a text-led cream, navy and gold Sage film using the supplied Sage portrait as an approved identity reference
+- [x] Verify direct-questioning language, narration coverage, portrait framing, transitions and playable final media
+- [x] Prepare the final Sage video for review before changing any live client-stage page
