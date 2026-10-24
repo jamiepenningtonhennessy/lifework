@@ -2096,3 +2096,9 @@
 - [x] Build the first third of the pain-led homepage script with the selected brisk British female narration
 - [x] Create a restrained cream, navy and gold editorial motion-graphics treatment based on the Garr-style presentation approach
 - [x] Verify timing, legibility, audio and representative frames in a playable proof-of-concept video
+
+## Full Lifework Homepage Slide-Film (2026-10-24)
+- [x] Locate and reuse the Lifework wordmark treatment from the current LifeworkPath site
+- [x] Produce the full narration in the selected brisk British female voice and measure its section timing
+- [x] Extend the approved editorial slide-film style across the full pain-to-recognition narrative
+- [x] Verify the complete video’s wordmark, timing, visual holds, audio and playback before delivery
