@@ -2228,3 +2228,10 @@
 - [x] Explain why Lifework introduces psychometrics after life history and Sage rather than at the beginning
 - [x] Write a concise client-facing narration presenting both instruments as separate evidence-based lenses, never verdicts
 - [x] Include visual cues for a later text-led Lifework slide-film and verify a sub-two-minute timing
+
+## Stage 4 Psychometrics Slide-Film (2026-10-24)
+- [x] Generate the approved Stage 4 narration in the established British female Lifework voice
+- [x] Produce a 16:9 text-led cream, navy and gold film contrasting test-first practice with the Lifework sequence
+- [x] Visualise VIA as 24 character-strength points and OCEAN as five non-evaluative dimensions
+- [x] Verify spoken wording, readable holds, transitions, video/audio streams and final media playback
+- [x] Prepare the approved video for review before replacing any live VIA or IPIP/NEO page video
