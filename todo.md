@@ -2181,3 +2181,9 @@
 - [x] Show the sequence from early nurturing environment to recurring conditions of fulfilment at work
 - [x] Keep the tone direct, reflective and non-interpretive, with visual beat cues for later slide-film production
 - [x] Verify the script stays within the two-minute explainer target
+
+## Background and Career History Slide-Film (2026-10-24)
+- [x] Generate the approved explainer narration in the established British female Lifework voice
+- [x] Produce a 16:9 cream, navy and gold text-led film using the site-matched Lifework wordmark
+- [x] Verify narration coverage, readable holds, transitions, codecs and representative frames
+- [x] Prepare the finished video for review before replacing the live client-stage embed
