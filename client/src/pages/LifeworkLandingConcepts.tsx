@@ -351,7 +351,7 @@ function Guide({ concept }: { concept: ConceptSlug }) {
   return (
     <section className="lc-section">
       <div className="lc-shell lc-section-grid">
-        <SectionRail num="02" label="The Guide" sub="A considered way forward" />
+        <SectionRail num="03" label="The Guide" sub="A considered way forward" />
         <div className="lc-section-main lc-guide-layout">
           <div>
             <div className="lc-kicker">The Guide</div>
@@ -385,7 +385,7 @@ function VideoSection() {
   return (
     <section className="lc-section lc-video">
       <div className="lc-shell lc-section-grid">
-        <SectionRail num="03" label="How it works" sub="The story of Lifework" />
+        <SectionRail num="02" label="How it works" sub="The story of Lifework" />
         <div className="lc-section-main">
           <div className="lc-kicker">How it works</div>
           <h2 className="lc-section-heading">The story of Lifework —<br /><em>in two minutes.</em></h2>
@@ -571,8 +571,8 @@ export default function LifeworkLandingConcepts({ forcedConcept, reviewOnly = tr
         onOpenCounsellor={() => openAppRoute("/counselor")}
       />
       <Hero concept={concept} onBeginJourney={handleBeginJourney} />
-      <Guide concept={concept} />
       <VideoSection />
+      <Guide concept={concept} />
       <Testimonials concept={concept} />
       <Invitation onBeginJourney={handleBeginJourney} />
       <Footer />

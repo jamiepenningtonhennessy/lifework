@@ -2113,3 +2113,14 @@
 - [x] Upload the approved retimed Lifework slide-film to managed website storage
 - [x] Point the homepage video player to the managed video path
 - [x] Validate the homepage player’s source, metadata loading and production build
+
+## Counsellor Client-Experience Audit Access (2026-10-24)
+- [x] Map the existing read-only counsellor client-portal preview and its interaction limits
+- [x] Add a counsellor-only audit route using a fictional, privacy-safe client state
+- [x] Allow navigation through representative client screens and hosted videos without registration or live-data writes
+- [x] Validate access control, route flow and audit-mode visual cues
+
+## LifeworkPath Homepage Module Reordering (2026-10-24)
+- [x] Move How it works from module 03 to module 02
+- [x] Renumber the remaining homepage modules in their revised order
+- [x] Validate the revised order, video placement and responsive page build

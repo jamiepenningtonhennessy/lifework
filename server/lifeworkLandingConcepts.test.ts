@@ -65,13 +65,17 @@ describe("Lifework landing page", () => {
     expect(storageProxySource).toContain('v1/storage/presign/get');
   });
 
-  it("places testimonials in module four directly before the invitation", () => {
+  it("places How it works in module two, then renumbers the guide and testimonials before the invitation", () => {
+    expect(conceptSource).toContain('SectionRail num="02" label="How it works" sub="The story of Lifework"');
+    expect(conceptSource).toContain('SectionRail num="03" label="The Guide" sub="A considered way forward"');
     expect(conceptSource).toContain('SectionRail num="04" label="What people say" sub="In their own words"');
     expect(conceptSource).toContain('<h2 className="lc-section-heading">What people say<br /><em>about Lifework</em></h2>');
     expect(conceptSource).not.toContain('function Plan()');
     expect(conceptSource).not.toContain('SectionRail num="05" label="The Plan"');
 
     const renderOrder = conceptSource.slice(conceptSource.indexOf('<Hero concept={concept}'));
+    expect(renderOrder.indexOf('<VideoSection />')).toBeLessThan(renderOrder.indexOf('<Guide concept={concept} />'));
+    expect(renderOrder.indexOf('<Guide concept={concept} />')).toBeLessThan(renderOrder.indexOf('<Testimonials concept={concept} />'));
     expect(renderOrder.indexOf('<VideoSection />')).toBeLessThan(renderOrder.indexOf('<Testimonials concept={concept} />'));
     expect(renderOrder.indexOf('<Testimonials concept={concept} />')).toBeLessThan(renderOrder.indexOf('<Invitation onBeginJourney={handleBeginJourney} />'));
     expect(renderOrder).not.toContain('<Plan />');

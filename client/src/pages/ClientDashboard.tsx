@@ -263,6 +263,8 @@ export function DashboardBody({
   onLogout,
   showAdminLink,
   isPreview = false,
+  allowPreviewNavigation = false,
+  sagePreviewContext,
   userId,
 }: {
   profile: any;
@@ -281,6 +283,10 @@ export function DashboardBody({
   onLogout?: () => void;
   showAdminLink?: boolean;
   isPreview?: boolean;
+  /** Enables navigation only in the counsellor's fictional, non-persistent audit journey. */
+  allowPreviewNavigation?: boolean;
+  /** Keeps Sage preview conversations separate from a real client or counsellor record. */
+  sagePreviewContext?: string;
   userId?: number;
 }) {
 
@@ -570,6 +576,7 @@ export function DashboardBody({
                                 section="life_history"
                                 buttonLabel={sageConversationCompleted ? "Review conversation with Sage" : sageEnriched === 0 ? "Begin conversation with Sage" : "Continue conversation with Sage"}
                                 sectionDescription="Sage has read your Life History and Background. She would like to explore what you have written and ask some reflective questions to deepen your self-understanding."
+                                previewContext={isPreview ? (sagePreviewContext ?? "This is a read-only counsellor preview. Do not load or retain a client record. Invite the visitor to consider how a fictional client might describe a meaningful life-history event by asking one direct, open question.") : undefined}
                               />
                             </div>
                           )}
@@ -676,7 +683,7 @@ export function DashboardBody({
                               ) {
                                 resolvedPath = "/ipip-survey";
                               }
-                              if (isPreview && isAlistair) {
+                              if (isPreview && isAlistair && !allowPreviewNavigation) {
                                 return (
                                   <span
                                     className="inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs font-medium"
@@ -695,8 +702,8 @@ export function DashboardBody({
                               <Button
                                 size="sm"
                                 variant={isCompleted ? "outline" : "default"}
-                                disabled={isPreview}
-                                onClick={() => isPreview ? undefined : onNavigate(resolvedPath)}
+                                disabled={isPreview && !allowPreviewNavigation}
+                                onClick={() => onNavigate(resolvedPath)}
                                   className={
                                     !isCompleted
                                       ? "bg-[var(--lw-gold)] hover:bg-[oklch(0.60 0.13 72)] text-white gap-1"

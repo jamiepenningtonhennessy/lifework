@@ -84,6 +84,14 @@ export default function CounselorDashboard() {
               <Lock className="w-3.5 h-3.5" />
               Lock
             </button>
+            <button
+              onClick={() => navigate("/counselor/client-audit")}
+              className="px-3 py-1.5 text-xs font-medium tracking-wide uppercase cursor-pointer flex items-center gap-1.5"
+              style={{ border: "1px solid rgba(201,151,58,0.3)", color: "rgba(255,255,255,0.7)", background: "transparent", letterSpacing: "0.08em" }}
+            >
+              <Eye className="w-3.5 h-3.5" />
+              Client audit
+            </button>
             {user?.role === "admin" && (
               <>
                 <button

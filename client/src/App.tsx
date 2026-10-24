@@ -48,6 +48,7 @@ import CounsellorCareerExplorer from "./pages/CounsellorCareerExplorer";
 import DebriefChat from "./pages/DebriefChat";
 import JobsExplorer from "./pages/JobsExplorer";
 import CounsellorPortalPage from "./pages/CounsellorPortalPage";
+import ClientExperienceAudit from "./pages/ClientExperienceAudit";
 import CompanyUniversePage from "./pages/CompanyUniversePage";
 import BlogWriter from "./pages/ph/BlogWriter";
 import { isPenningtonHennessyHostname, isStandaloneLifeworkDomain } from "@/lib/lifeworkDomain";
@@ -155,6 +156,8 @@ function Router() {
       <Route path="/counselor">{() => <CounsellorPinGate><CounselorDashboard /></CounsellorPinGate>}</Route>
       <Route path="/counselor/universe">{() => <CounsellorPinGate><CompanyUniversePage /></CounsellorPinGate>}</Route>
       <Route path="/counselor/testimonials">{() => <CounsellorPinGate><TestimonialsManager /></CounsellorPinGate>}</Route>
+      <Route path="/counselor/client-audit">{() => <CounsellorPinGate><ClientExperienceAudit /></CounsellorPinGate>}</Route>
+      <Route path="/counselor/client-audit/:screen">{() => <CounsellorPinGate><ClientExperienceAudit /></CounsellorPinGate>}</Route>
       <Route path="/counselor/client/:id/career-explorer">{(params) => <CounsellorPinGate><CounsellorCareerExplorer /></CounsellorPinGate>}</Route>
       <Route path="/counselor/client/:id/portal">{(params) => <CounsellorPinGate><CounsellorPortalPage /></CounsellorPinGate>}</Route>
       <Route path="/counselor/client/:id">{(params) => <CounsellorPinGate><ClientProfile /></CounsellorPinGate>}</Route>

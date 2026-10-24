@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { getLoginUrl } from "@/const";
+import { canEnterCounsellorWorkspace } from "@shared/counsellorAccess";
 
 interface Props {
   children: React.ReactNode;
@@ -18,7 +19,7 @@ interface Props {
  */
 export function CounsellorPinGate({ children }: Props) {
   const SESSION_KEY = "counsellor_pin_verified";
-  const { loading: authLoading, isAuthenticated } = useAuth({
+  const { loading: authLoading, isAuthenticated, user } = useAuth({
     redirectOnUnauthenticated: true,
     redirectPath: getLoginUrl(window.location.pathname),
   });
@@ -84,6 +85,19 @@ export function CounsellorPinGate({ children }: Props) {
     return (
       <div className="min-h-screen flex items-center justify-center" style={{ background: "var(--lw-navy, #0a1628)" }}>
         <div className="w-6 h-6 rounded-full border-2 border-t-transparent animate-spin" style={{ borderColor: "var(--gold)", borderTopColor: "transparent" }} />
+      </div>
+    );
+  }
+
+  if (!canEnterCounsellorWorkspace(user?.role)) {
+    return (
+      <div className="min-h-screen flex items-center justify-center px-4" style={{ background: "var(--lw-navy, #0a1628)" }}>
+        <div className="max-w-md text-center space-y-3">
+          <h1 className="font-serif text-2xl text-white">Counsellor access only</h1>
+          <p className="text-sm leading-relaxed" style={{ color: "rgba(255,255,255,0.65)" }}>
+            This area is available only to authorised Lifework counsellors and administrators.
+          </p>
+        </div>
       </div>
     );
   }
