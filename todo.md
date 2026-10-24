@@ -2192,3 +2192,10 @@
 - [x] Upload the approved Background and Career History explainer to managed website storage
 - [x] Replace the current stage video embed with the managed Lifework player
 - [x] Verify video metadata, responsive client-page playback and the production build
+
+## Sage Conversation Explainer Script (2026-10-24)
+- [x] Explain Sage’s supportive role in gathering the richer detail behind a life-history memory
+- [x] Show how AI can hold many details in view without making interpretive pronouncements to the client
+- [x] Include the climbing-tree example as a direct coaching question and visual sequence
+- [x] Plan the supplied Sage portrait as a restrained, on-brand element in the later slide-film
+- [x] Verify the narration remains below two minutes
