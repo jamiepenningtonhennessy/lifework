@@ -2206,3 +2206,15 @@
 - [x] Create a text-led cream, navy and gold Sage film using the supplied Sage portrait as an approved identity reference
 - [x] Verify direct-questioning language, narration coverage, portrait framing, transitions and playable final media
 - [x] Prepare the final Sage video for review before changing any live client-stage page
+
+## Live Sage Video Introduction (2026-10-24)
+- [x] Upload the approved Sage conversation explainer to managed website storage
+- [x] Show the video before Sage’s chat entry point on the live client Stage 3 card
+- [x] Mirror the same introduction in the counsellor-only first-engagement audit walkthrough
+- [x] Verify the video source, responsive layout, direct conversation entry and production build
+
+## No-Sign-In Fictional Sage Preview (2026-10-24)
+- [x] Expose only the existing fictional Sage first-engagement screen through an unlisted public sample route
+- [x] Keep the route entirely non-persistent and free of client data, authentication, reports and write actions
+- [x] Make the sample route selectable on LifeworkPath without affecting protected counsellor audit access
+- [x] Verify the public URL, Sage video playback, source safety and production build

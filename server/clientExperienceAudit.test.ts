@@ -38,6 +38,11 @@ describe("counsellor client-experience audit", () => {
     expect(auditSource).toContain("First engagement audit");
     expect(auditSource).toContain("The first question, not a conclusion");
     expect(auditSource).toContain("What part of that moment felt most satisfying to you?");
+    expect(auditSource).toContain(
+      'const SAGE_STAGE_VIDEO_URL = "/manus-storage/lifework_stage3_sage_conversation_explainer_9ae1669b.mp4";'
+    );
+    expect(auditSource).toContain('src={SAGE_STAGE_VIDEO_URL}');
+    expect(auditSource).toContain('title="Meet Sage — a short introduction to your conversation"');
     expect(auditSource).not.toContain("You have described feeling most alive");
   });
 

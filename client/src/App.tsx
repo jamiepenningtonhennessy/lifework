@@ -58,6 +58,7 @@ import TestimonialsManager from "./pages/TestimonialsManager";
 import TestimonialDraftSubmission from "./pages/TestimonialDraftSubmission";
 import LifeworkLandingConcepts from "./pages/LifeworkLandingConcepts";
 import LifeworkCoachPartner from "./pages/LifeworkCoachPartner";
+import SageFirstEncounterSample from "./pages/SageFirstEncounterSample";
 
 function DomainDocumentBranding() {
   useEffect(() => {
@@ -119,6 +120,7 @@ function Router() {
       <Route path="/webinar" component={LifeworkWebinar} />
       <Route path="/lifework/webinar" component={LifeworkWebinar} />
       <Route path="/feedback" component={TestimonialDraftSubmission} />
+      <Route path="/client-preview/sage" component={SageFirstEncounterSample} />
       <Route path="/sage-lab">{() => <LifeworkLayout><SagePrototype /></LifeworkLayout>}</Route>
       <Route path="/ai-coaching" component={AICoaching} />
 

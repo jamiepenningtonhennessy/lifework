@@ -57,4 +57,15 @@ describe("client dashboard Alistair journey", () => {
     );
     expect(interviewSource).not.toContain("1vYmcvxcjjK3kPiOib4l9aNlg9XSCIBSL");
   });
+
+  it("introduces Sage with the approved managed film before the client starts the conversation", () => {
+    expect(dashboardSource).toContain(
+      'const SAGE_STAGE_VIDEO_URL = "/manus-storage/lifework_stage3_sage_conversation_explainer_9ae1669b.mp4";'
+    );
+    expect(dashboardSource).toContain('src={SAGE_STAGE_VIDEO_URL}');
+    expect(dashboardSource).toContain('title="Meet Sage — a short introduction to your conversation"');
+    expect(dashboardSource.indexOf('src={SAGE_STAGE_VIDEO_URL}')).toBeLessThan(
+      dashboardSource.indexOf('<ChatToPeter')
+    );
+  });
 });

@@ -25,6 +25,8 @@ import { Badge } from "@/components/ui/badge";
 import { ChatToPeter } from "@/components/ChatToPeter";
 import { useState, useEffect } from "react";
 
+const SAGE_STAGE_VIDEO_URL = "/manus-storage/lifework_stage3_sage_conversation_explainer_9ae1669b.mp4";
+
 // ─── Step definitions ─────────────────────────────────────────────────────────
 
 const STEPS = [
@@ -561,6 +563,22 @@ export function DashboardBody({
                           {/* ── Sage stage: gate panel + chat ── */}
                           {isSage && !isLocked && (
                             <div className="mt-2 space-y-4">
+                              <div
+                                className="overflow-hidden rounded-lg border"
+                                style={{ borderColor: "rgba(201,151,58,0.32)", background: "var(--lw-navy)" }}
+                              >
+                                <video
+                                  src={SAGE_STAGE_VIDEO_URL}
+                                  controls
+                                  playsInline
+                                  preload="metadata"
+                                  title="Meet Sage — a short introduction to your conversation"
+                                  className="block aspect-video w-full"
+                                />
+                              </div>
+                              <p className="text-xs leading-relaxed" style={{ color: "var(--muted-foreground)" }}>
+                                Before you begin, watch this short introduction to how Sage will explore the detail in your life history with you.
+                              </p>
                               {/* Gate progress panel — always visible once Sage is accessible */}
                               <SageGatePanel
                                 enriched={sageEnriched}

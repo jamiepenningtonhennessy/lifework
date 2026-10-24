@@ -22,6 +22,7 @@ type AuditScreen = "dashboard" | "interview" | "background" | "sage" | "via" | "
 
 const AUDIT_ROOT = "/counselor/client-audit";
 const HOMEPAGE_FILM = "/manus-storage/lifework_homepage_editorial_slidefilm_retimed_48dd0749.mp4";
+const SAGE_STAGE_VIDEO_URL = "/manus-storage/lifework_stage3_sage_conversation_explainer_9ae1669b.mp4";
 const STAGE_VIDEOS = {
   lifeHistory: { fileId: "1vYmcvxcjjK3kPiOib4l9aNlg9XSCIBSL", title: "Lifework introduction" },
   background: { fileId: "1FQ9fnNAvFIvwPqqmwC_t7ODEOhj0w1ld", title: "Career, education and family" },
@@ -288,6 +289,16 @@ function SageAudit() {
     <>
       <AuditScreenHeader title="Sage — Exploring your Life History" eyebrow="Step 3 of 6 · first available conversation" next={{ label: "VIA", screen: "via" }} />
       <AuditIntro title="The first question, not a conclusion">
+        <div className="mb-8 overflow-hidden rounded-xl border" style={{ borderColor: "rgba(201,151,58,0.32)", background: "var(--lw-navy)" }}>
+          <video
+            src={SAGE_STAGE_VIDEO_URL}
+            controls
+            playsInline
+            preload="metadata"
+            title="Meet Sage — a short introduction to your conversation"
+            className="block aspect-video w-full"
+          />
+        </div>
         <div className="grid gap-5 lg:grid-cols-[1.1fr_0.9fr]">
           <Card>
             <CardHeader>
