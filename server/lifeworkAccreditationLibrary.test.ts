@@ -8,7 +8,7 @@ const librarySource = readFileSync(
 );
 const appSource = readFileSync(resolve(process.cwd(), "client/src/App.tsx"), "utf8");
 
-describe("Lifework accreditation video library", () => {
+describe("Lifework client video library", () => {
   it("presents the five client films in their actual journey order", () => {
     expect(librarySource).toContain('number: "01"');
     expect(librarySource).toContain('stage: "Life History"');
@@ -33,11 +33,18 @@ describe("Lifework accreditation video library", () => {
     expect(librarySource).not.toContain("iframe");
   });
 
-  it("uses a compact responsive grid and is available at the public accreditation route", () => {
+  it("uses a compact responsive grid and is available at the public videos route", () => {
     expect(librarySource).toContain('grid-template-columns: repeat(3, minmax(0, 1fr))');
     expect(librarySource).toContain('@media (max-width: 980px)');
     expect(librarySource).toContain('grid-template-columns: repeat(2, minmax(0, 1fr))');
     expect(librarySource).toContain('@media (max-width: 680px)');
-    expect(appSource).toContain('path="/accreditation" component={LifeworkAccreditationLibrary}');
+    expect(appSource).toContain('path="/videos" component={LifeworkClientVideoLibrary}');
+  });
+
+  it("uses client-facing framing rather than coach-accreditation copy", () => {
+    expect(librarySource).toContain("Client experience");
+    expect(librarySource).toContain("The Lifework client journey");
+    expect(librarySource).toContain("About these films");
+    expect(librarySource).not.toContain("Coach accreditation");
   });
 });

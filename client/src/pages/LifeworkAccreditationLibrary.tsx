@@ -1,6 +1,6 @@
 import { ArrowUpRight, Play, ShieldCheck } from "lucide-react";
 
-const accreditationVideos = [
+const clientVideos = [
   {
     number: "01",
     stage: "Life History",
@@ -38,7 +38,7 @@ const accreditationVideos = [
   },
 ] as const;
 
-const accreditationCss = `
+const clientVideosCss = `
   .lw-accreditation {
     --paper: #f6f1e9;
     --paper-deep: #eee6d6;
@@ -107,26 +107,26 @@ const accreditationCss = `
   }
 `;
 
-export default function LifeworkAccreditationLibrary() {
+export default function LifeworkClientVideoLibrary() {
   return (
     <div className="lw-accreditation">
-      <style>{accreditationCss}</style>
+      <style>{clientVideosCss}</style>
       <header className="la-shell la-header">
         <a className="la-wordmark" href="https://lifeworkpath.com/" aria-label="LifeworkPath home">Life<em>work</em></a>
-        <div className="la-header-label">Coach accreditation<br />Video library</div>
+        <div className="la-header-label">Client experience<br />Video library</div>
       </header>
 
       <main>
         <section className="la-shell la-hero">
           <div className="la-hero-grid">
             <div>
-              <div className="la-kicker">Coach accreditation</div>
+              <div className="la-kicker">The Lifework client journey</div>
               <h1>The client journey,<br /><em>in sequence.</em></h1>
               <p className="la-intro">Five short films that introduce each client stage, from an open life history through to the WoW report and coaching conversation. <strong>Watch them in order:</strong> the sequence is central to the Lifework method.</p>
             </div>
             <aside className="la-sequence-note">
               <ShieldCheck size={21} aria-hidden="true" />
-              <span>These are the client-facing introductions. They explain the purpose of each stage without interpreting an individual client’s experience for them.</span>
+              <span>These client-facing introductions explain the purpose of each stage without interpreting an individual client’s experience for them.</span>
             </aside>
           </div>
         </section>
@@ -137,7 +137,7 @@ export default function LifeworkAccreditationLibrary() {
             <p>Short, sequential and ready to review.</p>
           </div>
           <div className="la-grid">
-            {accreditationVideos.map((video) => (
+            {clientVideos.map((video) => (
               <article className="la-card" key={video.number}>
                 <div className="la-card-head">
                   <span className="la-number">{video.number}</span>
@@ -154,14 +154,14 @@ export default function LifeworkAccreditationLibrary() {
             ))}
           </div>
           <div className="la-note">
-            <div className="la-note-label">Accreditation note</div>
-            <p>Use these introductions to understand the client experience, then return to the accreditation materials for the coaching skill, practical guidance and professional judgement that sit around each stage.</p>
+            <div className="la-note-label">About these films</div>
+            <p>Each film introduces one stage of the Lifework process. Together, they show why the journey begins with lived experience and moves carefully towards a considered coaching conversation.</p>
           </div>
         </section>
       </main>
 
       <footer className="la-shell la-footer">
-        <span>© Lifework · Coach accreditation library</span>
+        <span>© Lifework · Client video library</span>
         <a className="la-back" href="https://lifeworkpath.com/">LifeworkPath home <ArrowUpRight size={14} /></a>
       </footer>
     </div>

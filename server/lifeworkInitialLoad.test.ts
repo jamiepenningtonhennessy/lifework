@@ -1,48 +1,42 @@
 import { describe, expect, it } from "vitest";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
-import { isAccreditationHostname, shouldLoadStandaloneLanding } from "../client/src/lib/lifeworkDomain";
+import { shouldLoadStandaloneLanding } from "../client/src/lib/lifeworkDomain";
 
 const mainSource = readFileSync(resolve(process.cwd(), "client/src/main.tsx"), "utf8");
 const appMainSource = readFileSync(resolve(process.cwd(), "client/src/appMain.tsx"), "utf8");
 const landingMainSource = readFileSync(resolve(process.cwd(), "client/src/lifeworkPathMain.tsx"), "utf8");
-const accreditationMainSource = readFileSync(resolve(process.cwd(), "client/src/accreditationMain.tsx"), "utf8");
 const htmlSource = readFileSync(resolve(process.cwd(), "client/index.html"), "utf8");
 const viteSource = readFileSync(resolve(process.cwd(), "vite.config.ts"), "utf8");
 
 describe("LifeworkPath initial-load routing", () => {
-  it("selects the lightweight public entry for standalone root and coach-partner visits", () => {
+  it("selects the lightweight public entry for standalone root, coach-partner and videos visits", () => {
     expect(shouldLoadStandaloneLanding("lifeworkpath.com", "/")).toBe(true);
     expect(shouldLoadStandaloneLanding("www.lifeworkpath.com", "/")).toBe(true);
     expect(shouldLoadStandaloneLanding("plumtrees-kfbbe6kq.manus.space", "/")).toBe(true);
     expect(shouldLoadStandaloneLanding("lifeworkpath.com", "/coaches")).toBe(true);
     expect(shouldLoadStandaloneLanding("lifeworkpath.com", "/coaches/")).toBe(true);
+    expect(shouldLoadStandaloneLanding("lifeworkpath.com", "/videos")).toBe(true);
+    expect(shouldLoadStandaloneLanding("lifeworkpath.com", "/videos/")).toBe(true);
     expect(shouldLoadStandaloneLanding("lifeworkpath.com", "/dashboard")).toBe(false);
     expect(shouldLoadStandaloneLanding("penningtonhennessy.com", "/")).toBe(false);
   });
 
-  it("recognises the dedicated accreditation subdomain without treating it as the main client site", () => {
-    expect(isAccreditationHostname("accreditation.lifeworkpath.com")).toBe(true);
-    expect(isAccreditationHostname("lifeworkpath.com")).toBe(false);
-    expect(isAccreditationHostname("www.lifeworkpath.com")).toBe(false);
-  });
-
   it("defers the full authenticated application bundle for a standalone landing visit", () => {
     expect(mainSource).toContain('void import("./lifeworkPathMain")');
-    expect(mainSource).toContain('void import("./accreditationMain")');
     expect(mainSource).toContain('void import("./appMain")');
     expect(mainSource).not.toContain('import App from "./App"');
     expect(landingMainSource).toContain('import LifeworkLandingConcepts from "./pages/LifeworkLandingConcepts"');
     expect(landingMainSource).toContain('import LifeworkCoachPartner from "./pages/LifeworkCoachPartner"');
-    expect(accreditationMainSource).toContain('import LifeworkAccreditationLibrary from "./pages/LifeworkAccreditationLibrary"');
-    expect(accreditationMainSource).toContain('mountAccreditationLibrary');
+    expect(landingMainSource).toContain('import LifeworkClientVideoLibrary from "./pages/LifeworkAccreditationLibrary"');
+    expect(landingMainSource).toContain('const isVideosPage = pathname === "/videos" || pathname === "/videos/";');
+    expect(landingMainSource).toContain('<LifeworkClientVideoLibrary />');
     expect(appMainSource).toContain('import App from "./App"');
   });
 
   it("shows an immediate branded status and a clear failure message rather than a blank root", () => {
     expect(htmlSource).toContain('class="site-bootstrap" role="status"');
     expect(htmlSource).toContain("Opening LifeworkPath");
-    expect(mainSource).toContain('? "Opening Lifework Accreditation"');
     expect(mainSource).toContain('? "Opening LifeworkPath"');
     expect(mainSource).toContain(': "Opening Pennington Hennessy";');
     expect(mainSource).toContain('LifeworkPath could not open just now. Please refresh the page.');

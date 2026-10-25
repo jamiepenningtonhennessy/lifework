@@ -5,10 +5,6 @@ export const STANDALONE_LIFEWORK_HOSTS = [
   "plumtrees-kfbbe6kq.manus.space",
 ] as const;
 
-export const LIFEWORK_ACCREDITATION_HOSTS = [
-  "accreditation.lifeworkpath.com",
-] as const;
-
 const MANAGED_PREVIEW_HOSTNAME_PATTERN = /^3000-[a-z0-9-]+\.us\d+\.manus\.computer$/;
 const MANAGED_PREVIEW_HOSTS = new Set(["localhost", "127.0.0.1"]);
 
@@ -22,15 +18,6 @@ export function isStandaloneLifeworkHostname(hostname: string | null | undefined
     || MANAGED_PREVIEW_HOSTS.has(normalizedHostname);
 }
 
-/** Returns whether the host should load the compact public coach-accreditation library. */
-export function isAccreditationHostname(hostname: string | null | undefined): boolean {
-  if (!hostname) return false;
-
-  return LIFEWORK_ACCREDITATION_HOSTS.includes(
-    hostname.toLowerCase() as typeof LIFEWORK_ACCREDITATION_HOSTS[number],
-  );
-}
-
 /** Browser-safe runtime check for the canonical Lifework hostnames. */
 export function isStandaloneLifeworkDomain(): boolean {
   return typeof window !== "undefined" && isStandaloneLifeworkHostname(window.location.hostname);
@@ -41,7 +28,7 @@ export function isStandaloneLifeworkDomain(): boolean {
  * authenticated application bundle, while preserving all dashboard and deep-link routes.
  */
 export function shouldLoadStandaloneLanding(hostname: string | null | undefined, pathname: string): boolean {
-  const publicLandingPaths = new Set(["/", "", "/coaches", "/coaches/"]);
+  const publicLandingPaths = new Set(["/", "", "/coaches", "/coaches/", "/videos", "/videos/"]);
   return isStandaloneLifeworkHostname(hostname) && publicLandingPaths.has(pathname);
 }
 

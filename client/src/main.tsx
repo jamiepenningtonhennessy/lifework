@@ -1,5 +1,5 @@
 import "./index.css";
-import { isAccreditationHostname, shouldLoadStandaloneLanding } from "./lib/lifeworkDomain";
+import { shouldLoadStandaloneLanding } from "./lib/lifeworkDomain";
 
 const rootElement = document.getElementById("root");
 
@@ -11,15 +11,12 @@ const useStandaloneLanding = shouldLoadStandaloneLanding(
   window.location.hostname,
   window.location.pathname,
 );
-const useAccreditationLibrary = isAccreditationHostname(window.location.hostname);
 
 const bootstrapMessage = rootElement.querySelector<HTMLElement>(".site-bootstrap__message");
 if (bootstrapMessage) {
-  bootstrapMessage.textContent = useAccreditationLibrary
-    ? "Opening Lifework Accreditation"
-    : useStandaloneLanding
-      ? "Opening LifeworkPath"
-      : "Opening Pennington Hennessy";
+  bootstrapMessage.textContent = useStandaloneLanding
+    ? "Opening LifeworkPath"
+    : "Opening Pennington Hennessy";
 }
 
 const showBootstrapError = () => {
@@ -30,11 +27,7 @@ const showBootstrapError = () => {
   rootElement.appendChild(message);
 };
 
-if (useAccreditationLibrary) {
-  void import("./accreditationMain")
-    .then(({ mountAccreditationLibrary }) => mountAccreditationLibrary(rootElement))
-    .catch(showBootstrapError);
-} else if (useStandaloneLanding) {
+if (useStandaloneLanding) {
   void import("./lifeworkPathMain")
     .then(({ mountLifeworkPath }) => mountLifeworkPath(rootElement))
     .catch(showBootstrapError);

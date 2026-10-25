@@ -2270,9 +2270,13 @@
 - [x] Remove the corresponding retired video player from the counsellor audit IPIP first-engagement screen
 - [x] Update regression coverage and validate the revised client and audit flow in the production build
 
-## Lifework Accreditation Video Library (2026-10-25)
-- [x] Build a compact public accreditation page presenting the five client-stage films in their actual sequence
+## Lifework Client Video Library (2026-10-25)
+- [x] Build a compact public video page presenting the five client-stage films in their actual sequence
 - [x] Use a responsive two-column editorial video grid with brief stage context to minimise vertical scrolling
-- [x] Make `/accreditation` available on the main Lifework site and make the page the host-aware entry for `accreditation.lifeworkpath.com`
+- [x] Make `/videos` the lightweight public library route on the main LifeworkPath site
 - [x] Validate the five managed film sources, responsive presentation, standalone entry selection and production build
-- [x] Record the remaining DNS/domain-binding step needed to activate the accreditation subdomain
+- [x] Keep the existing coach-accreditation website and its `accreditation.lifeworkpath.com` host entirely separate
+
+## Existing Coach Accreditation Site (2026-10-25)
+- [x] Verify that `accreditation.lifeworkpath.com/films` already serves a separate live coach-accreditation website
+- [x] Do not replace, rebind or alter the existing accreditation site from this LifeworkPath project
