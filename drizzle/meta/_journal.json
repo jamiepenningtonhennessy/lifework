@@ -260,6 +260,13 @@
       "when": 1792860274982,
       "tag": "0036_ancient_korg",
       "breakpoints": true
+    },
+    {
+      "idx": 37,
+      "version": "5",
+      "when": 1792923432650,
+      "tag": "0037_minor_maggott",
+      "breakpoints": true
     }
   ]
 }

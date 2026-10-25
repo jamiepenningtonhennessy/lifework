@@ -193,6 +193,16 @@ export default function WowReportTab({ clientId, clientName }: WowReportTabProps
     { runId: selectedTraceRunId! },
     { enabled: !!selectedTraceRunId }
   );
+  const { data: betaVersions } = trpc.wowReportBeta.list.useQuery({ clientId });
+
+  const createBetaSnapshotMutation = trpc.wowReportBeta.createSnapshot.useMutation({
+    onSuccess: (result) => {
+      utils.wowReportBeta.list.invalidate({ clientId });
+      toast.success("Frozen Beta 1 review copy created. The production report remains unchanged.");
+      window.open(`/counselor/client/${clientId}/wow-beta-1/${result.betaId}`, "_blank", "noopener,noreferrer");
+    },
+    onError: (err) => toast.error(`Could not create Beta 1 review copy: ${err.message}`),
+  });
 
   // Generate mutation — fires and forgets, then we start polling
   const generateMutation = trpc.wowReport.generate.useMutation({
@@ -925,6 +935,50 @@ export default function WowReportTab({ clientId, clientName }: WowReportTabProps
           )}
         </CardContent>
       </Card>
+
+      {/* Reader-first Beta 1 — stored separately from the production report. */}
+      {reportExists && (
+        <Card className="border-[#B8862F]/35 bg-[#f5f0e8] shadow-none">
+          <CardContent className="flex flex-col gap-5 p-5 sm:flex-row sm:items-center sm:justify-between">
+            <div className="min-w-0">
+              <div className="flex items-center gap-2">
+                <FlaskConical className="h-4 w-4 text-[#B8862F]" />
+                <p className="font-sans text-[10px] font-bold tracking-[0.15em] uppercase text-[#B8862F]">Beta 1 · internal review</p>
+              </div>
+              <h3 className="mt-2 font-serif text-xl text-[#1A2744]">Reader-first report edition</h3>
+              <p className="mt-1 max-w-2xl text-sm leading-6 text-[#1A2744]/70">
+                Create an immutable snapshot of this completed report to review a new sequence and reading experience. It does not regenerate, edit, or replace the client-facing report.
+              </p>
+              {betaVersions?.length ? (
+                <p className="mt-2 text-xs text-[#1A2744]/55">
+                  {betaVersions.length} frozen review {betaVersions.length === 1 ? "copy" : "copies"} available. The latest is retained separately from this report.
+                </p>
+              ) : null}
+            </div>
+            <div className="flex shrink-0 flex-wrap gap-2">
+              {betaVersions?.[0] ? (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="border-[#1A2744]/25 text-[#1A2744] hover:bg-white"
+                  onClick={() => window.open(`/counselor/client/${clientId}/wow-beta-1/${betaVersions[0].id}`, "_blank", "noopener,noreferrer")}
+                >
+                  <BookOpen className="mr-2 h-4 w-4" /> Open latest
+                </Button>
+              ) : null}
+              <Button
+                size="sm"
+                className="bg-[#1A2744] text-white hover:bg-[#28395d]"
+                onClick={() => createBetaSnapshotMutation.mutate({ clientId })}
+                disabled={createBetaSnapshotMutation.isPending}
+              >
+                {createBetaSnapshotMutation.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <FlaskConical className="mr-2 h-4 w-4" />}
+                {betaVersions?.length ? "Create fresh snapshot" : "Create Beta 1 snapshot"}
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Psychometric snapshot (when report exists) */}
       {sections && (

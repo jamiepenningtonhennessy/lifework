@@ -2269,3 +2269,12 @@
 - [x] Keep the questionnaire, introductory written guidance and assessment gate unchanged
 - [x] Remove the corresponding retired video player from the counsellor audit IPIP first-engagement screen
 - [x] Update regression coverage and validate the revised client and audit flow in the production build
+
+## WOW Report Beta 1 — Reader-First Internal Review (2026-10-25)
+- [x] Freeze the production baseline at Git tag `wow-report-production-freeze-2026-10-25` and start the isolated `wow-report-beta-1` working branch
+- [x] Add a separate, append-only `wow_report_beta_versions` snapshot store; do not alter the mutable production `analysis_reports` report fields
+- [x] Add master-counsellor-only controls to create a frozen Beta 1 snapshot from a completed report without regenerating, editing or replacing it
+- [x] Build an internal reader-first Beta 1 view that reorganises the existing report prose around recognition, usable conditions and purposeful choices
+- [x] Add a separate fictional no-data layout preview so the visual direction can be reviewed without exposing a real client report
+- [x] Keep the client portal, production report generator, production PDF route and live WOW report unchanged
+- [x] Add focused isolation, source-preservation, access-control and route-gating regression coverage

@@ -25,6 +25,7 @@ import {
   type CareerExplorerSession,
   type CoachingAnnex,
   reportGenerationLogs,
+  wowReportBetaVersions,
 } from "../drizzle/schema";
 import { ENV } from "./_core/env";
 
@@ -445,6 +446,50 @@ export async function updateCanonicalStage1(clientId: number, stage1Text: string
     .insert(analysisReports)
     .values({ clientId, canonicalStage1: stage1Text, canonicalStage1GeneratedAt: now, generatedAt: new Date() })
     .onDuplicateKeyUpdate({ set: { canonicalStage1: stage1Text, canonicalStage1GeneratedAt: now } });
+}
+
+// ─── WOW Report Beta Versions ───────────────────────────────────────────────
+// These helpers deliberately never write to analysis_reports. Production remains
+// the system of record for live reports; Beta 1 is an append-only review store.
+export async function createWowReportBetaVersion(data: {
+  clientId: number;
+  betaVersion: string;
+  sourceReportGeneratedAt: Date | null;
+  sectionsSnapshot: string;
+  createdByUserId: number;
+}) {
+  const db = await getDb();
+  if (!db) throw new Error("DB not available");
+
+  const version = { id: crypto.randomUUID(), ...data };
+  await db.insert(wowReportBetaVersions).values(version);
+  return version;
+}
+
+export async function getWowReportBetaVersion(id: string) {
+  const db = await getDb();
+  if (!db) throw new Error("DB not available");
+  const result = await db
+    .select()
+    .from(wowReportBetaVersions)
+    .where(eq(wowReportBetaVersions.id, id))
+    .limit(1);
+  return result[0] ?? null;
+}
+
+export async function listWowReportBetaVersions(clientId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("DB not available");
+  return db
+    .select({
+      id: wowReportBetaVersions.id,
+      betaVersion: wowReportBetaVersions.betaVersion,
+      sourceReportGeneratedAt: wowReportBetaVersions.sourceReportGeneratedAt,
+      createdAt: wowReportBetaVersions.createdAt,
+    })
+    .from(wowReportBetaVersions)
+    .where(eq(wowReportBetaVersions.clientId, clientId))
+    .orderBy(desc(wowReportBetaVersions.createdAt));
 }
 
 // ─── Virtual Peter: Historical Clients ───────────────────────────────────────

@@ -1,6 +1,7 @@
 import { COOKIE_NAME } from "@shared/const";
 import { pseudonymise, PSEUDONYM_TOKEN } from "./shared/pseudonymise";
 import { wowReportRouter } from "./routers/wowReport";
+import { wowReportBetaRouter } from "./routers/wowReportBeta";
 import { claudeExportRouter } from "./routers/claudeExport";
 import { getOrGenerateCanonicalStage1, generateAndStoreCanonicalStage1 } from "./routers/canonicalStage1";
 import bcrypt from "bcryptjs";
@@ -3578,6 +3579,7 @@ export const appRouter = router({
   careerExplorer: careerExplorerRouter,
   coachingAnnex: coachingAnnexRouter,
   wowReport: wowReportRouter,
+  wowReportBeta: wowReportBetaRouter,
   counsellorSage: counsellorSageRouter,
   coachingSlides: coachingSlidesRouter,
   claudeExport: claudeExportRouter,

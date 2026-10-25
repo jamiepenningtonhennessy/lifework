@@ -276,6 +276,22 @@ export const analysisReports = mysqlTable("analysis_reports", {
 });
 export type AnalysisReport = typeof analysisReports.$inferSelect;
 
+// ─── WOW Report Beta Versions ───────────────────────────────────────────────
+// Immutable, counsellor-only snapshots for evaluating a new report presentation.
+// This table intentionally has no relation to the mutable production WOW fields
+// on analysis_reports: a Beta review can never replace a client-facing report.
+export const wowReportBetaVersions = mysqlTable("wow_report_beta_versions", {
+  id: varchar("id", { length: 36 }).primaryKey(),
+  clientId: int("clientId").notNull(),
+  betaVersion: varchar("betaVersion", { length: 32 }).notNull(),
+  sourceReportGeneratedAt: timestamp("sourceReportGeneratedAt"),
+  sectionsSnapshot: text("sectionsSnapshot").notNull(),
+  createdByUserId: int("createdByUserId").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type WowReportBetaVersion = typeof wowReportBetaVersions.$inferSelect;
+
 // ─── Virtual Peter: Historical Client Database ───────────────────────────────
 // Each record represents one of Peter's historical clients, identified by
 // their career outcome description. The embedding field stores a 1536-dim
