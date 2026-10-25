@@ -5,6 +5,10 @@ export const STANDALONE_LIFEWORK_HOSTS = [
   "plumtrees-kfbbe6kq.manus.space",
 ] as const;
 
+export const LIFEWORK_ACCREDITATION_HOSTS = [
+  "accreditation.lifeworkpath.com",
+] as const;
+
 const MANAGED_PREVIEW_HOSTNAME_PATTERN = /^3000-[a-z0-9-]+\.us\d+\.manus\.computer$/;
 const MANAGED_PREVIEW_HOSTS = new Set(["localhost", "127.0.0.1"]);
 
@@ -16,6 +20,15 @@ export function isStandaloneLifeworkHostname(hostname: string | null | undefined
   return STANDALONE_LIFEWORK_HOSTS.includes(normalizedHostname as typeof STANDALONE_LIFEWORK_HOSTS[number])
     || MANAGED_PREVIEW_HOSTNAME_PATTERN.test(normalizedHostname)
     || MANAGED_PREVIEW_HOSTS.has(normalizedHostname);
+}
+
+/** Returns whether the host should load the compact public coach-accreditation library. */
+export function isAccreditationHostname(hostname: string | null | undefined): boolean {
+  if (!hostname) return false;
+
+  return LIFEWORK_ACCREDITATION_HOSTS.includes(
+    hostname.toLowerCase() as typeof LIFEWORK_ACCREDITATION_HOSTS[number],
+  );
 }
 
 /** Browser-safe runtime check for the canonical Lifework hostnames. */
