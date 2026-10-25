@@ -60,7 +60,6 @@ import LifeworkLandingConcepts from "./pages/LifeworkLandingConcepts";
 import LifeworkCoachPartner from "./pages/LifeworkCoachPartner";
 import SageFirstEncounterSample from "./pages/SageFirstEncounterSample";
 import FinalCoachingStage from "./pages/FinalCoachingStage";
-import LifeworkClientVideoLibrary from "./pages/LifeworkAccreditationLibrary";
 
 function DomainDocumentBranding() {
   useEffect(() => {
@@ -107,7 +106,6 @@ function Router() {
       {/* ── Pennington Hennessy marketing site (root) ── */}
       <Route path="/" component={RootRoute} />
       <Route path="/coaches" component={LifeworkCoachPartner} />
-      <Route path="/videos" component={LifeworkClientVideoLibrary} />
       <Route path="/coaching" component={PHCoaching} />
       <Route path="/training" component={PHTraining} />
       <Route path="/about" component={PHAbout} />

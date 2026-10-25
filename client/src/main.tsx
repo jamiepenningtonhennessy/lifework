@@ -13,10 +13,8 @@ const useStandaloneLanding = shouldLoadStandaloneLanding(
 );
 
 const bootstrapMessage = rootElement.querySelector<HTMLElement>(".site-bootstrap__message");
-if (bootstrapMessage) {
-  bootstrapMessage.textContent = useStandaloneLanding
-    ? "Opening LifeworkPath"
-    : "Opening Pennington Hennessy";
+if (bootstrapMessage && !useStandaloneLanding) {
+  bootstrapMessage.textContent = "Opening Pennington Hennessy";
 }
 
 const showBootstrapError = () => {

@@ -10,14 +10,12 @@ const htmlSource = readFileSync(resolve(process.cwd(), "client/index.html"), "ut
 const viteSource = readFileSync(resolve(process.cwd(), "vite.config.ts"), "utf8");
 
 describe("LifeworkPath initial-load routing", () => {
-  it("selects the lightweight public entry for standalone root, coach-partner and videos visits", () => {
+  it("selects the lightweight public entry for standalone root and coach-partner visits", () => {
     expect(shouldLoadStandaloneLanding("lifeworkpath.com", "/")).toBe(true);
     expect(shouldLoadStandaloneLanding("www.lifeworkpath.com", "/")).toBe(true);
     expect(shouldLoadStandaloneLanding("plumtrees-kfbbe6kq.manus.space", "/")).toBe(true);
     expect(shouldLoadStandaloneLanding("lifeworkpath.com", "/coaches")).toBe(true);
     expect(shouldLoadStandaloneLanding("lifeworkpath.com", "/coaches/")).toBe(true);
-    expect(shouldLoadStandaloneLanding("lifeworkpath.com", "/videos")).toBe(true);
-    expect(shouldLoadStandaloneLanding("lifeworkpath.com", "/videos/")).toBe(true);
     expect(shouldLoadStandaloneLanding("lifeworkpath.com", "/dashboard")).toBe(false);
     expect(shouldLoadStandaloneLanding("penningtonhennessy.com", "/")).toBe(false);
   });
@@ -28,17 +26,13 @@ describe("LifeworkPath initial-load routing", () => {
     expect(mainSource).not.toContain('import App from "./App"');
     expect(landingMainSource).toContain('import LifeworkLandingConcepts from "./pages/LifeworkLandingConcepts"');
     expect(landingMainSource).toContain('import LifeworkCoachPartner from "./pages/LifeworkCoachPartner"');
-    expect(landingMainSource).toContain('import LifeworkClientVideoLibrary from "./pages/LifeworkAccreditationLibrary"');
-    expect(landingMainSource).toContain('const isVideosPage = pathname === "/videos" || pathname === "/videos/";');
-    expect(landingMainSource).toContain('<LifeworkClientVideoLibrary />');
     expect(appMainSource).toContain('import App from "./App"');
   });
 
   it("shows an immediate branded status and a clear failure message rather than a blank root", () => {
     expect(htmlSource).toContain('class="site-bootstrap" role="status"');
     expect(htmlSource).toContain("Opening LifeworkPath");
-    expect(mainSource).toContain('? "Opening LifeworkPath"');
-    expect(mainSource).toContain(': "Opening Pennington Hennessy";');
+    expect(mainSource).toContain('bootstrapMessage.textContent = "Opening Pennington Hennessy";');
     expect(mainSource).toContain('LifeworkPath could not open just now. Please refresh the page.');
   });
 

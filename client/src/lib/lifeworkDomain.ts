@@ -28,7 +28,7 @@ export function isStandaloneLifeworkDomain(): boolean {
  * authenticated application bundle, while preserving all dashboard and deep-link routes.
  */
 export function shouldLoadStandaloneLanding(hostname: string | null | undefined, pathname: string): boolean {
-  const publicLandingPaths = new Set(["/", "", "/coaches", "/coaches/", "/videos", "/videos/"]);
+  const publicLandingPaths = new Set(["/", "", "/coaches", "/coaches/"]);
   return isStandaloneLifeworkHostname(hostname) && publicLandingPaths.has(pathname);
 }
 
