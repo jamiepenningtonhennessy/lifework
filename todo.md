@@ -1,5 +1,10 @@
 # Plum Trees Career Analysis - MVP TODO
 
+## Sage Conversation Reliability — October 2026
+- [x] Identify and eliminate the client-side Sage crash: an empty provider reply was persisted without a `content` field, then treated as text by the client bubble renderer.
+- [x] Preserve and verify recovery of the affected client’s saved Sage conversation without reading or changing its substantive content. The single non-substantive missing final Sage reply has been repaired with the safe recovery notice; all 61 stored messages now have usable content.
+- [x] Add regression coverage for empty provider replies, malformed persisted messages and safe client recovery; add a message-scoped error boundary and remove raw technical stacks from the client error page.
+
 ## Phase 1: Database & Schema
 - [x] Define schema: clients, achievements, family_background, education, career_history, via_results, analysis_reports
 - [x] Run migration and apply SQL

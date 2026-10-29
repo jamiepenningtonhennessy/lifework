@@ -27,6 +27,7 @@ import {
   reportGenerationLogs,
   wowReportBetaVersions,
 } from "../drizzle/schema";
+import { parseStoredSageMessages } from "../shared/sageConversation";
 import { ENV } from "./_core/env";
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -630,7 +631,10 @@ export async function appendChatMessage(
     .limit(1);
   if (!session) throw new Error("Session not found");
 
-  const messages: ChatMessage[] = JSON.parse(session.messages || "[]");
+  // A provider interruption can leave a historic assistant entry without a
+  // content field. Repair that representation before the next durable append
+  // so it can never crash the client again on a later reload.
+  const messages: ChatMessage[] = parseStoredSageMessages(session.messages);
   messages.push(message);
 
   await db

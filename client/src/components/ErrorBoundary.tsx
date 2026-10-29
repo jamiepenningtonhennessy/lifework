@@ -31,13 +31,10 @@ class ErrorBoundary extends Component<Props, State> {
               className="text-destructive mb-6 flex-shrink-0"
             />
 
-            <h2 className="text-xl mb-4">An unexpected error occurred.</h2>
-
-            <div className="p-4 w-full rounded bg-muted overflow-auto mb-6">
-              <pre className="text-sm text-muted-foreground whitespace-break-spaces">
-                {this.state.error?.stack}
-              </pre>
-            </div>
+            <h2 className="text-xl mb-3">We could not load this part of Lifework.</h2>
+            <p className="max-w-md text-center text-sm leading-relaxed text-muted-foreground mb-6">
+              Your saved work is safe. Please reload the page and continue; if the problem returns, contact your coach so we can help.
+            </p>
 
             <button
               onClick={() => window.location.reload()}

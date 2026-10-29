@@ -1,9 +1,10 @@
-import { useState, useRef, useEffect } from "react";
+import React, { Component, type ReactNode, useState, useRef, useEffect } from "react";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { MessageCircle, X, Send, Loader2, CheckCircle2, BookmarkCheck, Paperclip, FileText, RotateCcw, ArrowRight } from "lucide-react";
 import { toast } from "sonner";
+import { normaliseSageResponseText, parseStoredSageMessages } from "@shared/sageConversation";
 
 const SAGE_AVATAR_URL = "https://d2xsxph8kpxj0f.cloudfront.net/107696804/kFbbE6kqNApXGDFpQJUGV7/sage-avatar_b146c149.jpg";
 
@@ -51,9 +52,48 @@ function parseSageMessage(content: string): { behaviour: string | null; speech: 
   return { behaviour: null, speech: content };
 }
 
-/** Renders a Sage message bubble, splitting out the behaviour tag if present */
-function SageMessageBubble({ content }: { content: string }) {
-  const { behaviour, speech } = parseSageMessage(content);
+type SageMessageErrorBoundaryProps = {
+  content: string;
+  children: ReactNode;
+};
+
+type SageMessageErrorBoundaryState = {
+  hasError: boolean;
+};
+
+/**
+ * A malformed historic response must not eject a client from their whole
+ * dashboard. Keep the recovered text visible and preserve the conversation.
+ */
+class SageMessageErrorBoundary extends Component<SageMessageErrorBoundaryProps, SageMessageErrorBoundaryState> {
+  state: SageMessageErrorBoundaryState = { hasError: false };
+
+  static getDerivedStateFromError(): SageMessageErrorBoundaryState {
+    return { hasError: true };
+  }
+
+  componentDidUpdate(previousProps: SageMessageErrorBoundaryProps) {
+    if (previousProps.content !== this.props.content && this.state.hasError) {
+      this.setState({ hasError: false });
+    }
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="max-w-[82%] rounded-2xl rounded-tl-sm bg-muted px-3.5 py-2.5 text-sm leading-relaxed text-foreground">
+          <p className="mb-1 text-xs italic text-muted-foreground">Sage’s reply has been recovered in plain text.</p>
+          <p className="whitespace-pre-wrap">{this.props.content}</p>
+        </div>
+      );
+    }
+
+    return this.props.children;
+  }
+}
+
+function SageMessageContent({ content }: { content: string }) {
+  const { behaviour, speech } = parseSageMessage(normaliseSageResponseText(content));
   return (
     <div className="max-w-[82%] space-y-1.5">
       {behaviour && (
@@ -65,6 +105,16 @@ function SageMessageBubble({ content }: { content: string }) {
         {speech}
       </div>
     </div>
+  );
+}
+
+/** Renders a Sage message bubble, splitting out the behaviour tag if present */
+export function SageMessageBubble({ content }: { content: string }) {
+  const safeContent = normaliseSageResponseText(content);
+  return (
+    <SageMessageErrorBoundary content={safeContent}>
+      <SageMessageContent content={safeContent} />
+    </SageMessageErrorBoundary>
   );
 }
 
@@ -99,12 +149,7 @@ export function ChatToPeter({
       const latest = sessions.find(s => s.section === section);
       if (latest) {
         setSessionId(latest.id);
-        try {
-          const msgs: Message[] = JSON.parse(latest.messages || "[]");
-          setMessages(msgs);
-        } catch {
-          setMessages([]);
-        }
+        setMessages(parseStoredSageMessages(latest.messages));
         setIsSummarised(!!latest.isComplete);
       }
     }
@@ -122,7 +167,7 @@ export function ChatToPeter({
       if (data) {
         const openingMsg: Message = {
           role: "peter",
-          content: data.message.content,
+          content: normaliseSageResponseText(data.message.content),
           timestamp: data.message.timestamp,
         };
         setMessages([openingMsg]);
@@ -136,7 +181,7 @@ export function ChatToPeter({
     onSuccess: (data) => {
       const openingMsg: Message = {
         role: "peter",
-        content: data.message.content,
+        content: normaliseSageResponseText(data.message.content),
         timestamp: data.message.timestamp,
       };
       setMessages([openingMsg]);
@@ -170,7 +215,7 @@ export function ChatToPeter({
     onSuccess: (data) => {
       const sageMsg: Message = {
         role: "peter",
-        content: data.peterResponse,
+        content: normaliseSageResponseText(data.peterResponse),
         timestamp: Date.now(),
       };
       setMessages(prev => [...prev, sageMsg]);
@@ -184,7 +229,7 @@ export function ChatToPeter({
     onSuccess: (data) => {
       const sageMsg: Message = {
         role: "peter",
-        content: data.peterResponse,
+        content: normaliseSageResponseText(data.peterResponse),
         timestamp: Date.now(),
       };
       setMessages(prev => [...prev, sageMsg]);

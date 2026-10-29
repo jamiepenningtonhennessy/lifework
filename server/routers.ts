@@ -82,6 +82,7 @@ import { getViaQuestionsForClient, scoreVia, VIA_STRENGTHS } from "../shared/via
 import { scoreIpip, ipipCareerNarrative } from "../shared/ipip-data";
 import { canEnterCounsellorWorkspace } from "../shared/counsellorAccess";
 import { getPsychometricsGate } from "../shared/lifeworkProgress";
+import { normaliseSageResponseText, parseStoredSageMessages } from "../shared/sageConversation";
 
 // ─── Helper: require counselor/admin role ────────────────────────────────────
 const counselorProcedure = protectedProcedure.use(({ ctx, next }) => {
@@ -2578,7 +2579,12 @@ const chatPeterRouter = router({
     .query(async ({ ctx }) => {
       const profile = await getOrCreateClientProfile(ctx.user.id);
       const sessions = await getChatSessionsByClient(profile.id);
-      return sessions;
+      // Return a safe representation even if an older interrupted request left
+      // an assistant message without text in storage.
+      return sessions.map((session) => ({
+        ...session,
+        messages: JSON.stringify(parseStoredSageMessages(session.messages)),
+      }));
     }),
 
   // Return Sage's scripted opening message for a new life_history session.
@@ -2591,7 +2597,7 @@ const chatPeterRouter = router({
     .mutation(async ({ ctx, input }) => {
       const profile = await getOrCreateClientProfile(ctx.user.id);
       const session = await getOrCreateChatSession(profile.id, input.section);
-      const existing: ChatMessage[] = JSON.parse(session.messages || "[]");
+      const existing = parseStoredSageMessages(session.messages);
       // Only inject the opening if the session is brand new
       if (existing.length > 0) return null;
       const openingText = input.section === "life_history"
@@ -2621,9 +2627,10 @@ const chatPeterRouter = router({
       let session = input.sessionId
         ? await getChatSessionById(input.sessionId)
         : null;
-      if (!session) {
-        session = await getOrCreateChatSession(profile.id, input.section);
+      if (input.sessionId && (!session || session.clientId !== profile.id || session.section !== input.section)) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "Sage conversation not found" });
       }
+      if (!session) session = await getOrCreateChatSession(profile.id, input.section);
 
       // Load client context for Peter to read
       const [achievementsList, careerList, bg] = await Promise.all([
@@ -2655,8 +2662,9 @@ const chatPeterRouter = router({
         ? `The client has completed their Life History Interview and their Background & History. Here is what they have recorded:\n\nLIFE HISTORY ACHIEVEMENTS:\n${achievementsContext}\n\nFAMILY BACKGROUND:\n${backgroundContext}\n\nIMPORTANT: Your role at this stage is to explore the life history achievements and the family backdrop ONLY. Do not discuss their formal career history or job titles — that is covered in a separate session. Focus on what they did of their own initiative, what they found genuinely rewarding, and how their early life and family context shaped who they are.\n\nYou have approximately 30 minutes.\n\nPacing guide:\n- Opening (first 2-3 exchanges): Begin with a brief warm reflection on what you noticed reading their whole story. Then start with early childhood (0-11) — pick ONE achievement that catches your attention.\n- Early middle (next 3-4 exchanges): Move through late childhood and teenage years (12-18). Notice what they were doing of their own initiative, not what was done to them.\n- Middle (next 3-4 exchanges): Move into the adult decades — 20s and 30s. Ask about what they found rewarding in those years, drawing on the achievements they recorded.\n- Later (next 3-4 exchanges): Cover the 40s, 50s, and beyond if relevant. Ask what has remained constant across all the changes.\n- Final third: Begin drawing threads together. Name the pattern you are seeing across the whole life and invite them to respond. Weave in the family backdrop naturally where it illuminates something.\n\nDo not spend more than 2-3 exchanges on any single phase before moving forward. Actively signal the transition: "Let me move us on to your [decade/phase]..." IMPORTANT: Do not offer to wrap up until you have explored at least 20 achievements in depth. If you have covered the full chronological arc but explored fewer than 20 achievements, continue by returning to any achievements you have not yet discussed — ask about them one at a time. Only invite the client to wrap up once 20 or more achievements have been explored.`
         : `The client has completed their career and life history sections. Here is what they have recorded:\n\nCAREER HISTORY:\n${careerContext}\n${sageCvText ? `\nCV / RÉSUMÉ (uploaded by client — use this to supplement the career history above):\n${sageCvText.slice(0, 6000)}\n` : ""}\nLIFE HISTORY ACHIEVEMENTS (for context):\n${achievementsContext}\n\nFAMILY BACKDROP: Father — ${bg?.fatherOccupation ?? "unknown"}; Mother — ${bg?.motherOccupation ?? "unknown"}; Sibling position — ${bg?.siblingPosition ?? "unknown"}.\n\nYour role is to explore the relationship between their formal career path and their actual motivated behaviour across the FULL arc of their working life. You have approximately 30 minutes.\n\nPacing guide:\n- Opening (first 2-3 exchanges): Reflect briefly on the overall shape of their career. Ask about the transition from education into their first role — what drew them to it, and what they actually found rewarding once there.\n- Early middle (next 3-4 exchanges): Move through the early career years. Ask where the formal job description and the actual rewarding work diverged.\n- Middle (next 3-4 exchanges): Cover the mid-career period. Ask about the decisions they made — what they moved toward, what they moved away from, and why.\n- Later (next 3-4 exchanges): Cover the most recent roles. Ask what has remained constant in terms of what they find genuinely rewarding, regardless of job title.\n- Final third: Draw threads together. Name the pattern you see between their life history achievements and their career. The family backdrop is relevant context — weave it in naturally if it illuminates something.\n\nAfter covering the full arc, invite them to tell you when they are ready to wrap up.`;
 
-      // Build conversation history for the LLM
-      const existingMessages: ChatMessage[] = JSON.parse(session.messages || "[]");
+      // Build conversation history for the LLM. Older sessions can contain an
+      // interrupted assistant response with no content; recover it safely.
+      const existingMessages = parseStoredSageMessages(session.messages);
       const isFirstMessage = existingMessages.length === 0;
       // isSecondMessage: client has replied to the scripted opening (exactly 1 Sage message saved)
       const isSecondScriptedMessage =
@@ -2787,7 +2795,7 @@ const chatPeterRouter = router({
         max_tokens: 400,
       });
 
-      const peterResponse = response.choices[0]?.message?.content as string;
+      const peterResponse = normaliseSageResponseText(response.choices[0]?.message?.content);
 
       // Save Peter's response
       const peterMsg: ChatMessage = {
@@ -2814,7 +2822,7 @@ const chatPeterRouter = router({
         throw new TRPCError({ code: "NOT_FOUND" });
       }
 
-      const messages: ChatMessage[] = JSON.parse(session.messages || "[]");
+      const messages = parseStoredSageMessages(session.messages);
       if (messages.length < 2) {
         throw new TRPCError({ code: "BAD_REQUEST", message: "Not enough conversation to summarise" });
       }
@@ -2868,9 +2876,10 @@ const chatPeterRouter = router({
       let session = input.sessionId
         ? await getChatSessionById(input.sessionId)
         : null;
-      if (!session) {
-        session = await getOrCreateChatSession(profile.id, input.section);
+      if (input.sessionId && (!session || session.clientId !== profile.id || session.section !== input.section)) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "Sage conversation not found" });
       }
+      if (!session) session = await getOrCreateChatSession(profile.id, input.section);
 
       // Decode base64 to buffer
       const fileBuffer = Buffer.from(input.fileBase64, "base64");
