@@ -20,6 +20,7 @@ import { Request, Response } from "express";
 import { buildClaudeExportJson } from "./routers/claudeExport.js";
 import { renderHtmlReport } from "./html-report.js";
 import { generatePdfKitReport } from "./pdfkit-report.js";
+import { preflightReportPdf } from "./reportPdfPreflight.js";
 import { sdk } from "./_core/sdk.js";
 
 // ─── WeasyPrint ───────────────────────────────────────────────────────────────
@@ -190,6 +191,16 @@ export async function handlePuppeteerPdfDownload(req: Request, res: Response) {
         throw new Error(`PDF generation failed. Puppeteer: ${puppeteerErrMsg}. PDFKit: ${pdfkitErrMsg}`);
       }
     }
+
+    const preflight = await preflightReportPdf(pdfBuffer, {
+      documentLabel: "Lifework report",
+      minimumPages: 2,
+      requiredPhrases: [clientName, "Lifework"],
+      footerMarkers: ["Lifework"],
+      headerMarkers: ["Covering Letter", "Chapter", "WOW Report"],
+      headerRequiredFromPage: 2,
+    });
+    console.log(`[pdf] Preflight passed: ${preflight.pageCount} pages, ${preflight.textLength} readable characters`);
 
     // ── Stream response ───────────────────────────────────────────────────────
     const safeFilename = clientName.replace(/[^a-zA-Z0-9 _-]/g, "").replace(/\s+/g, "-");

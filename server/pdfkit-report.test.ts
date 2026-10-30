@@ -35,7 +35,7 @@ function makeLongCoachingQuestionsReport() {
 }
 
 describe("PDFKit WOW report pagination", () => {
-  it("moves long coaching content to a branded continuation page without dropping the final item", async () => {
+  it("moves a full Future section to a branded continuation page without dropping content", async () => {
     const directory = await mkdtemp(join(tmpdir(), "lifework-pdfkit-"));
     const pdfPath = join(directory, "report.pdf");
 
@@ -43,10 +43,17 @@ describe("PDFKit WOW report pagination", () => {
       const pdf = await generatePdfKitReport(makeLongCoachingQuestionsReport());
       await writeFile(pdfPath, pdf);
       const text = execFileSync("pdftotext", ["-layout", pdfPath, "-"], { encoding: "utf8" });
+      const pages = text.split("\f");
+      const coachingPage = pages.find(page => page.includes("Coaching Questions\n") && !page.includes("continued"));
+      const continuationPage = pages.find(page => page.includes("Coaching Questions (continued)"));
 
       expect(text).toContain("Coaching Questions (continued)");
       expect(text).toContain("Final future item");
       expect(text).toMatch(/Coaching Questions \(continued\)[\s\S]*Final future item/);
+      expect(coachingPage).not.toContain("Future");
+      expect(continuationPage).toContain("Future");
+      expect(text).toContain("Lifework · Test Client");
+      expect(text).not.toContain("Pennington Hennessy");
     } finally {
       await rm(directory, { recursive: true, force: true });
     }

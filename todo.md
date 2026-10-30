@@ -2290,3 +2290,12 @@
 - [x] Preserve all wording in Jason’s saved report while regenerating a corrected 15-page PDF
 - [x] Add a focused PDF regression test proving long coaching content moves to a labelled continuation page with its final item retained
 - [x] Verify the focused test, production build, existing five-error TypeScript baseline, page-boundary scan and visual Chapter 7 layout
+
+## Report PDF Release Preflight and Footer Branding (2026-10-30)
+- [x] Add deterministic preflight inspection before a report PDF is uploaded, rebuilt or streamed for download
+- [x] Block PDFs with unreadable pages, missing expected report text, an uncontrolled headerless continuation page, or body text in the reserved footer band
+- [x] Run the gate against both the standard WOW generation/rebuild workflow and the direct PDF-download workflow
+- [x] Add regression tests that deliberately introduce each rejected layout/content failure
+- [x] Move Jason’s complete Future coaching section onto a branded continuation page instead of leaving it at the page bottom
+- [x] Replace report-footer and PDF metadata references to Pennington Hennessy with Lifework
+- [x] Regenerate and visually verify Jason’s report: no lower-bound intrusions or Pennington Hennessy footer branding remain

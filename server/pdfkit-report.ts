@@ -325,7 +325,7 @@ function evidenceTable(
 // ─── Page footer ──────────────────────────────────────────────────────────────
 function pageFooter(doc: PDFKit.PDFDocument, clientName: string) {
   doc.font(SANS).fontSize(8).fillColor(LIGHT_GREY)
-    .text(`Lifework · ${clientName} · Pennington Hennessy`, MARGIN, PAGE_H - 30, {
+    .text(`Lifework · ${clientName}`, MARGIN, PAGE_H - 30, {
       width: CONTENT_W,
       align: "center",
     });
@@ -363,7 +363,7 @@ function renderCoverPage(doc: PDFKit.PDFDocument, data: Record<string, unknown>)
   doc.font(SANS).fontSize(11).fillColor(GOLD).text(dateStr, MARGIN + 10, 265, { width: CONTENT_W - 20 });
 
   // Footer
-  doc.font(SANS).fontSize(9).fillColor(GOLD).text("Pennington Hennessy · penningtonhennessy.com", MARGIN + 10, PAGE_H - 50, { width: CONTENT_W - 20 });
+  doc.font(SANS).fontSize(9).fillColor(GOLD).text("Lifework · lifeworkpath.com", MARGIN + 10, PAGE_H - 50, { width: CONTENT_W - 20 });
 }
 
 // ─── Covering letter page ─────────────────────────────────────────────────────
@@ -670,7 +670,10 @@ function renderCh7(doc: PDFKit.PDFDocument, data: Record<string, unknown>) {
 
   const future = arr<string>(ch7.FUTURE);
   if (future.length > 0) {
-    flow.section("Future", flow.bulletHeight(future[0] ?? ""));
+    // Future is the closing coaching section. Keep it together so the reader
+    // does not encounter a near-bottom heading or a single orphaned item.
+    const futureHeight = future.reduce((total, item) => total + flow.bulletHeight(item), 0);
+    flow.section("Future", futureHeight);
     for (const q of future) flow.bullet(q);
   }
 
@@ -758,7 +761,7 @@ export function generatePdfKitReport(data: Record<string, unknown>): Promise<Buf
         autoFirstPage: false,
         info: {
           Title: "WOW Report",
-          Author: "Pennington Hennessy",
+          Author: "Lifework",
           Subject: "Lifework WOW Report",
         },
       });
