@@ -78,7 +78,6 @@ function sectionHtml(snapshot: ReportDesignBetaSnapshot, key: ReportDesignSectio
     "report-section",
     `treatment-${plan.treatment}`,
     `emphasis-${plan.emphasis}`,
-    plan.breakBefore ? "break-before" : "",
   ].filter(Boolean).join(" ");
 
   return `
@@ -119,10 +118,7 @@ function renderDesignBetaHtml(snapshot: ReportDesignBetaSnapshot, clientName: st
     .cover-main p { max-width: 118mm; margin: 11mm 0 0; font-size: 14pt; line-height: 1.5; color: #3d4a64; }
     .cover-meta { border-top: 1pt solid #B8862F; padding-top: 6mm; display: grid; grid-template-columns: repeat(2, 1fr); gap: 5mm 12mm; font-family: Arial, sans-serif; font-size: 8.5pt; color: #4e596c; }
     .cover-meta b { display: block; margin-bottom: 1.5mm; color: #1A2744; font-size: 7pt; letter-spacing: .12em; text-transform: uppercase; }
-    .intro { margin: 0 0 12mm; padding: 0 0 8mm; border-bottom: 1pt solid #d9cdbd; }
-    .intro p { max-width: 138mm; margin: 4mm 0 0; font-size: 13pt; line-height: 1.5; color: #3d4a64; }
-    .report-section { margin: 0 0 12mm; padding: 0 0 12mm; border-bottom: .5pt solid #ded6ca; break-inside: auto; page-break-inside: auto; }
-    .report-section.break-before { margin-top: 16mm; }
+    .report-section { margin: 0; padding: 0 0 12mm; border-bottom: .5pt solid #ded6ca; break-before: page; page-break-before: always; break-inside: auto; page-break-inside: auto; }
     .report-section h2 { max-width: 138mm; margin: 3mm 0 0; color: #1A2744; font-size: 22pt; line-height: 1.12; font-weight: 400; letter-spacing: -.025em; break-after: avoid-page; page-break-after: avoid; }
     .gold-rule { width: 18mm; height: 1.2pt; margin: 4mm 0 6mm; background: #B8862F; }
     .report-prose { color: #26354e; }
@@ -154,10 +150,6 @@ function renderDesignBetaHtml(snapshot: ReportDesignBetaSnapshot, clientName: st
         <div><b>Design principle</b>Flowing pages, not fixed-height panels</div>
         <div><b>Release status</b>Not client-facing</div>
       </div>
-    </section>
-    <section class="intro">
-      <div class="section-topline"><span>Lifework</span><span>Editorial test</span></div>
-      <p>Begin with recognition, move into the evidence and lenses, and close with the choices and questions that matter next.</p>
     </section>
     ${sections}
     <p class="beta-note">This protected design beta retains the frozen source report prose. It is for internal review only and does not replace, amend or release the production report.</p>

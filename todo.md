@@ -2313,11 +2313,11 @@
 - [x] Update visible actions to say “View Final PDF”, “Download Final PDF” and “Open Final PDF”; verify focused delivery, access and report-quality tests, the production build, unauthenticated endpoint protection, and Jason’s stored final PDF preflight (31 A4 pages).
 
 ## Jason Report Design Beta 1 — Claude-Assisted (2026-10-30)
-- [ ] Create an immutable, counsellor-only design-beta record using Jason’s completed report as source; do not modify production report content, status or PDF.
-- [ ] Use the managed Claude Sonnet model only to produce a strict editorial layout plan, with no new interpretation or rewritten client analysis.
-- [ ] Build a flowing cream, navy and muted-gold print document from the frozen snapshot, with real page flow, controlled section continuations and PDF preflight.
-- [ ] Add a counsellor-only review page and download action for the design beta, plus a fictional no-data layout sample for visual testing.
-- [ ] Verify isolation, access control, content preservation, PDF layout, desktop/mobile review and production build before checkpointing.
+- [x] Create an immutable, counsellor-only design-beta record using Jason’s completed report as source; do not modify production report content, status or PDF.
+- [x] Use the managed Claude Sonnet model only to produce a strict editorial layout plan, with no new interpretation or rewritten client analysis.
+- [x] Build a flowing cream, navy and muted-gold print document from the frozen snapshot, with real page flow, controlled section continuations and PDF preflight.
+- [x] Add a counsellor-only review page and download action for the design beta, plus a fictional no-data layout sample for visual testing.
+- [x] Verify isolation, access control, content preservation, PDF layout, desktop/mobile review and production build before checkpointing.
 
 ## Jason Report Design Beta 1 — Claude-Assisted (2026-10-30)
 - [x] Create an immutable, counsellor-only design-beta record using Jason’s completed report as source; production report content, status and PDF remain untouched.
@@ -2326,3 +2326,7 @@
 - [x] Add protected counsellor review/download routes and an independent fictional no-data layout preview; bind PDF delivery to both an admin session and the intended client record.
 - [x] Create and inspect a clean 16-page Jason Design Beta 1 PDF; fix the initially discovered fixed-header overlap and hard-break blank page before review.
 - [x] Verify source preservation, access isolation, safe markup handling, flowing-PDF preflight, focused tests, visual desktop/mobile preview and production build before checkpointing.
+
+## Jason Design Beta — Section Starts (2026-10-30)
+- [x] Make every substantive report section begin on a fresh A4 page in the beta PDF, while keeping its source prose and production report unchanged.
+- [x] Extend the renderer test to enforce the intended print break rule and regenerate Jason’s protected 19-page review copy for visual and preflight verification.

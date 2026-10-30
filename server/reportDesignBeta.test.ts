@@ -49,13 +49,15 @@ describe("Report Design Beta 1", () => {
     expect(() => validateLayoutPlan(broken, ["summary", "lifeHistoryPattern", "fourPillars", "viaSection", "personalitySection", "behaviouralStyle", "careerDirections", "developmentEdge", "coachingQuestions"])).toThrow("every available source section");
   });
 
-  it("escapes source markup and uses flowing content rather than fixed-height pages", () => {
+  it("escapes source markup, flows content and starts each substantive section on a fresh page", () => {
     const dangerous = snapshot();
     dangerous.sourceSections.summary = "<script>window.alert('no')</script> A fictional opening.";
     const html = renderReportDesignBetaHtmlForTest(dangerous);
     expect(html).toContain("&lt;script&gt;");
     expect(html).not.toContain("overflow: hidden");
     expect(html).toContain("break-inside: auto");
+    expect(html).toContain(".report-section { margin: 0; padding: 0 0 12mm; border-bottom: .5pt solid #ded6ca; break-before: page; page-break-before: always;");
+    expect(html).not.toContain("class=\"intro\"");
     expect(html).toContain("Report Design Beta 1");
   });
 
