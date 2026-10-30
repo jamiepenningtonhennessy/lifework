@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import {
   canApproveTestimonial,
   TESTIMONIAL_PAGE_OPTIONS,
@@ -6,6 +6,7 @@ import {
 import { appRouter } from "./routers";
 import {
   canSubmitPublicTestimonialDraft,
+  loadPublicTestimonialsSafely,
   resetPublicTestimonialDraftAttempts,
 } from "./routers/verifiedTestimonials";
 
@@ -45,6 +46,15 @@ describe("verified testimonial safeguards", () => {
     expect(canSubmitPublicTestimonialDraft("colleague-1", now + 2)).toBe(true);
     expect(canSubmitPublicTestimonialDraft("colleague-1", now + 3)).toBe(false);
     expect(canSubmitPublicTestimonialDraft("colleague-1", now + 3_600_001)).toBe(true);
+  });
+
+  it("keeps public pages available when optional testimonial delivery has a transient failure", async () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => undefined);
+    await expect(loadPublicTestimonialsSafely(async () => {
+      throw new Error("Temporary database connection failure");
+    })).resolves.toEqual([]);
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining("Public feedback is temporarily unavailable"));
+    warn.mockRestore();
   });
 
 });

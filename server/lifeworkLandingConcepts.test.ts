@@ -37,6 +37,8 @@ describe("Lifework landing page", () => {
     expect(conceptSource).not.toContain("Three stages.");
     expect(conceptSource).not.toContain("A lifetime of clarity.");
     expect(conceptSource).toContain('publicForPage.useQuery({ pageKey: "lifework_home" })');
+    expect(conceptSource).toContain("isError");
+    expect(conceptSource).toContain("Client feedback is temporarily unavailable.");
   });
 
   it("uses the Quiet Authority report design system rather than the older PH visual treatment", () => {

@@ -2299,3 +2299,10 @@
 - [x] Move Jason’s complete Future coaching section onto a branded continuation page instead of leaving it at the page bottom
 - [x] Replace report-footer and PDF metadata references to Pennington Hennessy with Lifework
 - [x] Regenerate and visually verify Jason’s report: no lower-bound intrusions or Pennington Hennessy footer branding remain
+
+## Public Testimonial Connection Recovery (2026-10-30)
+- [x] Confirm the public testimonial tables, join and four approved homepage placements are healthy without reading testimonial text
+- [x] Identify the failing endpoint as a development-server process holding an expired database credential, not a testimonial schema or placement fault
+- [x] Restart the managed server so it inherits the refreshed database credential; verify the public page endpoint returns its configured placement count
+- [x] Make optional public testimonial reads fail closed to an empty list during a transient database outage, without exposing database diagnostics to visitors
+- [x] Add a clear but calm landing-page fallback and regression coverage for both the API and visible error state

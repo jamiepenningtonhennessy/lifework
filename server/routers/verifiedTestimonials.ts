@@ -46,6 +46,21 @@ export function resetPublicTestimonialDraftAttempts() {
   publicDraftAttempts.clear();
 }
 
+/**
+ * Testimonials are optional public-page content. A transient database connection
+ * failure must not turn a marketing page into a tRPC 500 or disclose database
+ * diagnostics to a visitor. Management and submission operations deliberately
+ * retain their normal errors so administrators can act on real failures.
+ */
+export async function loadPublicTestimonialsSafely<T>(loader: () => Promise<T[]>): Promise<T[]> {
+  try {
+    return await loader();
+  } catch {
+    console.warn("[Testimonials] Public feedback is temporarily unavailable; using an empty public fallback.");
+    return [];
+  }
+}
+
 async function findTestimonial(id: number) {
   const db = await getDb();
   if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
@@ -59,10 +74,12 @@ async function findTestimonial(id: number) {
 }
 
 export const verifiedTestimonialsRouter = router({
-  publicList: publicProcedure.query(async () => getApprovedVerifiedTestimonials()),
+  publicList: publicProcedure.query(async () => loadPublicTestimonialsSafely(getApprovedVerifiedTestimonials)),
   publicForPage: publicProcedure
     .input(placementPageInput)
-    .query(async ({ input }) => getApprovedVerifiedTestimonialsForPage(input.pageKey)),
+    .query(async ({ input }) => loadPublicTestimonialsSafely(
+      () => getApprovedVerifiedTestimonialsForPage(input.pageKey),
+    )),
 
   submitDraft: publicProcedure.input(publicDraftFields).mutation(async ({ ctx, input }) => {
     // Honeypot field: bots receive a neutral response without creating a record.

@@ -417,7 +417,7 @@ function Invitation({ onBeginJourney }: { onBeginJourney: () => void }) {
 }
 
 function Testimonials({ concept }: { concept: ConceptSlug }) {
-  const { data: testimonials, isLoading } = trpc.verifiedTestimonials.publicForPage.useQuery({ pageKey: "lifework_home" });
+  const { data: testimonials, isLoading, isError } = trpc.verifiedTestimonials.publicForPage.useQuery({ pageKey: "lifework_home" });
   return (
     <section className="lc-section lc-testimonials">
       <div className="lc-shell lc-section-grid">
@@ -427,6 +427,8 @@ function Testimonials({ concept }: { concept: ConceptSlug }) {
           <h2 className="lc-section-heading">What people say<br /><em>about Lifework</em></h2>
           {isLoading ? (
             <div className="lc-empty">Loading approved feedback…</div>
+          ) : isError ? (
+            <div className="lc-empty">Client feedback is temporarily unavailable. Please explore the Lifework process in the meantime.</div>
           ) : testimonials?.length ? (
             <div className="lc-testimonial-grid">
               {testimonials.slice(0, concept === "field-notes" ? 4 : 4).map((testimonial) => (
