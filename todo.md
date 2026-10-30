@@ -2283,3 +2283,10 @@
 - [x] Add a separate fictional no-data layout preview so the visual direction can be reviewed without exposing a real client report
 - [x] Keep the client portal, production report generator, production PDF route and live WOW report unchanged
 - [x] Add focused isolation, source-preservation, access-control and route-gating regression coverage
+
+## WOW Report PDF Pagination Repair (2026-10-30)
+- [x] Identify the PDFKit automatic page break that split Jason’s Chapter 7 coaching content mid-flow and omitted the continuation-page chapter furniture
+- [x] Introduce a reserved footer gutter and controlled, branded continuation pages for variable-length development, coaching and career content
+- [x] Preserve all wording in Jason’s saved report while regenerating a corrected 15-page PDF
+- [x] Add a focused PDF regression test proving long coaching content moves to a labelled continuation page with its final item retained
+- [x] Verify the focused test, production build, existing five-error TypeScript baseline, page-boundary scan and visual Chapter 7 layout

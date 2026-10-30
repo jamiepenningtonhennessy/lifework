@@ -19,6 +19,9 @@ const PAGE_W = 595.28; // A4 width in points
 const PAGE_H = 841.89; // A4 height in points
 const MARGIN = 50;
 const CONTENT_W = PAGE_W - MARGIN * 2;
+// Keep a clear gutter above the footer. PDFKit otherwise begins an implicit
+// page break in the middle of a block without a branded continuation header.
+const CONTENT_BOTTOM = PAGE_H - 64;
 
 // ─── Fonts (PDFKit built-ins — always available) ──────────────────────────────
 const SERIF = "Times-Roman";
@@ -96,6 +99,91 @@ function bodyPara(doc: PDFKit.PDFDocument, text: string, indent = 0) {
     lineGap: 2,
   });
   doc.moveDown(0.6);
+}
+
+type ChapterFlow = {
+  paragraph: (text: string, indent?: number) => void;
+  section: (text: string, followingHeight?: number) => void;
+  bullet: (text: string) => void;
+  quote: (text: string) => void;
+  paragraphHeight: (text: string, indent?: number) => number;
+  bulletHeight: (text: string) => number;
+};
+
+/**
+ * Keeps complete report blocks within the printable area. Without this guard,
+ * PDFKit can start a page mid-sentence and omit the chapter continuation header.
+ */
+function createChapterFlow(
+  doc: PDFKit.PDFDocument,
+  chapterNumber: string,
+  chapterTitle: string,
+  clientName: string,
+  warm = false,
+): ChapterFlow {
+  const startContinuation = () => {
+    pageFooter(doc, clientName);
+    doc.addPage();
+    chapterHeader(doc, chapterNumber, `${chapterTitle} (continued)`, warm);
+  };
+
+  const ensureSpace = (height: number) => {
+    if (doc.y + height > CONTENT_BOTTOM) startContinuation();
+  };
+
+  const paragraphHeight = (text: string, indent = 0) => {
+    if (!text || !text.trim()) return 0;
+    doc.font(SERIF).fontSize(10.5);
+    return doc.heightOfString(stripHtml(text), {
+      width: CONTENT_W - indent,
+      align: "justify",
+      lineGap: 2,
+    }) + 10;
+  };
+
+  const bulletHeight = (text: string) => {
+    doc.font(SERIF_ITALIC).fontSize(10.5);
+    return doc.heightOfString(`• ${stripHtml(text)}`, {
+      width: CONTENT_W - 10,
+      lineGap: 2,
+    }) + 7;
+  };
+
+  return {
+    paragraphHeight,
+    bulletHeight,
+    paragraph: (text, indent = 0) => {
+      if (!text || !text.trim()) return;
+      ensureSpace(paragraphHeight(text, indent));
+      bodyPara(doc, text, indent);
+    },
+    section: (text, followingHeight = 0) => {
+      if (!text || !text.trim()) return;
+      doc.font(SANS_BOLD).fontSize(13);
+      const headingHeight = doc.heightOfString(stripHtml(text), { width: CONTENT_W }) + 18;
+      ensureSpace(headingHeight + followingHeight);
+      sectionHeading(doc, text);
+    },
+    bullet: (text) => {
+      if (!text || !text.trim()) return;
+      ensureSpace(bulletHeight(text));
+      doc.font(SERIF_ITALIC).fontSize(10.5).fillColor(NAVY).text(`• ${stripHtml(text)}`, MARGIN + 10, doc.y, {
+        width: CONTENT_W - 10,
+        lineGap: 2,
+      });
+      doc.moveDown(0.3);
+    },
+    quote: (text) => {
+      if (!text || !text.trim()) return;
+      doc.font(SERIF_ITALIC).fontSize(12);
+      const quoteHeight = Math.max(
+        40,
+        doc.heightOfString(`"${stripHtml(text)}"`, { width: CONTENT_W - 12, lineGap: 3 }),
+      ) + 25;
+      ensureSpace(quoteHeight);
+      pullQuote(doc, text);
+    },
+  };
 }
 
 // ─── Pull-quote ───────────────────────────────────────────────────────────────
@@ -540,15 +628,17 @@ function renderCh6(doc: PDFKit.PDFDocument, data: Record<string, unknown>) {
 
   doc.addPage();
   chapterHeader(doc, "06", "Development Edge");
+  const flow = createChapterFlow(doc, "06", "Development Edge", name);
 
   const sections = arr<{ heading: string; paragraphs: string[] }>(ch6.SECTIONS);
   for (const section of sections) {
-    if (section.heading) sectionHeading(doc, section.heading);
-    for (const para of arr<string>(section.paragraphs)) bodyPara(doc, para);
+    const paragraphs = arr<string>(section.paragraphs);
+    if (section.heading) flow.section(section.heading, flow.paragraphHeight(paragraphs[0] ?? ""));
+    for (const para of paragraphs) flow.paragraph(para);
   }
 
   const pullquote = s(ch6.PULLQUOTE);
-  if (pullquote) pullQuote(doc, pullquote);
+  if (pullquote) flow.quote(pullquote);
 
   pageFooter(doc, name);
 }
@@ -561,35 +651,27 @@ function renderCh7(doc: PDFKit.PDFDocument, data: Record<string, unknown>) {
 
   doc.addPage();
   chapterHeader(doc, "07", "Coaching Questions", true);
+  const flow = createChapterFlow(doc, "07", "Coaching Questions", name, true);
 
   const past = arr<string>(ch7.PAST);
   if (past.length > 0) {
-    sectionHeading(doc, "Past");
-    for (const q of past) {
-      doc.font(SERIF_ITALIC).fontSize(10.5).fillColor(NAVY).text(`• ${stripHtml(q)}`, MARGIN + 10, doc.y, { width: CONTENT_W - 10, lineGap: 2 });
-      doc.moveDown(0.3);
-    }
+    flow.section("Past", flow.bulletHeight(past[0] ?? ""));
+    for (const q of past) flow.bullet(q);
   }
 
   const present = arr<string>(ch7.PRESENT);
   if (present.length > 0) {
-    sectionHeading(doc, "Present");
-    for (const q of present) {
-      doc.font(SERIF_ITALIC).fontSize(10.5).fillColor(NAVY).text(`• ${stripHtml(q)}`, MARGIN + 10, doc.y, { width: CONTENT_W - 10, lineGap: 2 });
-      doc.moveDown(0.3);
-    }
+    flow.section("Present", flow.bulletHeight(present[0] ?? ""));
+    for (const q of present) flow.bullet(q);
   }
 
   const pq = s(ch7.PRESENT_PULLQUOTE);
-  if (pq) pullQuote(doc, pq);
+  if (pq) flow.quote(pq);
 
   const future = arr<string>(ch7.FUTURE);
   if (future.length > 0) {
-    sectionHeading(doc, "Future");
-    for (const q of future) {
-      doc.font(SERIF_ITALIC).fontSize(10.5).fillColor(NAVY).text(`• ${stripHtml(q)}`, MARGIN + 10, doc.y, { width: CONTENT_W - 10, lineGap: 2 });
-      doc.moveDown(0.3);
-    }
+    flow.section("Future", flow.bulletHeight(future[0] ?? ""));
+    for (const q of future) flow.bullet(q);
   }
 
   pageFooter(doc, name);
@@ -603,20 +685,24 @@ function renderCh8(doc: PDFKit.PDFDocument, data: Record<string, unknown>) {
 
   doc.addPage();
   chapterHeader(doc, "08", "Career Directions");
+  const flow = createChapterFlow(doc, "08", "Career Directions", name);
 
   const directions = arr<{ heading: string; paragraphs: string[] }>(ch8.DIRECTIONS);
   for (const dir of directions) {
-    if (dir.heading) sectionHeading(doc, dir.heading);
-    for (const para of arr<string>(dir.paragraphs)) bodyPara(doc, para);
+    const paragraphs = arr<string>(dir.paragraphs);
+    if (dir.heading) flow.section(dir.heading, flow.paragraphHeight(paragraphs[0] ?? ""));
+    for (const para of paragraphs) flow.paragraph(para);
   }
 
   const overflow = arr<{ heading: string; paragraphs: string[] }>(ch8.OVERFLOW_DIRECTIONS);
   if (overflow.length > 0) {
     doc.addPage();
     chapterHeader(doc, "08", "Career Directions (continued)");
+    const overflowFlow = createChapterFlow(doc, "08", "Career Directions", name);
     for (const dir of overflow) {
-      if (dir.heading) sectionHeading(doc, dir.heading);
-      for (const para of arr<string>(dir.paragraphs)) bodyPara(doc, para);
+      const paragraphs = arr<string>(dir.paragraphs);
+      if (dir.heading) overflowFlow.section(dir.heading, overflowFlow.paragraphHeight(paragraphs[0] ?? ""));
+      for (const para of paragraphs) overflowFlow.paragraph(para);
     }
   }
 
