@@ -69,7 +69,7 @@ export default function MyReport() {
             className="gap-2"
             onClick={() => window.open("/api/report/html/me", "_blank", "noopener,noreferrer")}
           >
-            <FileText className="w-4 h-4" /> View Branded Report
+            <FileText className="w-4 h-4" /> Open Final PDF
           </Button>
         </div>
       </div>

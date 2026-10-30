@@ -2306,3 +2306,8 @@
 - [x] Restart the managed server so it inherits the refreshed database credential; verify the public page endpoint returns its configured placement count
 - [x] Make optional public testimonial reads fail closed to an empty list during a transient database outage, without exposing database diagnostics to visitors
 - [x] Add a clear but calm landing-page fallback and regression coverage for both the API and visible error state
+
+## Final Report Delivery Unification — October 2026
+- [x] Retire the separate fixed-height HTML/Puppeteer report renderer from final delivery; it could paginate differently from the validated report and caused both visual overruns and the false footer-area download failure.
+- [x] Route both legacy preview and download endpoints to the single stored WOW PDF that has already passed the release preflight; keep client/admin access controls and support the existing `/me` client route.
+- [x] Update visible actions to say “View Final PDF”, “Download Final PDF” and “Open Final PDF”; verify focused delivery, access and report-quality tests, the production build, unauthenticated endpoint protection, and Jason’s stored final PDF preflight (31 A4 pages).
