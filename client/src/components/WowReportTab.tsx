@@ -194,6 +194,7 @@ export default function WowReportTab({ clientId, clientName }: WowReportTabProps
     { enabled: !!selectedTraceRunId }
   );
   const { data: betaVersions } = trpc.wowReportBeta.list.useQuery({ clientId });
+  const { data: designBetaVersions } = trpc.reportDesignBeta.list.useQuery({ clientId });
 
   const createBetaSnapshotMutation = trpc.wowReportBeta.createSnapshot.useMutation({
     onSuccess: (result) => {
@@ -202,6 +203,15 @@ export default function WowReportTab({ clientId, clientName }: WowReportTabProps
       window.open(`/counselor/client/${clientId}/wow-beta-1/${result.betaId}`, "_blank", "noopener,noreferrer");
     },
     onError: (err) => toast.error(`Could not create Beta 1 review copy: ${err.message}`),
+  });
+
+  const createDesignBetaMutation = trpc.reportDesignBeta.create.useMutation({
+    onSuccess: (result) => {
+      utils.reportDesignBeta.list.invalidate({ clientId });
+      toast.success("Report Design Beta 1 created. The production report remains unchanged.");
+      window.open(`/counselor/client/${clientId}/report-design-beta-1/${result.betaId}`, "_blank", "noopener,noreferrer");
+    },
+    onError: (err) => toast.error(`Could not create Report Design Beta 1: ${err.message}`),
   });
 
   // Generate mutation — fires and forgets, then we start polling
@@ -974,6 +984,50 @@ export default function WowReportTab({ clientId, clientName }: WowReportTabProps
               >
                 {createBetaSnapshotMutation.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <FlaskConical className="mr-2 h-4 w-4" />}
                 {betaVersions?.length ? "Create fresh snapshot" : "Create Beta 1 snapshot"}
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Design Beta 1 — Claude plans only anonymous layout metadata; report prose remains frozen. */}
+      {reportExists && (
+        <Card className="border-[#B8862F]/35 bg-white shadow-none">
+          <CardContent className="flex flex-col gap-5 p-5 sm:flex-row sm:items-center sm:justify-between">
+            <div className="min-w-0">
+              <div className="flex items-center gap-2">
+                <Palette className="h-4 w-4 text-[#B8862F]" />
+                <p className="font-sans text-[10px] font-bold tracking-[0.15em] uppercase text-[#B8862F]">Design Beta 1 · internal review</p>
+              </div>
+              <h3 className="mt-2 font-serif text-xl text-[#1A2744]">Flowing editorial PDF</h3>
+              <p className="mt-1 max-w-2xl text-sm leading-6 text-[#1A2744]/70">
+                Create a separate, page-flowing PDF from a frozen source report. Claude receives anonymous section metadata only; it does not rewrite the analysis. The client-facing report is not changed.
+              </p>
+              {designBetaVersions?.length ? (
+                <p className="mt-2 text-xs text-[#1A2744]/55">
+                  {designBetaVersions.length} protected design {designBetaVersions.length === 1 ? "copy" : "copies"} available. The newest uses an independent PDF and source snapshot.
+                </p>
+              ) : null}
+            </div>
+            <div className="flex shrink-0 flex-wrap gap-2">
+              {designBetaVersions?.[0] ? (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="border-[#1A2744]/25 text-[#1A2744] hover:bg-[#f5f0e8]"
+                  onClick={() => window.open(`/counselor/client/${clientId}/report-design-beta-1/${designBetaVersions[0].id}`, "_blank", "noopener,noreferrer")}
+                >
+                  <BookOpen className="mr-2 h-4 w-4" /> Open latest
+                </Button>
+              ) : null}
+              <Button
+                size="sm"
+                className="bg-[#1A2744] text-white hover:bg-[#28395d]"
+                onClick={() => createDesignBetaMutation.mutate({ clientId })}
+                disabled={createDesignBetaMutation.isPending}
+              >
+                {createDesignBetaMutation.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Palette className="mr-2 h-4 w-4" />}
+                {createDesignBetaMutation.isPending ? "Building beta PDF…" : designBetaVersions?.length ? "Create fresh design beta" : "Create Design Beta 1"}
               </Button>
             </div>
           </CardContent>

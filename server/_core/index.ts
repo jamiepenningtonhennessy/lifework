@@ -16,6 +16,7 @@ import { coachingSlidesDownloadRouter } from "../coaching-slides-download";
 import { claudeExportDownloadRouter } from "../claude-export-download";
 import { htmlReportHandler } from "../html-report";
 import { handlePuppeteerPdfDownload } from "../puppeteer-pdf";
+import { handleReportDesignBetaPdfDownload } from "../reportDesignBetaDelivery";
 import {
   handleGenerateTargetSpec,
   handleBuildMonitorList,
@@ -109,6 +110,7 @@ async function startServer() {
   // HTML report renderer (counsellor)
   app.get("/api/report/html/:clientId", htmlReportHandler);
   app.get("/api/report/pdf/:clientId", handlePuppeteerPdfDownload);
+  app.get("/api/report/design-beta/:clientId/:betaId", handleReportDesignBetaPdfDownload);
   // PDFKit diagnostic endpoint (public, no auth required)
   app.get("/api/debug/pdfkit-test", async (_req, res) => {
     try {

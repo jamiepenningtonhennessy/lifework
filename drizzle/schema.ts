@@ -292,6 +292,23 @@ export const wowReportBetaVersions = mysqlTable("wow_report_beta_versions", {
 
 export type WowReportBetaVersion = typeof wowReportBetaVersions.$inferSelect;
 
+// ─── WOW Report Design Beta Versions ───────────────────────────────────────
+// Claude-assisted visual-layout experiments are kept separately from both the
+// production report and the reader-first Beta 1 snapshots. The stored source,
+// layout plan and PDF are immutable review artefacts only.
+export const wowReportDesignBetaVersions = mysqlTable("wow_report_design_beta_versions", {
+  id: varchar("id", { length: 36 }).primaryKey(),
+  clientId: int("clientId").notNull(),
+  betaVersion: varchar("betaVersion", { length: 32 }).notNull(),
+  sourceReportGeneratedAt: timestamp("sourceReportGeneratedAt"),
+  designSnapshot: text("designSnapshot").notNull(),
+  pdfUrl: text("pdfUrl").notNull(),
+  createdByUserId: int("createdByUserId").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type WowReportDesignBetaVersion = typeof wowReportDesignBetaVersions.$inferSelect;
+
 // ─── Virtual Peter: Historical Client Database ───────────────────────────────
 // Each record represents one of Peter's historical clients, identified by
 // their career outcome description. The embedding field stores a 1536-dim

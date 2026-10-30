@@ -56,6 +56,7 @@ export type ToolChoice =
   | ToolChoiceExplicit;
 
 export type InvokeParams = {
+  model?: string;
   messages: Message[];
   tools?: Tool[];
   toolChoice?: ToolChoice;
@@ -269,6 +270,7 @@ export async function invokeLLM(params: InvokeParams): Promise<InvokeResult> {
   if (!forgeApiUrl || !forgeApiKey) throw new Error("BUILT_IN_FORGE_API_URL / BUILT_IN_FORGE_API_KEY are not configured");
 
   const {
+    model,
     messages,
     tools,
     toolChoice,
@@ -288,7 +290,7 @@ export async function invokeLLM(params: InvokeParams): Promise<InvokeResult> {
   }));
 
   const payload: Record<string, unknown> = {
-    model: DEFAULT_MODEL,
+    model: model ?? DEFAULT_MODEL,
     max_tokens: maxTokens ?? max_tokens ?? 8192,
     messages: openAiMessages,
   };

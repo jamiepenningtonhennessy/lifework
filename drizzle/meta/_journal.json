@@ -267,6 +267,13 @@
       "when": 1792923432650,
       "tag": "0037_minor_maggott",
       "breakpoints": true
+    },
+    {
+      "idx": 38,
+      "version": "5",
+      "when": 1793386790985,
+      "tag": "0038_far_tyger_tiger",
+      "breakpoints": true
     }
   ]
 }

@@ -26,6 +26,7 @@ import {
   type CoachingAnnex,
   reportGenerationLogs,
   wowReportBetaVersions,
+  wowReportDesignBetaVersions,
 } from "../drizzle/schema";
 import { parseStoredSageMessages } from "../shared/sageConversation";
 import { ENV } from "./_core/env";
@@ -491,6 +492,52 @@ export async function listWowReportBetaVersions(clientId: number) {
     .from(wowReportBetaVersions)
     .where(eq(wowReportBetaVersions.clientId, clientId))
     .orderBy(desc(wowReportBetaVersions.createdAt));
+}
+
+// ─── WOW Report Design Beta Versions ───────────────────────────────────────
+// A separately stored, immutable editorial design experiment. It must never
+// overwrite production analysis_reports or the reader-first beta snapshots.
+export async function createWowReportDesignBetaVersion(data: {
+  clientId: number;
+  betaVersion: string;
+  sourceReportGeneratedAt: Date | null;
+  designSnapshot: string;
+  pdfUrl: string;
+  createdByUserId: number;
+}) {
+  const db = await getDb();
+  if (!db) throw new Error("DB not available");
+
+  const version = { id: crypto.randomUUID(), ...data };
+  await db.insert(wowReportDesignBetaVersions).values(version);
+  return version;
+}
+
+export async function getWowReportDesignBetaVersion(id: string) {
+  const db = await getDb();
+  if (!db) throw new Error("DB not available");
+  const result = await db
+    .select()
+    .from(wowReportDesignBetaVersions)
+    .where(eq(wowReportDesignBetaVersions.id, id))
+    .limit(1);
+  return result[0] ?? null;
+}
+
+export async function listWowReportDesignBetaVersions(clientId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("DB not available");
+  return db
+    .select({
+      id: wowReportDesignBetaVersions.id,
+      betaVersion: wowReportDesignBetaVersions.betaVersion,
+      sourceReportGeneratedAt: wowReportDesignBetaVersions.sourceReportGeneratedAt,
+      pdfUrl: wowReportDesignBetaVersions.pdfUrl,
+      createdAt: wowReportDesignBetaVersions.createdAt,
+    })
+    .from(wowReportDesignBetaVersions)
+    .where(eq(wowReportDesignBetaVersions.clientId, clientId))
+    .orderBy(desc(wowReportDesignBetaVersions.createdAt));
 }
 
 // ─── Virtual Peter: Historical Clients ───────────────────────────────────────

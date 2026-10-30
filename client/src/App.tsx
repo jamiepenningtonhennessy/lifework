@@ -17,6 +17,7 @@ import IpipSurvey from "./pages/IpipSurvey";
 import IpipResults from "./pages/IpipResults";
 import MyReport from "./pages/MyReport";
 import WowReportBetaPreview, { WowReportBetaPreviewDemo } from "./pages/WowReportBetaPreview";
+import ReportDesignBetaPreview, { ReportDesignBetaPreviewDemo } from "./pages/ReportDesignBetaPreview";
 import CareerExplorer from "./pages/CareerExplorer";
 import AICoaching from "./pages/AICoaching";
 import PHHome from "./pages/ph/PHHome";
@@ -166,6 +167,7 @@ function Router() {
       <Route path="/counselor/client/:id/career-explorer">{(params) => <CounsellorPinGate><CounsellorCareerExplorer /></CounsellorPinGate>}</Route>
       <Route path="/counselor/client/:id/portal">{(params) => <CounsellorPinGate><CounsellorPortalPage /></CounsellorPinGate>}</Route>
       <Route path="/counselor/client/:id/wow-beta-1/:betaId">{() => <CounsellorPinGate><WowReportBetaPreview /></CounsellorPinGate>}</Route>
+      <Route path="/counselor/client/:id/report-design-beta-1/:betaId">{() => <CounsellorPinGate><ReportDesignBetaPreview /></CounsellorPinGate>}</Route>
       <Route path="/counselor/client/:id">{(params) => <CounsellorPinGate><ClientProfile /></CounsellorPinGate>}</Route>
 
       {/* Legacy /ph/* redirects kept for backward compatibility */}
@@ -202,6 +204,7 @@ function Router() {
       <Route path="/preview/my-report" component={PreviewMyReport} />
       <Route path="/preview/career-explorer" component={PreviewCareerExplorer} />
       <Route path="/preview/wow-report-beta-1" component={WowReportBetaPreviewDemo} />
+      <Route path="/preview/report-design-beta-1" component={ReportDesignBetaPreviewDemo} />
 
       {/* ── Blog Writing Machine (counsellor/coach-facing, on PH site) ── */}
       <Route path="/lifework/blog-writer" component={BlogWriter} />
