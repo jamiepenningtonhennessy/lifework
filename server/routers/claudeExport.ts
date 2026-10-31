@@ -663,7 +663,15 @@ function buildViaEvidence(
 
 // ─── Main export builder ──────────────────────────────────────────────────────
 
-export async function buildClaudeExportJson(clientId: number): Promise<Record<string, unknown>> {
+/**
+ * Shapes the established PDFKit report payload.  `sectionsJsonOverride` lets
+ * the production renderer use the just-generated, not-yet-persisted report
+ * prose, so final PDF creation never needs a temporary database write.
+ */
+export async function buildClaudeExportJson(
+  clientId: number,
+  sectionsJsonOverride?: string,
+): Promise<Record<string, unknown>> {
   const [profile, achievementsList, familyBg, careerList, via, ipip, report] = await Promise.all([
     getClientProfileById(clientId),
     getAchievements(clientId),
@@ -675,9 +683,10 @@ export async function buildClaudeExportJson(clientId: number): Promise<Record<st
   ]);
 
   if (!profile) throw new TRPCError({ code: "NOT_FOUND", message: "Client not found" });
-  if (!report?.wowReportJson) throw new TRPCError({ code: "NOT_FOUND", message: "WOW Report not yet generated for this client" });
+  const sourceJson = sectionsJsonOverride ?? report?.wowReportJson;
+  if (!sourceJson) throw new TRPCError({ code: "NOT_FOUND", message: "WOW Report not yet generated for this client" });
 
-  const sections = JSON.parse(report.wowReportJson) as {
+  const sections = JSON.parse(sourceJson) as {
     clientName: string;
     clientFullName: string;
     generatedAt: string;
@@ -730,9 +739,13 @@ export async function buildClaudeExportJson(clientId: number): Promise<Record<st
   const viaRanked: Array<{ name: string; score: number; rank: number }> = (() => {
     try {
       const r = via?.rankedStrengths;
-      if (!r) return sections.viaRanked ?? [];
-      const parsed = typeof r === "string" ? JSON.parse(r) : (r as any[]);
-      return parsed;
+      const parsed = !r
+        ? (sections.viaRanked ?? [])
+        : (typeof r === "string" ? JSON.parse(r) : (r as any[]));
+      return parsed.map((strength: Record<string, unknown>) => ({
+        ...strength,
+        name: String(strength.name ?? strength.strengthName ?? strength.strengthId ?? ""),
+      }));
     } catch { return sections.viaRanked ?? []; }
   })();
 

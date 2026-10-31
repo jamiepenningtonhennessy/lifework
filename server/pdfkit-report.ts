@@ -56,9 +56,10 @@ function num(v: unknown, fallback = 0): number {
   return isFinite(n) ? n : fallback;
 }
 
-// Strip HTML tags from text
-function stripHtml(text: string): string {
-  return text.replace(/<[^>]*>/g, "").replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&nbsp;/g, " ").replace(/&#8212;/g, "—").replace(/&#8211;/g, "–").replace(/&#8216;/g, "'").replace(/&#8217;/g, "'").replace(/&#8220;/g, '"').replace(/&#8221;/g, '"');
+// Strip HTML tags from text. Historical survey rows can omit an optional label,
+// so formatting must never turn an absent display value into a report failure.
+function stripHtml(text: unknown): string {
+  return String(text ?? "").replace(/<[^>]*>/g, "").replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&nbsp;/g, " ").replace(/&#8212;/g, "—").replace(/&#8211;/g, "–").replace(/&#8216;/g, "'").replace(/&#8217;/g, "'").replace(/&#8220;/g, '"').replace(/&#8221;/g, '"');
 }
 
 // ─── Chapter header band ──────────────────────────────────────────────────────
@@ -102,6 +103,7 @@ function bodyPara(doc: PDFKit.PDFDocument, text: string, indent = 0) {
 }
 
 type ChapterFlow = {
+  before: (height: number) => void;
   paragraph: (text: string, indent?: number) => void;
   section: (text: string, followingHeight?: number) => void;
   bullet: (text: string) => void;
@@ -150,6 +152,7 @@ function createChapterFlow(
   };
 
   return {
+    before: ensureSpace,
     paragraphHeight,
     bulletHeight,
     paragraph: (text, indent = 0) => {
@@ -411,9 +414,12 @@ function renderCh1(doc: PDFKit.PDFDocument, data: Record<string, unknown>) {
 
   doc.addPage();
   chapterHeader(doc, "01", "Summary");
+  const flow = createChapterFlow(doc, "01", "Summary", name);
 
   const hero = s(ch1.HERO);
   if (hero) {
+    doc.font(SERIF_ITALIC).fontSize(14);
+    flow.before(doc.heightOfString(stripHtml(hero), { width: CONTENT_W, lineGap: 4 }) + 28);
     doc.font(SERIF_ITALIC).fontSize(14).fillColor(NAVY).text(stripHtml(hero), MARGIN, doc.y, {
       width: CONTENT_W,
       lineGap: 4,
@@ -423,7 +429,7 @@ function renderCh1(doc: PDFKit.PDFDocument, data: Record<string, unknown>) {
 
   const paras = arr<string>(ch1.PARAGRAPHS);
   for (const para of paras) {
-    bodyPara(doc, para);
+    flow.paragraph(para);
   }
 
   pageFooter(doc, name);
@@ -437,39 +443,39 @@ function renderCh2(doc: PDFKit.PDFDocument, data: Record<string, unknown>) {
 
   doc.addPage();
   chapterHeader(doc, "02", "Life History Pattern");
+  const firstPageFlow = createChapterFlow(doc, "02", "Life History Pattern", name);
 
-  bodyPara(doc, s(ch2.LEDE));
+  firstPageFlow.paragraph(s(ch2.LEDE));
 
   const p1Paras = arr<string>(ch2.PAGE1_PARAGRAPHS);
-  for (const para of p1Paras) bodyPara(doc, para);
+  for (const para of p1Paras) firstPageFlow.paragraph(para);
 
   const p1SH = s(ch2.PAGE1_SECTION_H);
-  if (p1SH) sectionHeading(doc, p1SH);
-
   const p1SPars = arr<string>(ch2.PAGE1_SECTION_PARAS);
-  for (const para of p1SPars) bodyPara(doc, para);
+  if (p1SH) firstPageFlow.section(p1SH, firstPageFlow.paragraphHeight(p1SPars[0] ?? ""));
+  for (const para of p1SPars) firstPageFlow.paragraph(para);
 
   // Page 2 — ESF / key findings
+  pageFooter(doc, name);
   doc.addPage();
   chapterHeader(doc, "02", "Life History Pattern", true);
+  const secondPageFlow = createChapterFlow(doc, "02", "Life History Pattern", name, true);
 
   const keyfind = obj(ch2.KEYFIND);
-  sectionHeading(doc, "What the pattern reveals");
-
   const kfParas = arr<string>(keyfind.PARAGRAPHS);
-  for (const para of kfParas) bodyPara(doc, para);
+  secondPageFlow.section("What the pattern reveals", secondPageFlow.paragraphHeight(kfParas[0] ?? ""));
+  for (const para of kfParas) secondPageFlow.paragraph(para);
 
   const esfPara = s(keyfind.ESF_PARA);
   if (esfPara) {
-    sectionHeading(doc, "Your ESF distribution");
-    bodyPara(doc, esfPara);
+    secondPageFlow.section("Your ESF distribution", secondPageFlow.paragraphHeight(esfPara));
+    secondPageFlow.paragraph(esfPara);
   }
 
   const p2SH = s(ch2.PAGE2_SECTION_H);
-  if (p2SH) sectionHeading(doc, p2SH);
-
   const p2Paras = arr<string>(ch2.PAGE2_PARAGRAPHS);
-  for (const para of p2Paras) bodyPara(doc, para);
+  if (p2SH) secondPageFlow.section(p2SH, secondPageFlow.paragraphHeight(p2Paras[0] ?? ""));
+  for (const para of p2Paras) secondPageFlow.paragraph(para);
 
   pageFooter(doc, name);
 }
@@ -484,16 +490,19 @@ function renderCh3(doc: PDFKit.PDFDocument, data: Record<string, unknown>) {
   // Page 1 — VIA ranking bars
   doc.addPage();
   chapterHeader(doc, "03", "Character Strengths · VIA");
+  const rankingFlow = createChapterFlow(doc, "03", "Character Strengths · VIA", name);
 
-  bodyPara(doc, s(ch3.LEDE));
+  rankingFlow.paragraph(s(ch3.LEDE));
 
   const top10 = arr<{ name: string; score: number }>(via.TOP10);
   if (top10.length > 0) {
+    rankingFlow.before(18 + top10.length * 20 + 20);
     sectionHeading(doc, "Your top 10 strengths");
     barChart(doc, top10.map(s => ({ label: s.name, value: s.score, maxValue: 5 })), { barColor: NAVY, labelWidth: 180 });
   }
 
   // Page 2 — Evidence table
+  pageFooter(doc, name);
   doc.addPage();
   chapterHeader(doc, "03", "Character Strengths · Evidence", true);
 
@@ -507,11 +516,13 @@ function renderCh3(doc: PDFKit.PDFDocument, data: Record<string, unknown>) {
   doc.moveDown(0.5);
 
   // Page 3 — Key findings
+  pageFooter(doc, name);
   doc.addPage();
   chapterHeader(doc, "03", "Character Strengths · Key Findings");
+  const findingsFlow = createChapterFlow(doc, "03", "Character Strengths · Key Findings", name);
 
   const kf = arr<string>(ch3.KEY_FINDINGS);
-  for (const para of kf) bodyPara(doc, para);
+  for (const para of kf) findingsFlow.paragraph(para);
 
   pageFooter(doc, name);
 }
@@ -526,11 +537,13 @@ function renderCh4(doc: PDFKit.PDFDocument, data: Record<string, unknown>) {
   // Page 1 — OCEAN bars
   doc.addPage();
   chapterHeader(doc, "04", "Personality Profile · OCEAN");
+  const oceanFlow = createChapterFlow(doc, "04", "Personality Profile · OCEAN", name);
 
-  bodyPara(doc, s(ch4.LEDE));
+  oceanFlow.paragraph(s(ch4.LEDE));
 
   // OCEAN.DOMAINS uses `name` and `pct` (0-100 percentile) from claudeExport
   const domains = arr<{ name?: string; label?: string; pct?: number; score?: number; leftPole?: string; rightPole?: string }>(ocean.DOMAINS);
+  oceanFlow.before(domains.length * 44 + 28);
   for (const domain of domains) {
     const domainLabel = s(domain.label ?? domain.name);
     const domainScore = num(domain.score ?? domain.pct, 50);
@@ -544,22 +557,24 @@ function renderCh4(doc: PDFKit.PDFDocument, data: Record<string, unknown>) {
   doc.moveDown(0.5);
 
   // Page 2 — Psychometrics narrative
+  pageFooter(doc, name);
   doc.addPage();
   chapterHeader(doc, "04", "Personality Profile · Narrative", true);
+  const narrativeFlow = createChapterFlow(doc, "04", "Personality Profile · Narrative", name, true);
 
-  sectionHeading(doc, "What the psychometrics show");
   const psychParas = arr<string>(ch4.PSYCHOMETRICS_PARAS);
-  for (const para of psychParas) bodyPara(doc, para);
+  narrativeFlow.section("What the psychometrics show", narrativeFlow.paragraphHeight(psychParas[0] ?? ""));
+  for (const para of psychParas) narrativeFlow.paragraph(para);
 
-  sectionHeading(doc, "Where the two pictures meet");
   const synthParas = arr<string>(ch4.SYNTHESIS_PARAS);
-  for (const para of synthParas) bodyPara(doc, para);
+  narrativeFlow.section("Where the two pictures meet", narrativeFlow.paragraphHeight(synthParas[0] ?? ""));
+  for (const para of synthParas) narrativeFlow.paragraph(para);
 
   const keyfind = obj(ch4.KEYFIND);
   const kfTitle = s(keyfind.TITLE);
   const kfBody = s(keyfind.BODY);
-  if (kfTitle) sectionHeading(doc, kfTitle);
-  if (kfBody) bodyPara(doc, kfBody);
+  if (kfTitle) narrativeFlow.section(kfTitle, narrativeFlow.paragraphHeight(kfBody));
+  if (kfBody) narrativeFlow.paragraph(kfBody);
 
   pageFooter(doc, name);
 }
@@ -572,49 +587,52 @@ function renderCh5(doc: PDFKit.PDFDocument, data: Record<string, unknown>) {
 
   doc.addPage();
   chapterHeader(doc, "05", "Insights Colours");
+  const flow = createChapterFlow(doc, "05", "Insights Colours", name);
 
-  bodyPara(doc, s(ch5.LEDE));
+  flow.paragraph(s(ch5.LEDE));
 
   const primary = obj(ch5.PRIMARY);
   const secondary = obj(ch5.SECONDARY);
 
   if (s(primary.name)) {
-    sectionHeading(doc, `Primary colour: ${stripHtml(s(primary.name))}`);
+    const traits = s(primary.traits);
+    flow.section(`Primary colour: ${stripHtml(s(primary.name))}`, flow.paragraphHeight(traits));
     doc.font(SERIF).fontSize(10.5).fillColor(BLACK).text(s(primary.traits), MARGIN, doc.y, { width: CONTENT_W });
     doc.moveDown(0.5);
   }
 
   if (s(secondary.name)) {
-    sectionHeading(doc, `Secondary colour: ${stripHtml(s(secondary.name))}`);
+    const traits = s(secondary.traits);
+    flow.section(`Secondary colour: ${stripHtml(s(secondary.name))}`, flow.paragraphHeight(traits));
     doc.font(SERIF).fontSize(10.5).fillColor(BLACK).text(s(secondary.traits), MARGIN, doc.y, { width: CONTENT_W });
     doc.moveDown(0.5);
   }
 
   const jungian = obj(ch5.JUNGIAN);
   if (s(jungian.code)) {
-    sectionHeading(doc, "Jungian type");
+    flow.section("Jungian type", 30);
     doc.font(SERIF_BOLD).fontSize(14).fillColor(NAVY).text(`${s(jungian.code)} · ${s(jungian.spelt)}`, MARGIN, doc.y, { width: CONTENT_W });
     doc.moveDown(0.5);
   }
 
   const strengths = arr<string>(ch5.STRENGTHS);
   if (strengths.length > 0) {
-    sectionHeading(doc, "Strengths");
+    flow.section("Strengths", flow.paragraphHeight(strengths.join(" · ")));
     doc.font(SERIF).fontSize(10.5).fillColor(BLACK).text(strengths.join(" · "), MARGIN, doc.y, { width: CONTENT_W });
     doc.moveDown(0.5);
   }
 
   const watchouts = arr<string>(ch5.WATCHOUTS);
   if (watchouts.length > 0) {
-    sectionHeading(doc, "Watch-outs");
+    flow.section("Watch-outs", flow.paragraphHeight(watchouts.join(" · ")));
     doc.font(SERIF).fontSize(10.5).fillColor(BLACK).text(watchouts.join(" · "), MARGIN, doc.y, { width: CONTENT_W });
     doc.moveDown(0.5);
   }
 
   const fit = s(ch5.FIT);
   if (fit) {
-    sectionHeading(doc, "Best-fit environments");
-    bodyPara(doc, fit);
+    flow.section("Best-fit environments", flow.paragraphHeight(fit));
+    flow.paragraph(fit);
   }
 
   pageFooter(doc, name);
@@ -699,6 +717,7 @@ function renderCh8(doc: PDFKit.PDFDocument, data: Record<string, unknown>) {
 
   const overflow = arr<{ heading: string; paragraphs: string[] }>(ch8.OVERFLOW_DIRECTIONS);
   if (overflow.length > 0) {
+    pageFooter(doc, name);
     doc.addPage();
     chapterHeader(doc, "08", "Career Directions (continued)");
     const overflowFlow = createChapterFlow(doc, "08", "Career Directions", name);

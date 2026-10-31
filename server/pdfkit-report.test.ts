@@ -4,6 +4,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { generatePdfKitReport } from "./pdfkit-report";
+import { preflightReportPdf } from "./reportPdfPreflight";
 
 const longBullet = (label: string) =>
   Array.from(
@@ -54,6 +55,49 @@ describe("PDFKit WOW report pagination", () => {
       expect(continuationPage).toContain("Future");
       expect(text).toContain("Lifework · Test Client");
       expect(text).not.toContain("Pennington Hennessy");
+    } finally {
+      await rm(directory, { recursive: true, force: true });
+    }
+  });
+
+  it("keeps long original-layout narrative chapters inside branded continuation pages", async () => {
+    const directory = await mkdtemp(join(tmpdir(), "lifework-pdfkit-narrative-"));
+    const pdfPath = join(directory, "report.pdf");
+    const longParagraph = Array.from(
+      { length: 8 },
+      () => "This intentionally long narrative paragraph verifies that the original serif report layout retains every complete thought while moving any excess material to a branded continuation page before it can approach the footer.",
+    ).join(" ");
+
+    try {
+      const source = makeLongCoachingQuestionsReport();
+      source.CH1 = {
+        HERO: "A reader-first summary opening.",
+        PARAGRAPHS: [longParagraph, longParagraph, longParagraph, "Summary continuation sentinel."],
+      };
+      source.CH4 = {
+        LEDE: "A concise personality introduction.",
+        PSYCHOMETRICS_PARAS: [longParagraph, longParagraph, longParagraph, "Psychometrics continuation sentinel."],
+        SYNTHESIS_PARAS: [longParagraph],
+        KEYFIND: { TITLE: "What this means", BODY: longParagraph },
+      };
+
+      const pdf = await generatePdfKitReport(source);
+      await writeFile(pdfPath, pdf);
+      const text = execFileSync("pdftotext", ["-layout", pdfPath, "-"], { encoding: "utf8" });
+
+      expect(text).toContain("Summary (continued)");
+      expect(text).toContain("Personality Profile · Narrative (continued)");
+      expect(text).toContain("Summary continuation sentinel.");
+      expect(text).toContain("Psychometrics continuation sentinel.");
+
+      await expect(preflightReportPdf(pdf, {
+        documentLabel: "Long original-layout WOW Report",
+        minimumPages: 3,
+        requiredPhrases: ["Summary continuation sentinel", "Psychometrics continuation sentinel", "Lifework"],
+        footerMarkers: ["Lifework"],
+        headerMarkers: ["Chapter"],
+        headerRequiredFromPage: 3,
+      })).resolves.toMatchObject({ pageCount: expect.any(Number) });
     } finally {
       await rm(directory, { recursive: true, force: true });
     }

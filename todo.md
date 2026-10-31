@@ -2336,3 +2336,8 @@
 - [x] Render the frozen source through a new layout-only PDF treatment: improved type hierarchy, spacing, page furniture and natural continuation pages, with no Claude call or content/structural rewrite.
 - [x] Add separate protected counsellor controls, review/download route and a fictional no-data layout sample, without changing Design Beta 1 or the live client report.
 - [x] Create Jason’s private faithful-layout beta and verify content-order preservation, PDF bounds/preflight, access controls, desktop/mobile review, tests and build before checkpointing.
+
+## Original Report Layout Restoration — October 2026
+- [x] Restore the original navy, gold and serif PDFKit report as the authoritative final layout; the alternate beta renderers remain isolated review tools and are not used for client delivery.
+- [x] Keep every original report section intact on its starting page, but start matching branded continuation pages before variable content can enter the footer area. This now covers the summary, life-history pattern, VIA findings, personality narrative, Insights colours, development edge, coaching questions and career directions.
+- [x] Rebuild and inspect Jason’s final report from the stored source: original cover and chapter design retained; the former Chapter 7 overflow now begins cleanly on a branded “Coaching Questions (continued)” page; all 15 A4 pages pass lower-footer preflight. Focused PDF, generation, delivery and end-to-end tests pass; production build succeeds; TypeScript remains at the five established legacy diagnostics only.

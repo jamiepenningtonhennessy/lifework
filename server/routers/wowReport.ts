@@ -28,6 +28,8 @@ import { getOrGenerateCanonicalStage1, CANONICAL_SYSTEM_PROMPT, LIFE_HISTORY_PRO
 import { storagePut } from "../storage";
 import { generateWheelPng } from "./insightsWheelPng.js";
 import { preflightReportPdf } from "../reportPdfPreflight";
+import { buildClaudeExportJson } from "./claudeExport";
+import { generatePdfKitReport } from "../pdfkit-report";
 
 import {
   getClientProfileById,
@@ -2710,6 +2712,35 @@ async function renderAnnexPdf(
   return pdfDoc.getBuffer() as Promise<Buffer>;
 }
 
+// ─── Original final-report renderer ──────────────────────────────────────────
+
+/**
+ * The client-facing report is the established navy, gold and serif PDFKit
+ * edition. It receives the exact report prose already approved for this run;
+ * no second model call or temporary persistence is required to lay it out.
+ */
+async function renderOriginalFinalReport(
+  clientId: number,
+  sections: WowReportSections,
+): Promise<Buffer> {
+  const payload = await buildClaudeExportJson(clientId, JSON.stringify(sections));
+  return generatePdfKitReport(payload);
+}
+
+function originalReportPreflightOptions(
+  documentLabel: string,
+  sections: WowReportSections,
+) {
+  return {
+    documentLabel,
+    minimumPages: 3,
+    requiredPhrases: [sections.clientFullName ?? sections.clientName ?? "", "Lifework"],
+    footerMarkers: ["Lifework"],
+    headerMarkers: ["Chapter"],
+    headerRequiredFromPage: 3,
+  };
+}
+
 // ─── Background Job ─────────────────────────────────────────────────────────
 // v2: retirement variant prompts active — section titles and content are now variant-aware
 
@@ -2769,62 +2800,29 @@ async function runGenerationJob(clientId: number, reportType: WowReportType = "s
       : writingStyle === "william-zinsser"
       ? await rewriteSectionsForZinsser(houseSections, houseSections.clientName)
       : houseSections;
-    // Render main WOW Report PDF
+    // Render the original client-facing report design. This renderer adds a
+    // matching continuation page before a complete content block would cross
+    // the footer, rather than changing the report's type, hierarchy or prose.
     console.log(`[WOW Report] Rendering PDF for client ${clientId}`);
-    const pdfBuffer = await renderWowPdf(sections, writingStyle);
+    const pdfBuffer = await renderOriginalFinalReport(clientId, sections);
     console.log(`[WOW Report] PDF rendered, size: ${pdfBuffer.length} bytes`);
-    const mainPreflight = await preflightReportPdf(pdfBuffer, {
-      documentLabel: "WOW Report",
-      minimumPages: 3,
-      requiredPhrases: [sections.clientFullName ?? sections.clientName ?? "", "Lifework"],
-      footerMarkers: ["Lifework"],
-      headerMarkers: ["Lifework Career Analysis"],
-      headerRequiredFromPage: 3,
-    });
+    const mainPreflight = await preflightReportPdf(
+      pdfBuffer,
+      originalReportPreflightOptions("WOW Report", sections),
+    );
     console.log(`[WOW Report] Main PDF preflight passed: ${mainPreflight.pageCount} pages, ${mainPreflight.textLength} readable characters`);
-    // Render Annex PDF and merge
-    let combinedBuffer = pdfBuffer;
-    try {
-      const { PDFDocument } = await import("pdf-lib");
-      const [annexFamilyBg, annexCareer] = await Promise.all([
-        getFamilyBackground(clientId),
-        getCareerHistory(clientId),
-      ]);
-      const annexBuffer = await renderAnnexPdf(
-        clientId,
-        sections.clientFullName ?? sections.clientName,
-        sections.viaRanked ?? [],
-        sections.domainScores ?? {},
-        sections.facetScores ?? {},
-        annexFamilyBg,
-        annexCareer,
-      );
-      console.log(`[WOW Report] Annex rendered, size: ${annexBuffer.length} bytes`);
-      const mainDoc = await PDFDocument.load(pdfBuffer);
-      const annexDoc = await PDFDocument.load(annexBuffer);
-      const annexPageIndices = annexDoc.getPageIndices();
-      const copiedPages = await mainDoc.copyPages(annexDoc, annexPageIndices);
-      for (const page of copiedPages) mainDoc.addPage(page);
-      const mergedBytes = await mainDoc.save();
-      combinedBuffer = Buffer.from(mergedBytes);
-      console.log(`[WOW Report] Merged PDF size: ${combinedBuffer.length} bytes`);
-    } catch (annexErr) {
-      console.warn(`[WOW Report] Annex generation failed (using main report only):`, annexErr);
-    }
-    // Validate the final combined PDF before it can be uploaded or released.
+    // Validate the complete, single-design PDF before it can be uploaded or released.
     // A failed preflight leaves the previous report untouched and records an
     // actionable error status for the counsellor instead of publishing it.
-    const preflight = await preflightReportPdf(combinedBuffer, {
-      documentLabel: "WOW Report",
-      minimumPages: 3,
-      requiredPhrases: [sections.clientFullName ?? sections.clientName ?? "", "Lifework"],
-      footerMarkers: ["Lifework", "Your Data", "Confidential"],
-    });
+    const preflight = await preflightReportPdf(
+      pdfBuffer,
+      originalReportPreflightOptions("WOW Report", sections),
+    );
     console.log(`[WOW Report] PDF preflight passed: ${preflight.pageCount} pages, ${preflight.textLength} readable characters`);
 
     // Upload to S3
     const fileKey = `wow-reports/client-${clientId}-${Date.now()}.pdf`;
-    const { url: pdfUrl } = await storagePut(fileKey, combinedBuffer, "application/pdf");
+    const { url: pdfUrl } = await storagePut(fileKey, pdfBuffer, "application/pdf");
     console.log(`[WOW Report] Uploaded to S3: ${pdfUrl}`);
     // Persist result
     const existing2 = await getAnalysisReport(clientId);
@@ -2917,8 +2915,7 @@ export const wowReportRouter = router({
       };
     }),
 
-  /** Re-render the PDF from stored JSON sections using a (possibly updated) writing style.
-   *  Use this when the on-screen sections have changed style but the stored PDF is stale. */
+  /** Re-render the established final PDF from stored report sections. */
   rebuildPdf: protectedProcedure
     .input(z.object({
       clientId: z.number(),
@@ -2933,54 +2930,20 @@ export const wowReportRouter = router({
       try { sections = JSON.parse(report.wowReportJson); }
       catch { throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Stored report sections are corrupted." }); }
       const writingStyle = (input.writingStyle ?? "house") as WritingStyle;
-      const pdfBuffer = await renderWowPdf(sections, writingStyle);
-      const mainPreflight = await preflightReportPdf(pdfBuffer, {
-        documentLabel: "Rebuilt WOW Report",
-        minimumPages: 3,
-        requiredPhrases: [sections.clientFullName ?? sections.clientName ?? "", "Lifework"],
-        footerMarkers: ["Lifework"],
-        headerMarkers: ["Lifework Career Analysis"],
-        headerRequiredFromPage: 3,
-      });
+      const pdfBuffer = await renderOriginalFinalReport(input.clientId, sections);
+      const mainPreflight = await preflightReportPdf(
+        pdfBuffer,
+        originalReportPreflightOptions("Rebuilt WOW Report", sections),
+      );
       console.log(`[rebuildPdf] Main PDF preflight passed: ${mainPreflight.pageCount} pages, ${mainPreflight.textLength} readable characters`);
-      // Merge annex (same as runGenerationJob)
-      let combinedBuffer = pdfBuffer;
-      try {
-        const { PDFDocument } = await import("pdf-lib");
-        const [annexFamilyBg, annexCareer] = await Promise.all([
-          getFamilyBackground(input.clientId),
-          getCareerHistory(input.clientId),
-        ]);
-        const annexBuffer = await renderAnnexPdf(
-          input.clientId,
-          sections.clientFullName ?? sections.clientName ?? "Client",
-          sections.viaRanked ?? [],
-          sections.domainScores ?? {},
-          sections.facetScores ?? {},
-          annexFamilyBg,
-          annexCareer,
-        );
-        const mainDoc = await PDFDocument.load(pdfBuffer);
-        const annexDoc = await PDFDocument.load(annexBuffer);
-        const annexPageIndices = annexDoc.getPageIndices();
-        const copiedPages = await mainDoc.copyPages(annexDoc, annexPageIndices);
-        for (const page of copiedPages) mainDoc.addPage(page);
-        const mergedBytes = await mainDoc.save();
-        combinedBuffer = Buffer.from(mergedBytes);
-        console.log(`[rebuildPdf] Annex merged, total pages: ${mainDoc.getPageCount()}`);
-      } catch (annexErr) {
-        console.warn(`[rebuildPdf] Annex generation failed (using main report only):`, annexErr);
-      }
-      const preflight = await preflightReportPdf(combinedBuffer, {
-        documentLabel: "Rebuilt WOW Report",
-        minimumPages: 3,
-        requiredPhrases: [sections.clientFullName ?? sections.clientName ?? "", "Lifework"],
-        footerMarkers: ["Lifework", "Your Data", "Confidential"],
-      });
+      const preflight = await preflightReportPdf(
+        pdfBuffer,
+        originalReportPreflightOptions("Rebuilt WOW Report", sections),
+      );
       console.log(`[rebuildPdf] PDF preflight passed: ${preflight.pageCount} pages, ${preflight.textLength} readable characters`);
 
       const fileKey = `wow-reports/client-${input.clientId}-${Date.now()}.pdf`;
-      const { url: pdfUrl } = await storagePut(fileKey, combinedBuffer, "application/pdf");
+      const { url: pdfUrl } = await storagePut(fileKey, pdfBuffer, "application/pdf");
       // Update stored PDF URL and writing style via the standard upsert helper
       await upsertAnalysisReport({
         clientId: input.clientId,
