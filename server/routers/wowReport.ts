@@ -29,7 +29,8 @@ import { storagePut } from "../storage";
 import { generateWheelPng } from "./insightsWheelPng.js";
 import { preflightReportPdf } from "../reportPdfPreflight";
 import { buildClaudeExportJson } from "./claudeExport";
-import { generatePdfKitReport } from "../pdfkit-report";
+import { renderHtmlReport } from "../html-report";
+import { generateMasterReportPdf } from "../masterReportPdf";
 
 import {
   getClientProfileById,
@@ -2712,11 +2713,11 @@ async function renderAnnexPdf(
   return pdfDoc.getBuffer() as Promise<Buffer>;
 }
 
-// ─── Original final-report renderer ──────────────────────────────────────────
+// ─── Quiet Authority final-report renderer ───────────────────────────────────
 
 /**
- * The client-facing report is the established navy, gold and serif PDFKit
- * edition. It receives the exact report prose already approved for this run;
+ * The client-facing report uses the established Quiet Authority browser
+ * template. It receives the exact report prose already approved for this run;
  * no second model call or temporary persistence is required to lay it out.
  */
 async function renderOriginalFinalReport(
@@ -2724,7 +2725,7 @@ async function renderOriginalFinalReport(
   sections: WowReportSections,
 ): Promise<Buffer> {
   const payload = await buildClaudeExportJson(clientId, JSON.stringify(sections));
-  return generatePdfKitReport(payload);
+  return generateMasterReportPdf(renderHtmlReport(payload));
 }
 
 function originalReportPreflightOptions(
@@ -2735,9 +2736,9 @@ function originalReportPreflightOptions(
     documentLabel,
     minimumPages: 3,
     requiredPhrases: [sections.clientFullName ?? sections.clientName ?? "", "Lifework"],
-    footerMarkers: ["Lifework"],
-    headerMarkers: ["Chapter"],
-    headerRequiredFromPage: 3,
+    footerMarkers: ["Pennington Hennessy", "Confidential", "Lifework", "Prepared for"],
+    headerMarkers: ["Lifework"],
+    headerRequiredFromPage: 1,
   };
 }
 
