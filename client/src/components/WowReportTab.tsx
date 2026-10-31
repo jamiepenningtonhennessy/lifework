@@ -195,6 +195,7 @@ export default function WowReportTab({ clientId, clientName }: WowReportTabProps
   );
   const { data: betaVersions } = trpc.wowReportBeta.list.useQuery({ clientId });
   const { data: designBetaVersions } = trpc.reportDesignBeta.list.useQuery({ clientId });
+  const { data: faithfulLayoutBetaVersions } = trpc.faithfulLayoutBeta.list.useQuery({ clientId });
 
   const createBetaSnapshotMutation = trpc.wowReportBeta.createSnapshot.useMutation({
     onSuccess: (result) => {
@@ -212,6 +213,15 @@ export default function WowReportTab({ clientId, clientName }: WowReportTabProps
       window.open(`/counselor/client/${clientId}/report-design-beta-1/${result.betaId}`, "_blank", "noopener,noreferrer");
     },
     onError: (err) => toast.error(`Could not create Report Design Beta 1: ${err.message}`),
+  });
+
+  const createFaithfulLayoutBetaMutation = trpc.faithfulLayoutBeta.create.useMutation({
+    onSuccess: (result) => {
+      utils.faithfulLayoutBeta.list.invalidate({ clientId });
+      toast.success("Faithful Layout Beta 1 created. The production report remains unchanged.");
+      window.open(`/counselor/client/${clientId}/faithful-layout-beta-1/${result.betaId}`, "_blank", "noopener,noreferrer");
+    },
+    onError: (err) => toast.error(`Could not create Faithful Layout Beta 1: ${err.message}`),
   });
 
   // Generate mutation — fires and forgets, then we start polling
@@ -1028,6 +1038,50 @@ export default function WowReportTab({ clientId, clientName }: WowReportTabProps
               >
                 {createDesignBetaMutation.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Palette className="mr-2 h-4 w-4" />}
                 {createDesignBetaMutation.isPending ? "Building beta PDF…" : designBetaVersions?.length ? "Create fresh design beta" : "Create Design Beta 1"}
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Faithful Layout Beta 1 — same established report sequence, new page-flow treatment only. */}
+      {reportExists && (
+        <Card className="border-[#B8862F]/35 bg-[#fbf8f1] shadow-none">
+          <CardContent className="flex flex-col gap-5 p-5 sm:flex-row sm:items-center sm:justify-between">
+            <div className="min-w-0">
+              <div className="flex items-center gap-2">
+                <FlaskConical className="h-4 w-4 text-[#B8862F]" />
+                <p className="font-sans text-[10px] font-bold tracking-[0.15em] uppercase text-[#B8862F]">Faithful Layout Beta 1 · internal review</p>
+              </div>
+              <h3 className="mt-2 font-serif text-xl text-[#1A2744]">Current client report, re-laid</h3>
+              <p className="mt-1 max-w-2xl text-sm leading-6 text-[#1A2744]/70">
+                Freeze the existing client report, including its original letter, chapter order, evidence displays, appendix and data annex. This version changes only page flow, typography and spacing — not structure or analysis.
+              </p>
+              {faithfulLayoutBetaVersions?.length ? (
+                <p className="mt-2 text-xs text-[#1A2744]/55">
+                  {faithfulLayoutBetaVersions.length} protected faithful-layout {faithfulLayoutBetaVersions.length === 1 ? "copy" : "copies"} available. Each retains its own source snapshot.
+                </p>
+              ) : null}
+            </div>
+            <div className="flex shrink-0 flex-wrap gap-2">
+              {faithfulLayoutBetaVersions?.[0] ? (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="border-[#1A2744]/25 text-[#1A2744] hover:bg-white"
+                  onClick={() => window.open(`/counselor/client/${clientId}/faithful-layout-beta-1/${faithfulLayoutBetaVersions[0].id}`, "_blank", "noopener,noreferrer")}
+                >
+                  <BookOpen className="mr-2 h-4 w-4" /> Open latest
+                </Button>
+              ) : null}
+              <Button
+                size="sm"
+                className="bg-[#1A2744] text-white hover:bg-[#28395d]"
+                onClick={() => createFaithfulLayoutBetaMutation.mutate({ clientId })}
+                disabled={createFaithfulLayoutBetaMutation.isPending}
+              >
+                {createFaithfulLayoutBetaMutation.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <FlaskConical className="mr-2 h-4 w-4" />}
+                {createFaithfulLayoutBetaMutation.isPending ? "Building layout beta…" : faithfulLayoutBetaVersions?.length ? "Create fresh faithful beta" : "Create Faithful Layout Beta"}
               </Button>
             </div>
           </CardContent>

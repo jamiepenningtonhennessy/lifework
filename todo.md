@@ -2330,3 +2330,9 @@
 ## Jason Design Beta — Section Starts (2026-10-30)
 - [x] Make every substantive report section begin on a fresh A4 page in the beta PDF, while keeping its source prose and production report unchanged.
 - [x] Extend the renderer test to enforce the intended print break rule and regenerate Jason’s protected 19-page review copy for visual and preflight verification.
+
+## Faithful Client-Report Layout Beta 1 (2026-10-31)
+- [x] Create a separately stored, counsellor-only beta that preserves the existing client report’s cover letter, cover, chapter order, headings, report prose, data visualisations, appendix and annex structure.
+- [x] Render the frozen source through a new layout-only PDF treatment: improved type hierarchy, spacing, page furniture and natural continuation pages, with no Claude call or content/structural rewrite.
+- [x] Add separate protected counsellor controls, review/download route and a fictional no-data layout sample, without changing Design Beta 1 or the live client report.
+- [x] Create Jason’s private faithful-layout beta and verify content-order preservation, PDF bounds/preflight, access controls, desktop/mobile review, tests and build before checkpointing.

@@ -3,6 +3,7 @@ import { pseudonymise, PSEUDONYM_TOKEN } from "./shared/pseudonymise";
 import { wowReportRouter } from "./routers/wowReport";
 import { wowReportBetaRouter } from "./routers/wowReportBeta";
 import { reportDesignBetaRouter } from "./routers/reportDesignBeta";
+import { faithfulLayoutBetaRouter } from "./routers/faithfulLayoutBeta";
 import { claudeExportRouter } from "./routers/claudeExport";
 import { getOrGenerateCanonicalStage1, generateAndStoreCanonicalStage1 } from "./routers/canonicalStage1";
 import bcrypt from "bcryptjs";
@@ -3591,6 +3592,7 @@ export const appRouter = router({
   wowReport: wowReportRouter,
   wowReportBeta: wowReportBetaRouter,
   reportDesignBeta: reportDesignBetaRouter,
+  faithfulLayoutBeta: faithfulLayoutBetaRouter,
   counsellorSage: counsellorSageRouter,
   coachingSlides: coachingSlidesRouter,
   claudeExport: claudeExportRouter,

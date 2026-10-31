@@ -524,7 +524,7 @@ export async function getWowReportDesignBetaVersion(id: string) {
   return result[0] ?? null;
 }
 
-export async function listWowReportDesignBetaVersions(clientId: number) {
+export async function listWowReportDesignBetaVersions(clientId: number, betaVersion?: string) {
   const db = await getDb();
   if (!db) throw new Error("DB not available");
   return db
@@ -536,7 +536,12 @@ export async function listWowReportDesignBetaVersions(clientId: number) {
       createdAt: wowReportDesignBetaVersions.createdAt,
     })
     .from(wowReportDesignBetaVersions)
-    .where(eq(wowReportDesignBetaVersions.clientId, clientId))
+    .where(betaVersion
+      ? and(
+        eq(wowReportDesignBetaVersions.clientId, clientId),
+        eq(wowReportDesignBetaVersions.betaVersion, betaVersion),
+      )
+      : eq(wowReportDesignBetaVersions.clientId, clientId))
     .orderBy(desc(wowReportDesignBetaVersions.createdAt));
 }
 
