@@ -24,6 +24,7 @@ import {
   getIpipResults,
   getAnalysisReport,
 } from "../db.js";
+import { withoutInterviewAnswerInFuture } from "../../shared/reportConclusions";
 
 // ─── Facet name map (matches wowReport.ts) ───────────────────────────────────
 
@@ -970,7 +971,9 @@ export async function buildClaudeExportJson(
   // CH7 — Conclusions (Past / Present / Future / Tell Me About Yourself)
   const ch7Past    = extractSection(sections.coachingQuestions ?? "", "Past");
   const ch7Present = extractSection(sections.coachingQuestions ?? "", "Present");
-  const ch7Future  = extractSection(sections.coachingQuestions ?? "", "Future");
+  const ch7Future  = withoutInterviewAnswerInFuture(
+    extractSection(sections.coachingQuestions ?? "", "Future"),
+  );
   const ch7TmayParas = extractSection(sections.coachingQuestions ?? "", "Tell Me About Yourself");
   // Generate a punchy pull quote from the Conclusions section using the LLM.
   // The old approach (ch7Present[0]) just repeated the first Present paragraph verbatim.

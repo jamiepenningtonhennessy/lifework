@@ -2347,3 +2347,7 @@
 - [x] Restore the master’s Cormorant Garamond/Source Serif typography, warm-paper frame, chapter rail, headers and Pennington Hennessy footer for final client PDFs. Normal master pages remain unchanged.
 - [x] Before browser PDF capture, move only a complete direct content block that would cross the footer onto a new matching continuation page, retaining the same header, rail, continuation marker, logical page suffix and footer. No source prose is rewritten or dropped.
 - [x] Rebuild Jason’s stored final report from the already-approved source. The current 40-page A4 PDF passes the release preflight; cover, standard chapter pages, ordinary continuation pages and final annex pages were visually checked against the master. Focused visual-master, report-generation, delivery and end-to-end tests pass; TypeScript remains at the five established legacy diagnostics only.
+
+## Conclusions Answer De-duplication — October 2026
+- [x] Keep the single final “Tell me about yourself” answer in the yellow conclusion panel; suppress its earlier duplicate from the Future narrative. The export now recognises the answer marker even when the source report fails to supply its requested Markdown heading.
+- [x] Rebuild and visually inspect Jason’s final PDF: the Future section now ends after its two narrative paragraphs, and the sole interview answer appears in the yellow panel on the final conclusions page. Focused tests and production build pass; TypeScript remains at the established five legacy diagnostics only.
