@@ -63,13 +63,9 @@ describe("wowReport.generate", () => {
     ).rejects.toMatchObject({ code: "FORBIDDEN" });
   });
 
-  it("returns started:true for a non-existent client (job runs in background)", async () => {
+  it("rejects an incomplete client before acknowledging an authored report", async () => {
     const caller = appRouter.createCaller(makeCtx("admin"));
-    // Fire-and-forget: generate always returns immediately.
-    // The NOT_FOUND error (if client doesn't exist) surfaces via status=error in the DB.
-    const result = await caller.wowReport.generate({ clientId: 0, forceRegenerate: false });
-    // Either started or alreadyRunning — both are valid non-throwing outcomes
-    expect(result).toMatchObject({ started: expect.any(Boolean) });
+    await expect(caller.wowReport.generate({ clientId: 0, forceRegenerate: false })).rejects.toMatchObject({ code: "INTERNAL_SERVER_ERROR" });
   });
 });
 

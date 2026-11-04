@@ -1,6 +1,7 @@
 import { existsSync } from "node:fs";
 import { readdir } from "node:fs/promises";
 import { join } from "node:path";
+import { withMasterReportBrowser } from "./masterReportBrowser";
 
 /**
  * Renders the established Quiet Authority HTML report design to PDF. Before
@@ -169,37 +170,25 @@ const MASTER_PAGINATOR_SCRIPT = String.raw`
 `;
 
 export async function generateMasterReportPdf(html: string): Promise<Buffer> {
-  const puppeteer = (await import("puppeteer")).default;
   const executablePath = await resolveChromiumPath();
-  const browser = await puppeteer.launch({
-    headless: true,
-    executablePath,
-    args: [
-      "--no-sandbox",
-      "--disable-setuid-sandbox",
-      "--disable-dev-shm-usage",
-      "--disable-gpu",
-      "--single-process",
-      "--no-zygote",
-      "--font-render-hinting=none",
-    ],
+  return withMasterReportBrowser(executablePath, async (browser) => {
+    const context = await browser.createBrowserContext();
+    try {
+      const page = await context.newPage();
+      await page.setContent(html, { waitUntil: ["networkidle0", "domcontentloaded"] });
+      await page.evaluate(() => document.fonts.ready);
+      await page.evaluate(MASTER_PAGINATOR_SCRIPT);
+
+      const pdf = await page.pdf({
+        format: "A4",
+        printBackground: true,
+        margin: { top: 0, right: 0, bottom: 0, left: 0 },
+        preferCSSPageSize: true,
+      });
+
+      return Buffer.from(pdf);
+    } finally {
+      await context.close();
+    }
   });
-
-  try {
-    const page = await browser.newPage();
-    await page.setContent(html, { waitUntil: ["networkidle0", "domcontentloaded"] });
-    await page.evaluate(() => document.fonts.ready);
-    await page.evaluate(MASTER_PAGINATOR_SCRIPT);
-
-    const pdf = await page.pdf({
-      format: "A4",
-      printBackground: true,
-      margin: { top: 0, right: 0, bottom: 0, left: 0 },
-      preferCSSPageSize: true,
-    });
-
-    return Buffer.from(pdf);
-  } finally {
-    await browser.close();
-  }
 }

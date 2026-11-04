@@ -1,8 +1,8 @@
 /**
  * WowReportTab — Premium AI-generated PDF report for the counsellor view.
  *
- * Generation is fire-and-forget: the generate mutation returns immediately,
- * and we poll wowReport.get every 5 seconds until status = "done" | "error".
+ * Authoring and PDF rendering run in separate awaited requests. Authored sections
+ * are saved before printing, so PDF-only retries never rerun the analysis.
  */
 
 import { useState, useEffect, useRef } from "react";
@@ -175,6 +175,7 @@ export default function WowReportTab({ clientId, clientName }: WowReportTabProps
   const [selectedTraceRunId, setSelectedTraceRunId] = useState<string | null>(null);
   const pollIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const msgIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const pdfAttemptedRef = useRef(false);
 
   const utils = trpc.useUtils();
 
@@ -224,28 +225,52 @@ export default function WowReportTab({ clientId, clientName }: WowReportTabProps
     onError: (err) => toast.error(`Could not create Faithful Layout Beta 1: ${err.message}`),
   });
 
-  // Generate mutation — fires and forgets, then we start polling
+  // A separate active request keeps CPU allocated to Chrome while printing.
+  const finishPdfMutation = trpc.wowReport.rebuildPdf.useMutation({
+    onSuccess: () => {
+      stopPolling();
+      utils.wowReport.get.invalidate({ clientId });
+      toast.success("WOW Report PDF created successfully.");
+    },
+    onError: (err) => {
+      stopPolling();
+      utils.wowReport.get.invalidate({ clientId });
+      toast.error(`The report text is saved. PDF creation failed: ${err.message}. Use Retry PDF — no new analysis is needed.`);
+    },
+  });
+
+  const finishSavedPdf = (writingStyle = selectedWritingStyle) => {
+    if (finishPdfMutation.isPending) return;
+    pdfAttemptedRef.current = true;
+    stopPolling();
+    finishPdfMutation.mutate({ clientId, writingStyle });
+  };
+
+  // Await authoring, then print the saved source in its own active request.
   const generateMutation = trpc.wowReport.generate.useMutation({
     onSuccess: (result) => {
       if (result.cached) {
         toast.info("Using existing report — click Regenerate to create a fresh one.");
-        setIsPolling(false);
+        stopPolling();
         return;
       }
       if ((result as any).alreadyRunning) {
         toast.info("Report is already being generated — please wait.");
         return;
       }
-      // started = true: kick off polling
-      startPolling();
+      if (result.renderRequired) {
+        finishSavedPdf(result.writingStyle as typeof selectedWritingStyle);
+      }
     },
     onError: (err) => {
       toast.error(`Could not start report generation: ${err.message}`);
-      setIsPolling(false);
+      stopPolling();
+      utils.wowReport.get.invalidate({ clientId });
     },
   });
 
   const startPolling = () => {
+    if (pollIntervalRef.current) return;
     setIsPolling(true);
     setProgressMsg(0);
 
@@ -261,6 +286,9 @@ export default function WowReportTab({ clientId, clientName }: WowReportTabProps
         stopPolling();
         utils.wowReport.get.invalidate({ clientId });
         toast.success("WOW Report generated successfully!");
+      } else if (fresh.status === "pdf_pending") {
+        stopPolling();
+        utils.wowReport.get.invalidate({ clientId });
       } else if (fresh.status === "error") {
         stopPolling();
         utils.wowReport.get.invalidate({ clientId });
@@ -273,6 +301,8 @@ export default function WowReportTab({ clientId, clientName }: WowReportTabProps
     setIsPolling(false);
     if (pollIntervalRef.current) clearInterval(pollIntervalRef.current);
     if (msgIntervalRef.current) clearInterval(msgIntervalRef.current);
+    pollIntervalRef.current = null;
+    msgIntervalRef.current = null;
   };
 
   // Clean up on unmount
@@ -287,6 +317,14 @@ export default function WowReportTab({ clientId, clientName }: WowReportTabProps
     }
   }, [reportData?.status]);
 
+  // After a page refresh, finish an already-saved source once. Failed printing
+  // remains an explicit retry instead of starting an uncontrolled retry loop.
+  useEffect(() => {
+    if (reportData?.status === "pdf_pending" && !generateMutation.isPending && !pdfAttemptedRef.current) {
+      finishSavedPdf(reportData.writingStyle as typeof selectedWritingStyle);
+    }
+  }, [reportData?.status, generateMutation.isPending]);
+
   // Sync selectedReportType and writingStyle with the stored values when the report loads
   useEffect(() => {
     if (reportData?.reportType && reportData.reportType !== selectedReportType) {
@@ -298,6 +336,8 @@ export default function WowReportTab({ clientId, clientName }: WowReportTabProps
   }, [reportData?.reportType, reportData?.writingStyle]);
 
   const handleGenerate = (forceRegenerate = false, overrideType?: WowReportType, overrideStyle?: "house" | "mark" | "clive-james" | "michael-lewis" | "oliver-sacks" | "william-zinsser") => {
+    pdfAttemptedRef.current = false;
+    startPolling();
     generateMutation.mutate({ clientId, forceRegenerate, reportType: overrideType ?? selectedReportType, writingStyle: overrideStyle ?? selectedWritingStyle });
   };
 
@@ -463,7 +503,7 @@ export default function WowReportTab({ clientId, clientName }: WowReportTabProps
   });
 
   const sections: WowSections | null = reportData?.sections ?? null;
-  const pdfUrl = reportData?.pdfUrl ?? null;
+  const pdfUrl = reportData?.status === "pdf_pending" ? null : reportData?.pdfUrl ?? null;
   const isLocked = !!(reportData as any)?.locked;
   // Report exists if we have JSON sections (even without a PDF URL)
   const reportExists = !!(reportData?.exists);
@@ -507,11 +547,29 @@ export default function WowReportTab({ clientId, clientName }: WowReportTabProps
       })
     : null;
 
-  const isGenerating = isPolling || reportData?.status === "generating";
+  const isGenerating = isPolling || generateMutation.isPending || finishPdfMutation.isPending || reportData?.status === "generating";
   const hasError = reportData?.status === "error";
 
   return (
     <div className="space-y-6">
+      {reportData?.status === "pdf_pending" && (
+        <Card>
+          <CardContent className="pt-6 flex flex-wrap items-center justify-between gap-4">
+            <div>
+              <p className="font-medium">Your report text has been saved.</p>
+              <p className="text-sm text-muted-foreground">
+                {finishPdfMutation.isPending
+                  ? "Creating the formatted PDF. Please keep this tab open while printing finishes."
+                  : "The formatted PDF is still pending. Retry printing without rerunning the analysis."}
+              </p>
+            </div>
+            <Button variant="outline" disabled={finishPdfMutation.isPending || generateMutation.isPending} onClick={() => finishSavedPdf(reportData.writingStyle as typeof selectedWritingStyle)}>
+              {finishPdfMutation.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <RefreshCw className="mr-2 h-4 w-4" />}
+              {finishPdfMutation.isPending ? "Creating PDF…" : "Retry PDF"}
+            </Button>
+          </CardContent>
+        </Card>
+      )}
       {/* Claude JSON preview modal */}
       <ClaudeJsonPreviewModal
         open={claudeJsonPreviewOpen}
@@ -582,19 +640,19 @@ export default function WowReportTab({ clientId, clientName }: WowReportTabProps
                   <Button
                     size="sm"
                     className="bg-[var(--lw-gold)] hover:bg-[var(--lw-gold)]/90 text-[var(--lw-navy)] font-semibold"
-                    onClick={() => handleGenerate(true, undefined, selectedWritingStyle)}
+                    onClick={() => sections ? finishSavedPdf(reportData.writingStyle as typeof selectedWritingStyle) : handleGenerate(true, undefined, selectedWritingStyle)}
                   >
                     <RefreshCw className="w-4 h-4 mr-1" />
-                    Try Again
+                    {sections ? "Retry PDF" : "Try Again"}
                   </Button>
                 </>
               ) : reportExists ? (
                 <>
                   <div className="flex items-center gap-2 text-sm" style={{ color: "var(--lw-gold)" }}>
                     <CheckCircle2 className="w-4 h-4" />
-                    <span>Report ready</span>
+                    <span>{reportData?.status === "pdf_pending" ? "Text saved · PDF pending" : "Report ready"}</span>
                   </div>
-                  {generatedAt && (
+                  {generatedAt && reportData?.status !== "pdf_pending" && (
                     <div className="flex items-center gap-1 text-xs text-white/40">
                       <Clock className="w-3 h-3" />
                       {generatedAt}
@@ -656,7 +714,7 @@ export default function WowReportTab({ clientId, clientName }: WowReportTabProps
                       size="sm"
                       className="bg-[var(--lw-gold)] hover:bg-[var(--lw-gold)]/90 text-[var(--lw-navy)] font-semibold"
                       onClick={handleDownloadPdf}
-                      disabled={rebuildPdfMutation.isPending}
+                      disabled={rebuildPdfMutation.isPending || !pdfUrl}
                       title={pdfStyleMismatch ? `PDF will be rebuilt in ${selectedWritingStyle === "mark" ? "Mark" : "House"} style before download` : "Download PDF"}
                     >
                       {rebuildPdfMutation.isPending ? <Loader2 className="w-4 h-4 mr-1 animate-spin" /> : <Download className="w-4 h-4 mr-1" />}
@@ -666,6 +724,7 @@ export default function WowReportTab({ clientId, clientName }: WowReportTabProps
                       size="sm"
                       className="bg-[var(--lw-gold)] hover:bg-[var(--lw-gold)]/90 text-[var(--lw-navy)] font-semibold text-xs"
                       onClick={() => window.open(`/api/report/html/${clientId}`, '_blank')}
+                      disabled={!pdfUrl}
                       title="Open the preflighted final Lifework report PDF"
                     >
                       <BookOpen className="w-3 h-3 mr-1" />
@@ -675,6 +734,7 @@ export default function WowReportTab({ clientId, clientName }: WowReportTabProps
                       size="sm"
                       className="bg-[var(--lw-gold)] hover:bg-[var(--lw-gold)]/90 text-[var(--lw-navy)] font-semibold text-xs"
                       onClick={() => window.open(`/api/report/pdf/${clientId}`, '_blank')}
+                      disabled={!pdfUrl}
                       title="Download the same preflighted final Lifework report PDF"
                     >
                       <Download className="w-3 h-3 mr-1" />

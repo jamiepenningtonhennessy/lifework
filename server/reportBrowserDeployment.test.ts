@@ -80,11 +80,15 @@ describe("production report browser image contract", () => {
 
   it("uses the same container-safe browser launch flags for the smoke check and final renderer", async () => {
     const check = await readFile(join(process.cwd(), "scripts/check-report-browser.mjs"), "utf8");
-    const renderer = await readFile(join(process.cwd(), "server/masterReportPdf.ts"), "utf8");
-    for (const arg of ["--no-sandbox", "--disable-setuid-sandbox", "--disable-dev-shm-usage", "--disable-gpu", "--single-process", "--no-zygote", "--font-render-hinting=none"]) {
+    const renderer = await readFile(join(process.cwd(), "server/masterReportBrowser.ts"), "utf8");
+    for (const arg of ["--no-sandbox", "--disable-setuid-sandbox", "--disable-dev-shm-usage", "--disable-gpu", "--renderer-process-limit=1", "--no-zygote", "--font-render-hinting=none"]) {
       expect(check).toContain(arg);
       expect(renderer).toContain(arg);
     }
+    expect(check).toContain("pipe: true");
+    expect(renderer).toContain("pipe: true");
+    expect(renderer).not.toContain('"--single-process"');
+    expect(check).toContain("createBrowserContext()");
     expect(check).toContain("page.pdf(");
     expect(check).toContain('"%PDF-"');
     expect(check).toContain("process.exitCode = 1");

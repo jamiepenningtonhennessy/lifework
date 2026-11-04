@@ -2742,10 +2742,10 @@ function originalReportPreflightOptions(
   };
 }
 
-// ─── Background Job ─────────────────────────────────────────────────────────
+// ─── Awaited authoring request ───────────────────────────────────────────────
 // v2: retirement variant prompts active — section titles and content are now variant-aware
 
-async function runGenerationJob(clientId: number, reportType: WowReportType = "standard", writingStyle: WritingStyle = "house"): Promise<void> {
+async function runGenerationJob(clientId: number, reportType: WowReportType = "standard", writingStyle: WritingStyle = "house"): Promise<boolean> {
   try {
     // ── Pre-flight completeness check ────────────────────────────────────────
     // Fetch all required data upfront and block generation if anything is missing.
@@ -2775,7 +2775,7 @@ async function runGenerationJob(clientId: number, reportType: WowReportType = "s
         wowReportStatus: "error",
         wowReportError: errorMsg,
       } as Parameters<typeof upsertAnalysisReport>[0]);
-      return;
+      return false;
     }
     // Mark as generating
     const existing = await getAnalysisReport(clientId);
@@ -2801,44 +2801,22 @@ async function runGenerationJob(clientId: number, reportType: WowReportType = "s
       : writingStyle === "william-zinsser"
       ? await rewriteSectionsForZinsser(houseSections, houseSections.clientName)
       : houseSections;
-    // Render the original client-facing report design. This renderer adds a
-    // matching continuation page before a complete content block would cross
-    // the footer, rather than changing the report's type, hierarchy or prose.
-    console.log(`[WOW Report] Rendering PDF for client ${clientId}`);
-    const pdfBuffer = await renderOriginalFinalReport(clientId, sections);
-    console.log(`[WOW Report] PDF rendered, size: ${pdfBuffer.length} bytes`);
-    const mainPreflight = await preflightReportPdf(
-      pdfBuffer,
-      originalReportPreflightOptions("WOW Report", sections),
-    );
-    console.log(`[WOW Report] Main PDF preflight passed: ${mainPreflight.pageCount} pages, ${mainPreflight.textLength} readable characters`);
-    // Validate the complete, single-design PDF before it can be uploaded or released.
-    // A failed preflight leaves the previous report untouched and records an
-    // actionable error status for the counsellor instead of publishing it.
-    const preflight = await preflightReportPdf(
-      pdfBuffer,
-      originalReportPreflightOptions("WOW Report", sections),
-    );
-    console.log(`[WOW Report] PDF preflight passed: ${preflight.pageCount} pages, ${preflight.textLength} readable characters`);
-
-    // Upload to S3
-    const fileKey = `wow-reports/client-${clientId}-${Date.now()}.pdf`;
-    const { url: pdfUrl } = await storagePut(fileKey, pdfBuffer, "application/pdf");
-    console.log(`[WOW Report] Uploaded to S3: ${pdfUrl}`);
-    // Persist result
+    // Persist the exact authored source before attempting the browser. Printing
+    // happens in a separate awaited request (rebuildPdf), with its own CPU and
+    // time budget. A failed browser start can then be retried without the LLM.
+    // Keep any previously released PDF until the replacement passes preflight.
     const existing2 = await getAnalysisReport(clientId);
     const base2 = existing2 ?? { clientId, generatedAt: new Date() };
     await upsertAnalysisReport({
       ...base2,
       wowReportJson: JSON.stringify(sections),
-      wowReportPdfUrl: pdfUrl,
-      wowReportGeneratedAt: new Date(),
-      wowReportStatus: "done",
+      wowReportStatus: "pdf_pending",
       wowReportError: null,
       wowReportType: reportType,
       wowReportWritingStyle: writingStyle,
     } as Parameters<typeof upsertAnalysisReport>[0]);
-    console.log(`[WOW Report] Done for client ${clientId}`);
+    console.log(`[WOW Report] Source saved; PDF request required for client ${clientId}`);
+    return true;
   } catch (err) {
     const msg = err instanceof Error ? `${err.message}\n${err.stack ?? ""}` : String(err);
     console.error(`[WOW Report] Generation failed for client ${clientId}:`, msg);
@@ -2853,6 +2831,7 @@ async function runGenerationJob(clientId: number, reportType: WowReportType = "s
     } catch (e2) {
       console.error(`[WOW Report] Failed to write error status for client ${clientId}:`, e2);
     }
+    return false;
   }
 }
 
@@ -2865,8 +2844,8 @@ const counselorProcedure = protectedProcedure.use(({ ctx, next }) => {
 });
 export const wowReportRouter = router({
   /**
-   * Kick off WOW Report generation as a background job.
-   * Returns immediately — client should poll wowReport.get for status.
+   * Author and persist the report while the HTTP request remains active.
+   * The caller then prints the saved source in a separate rebuildPdf request.
    */
   generate: counselorProcedure
     .input(z.object({
@@ -2877,6 +2856,9 @@ export const wowReportRouter = router({
     }))
     .mutation(async ({ input }) => {
       const existing = await getAnalysisReport(input.clientId);
+      if (existing?.wowReportStatus === "pdf_pending" && !input.forceRegenerate) {
+        return { started: false, cached: false, renderRequired: true, writingStyle: existing.wowReportWritingStyle ?? "house" };
+      }
       // Return cached if available and not forcing regeneration
       if (existing?.wowReportPdfUrl && !input.forceRegenerate) {
         return { started: false, cached: true };
@@ -2885,9 +2867,14 @@ export const wowReportRouter = router({
       if ((existing as any)?.wowReportStatus === "generating") {
         return { started: false, alreadyRunning: true };
       }
-      // Fire and forget — do NOT await
-      void runGenerationJob(input.clientId, input.reportType as WowReportType, (input.writingStyle ?? "house") as WritingStyle);
-      return { started: true, cached: false };
+      // Request-based hosting stops providing CPU after the response. Never
+      // detach this work or launch Chromium after returning "started".
+      const prepared = await runGenerationJob(input.clientId, input.reportType as WowReportType, (input.writingStyle ?? "house") as WritingStyle);
+      if (!prepared) {
+        const failed = await getAnalysisReport(input.clientId);
+        throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: failed?.wowReportError ?? "Report authoring failed. Please retry." });
+      }
+      return { started: true, cached: false, renderRequired: true, writingStyle: input.writingStyle };
     }),
   /**
    * Get the current WOW Report status for a client.
@@ -2917,7 +2904,7 @@ export const wowReportRouter = router({
     }),
 
   /** Re-render the established final PDF from stored report sections. */
-  rebuildPdf: protectedProcedure
+  rebuildPdf: counselorProcedure
     .input(z.object({
       clientId: z.number(),
       writingStyle: z.enum(["house", "mark", "clive-james", "michael-lewis", "oliver-sacks", "william-zinsser"]).optional().default("house"),

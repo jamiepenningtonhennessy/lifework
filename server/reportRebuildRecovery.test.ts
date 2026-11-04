@@ -33,6 +33,21 @@ beforeEach(() => {
 });
 
 describe("PDF rebuild recovery", () => {
+  it("resumes a saved PDF-pending report without another authoring or browser call", async () => {
+    vi.mocked(getAnalysisReport).mockResolvedValueOnce({ clientId: 9999, wowReportJson: source, wowReportStatus: "pdf_pending", wowReportWritingStyle: "house" } as any);
+    const result = await wowReportRouter.createCaller(ctx).generate({ clientId: 9999, forceRegenerate: false });
+    expect(result).toMatchObject({ started: false, renderRequired: true, writingStyle: "house" });
+    expect(generateMasterReportPdf).not.toHaveBeenCalled();
+    expect(upsertAnalysisReport).not.toHaveBeenCalled();
+  });
+
+  it("does not let an ordinary client rebuild another client's report", async () => {
+    const clientCtx = { ...ctx, user: { ...ctx.user!, role: "user" as const } };
+    await expect(wowReportRouter.createCaller(clientCtx).rebuildPdf({ clientId: 9999 })).rejects.toMatchObject({ code: "FORBIDDEN" });
+    expect(getAnalysisReport).not.toHaveBeenCalled();
+    expect(generateMasterReportPdf).not.toHaveBeenCalled();
+  });
+
   it("marks done and clears the old error only after successful rendering, preflight and upload", async () => {
     const result = await wowReportRouter.createCaller(ctx).rebuildPdf({ clientId: 9999 });
     expect(result.pdfUrl).toBe("https://example.com/synthetic.pdf");

@@ -2357,4 +2357,11 @@
 - [x] Use the installed production Chromium explicitly, avoid redundant cached Chrome downloads, and add a fail-fast browser-to-PDF smoke check during the image build.
 - [x] Verify 32 focused tests, an actual system-browser PDF smoke check, the production build and the established five-error TypeScript baseline. No report typography, source prose or continuation logic was changed.
 - [x] Rebuild Toby’s saved report in the authorised development environment: its 28-page stored PDF passes release preflight, the saved report source fingerprint is unchanged, and successful rebuilds now clear the previous error status only after PDF storage succeeds.
-- [ ] Publish the verified checkpoint to install the dependencies on the live server. Preview checks do not prove that the production image has been deployed; the cloud image build runs its own browser smoke check.
+- [x] Publish the browser-dependency checkpoint: the managed deployment reported success. The later live-only timeout exposed a separate request-lifecycle fault, addressed below; build-time browser success did not validate detached production jobs.
+
+## Live Report Request Lifecycle — 4 November 2026
+- [x] Replace detached report generation with awaited authoring and a saved `pdf_pending` stage; keep PDF rendering in a separate active authenticated request.
+- [x] Automatically finish pending PDFs from the report workspace and provide a PDF-only retry without rerunning analysis; preserve the current master layout and disable stale final-PDF links while a replacement is pending.
+- [x] Reuse one browser with isolated report contexts, reject simultaneous renders within an instance, use pipe transport, and add lifecycle regression tests. Removed the incompatible Chromium single-process flag after a real private-context test exposed a crash.
+- [x] Validate 48 focused tests, the real private-context browser/PDF smoke check, all 19 fictional end-to-end simulation checks, production build and the five-error TypeScript baseline. The original report HTML, font/layout rules and paginator were not changed.
+- [ ] Publish this new checkpoint and confirm an actual live PDF-only retry. Development tests and the previous successful deployment do not establish that the live request-lifecycle timeout is resolved.

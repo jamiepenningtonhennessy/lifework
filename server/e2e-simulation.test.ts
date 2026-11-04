@@ -427,14 +427,18 @@ describe("Lifework End-to-End Pipeline Simulation", () => {
 
   // ── Stage 3: WOW Report generation ────────────────────────────────────────
   describe("Stage 3 — WOW Report generation", () => {
-    it("generate procedure starts without throwing", async () => {
+    it("generate awaits authoring and saves source before a separate PDF request", async () => {
       const caller = appRouter.createCaller(makeAdminCtx());
       const result = await caller.wowReport.generate({
         clientId: SIM_CLIENT_ID,
         forceRegenerate: true,
       });
-      expect(result).toMatchObject({ started: expect.any(Boolean) });
-    }, 30_000);
+      expect(result).toMatchObject({ started: true, renderRequired: true });
+      const saved = await getAnalysisReport(SIM_CLIENT_ID);
+      expect(saved?.wowReportStatus).toBe("pdf_pending");
+      expect(saved?.wowReportJson).toBeTruthy();
+      await caller.wowReport.rebuildPdf({ clientId: SIM_CLIENT_ID });
+    }, 180_000);
 
     it("WOW Report completes within 5 minutes", async () => {
       // Poll the DB until status is 'done' or 'error', max 5 min

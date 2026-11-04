@@ -15,20 +15,24 @@ try {
   browser = await puppeteer.launch({
     executablePath,
     headless: true,
-    timeout: 30_000,
+    pipe: true,
+    timeout: 45_000,
+    protocolTimeout: 60_000,
     args: [
       "--no-sandbox",
       "--disable-setuid-sandbox",
       "--disable-dev-shm-usage",
       "--disable-gpu",
-      "--single-process",
+      "--renderer-process-limit=1",
       "--no-zygote",
       "--font-render-hinting=none",
     ],
   });
-  const page = await browser.newPage();
+  const context = await browser.createBrowserContext();
+  const page = await context.newPage();
   await page.setContent("<!doctype html><html><head><meta charset='utf-8'></head><body><h1>Lifework report browser check</h1><p>Synthetic build verification only.</p></body></html>");
   const pdf = Buffer.from(await page.pdf({ format: "A4", printBackground: true }));
+  await context.close();
   if (pdf.length < 1000 || pdf.subarray(0, 5).toString("ascii") !== "%PDF-") {
     throw new Error("The production browser did not create a usable PDF.");
   }
