@@ -2950,6 +2950,9 @@ export const wowReportRouter = router({
         clientId: input.clientId,
         wowReportPdfUrl: pdfUrl,
         wowReportWritingStyle: writingStyle,
+        wowReportGeneratedAt: new Date(),
+        wowReportStatus: "done",
+        wowReportError: null,
         generatedAt: new Date(),
       });
       return { pdfUrl, writingStyle };

@@ -1,0 +1,13 @@
+# Report browser runtime — 4 November 2026
+
+The live PDF failure was a native Chrome startup failure: exit 127, missing `libglib-2.0.so.0`. Downloading Puppeteer’s Chrome binary did not install its Linux shared libraries. The report template, client data and pagination were not the cause of this particular failure.
+
+The project now has a root Dockerfile based on `node:22-bookworm-slim`. It installs Debian Chromium, CA certificates and Liberation fonts through apt, which also resolves Chromium’s system-library dependencies. Production explicitly uses `/usr/bin/chromium` and skips a redundant cached-browser download. The full frontend/server build is followed by `scripts/check-report-browser.mjs`, which actually launches that executable and prints a synthetic A4 PDF. Any failure exits nonzero and fails the image build before release.
+
+The visual-master renderer now prefers an installed system browser when no explicit override exists; cached Chrome remains a development fallback. Report HTML, font declarations, continuation logic and source prose are unchanged. Successful PDF-only rebuilds mark the report done and clear a previous error only after rendering, page preflight and storage upload succeed. A render, preflight or upload failure does not overwrite the existing report source or PDF URL.
+
+Validation completed in the development environment: the actual system-Chromium smoke check and 32 focused report-runtime, layout, preflight, conclusions, access, delivery and recovery tests passed. TypeScript retains only the five established unrelated script diagnostics. Toby’s existing saved report was rebuilt without regenerating its analysis; its stored source fingerprint was unchanged, its PDF passed release preflight and its status is now done. No client report content is included here.
+
+A local Docker image build is not available in this sandbox. The managed cloud deploy must run the custom Dockerfile and its smoke check. This change requires publishing the new checkpoint; it is not automatically live because it passed in Preview. Confirm the deploy succeeds, then retry a PDF-only rebuild on the live site. Do not change the report layout or switch to a fallback renderer to bypass browser installation failures.
+
+Official reference: [Puppeteer troubleshooting — Linux dependencies and Docker](https://pptr.dev/troubleshooting). The guidance explicitly notes that bundled Chrome for Testing does not include its necessary Linux shared-library dependencies. Managed platform custom Dockerfile guidance also recommends apt Chromium with an explicit `PUPPETEER_EXECUTABLE_PATH` and a full in-image build.

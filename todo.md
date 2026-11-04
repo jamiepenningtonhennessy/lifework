@@ -2351,3 +2351,10 @@
 ## Conclusions Answer De-duplication — October 2026
 - [x] Keep the single final “Tell me about yourself” answer in the yellow conclusion panel; suppress its earlier duplicate from the Future narrative. The export now recognises the answer marker even when the source report fails to supply its requested Markdown heading.
 - [x] Rebuild and visually inspect Jason’s final PDF: the Future section now ends after its two narrative paragraphs, and the sole interview answer appears in the yellow panel on the final conclusions page. Focused tests and production build pass; TypeScript remains at the established five legacy diagnostics only.
+
+## Production Report Browser Dependencies — 4 November 2026
+- [x] Add a supported production Dockerfile that installs Chromium and its Linux shared libraries, including GLib; preserve the current visual-master report and client content.
+- [x] Use the installed production Chromium explicitly, avoid redundant cached Chrome downloads, and add a fail-fast browser-to-PDF smoke check during the image build.
+- [x] Verify 32 focused tests, an actual system-browser PDF smoke check, the production build and the established five-error TypeScript baseline. No report typography, source prose or continuation logic was changed.
+- [x] Rebuild Toby’s saved report in the authorised development environment: its 28-page stored PDF passes release preflight, the saved report source fingerprint is unchanged, and successful rebuilds now clear the previous error status only after PDF storage succeeds.
+- [ ] Publish the verified checkpoint to install the dependencies on the live server. Preview checks do not prove that the production image has been deployed; the cloud image build runs its own browser smoke check.

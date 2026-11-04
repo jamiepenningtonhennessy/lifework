@@ -36,15 +36,17 @@ async function findProjectCacheChrome(): Promise<string | undefined> {
   return undefined;
 }
 
-async function resolveChromiumPath(): Promise<string | undefined> {
+export async function resolveChromiumPath(): Promise<string | undefined> {
   if (process.env.PUPPETEER_EXECUTABLE_PATH) {
     return process.env.PUPPETEER_EXECUTABLE_PATH;
   }
 
-  const projectCacheChrome = await findProjectCacheChrome();
-  if (projectCacheChrome) return projectCacheChrome;
+  // A system installation provides its runtime shared libraries as well as the
+  // executable. A downloaded Chrome cache alone does not guarantee those exist.
+  const systemChrome = SYSTEM_CHROME_CANDIDATES.find((candidate) => existsSync(candidate));
+  if (systemChrome) return systemChrome;
 
-  return SYSTEM_CHROME_CANDIDATES.find((candidate) => existsSync(candidate));
+  return findProjectCacheChrome();
 }
 
 /**
