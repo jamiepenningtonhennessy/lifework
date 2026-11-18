@@ -31,6 +31,9 @@ import { preflightReportPdf } from "../reportPdfPreflight";
 import { buildClaudeExportJson } from "./claudeExport";
 import { renderHtmlReport } from "../html-report";
 import { generateMasterReportPdf } from "../masterReportPdf";
+import { assertReportStructure, reportPrintRequiredPhrases, validateFourConditionsPayload } from "../../shared/reportStructure";
+
+import { reportVariantAnswerTail, VARIANT_AREA_HEADING_RULE } from "../../shared/reportVariantAudience";
 
 import {
   getClientProfileById,
@@ -404,10 +407,12 @@ function getVariantPrompts(type: WowReportType, ctx: string, sys: string): {
   };
 
   const v = variantInstructions[type];
+  // Keep the audience-specific Past/Present/Future; replace only the answer tail.
+  const answerStart = v.conclusions.indexOf("\n\n## Tell Me About Yourself");
   return {
-    careerDirectionsPrompt: v.directions || null,
-    developmentEdgePrompt: v.edge || null,
-    conclusionsPrompt: v.conclusions || null,
+    careerDirectionsPrompt: `${v.directions}\n\n${VARIANT_AREA_HEADING_RULE}`,
+    developmentEdgePrompt: `${v.edge}\n\n${VARIANT_AREA_HEADING_RULE}`,
+    conclusionsPrompt: `${v.conclusions.slice(0, answerStart)}\n\n${reportVariantAnswerTail(type)}`,
   };
 }
 
@@ -703,13 +708,7 @@ Write directly to the client using "you" and "your" throughout. Do NOT include a
       }
       const fpData = await fpResp.json() as { choices: Array<{ message: { content: string } }> };
       const fpRaw = fpData.choices[0]?.message?.content ?? "{}";
-      const fp = JSON.parse(fpRaw) as {
-        places: { heading: string; learning: string; example1: string; example2: string };
-        people: { heading: string; learning: string; example1: string; example2: string };
-        problems: { heading: string; learning: string; example1: string; example2: string };
-        procedures: { heading: string; learning: string; example1: string; example2: string };
-        combination: { synthesis: string; practical_question: string };
-      };
+      const fp = validateFourConditionsPayload(JSON.parse(fpRaw));
       // Assemble the exact markdown format
       const assembledFourPillars = [
         `## PLACES — Where Energy Was High`,
@@ -2735,7 +2734,7 @@ function originalReportPreflightOptions(
   return {
     documentLabel,
     minimumPages: 3,
-    requiredPhrases: [sections.clientFullName ?? sections.clientName ?? "", "Lifework"],
+    requiredPhrases: [sections.clientFullName ?? sections.clientName ?? "", "Lifework", ...reportPrintRequiredPhrases(sections)],
     footerMarkers: ["Pennington Hennessy", "Confidential", "Lifework", "Prepared for"],
     headerMarkers: ["Lifework"],
     headerRequiredFromPage: 1,
@@ -2789,6 +2788,7 @@ async function runGenerationJob(clientId: number, reportType: WowReportType = "s
     console.log(`[WOW Report] runGenerationJob starting for client ${clientId}`);
     const _traceRunId = crypto.randomUUID();
     const houseSections = await generateWowSections(clientId, reportType, "house", _traceRunId);
+    assertReportStructure(houseSections as unknown as Record<string, unknown>);
     // If Mark style is selected, run the post-processing rewrite stage
     const sections = writingStyle === "mark"
       ? await rewriteSectionsForMark(houseSections, houseSections.clientName)
@@ -2801,6 +2801,8 @@ async function runGenerationJob(clientId: number, reportType: WowReportType = "s
       : writingStyle === "william-zinsser"
       ? await rewriteSectionsForZinsser(houseSections, houseSections.clientName)
       : houseSections;
+    // A voice choice or audience variant must never remove a required chapter.
+    assertReportStructure(sections as unknown as Record<string, unknown>);
     // Persist the exact authored source before attempting the browser. Printing
     // happens in a separate awaited request (rebuildPdf), with its own CPU and
     // time budget. A failed browser start can then be retried without the LLM.

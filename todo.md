@@ -2365,3 +2365,16 @@
 - [x] Reuse one browser with isolated report contexts, reject simultaneous renders within an instance, use pipe transport, and add lifecycle regression tests. Removed the incompatible Chromium single-process flag after a real private-context test exposed a crash.
 - [x] Validate 48 focused tests, the real private-context browser/PDF smoke check, all 19 fictional end-to-end simulation checks, production build and the five-error TypeScript baseline. The original report HTML, font/layout rules and paginator were not changed.
 - [ ] Publish this new checkpoint and confirm an actual live PDF-only retry. Development tests and the previous successful deployment do not establish that the live request-lifecycle timeout is resolved.
+
+## Toby — Missing Four Conditions Upgrade — 4 November 2026
+- [x] Prepared, but did not publish, a section-only candidate from saved evidence. It passed original-source preservation and complete new-section PDF preflight as a 30-page draft. No database replacement was made.
+- [x] Superseded by the user’s successful report regeneration. Read-only verification found Toby’s saved report complete, with a stored PDF and nonempty Four Conditions analysis, generated 4 November 2026 at 13:16 UTC. Its actual saved variant is `standard`, although the user described selecting Career Change; no variant change was made by this task.
+- [x] Stopped the candidate-upgrade work and withdrew its uncommitted helper, tests and optional export change. The approved renderer and the user’s successful saved report are untouched. No further upgrade is pending.
+
+## Report Variant Structure and Formatting Alignment — 18 November 2026
+- [x] Compare retirement, first-career/student and return-to-work generation/export with the approved standard report. Four Conditions is already generated for every variant; preserve that shared path. Retain audience-specific guidance; no real client report was regenerated or replaced.
+- [x] Align student/returner final-answer instructions to the standard two-paragraph, three-driver-bullet, under-60-second format; retirement keeps “What are you doing now?”. All variants keep the same chapters, Four Conditions, template, data displays and yellow panel. No CSS, fonts, browser lifecycle or paginator changes.
+- [x] Remove obsolete word/paragraph caps in Development Edge and Career Directions export. Complete source text now flows onto measured, matching continuation pages instead of being silently shortened.
+- [x] Add runtime checks for all nine narrative fields, all Four Conditions JSON fields and Conclusion subsections before replacement source is saved; printed chapter checks supplement the existing footer/header preflight.
+- [x] Verify 135 focused report/browser/access/workflow regressions and 8 real all-variant export/PDF checks, using fictional variant data. Confirm identical CSS and embedded Cormorant Garamond, Source Serif 4 and Libre Franklin; inspect covers, retirement answer and a returner continuation. Build passes and only the five established legacy TypeScript diagnostics remain.
+- [ ] Publish the new checkpoint to apply this on the live site. Existing saved PDFs are not automatically replaced: rebuild a PDF for layout-only updates, or regenerate the selected variant if an older source lacks current chapters such as Four Conditions.

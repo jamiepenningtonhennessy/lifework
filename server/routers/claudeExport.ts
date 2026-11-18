@@ -25,6 +25,7 @@ import {
   getAnalysisReport,
 } from "../db.js";
 import { withoutInterviewAnswerInFuture } from "../../shared/reportConclusions";
+import { reportPresentation } from "../../shared/reportStructure";
 
 // ─── Facet name map (matches wowReport.ts) ───────────────────────────────────
 
@@ -955,15 +956,11 @@ export async function buildClaudeExportJson(
   // CH6 — Development Edge (in the WOW report this is "Development Edge")
   const ch6AllSections = extractAllSections(sections.developmentEdge ?? "");
   const ch6AllParas = splitParagraphs(sections.developmentEdge ?? "");
-  // Enforce: exactly 3 areas, each capped at 2 paragraphs — single page, no overflow
-  const CH6_MAX_SECTIONS = 3;
-  const CH6_MAX_PARAS_PER_SECTION = 2;
-  const CH6_MAX_WORDS_PER_PARA = 50;
-  const ch6Sections = ch6AllSections.length > 0
-    ? ch6AllSections.slice(0, CH6_MAX_SECTIONS).map(s => ({ heading: s.heading, paragraphs: s.paragraphs.slice(0, CH6_MAX_PARAS_PER_SECTION).map(p => trimToWords(p, CH6_MAX_WORDS_PER_PARA)) }))
-    : [];
-  const ch6OverflowSections: typeof ch6Sections = []; // overflow disabled
-  const ch6FallbackPage1 = ch6AllParas.slice(0, CH6_MAX_SECTIONS * CH6_MAX_PARAS_PER_SECTION);
+  // All audiences use the same master paginator. Keep complete paragraphs;
+  // matching continuation pages, not word caps, provide any extra space.
+  const ch6Sections = ch6AllSections;
+  const ch6OverflowSections: typeof ch6Sections = []; // browser decides actual page breaks
+  const ch6FallbackPage1 = ch6AllParas;
   const ch6FallbackOverflow: string[] = [];
   const ch6HasOverflow = false;
   const ch6Pullquote = extractPullquote(sections.developmentEdge ?? "");
@@ -1060,39 +1057,24 @@ export async function buildClaudeExportJson(
   })();
 
   // CH8 — Career Directions
-  // CH8 — enforce exactly 3 directions × 2 paragraphs each, each paragraph ≤ 60 words.
-  // Single page, no overflow.
+  // Preserve every direction and paragraph; use the same measured continuation
+  // rules as the standard report rather than silently trimming variant advice.
   const ch8AllSections = extractAllSections(sections.careerDirections ?? "");
   const ch8Closing = extractPullquote(sections.careerDirections ?? "");
-  const CH8_MAX_SECTIONS = 3;
-  const CH8_MAX_PARAS_PER_SECTION = 2;
-  const CH8_MAX_WORDS_PER_PARA = 60;
-  const ch8Sections = ch8AllSections.length > 0
-    ? ch8AllSections.slice(0, CH8_MAX_SECTIONS).map(s => ({
-        heading: s.heading,
-        paragraphs: s.paragraphs.slice(0, CH8_MAX_PARAS_PER_SECTION).map(p => trimToWords(p, CH8_MAX_WORDS_PER_PARA)),
-      }))
-    : [];
-  const ch8OverflowSections: typeof ch8Sections = []; // overflow disabled
+  const ch8Sections = ch8AllSections;
+  const ch8OverflowSections: typeof ch8Sections = []; // browser decides actual page breaks
   const ch8AllParas = ch8AllSections.length === 0 ? splitParagraphs(sections.careerDirections ?? "") : [];
-  const ch8FallbackPage1 = ch8AllParas
-    .slice(0, CH8_MAX_SECTIONS * CH8_MAX_PARAS_PER_SECTION)
-    .map(p => trimToWords(p, CH8_MAX_WORDS_PER_PARA));
+  const ch8FallbackPage1 = ch8AllParas;
   const ch8FallbackOverflow: string[] = [];
   const ch8HasOverflow = false;
 
   // ── Report metadata ───────────────────────────────────────────────────────
 
   const reportType = (sections.reportType ?? "standard") as string;
-  const editionLabel = {
-    standard:       "Career Analysis · Standard Edition",
-    student:        "Career Analysis · First Career Edition",
-    career_changer: "Career Analysis · Career Change Edition",
-    job_returner:   "Career Analysis · Return to Work Edition",
-    retirement:     "Career Analysis · Retirement & Legacy Edition",
-  }[reportType] ?? "Career Analysis · Standard Edition";
+  const presentation = reportPresentation(reportType);
+  const editionLabel = presentation.editionLabel;
 
-  // ── Assemble final payload ────────────────────────────────────────────────
+// ── Assemble final payload ────────────────────────────────────────────────
 
   const payload: Record<string, unknown> = {
     BRAND: {
@@ -1105,6 +1087,7 @@ export async function buildClaudeExportJson(
     REPORT: {
       DATE: sections.generatedAt ?? new Date().toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" }),
       EDITION_LABEL: editionLabel,
+      REPORT_TYPE: reportType,
       COVER_TITLE_LINE1: "A portrait of",
       COVER_TITLE_LINE2: "who you are.",
       ANALYST: "Jamie Pennington",
@@ -1113,7 +1096,7 @@ export async function buildClaudeExportJson(
       PARAGRAPHS: [
         "It’s me — Jamie — the creator of the Lifework process — writing this cover note, not the very clever AI Alistair — the Analyst.",
         "You\u2019ve put a lot of work into giving me the information necessary to do what we set out to achieve \u2014 to understand yourself, and what makes you, <em>you</em>. So your report is a big read.",
-        "If you\u2019re naturally impatient, it\u2019s OK to start with <strong>Chapter 7 \u2014 Conclusions</strong>. It\u2019s here we summarise what we believe to be true, and give you a suggested reply to that dreaded interview question \u201cSo, tell me about yourself\u201d.",
+        presentation.coverConclusionsNote,
         "One really important thing. Your report is the basis for reflecting, thinking and discussing. It’s built on the information you told us and the psychometric instruments that you engaged with. It’s therefore OK to disagree with anything we’ve written. Alistair may be able to help you unpack why we believe it to be true, but you remain the expert on you.",
       ],
       SIGN_OFF: "With warmth,",
@@ -1240,6 +1223,7 @@ export async function buildClaudeExportJson(
       PULLQUOTE: ch6Pullquote,
     },
     CH7: {
+      ANSWER_CAPTION: presentation.answerCaption,
       PAST:    ch7Past.length > 0 ? ch7Past : splitParagraphs(sections.coachingQuestions ?? "").slice(0, 2),
       PRESENT: ch7Present.length > 0 ? ch7Present : splitParagraphs(sections.coachingQuestions ?? "").slice(2, 4),
       PRESENT_PULLQUOTE: ch7PresentPullquote,

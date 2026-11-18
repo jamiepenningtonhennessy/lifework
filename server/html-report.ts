@@ -23,6 +23,7 @@ import {
   canAccessFinalReport,
   streamAuthorisedFinalReport,
 } from "./finalReportDelivery.js";
+import { reportPresentation } from "../shared/reportStructure";
 
 // ─── CDN constants ────────────────────────────────────────────────────────────
 
@@ -557,7 +558,12 @@ ol.rank li .sc,table.evidence td.fq{font-family:var(--sans);}
 
 // ─── Public render helper ─────────────────────────────────────────────────────
 export function renderHtmlReport(payload: Record<string, unknown>): string {
-  return renderTemplate(TEMPLATE, payload);
+  const report = payload.REPORT as { REPORT_TYPE?: string } | undefined;
+  const conclusions = payload.CH7 as Record<string, unknown> | undefined;
+  return renderTemplate(TEMPLATE, {
+    ...payload,
+    CH7: { ANSWER_CAPTION: reportPresentation(report?.REPORT_TYPE).answerCaption, ...conclusions },
+  });
 }
 
 /** A counsellor may view any report; a client may view only their own report. */
@@ -858,7 +864,7 @@ const TEMPLATE = `<!doctype html>
     <h3 class="section-h">Future</h3>
     {{#EACH CH7.FUTURE}}<p>{{.}}</p>{{/EACH}}
     <div class="tmay">
-      <div class="tk">Tell me about yourself · a suggested answer</div>
+      <div class="tk">{{CH7.ANSWER_CAPTION}}</div>
       <div class="ti">I am fundamentally driven by:</div>
       <ul class="drives">{{#EACH CH7.DRIVES}}<li>{{.}}</li>{{/EACH}}</ul>
       {{#EACH CH7.TMAY_PARAS}}<p>{{.}}</p>{{/EACH}}
