@@ -2378,3 +2378,14 @@
 - [x] Add runtime checks for all nine narrative fields, all Four Conditions JSON fields and Conclusion subsections before replacement source is saved; printed chapter checks supplement the existing footer/header preflight.
 - [x] Verify 135 focused report/browser/access/workflow regressions and 8 real all-variant export/PDF checks, using fictional variant data. Confirm identical CSS and embedded Cormorant Garamond, Source Serif 4 and Libre Franklin; inspect covers, retirement answer and a returner continuation. Build passes and only the five established legacy TypeScript diagnostics remain.
 - [ ] Publish the new checkpoint to apply this on the live site. Existing saved PDFs are not automatically replaced: rebuild a PDF for layout-only updates, or regenerate the selected variant if an older source lacks current chapters such as Four Conditions.
+
+## Report Heading-and-Paragraph Cohesion — 23 November 2026
+- [x] Confirm the two reported isolated headings on printed page labels 12 and 15. The previous paginator moved following paragraphs independently of their headings.
+- [x] Group each heading/label chain and its first substantive block as one measured pagination unit without wrappers, preserving the approved template, fonts, spacing and prose. Add a deterministic cohesion check and reject oversized units before PDF capture instead of clipping or creating blank pages.
+- [x] Verify 8 new fictional real-Chromium heading-cohesion regressions (all fail on the old paginator), 9 existing real master/all-variant PDF checks and 128 release/access/export/source-preservation regressions. Production build passes; TypeScript retains exactly the five established unrelated script diagnostics.
+- [x] Verify a private layout-only corrected copy: both reported headings now share a page with their first paragraphs; the report remains 39 pages, body text and saved-source fingerprint are unchanged, and release preflight passes. Preserve the existing conclusion pull quote by a private provider stub: zero model calls, zero database writes and the website's stored PDF remains unchanged.
+- [ ] Publish the heading-cohesion checkpoint to apply the shared print-engine change on the live site. Already-stored PDFs are not automatically replaced; the separately supplied corrected copy can be printed now.
+
+## Capture Interruption Investigation — 23 November 2026 (Deferred)
+- [x] Perform authorised metadata-only progress/session checks and independent read-only frontend/backend persistence reviews. Identify confirmed restore/autosave vulnerabilities while distinguishing them from unconfirmed incident causes.
+- [ ] Resume incident attribution after the user supplies the affected screen and approximate interruption time. Do not reset client progress, replace answers or treat the earlier unrelated Sage incident as the cause.

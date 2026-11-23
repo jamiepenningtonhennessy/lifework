@@ -5,9 +5,10 @@ import { withMasterReportBrowser } from "./masterReportBrowser";
 
 /**
  * Renders the established Quiet Authority HTML report design to PDF. Before
- * printing, it moves complete direct content blocks to matching continuation
- * pages whenever they would meet the footer. The normal report template remains
- * unchanged; continuation pages appear only where a page genuinely needs one.
+ * printing, it moves complete content units to matching continuation pages
+ * whenever they would meet the footer. Headings stay with their first content
+ * block. The normal report template remains unchanged; continuation pages
+ * appear only where a page genuinely needs one.
  */
 
 const SYSTEM_CHROME_CANDIDATES = [
@@ -61,6 +62,32 @@ const MASTER_PAGINATOR_SCRIPT = String.raw`
 
   const getDirectChild = (parent, selector) =>
     Array.from(parent.children).find((child) => child.matches(selector)) || null;
+
+  // Keep the original sibling DOM and CSS: wrappers would change margin
+  // collapsing and the approved master's first-child/grid styling. A unit is
+  // a chain of headings/labels/rules followed by its first substantive block.
+  const keepsWithNext = (block) =>
+    block.matches("h1,h2,h3,h4,h5,h6,[role='heading'],[data-keep-with-next],.section-h,.subhead,.stage,.eyebrow,.hr-gold") ||
+    (!block.textContent.trim() && !block.querySelector("img,svg,canvas,table,ol,ul,video"));
+
+  const contentUnits = (blocks) => {
+    const units = [];
+    let pending = [];
+    for (const block of blocks) {
+      pending.push(block);
+      if (!keepsWithNext(block)) {
+        units.push(pending);
+        pending = [];
+      }
+    }
+    if (pending.length) units.push(pending);
+    return units;
+  };
+
+  const unitFits = (unit, footer) => {
+    const safeBottom = footer.getBoundingClientRect().top - 22;
+    return unit.every((block) => block.getBoundingClientRect().bottom <= safeBottom);
+  };
 
   const nextContinuationLabel = (sourceLabel, count) => {
     const trimmed = sourceLabel.trim();
@@ -128,28 +155,31 @@ const MASTER_PAGINATOR_SCRIPT = String.raw`
     // layouts. Every standard page with a .main area can gain a continuation.
     if (!sourceBody || !sourceMain || !sourceFooter) continue;
 
-    const blocks = Array.from(sourceMain.children);
+    const units = contentUnits(Array.from(sourceMain.children));
     let currentPage = sourcePage;
     let currentMain = sourceMain;
     let currentFooter = sourceFooter;
 
-    for (const block of blocks) {
+    for (const unit of units) {
       // Once a continuation exists, every following sibling must join it before
       // its fit is measured. This preserves content order and permits a second
       // continuation if the continuation itself fills up.
-      if (block.parentElement !== currentMain) currentMain.append(block);
+      for (const block of unit) {
+        if (block.parentElement !== currentMain) currentMain.append(block);
+      }
+      if (unitFits(unit, currentFooter)) continue;
 
-      const footerTop = currentFooter.getBoundingClientRect().top;
-      const blockBottom = block.getBoundingClientRect().bottom;
-      const safeBottom = footerTop - 22;
-      if (blockBottom <= safeBottom) continue;
+      // Do not create an empty continuation or detach a heading merely to fit an
+      // oversized paragraph/table. Reject the render rather than release a PDF
+      // with clipped content. The message contains no client/report prose.
+      if (currentMain.firstElementChild === unit[0]) {
+        throw new Error("Lifework report has a heading/content unit taller than the usable page area.");
+      }
 
       const continuation = createContinuation(sourcePage, currentPage);
-      // A single indivisible item taller than an empty page is deliberately left
-      // in place: the PDF preflight will reject it rather than silently dropping
-      // or splitting client content.
-      if (!continuation || currentMain.children.length === 1) continue;
-
+      if (!continuation) {
+        throw new Error("Lifework report could not create a matching continuation page.");
+      }
       const continuationBody = getDirectChild(continuation, ".body");
       const continuationMain = continuationBody
         ? getDirectChild(continuationBody, ".main")
@@ -157,13 +187,24 @@ const MASTER_PAGINATOR_SCRIPT = String.raw`
       const continuationFooter = getDirectChild(continuation, ".foot");
       if (!continuationMain || !continuationFooter) {
         continuation.remove();
-        continue;
+        throw new Error("Lifework report continuation page is missing its content area or footer.");
       }
 
-      continuationMain.append(block);
+      continuationMain.append(...unit);
       currentPage = continuation;
       currentMain = continuationMain;
       currentFooter = continuationFooter;
+      if (!unitFits(unit, currentFooter)) {
+        throw new Error("Lifework report has a heading/content unit taller than the usable page area.");
+      }
+    }
+
+    // A deterministic keep-with-next gate before PDF capture supplements the
+    // PDF text/header/footer preflight. No unit may span separate .main areas.
+    for (const unit of units) {
+      if (unit.some((block) => block.parentElement !== unit[0].parentElement)) {
+        throw new Error("Lifework report separated a heading from its following content.");
+      }
     }
   }
 })();
