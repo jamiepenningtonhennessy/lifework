@@ -23,7 +23,7 @@ import {
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { ChatToPeter } from "@/components/ChatToPeter";
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 
 const SAGE_STAGE_VIDEO_URL = "/manus-storage/lifework_stage3_sage_conversation_explainer_9ae1669b.mp4";
 
@@ -46,7 +46,7 @@ const STEPS = [
     icon: <Users className="w-5 h-5" />,
     title: "2. Background & History",
     description:
-      "Capture your family background, education, and career timeline.",
+      "Complete and save all six Family Background answers before the questionnaires. Career History and your CV are optional.",
     path: "/background",
     statusKey: "backgroundStatus",
     cta: "Add Background",
@@ -57,7 +57,7 @@ const STEPS = [
     icon: <Sparkles className="w-5 h-5" />,
     title: "3. Sage — Exploring your Life History",
     description:
-      "Sage will read what you have written and add depth by asking reflective questions. Once you have recorded at least 20 life-history events and saved your Sage conversation, the psychometric assessments become available.",
+      "Sage will read what you have written and add depth by asking reflective questions. Save all six Family Background answers, record at least 20 life-history events and save your Sage conversation to unlock the psychometric assessments.",
     path: null,
     statusKey: "sageStatus",
     cta: null,
@@ -170,6 +170,7 @@ function SageGatePanel({
   sageConversationCompleted,
   hasMinimumEvents,
   remainingEvents,
+  familyBackgroundCompleted,
 }: {
   enriched: number;
   required: number;
@@ -178,6 +179,7 @@ function SageGatePanel({
   sageConversationCompleted: boolean;
   hasMinimumEvents: boolean;
   remainingEvents: number;
+  familyBackgroundCompleted: boolean;
 }) {
   if (unlocked) {
     return (
@@ -191,7 +193,7 @@ function SageGatePanel({
         <CheckCircle2 className="w-5 h-5 flex-shrink-0 text-green-500" />
         <div>
           <p className="text-sm font-semibold text-green-700">
-            Sage stage complete — ready for Psychometrics
+            {familyBackgroundCompleted ? "Sage stage complete — ready for Psychometrics" : "Sage stage complete — Family Background still required"}
           </p>
           <p className="text-xs text-green-600 mt-0.5">
             Your saved Sage conversation and {total} life-history events meet the requirement. Sage has added supplementary detail to {enriched} event{enriched === 1 ? "" : "s"}; you may continue chatting at any time.
@@ -278,6 +280,8 @@ export function DashboardBody({
     sageConversationCompleted: boolean;
     hasMinimumEvents: boolean;
     remainingEvents: number;
+    familyBackgroundCompleted?: boolean;
+    blocker?: string | null;
   } | undefined;
   loadingProfile: boolean;
   displayName?: string;
@@ -294,6 +298,11 @@ export function DashboardBody({
 
   const getStatus = (statusKey: string | null, stepId?: string): string => {
     if (!profile || !statusKey) return "not_started";
+    if (stepId === "background" || statusKey === "backgroundStatus") {
+      // A combined historical flag may reflect only a CV or career entry.
+      if (enrichmentStatus?.familyBackgroundCompleted === true) return "completed";
+      return profile.backgroundStatus && profile.backgroundStatus !== "not_started" ? "in_progress" : "not_started";
+    }
     if (stepId === "psychometrics") {
       const via = (profile as any).viaStatus ?? "not_started";
       const ipip = (profile as any).ipipStatus ?? "not_started";
@@ -305,7 +314,9 @@ export function DashboardBody({
   };
 
   // Sage is "completed" when the gate is met
-  const sageUnlocked = enrichmentStatus?.unlocked ?? false;
+  const sageUnlocked = !!(enrichmentStatus?.hasMinimumEvents && enrichmentStatus?.sageConversationCompleted);
+  const familyBackgroundCompleted = enrichmentStatus?.familyBackgroundCompleted === true;
+  const psychometricsUnlocked = !!enrichmentStatus?.unlocked && familyBackgroundCompleted;
   const sageEnriched = enrichmentStatus?.enriched ?? 0;
   const sageRequired = enrichmentStatus?.requiredEvents ?? 20;
   const sageTotal = enrichmentStatus?.total ?? 0;
@@ -401,7 +412,7 @@ export function DashboardBody({
                 <p>
                   You will then have a conversation with <strong className="text-foreground">Sage</strong>, our AI career coach,
                   who will have read everything you have written. Sage's role is to explore and draw out the depth and detail
-                  that lies beneath the surface of your story. <strong className="text-foreground">Record at least 20 life-history events, then save your Sage conversation</strong> before the psychometric assessments become available — this conversation is the heart of the process.
+                  that lies beneath the surface of your story. <strong className="text-foreground">Save all six Family Background answers, record at least 20 life-history events, then save your Sage conversation</strong> before the psychometric assessments become available — this conversation is the heart of the process.
                 </p>
                 <p>
                   Once Sage has explored enough of your story, you will complete two short psychometric assessments: the{" "}
@@ -472,7 +483,7 @@ export function DashboardBody({
                     // who completed surveys before the Sage gate was introduced).
                     const viaAlreadyDone = (profile as any)?.viaStatus === "completed";
                     const ipipAlreadyDone = (profile as any)?.ipipStatus === "completed";
-                    isLocked = !sageUnlocked && !(viaAlreadyDone && ipipAlreadyDone);
+                    isLocked = !psychometricsUnlocked && !(viaAlreadyDone && ipipAlreadyDone);
                   } else if (isSage) {
                     // Sage is locked until at least one of interview/background has been started
                     isLocked = !sagePrereqMet;
@@ -564,6 +575,14 @@ export function DashboardBody({
                             {step.description}
                           </p>
 
+                          {step.id === "background" && (
+                            <p className="text-xs mt-2" style={{ color: "var(--muted-foreground)" }}>
+                              {familyBackgroundCompleted
+                                ? "Family Background complete — all six answers are saved."
+                                : "Family Background is not yet confirmed complete. ‘Not known’, ‘Not applicable’, and ‘Prefer not to say’ are valid answers."}
+                            </p>
+                          )}
+
                           {/* ── Sage stage: gate panel + chat ── */}
                           {isSage && !isLocked && (
                             <div className="mt-2 space-y-4">
@@ -592,6 +611,7 @@ export function DashboardBody({
                                 sageConversationCompleted={sageConversationCompleted}
                                 hasMinimumEvents={sageHasMinimumEvents}
                                 remainingEvents={sageRemainingEvents}
+                                familyBackgroundCompleted={familyBackgroundCompleted}
                               />
                               {/* Chat button */}
                               <ChatToPeter
@@ -625,13 +645,21 @@ export function DashboardBody({
                               <Lock className="w-4 h-4 flex-shrink-0 mt-0.5" style={{ color: "var(--lw-gold)" }} />
                               <div>
                                 <p className="text-sm font-semibold mb-1" style={{ color: "var(--lw-navy)" }}>
-                                  Complete your Sage conversation first
+                                  {!familyBackgroundCompleted ? "Complete your Family Background first" : "Complete your Sage conversation first"}
                                 </p>
                                 <p className="text-xs leading-relaxed" style={{ color: "rgba(0,0,0,0.55)" }}>
-                                  {sageHasMinimumEvents
+                                  {!familyBackgroundCompleted
+                                    ? "Complete and save all six Family Background answers before starting the questionnaires. Career History is optional."
+                                    : sageHasMinimumEvents
                                     ? "Please complete and save your Sage conversation before the psychometric assessments become available."
                                     : <>Add at least <strong>{sageRequired} life-history events</strong> before the psychometric assessments become available. You have recorded <strong>{sageTotal}</strong> so far — <strong>{sageRemainingEvents} more</strong> to go.</>}
                                 </p>
+                                {!familyBackgroundCompleted && (
+                                  <a href="/background" className="mt-2 inline-block text-xs underline" onClick={(event) => {
+                                    event.preventDefault();
+                                    if (!isPreview || allowPreviewNavigation) onNavigate("/background");
+                                  }}>Complete Family Background</a>
+                                )}
                                 <div className="mt-2">
                                   <div className="flex items-center justify-between mb-1">
                                     <span className="text-xs" style={{ color: "rgba(0,0,0,0.45)" }}>Life-history progress</span>

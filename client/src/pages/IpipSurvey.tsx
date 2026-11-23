@@ -6,7 +6,7 @@ import { Progress } from "@/components/ui/progress";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { ChevronLeft, ChevronRight, CheckCircle2, Brain } from "lucide-react";
+import { ChevronLeft, ChevronRight, CheckCircle2, Brain, Loader2 } from "lucide-react";
 import {
   IPIP_QUESTIONS,
   IPIP_DOMAINS,
@@ -46,8 +46,8 @@ export default function IpipSurvey() {
   const [answers, setAnswers] = useState<Record<number, number>>({});
   const [submitting, setSubmitting] = useState(false);
 
-  const { data: enrichmentStatus, isLoading: loadingEnrichment } = trpc.profile.getEnrichmentStatus.useQuery();
-  const { data: existingIpipResults } = trpc.ipip.getMyResults.useQuery();
+  const { data: enrichmentStatus, isLoading: loadingEnrichment, isError: enrichmentError, refetch: retryEnrichment } = trpc.profile.getEnrichmentStatus.useQuery();
+  const { data: existingIpipResults, isLoading: loadingResults, isError: resultsError, refetch: retryResults } = trpc.ipip.getMyResults.useQuery();
 
   const submitMutation = trpc.ipip.submit.useMutation({
     onSuccess: () => {
@@ -112,7 +112,23 @@ export default function IpipSurvey() {
 
   const isLastPage = domainIndex === 4;
 
-  // Gate: show locked screen if Sage has not explored enough events
+  if (!existingIpipResults && (loadingEnrichment || loadingResults)) {
+    return <div className="min-h-screen flex items-center justify-center bg-background">
+      <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" aria-label="Checking questionnaire requirements" />
+    </div>;
+  }
+
+  if (!existingIpipResults && (enrichmentError || resultsError || !enrichmentStatus)) {
+    return <div className="min-h-screen flex items-center justify-center bg-background px-4">
+      <div className="max-w-md text-center space-y-4">
+        <p role="alert">Could not verify your saved Family Background and questionnaire requirements. Please retry before starting the Personality Profile.</p>
+        <Button onClick={() => { void retryEnrichment(); void retryResults(); }}>Retry requirements</Button>
+        <Button variant="outline" onClick={() => setLocation("/background")}>Return to Family Background</Button>
+      </div>
+    </div>;
+  }
+
+  // Completed results remain accessible even if a new prerequisite is missing.
   if (!loadingEnrichment && enrichmentStatus && !enrichmentStatus.unlocked && !existingIpipResults) {
     return (
       <div
@@ -133,7 +149,9 @@ export default function IpipSurvey() {
               Psychometrics not yet unlocked
             </h1>
             <p className="text-sm leading-relaxed" style={{ color: "rgba(0,0,0,0.6)" }}>
-              {enrichmentStatus.blocker === "events"
+              {enrichmentStatus.blocker === "family_background"
+                ? <>Complete and save all six Family Background answers before starting the Personality Profile. “Not known”, “Not applicable”, and “Prefer not to say” are valid answers. Career History is optional.</>
+                : enrichmentStatus.blocker === "events"
                 ? <>You need at least <strong>{enrichmentStatus.requiredEvents} life-history events</strong> before starting the Personality Profile. You have recorded <strong>{enrichmentStatus.total}</strong> so far.</>
                 : <>Please return to your dashboard and complete and save your conversation with Sage before starting the Personality Profile.</>}
             </p>
@@ -148,11 +166,11 @@ export default function IpipSurvey() {
             />
           </div>
           <button
-            onClick={() => setLocation("/dashboard")}
+            onClick={() => setLocation(enrichmentStatus.blocker === "family_background" ? "/background" : "/dashboard")}
             className="px-6 py-2.5 text-sm font-medium"
             style={{ background: "var(--lw-gold)", color: "white" }}
           >
-            Return to Dashboard
+            {enrichmentStatus.blocker === "family_background" ? "Complete Family Background" : "Return to Dashboard"}
           </button>
         </div>
       </div>

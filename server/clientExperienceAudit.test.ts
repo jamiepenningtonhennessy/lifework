@@ -68,6 +68,14 @@ describe("counsellor client-experience audit", () => {
     expect(auditSource).not.toContain("viaexplainer_scottish_male_voiceover");
   });
 
+  it("explains the compulsory family requirement without making career data mandatory", () => {
+    expect(auditSource).toContain("familyBackgroundCompleted: false");
+    expect(auditSource).toContain("Complete your family background");
+    expect(auditSource).toContain("All six family-background responses must be saved before starting new questionnaires");
+    expect(auditSource).toContain("Prefer not to say");
+    expect(auditSource).toContain("at least 20 life-history events, a completed and saved Sage conversation, and all six saved family-background responses");
+  });
+
   it("keeps the real client dashboard and ordinary client previews read-only while audit navigation remains route-local", () => {
     expect(dashboardSource).toContain("allowPreviewNavigation = false");
     expect(dashboardSource).toContain("disabled={isPreview && !allowPreviewNavigation}");

@@ -68,12 +68,9 @@ function stripMd(text: string): string {
 
 function resolvePath(data: Record<string, unknown>, path: string): unknown {
   const trimmed = path.trim();
-  if (trimmed.startsWith(".")) {
-    const key = trimmed.slice(1);
-    if (key === "") return data;
-    return (data as Record<string, unknown>)[key] ?? "";
-  }
-  const parts = trimmed.split(".");
+  const relativePath = trimmed.startsWith(".") ? trimmed.slice(1) : trimmed;
+  if (relativePath === "") return data;
+  const parts = relativePath.split(".");
   let cur: unknown = data;
   for (const p of parts) {
     if (cur == null || typeof cur !== "object") return "";
@@ -180,7 +177,7 @@ export function renderTemplate(template: string, data: Record<string, unknown>):
             rendered = rendered.replace(/\{\{\.([^}]*)\}\}/g, (_m, field: string) => {
               const f = field.trim();
               if (f === "") return item != null ? stripMd(String(item)) : "";
-              const v = (itemCtx as Record<string, unknown>)[f];
+              const v = resolvePath(itemCtx, f);
               if (v == null) return "";
               if (Array.isArray(v)) return v.join(", ");
               const noStrip = ["cssClass", "esfClass", "salienceClass"].includes(f);

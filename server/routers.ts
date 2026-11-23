@@ -84,6 +84,7 @@ import { getViaQuestionsForClient, scoreVia, VIA_STRENGTHS } from "../shared/via
 import { scoreIpip, ipipCareerNarrative } from "../shared/ipip-data";
 import { canEnterCounsellorWorkspace } from "../shared/counsellorAccess";
 import { getPsychometricsGate } from "../shared/lifeworkProgress";
+import { FAMILY_REQUIRED_FIELDS, FAMILY_FIELD_LABELS, getFamilyBackgroundCompletion, type FamilyBackgroundData } from "../shared/familyBackground";
 import { normaliseSageResponseText, parseStoredSageMessages } from "../shared/sageConversation";
 
 // ─── Helper: require counselor/admin role ────────────────────────────────────
@@ -175,7 +176,20 @@ const marketingRouter = router({
 // ─── Client Profile Router ───────────────────────────────────────────────────
 const profileRouter = router({
   getMyProfile: protectedProcedure.query(async ({ ctx }) => {
-    return getOrCreateClientProfile(ctx.user.id);
+    const profile = await getOrCreateClientProfile(ctx.user.id);
+    const family = await getFamilyBackground(profile.id);
+    const completion = getFamilyBackgroundCompletion(family);
+    // Recognise complete legacy records without rewriting persisted statuses.
+    // A historical career-only completed flag is not proof of family completion.
+    const backgroundStatus = completion.complete ? "completed" as const
+      : family || profile.backgroundStatus !== "not_started" ? "in_progress" as const
+      : "not_started" as const;
+    return {
+      ...profile,
+      backgroundStatus,
+      familyBackgroundCompleted: completion.complete,
+      familyBackgroundMissingFields: completion.missingFields,
+    };
   }),
 
   updateProfile: protectedProcedure
@@ -200,8 +214,9 @@ const profileRouter = router({
   getEnrichmentStatus: protectedProcedure.query(async ({ ctx }) => {
     const profile = await getOrCreateClientProfile(ctx.user.id);
     const { total, enriched } = await getEnrichmentCounts(profile.id);
-    const gate = getPsychometricsGate(total, profile.sageStatus);
-    return { total, enriched, ...gate };
+    const family = await getFamilyBackground(profile.id);
+    const gate = getPsychometricsGate(total, profile.sageStatus, family);
+    return { total, enriched, ...gate, familyBackgroundMissingFields: getFamilyBackgroundCompletion(family).missingFields };
   }),
 
   /**
@@ -571,16 +586,43 @@ const backgroundRouter = router({
         upbringingLocation: z.string().optional(),
         familyNarrative: z.string().optional(),
         significantInfluences: z.string().optional(),
+        complete: z.boolean().optional().default(false),
       })
     )
     .mutation(async ({ ctx, input }) => {
-      const profile = await getOrCreateClientProfile(ctx.user.id);
-      await upsertFamilyBackground({ ...input, clientId: profile.id });
-      // Mark background as in_progress (completed when career is also saved)
-      if (profile.backgroundStatus === "not_started") {
-        await updateClientProfile(profile.id, { backgroundStatus: "in_progress" });
+      // Read first: an invalid completion request must not even create a profile.
+      const existingProfile = await getClientProfileByUserId(ctx.user.id);
+      const existing = existingProfile ? await getFamilyBackground(existingProfile.id) : null;
+      const fields: FamilyBackgroundData = {};
+      for (const field of FAMILY_REQUIRED_FIELDS) {
+        const value = input[field];
+        if (value === undefined) continue; // Never replace omitted answers.
+        const trimmed = value.trim();
+        if (!trimmed && existing?.[field]?.trim()) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: `${FAMILY_FIELD_LABELS[field]} already has a saved response and cannot be replaced with a blank. Enter \"Not known\", \"Not applicable\", or \"Prefer not to say\" instead.`,
+          });
+        }
+        fields[field] = trimmed;
       }
-      return { success: true };
+      const completion = getFamilyBackgroundCompletion({ ...existing, ...fields });
+      if (input.complete && !completion.complete) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: `Please complete these family background fields: ${completion.missingFields.map(field => FAMILY_FIELD_LABELS[field]).join(", ")}. You can enter \"Not known\", \"Not applicable\", or \"Prefer not to say\".`,
+        });
+      }
+      const profile = existingProfile ?? await getOrCreateClientProfile(ctx.user.id);
+      await upsertFamilyBackground({ ...fields, clientId: profile.id });
+      const backgroundStatus = completion.complete ? "completed" as const : "in_progress" as const;
+      await updateClientProfile(profile.id, { backgroundStatus });
+      return {
+        success: true,
+        backgroundStatus,
+        familyBackgroundCompleted: completion.complete,
+        familyBackgroundMissingFields: completion.missingFields,
+      };
     }),
 
   getEducation: protectedProcedure.query(async ({ ctx }) => {
@@ -623,9 +665,10 @@ const backgroundRouter = router({
     .input(z.object({ careerReflection: z.string().max(10000) }))
     .mutation(async ({ ctx, input }) => {
       const profile = await getOrCreateClientProfile(ctx.user.id);
+      const family = await getFamilyBackground(profile.id);
       await updateClientProfile(profile.id, {
         careerReflection: input.careerReflection,
-        backgroundStatus: "completed",
+        backgroundStatus: getFamilyBackgroundCompletion(family).complete ? "completed" : "in_progress",
       });
       return { success: true };
     }),
@@ -651,11 +694,12 @@ const backgroundRouter = router({
     )
     .mutation(async ({ ctx, input }) => {
       const profile = await getOrCreateClientProfile(ctx.user.id);
+      const family = await getFamilyBackground(profile.id);
       const id = await upsertCareer({ ...input, clientId: profile.id });
-      // Saving a career entry marks background section as completed
-      if (profile.backgroundStatus !== "completed") {
-        await updateClientProfile(profile.id, { backgroundStatus: "completed" });
-      }
+      // Career/CV data is optional and cannot stand in for family responses.
+      await updateClientProfile(profile.id, {
+        backgroundStatus: getFamilyBackgroundCompletion(family).complete ? "completed" : "in_progress",
+      });
       return { id };
     }),
 
@@ -681,12 +725,16 @@ const viaRouter = router({
   submitSurvey: protectedProcedure
     .input(z.object({ answers: z.record(z.string(), z.number()) }))
     .mutation(async ({ ctx, input }) => {
-      const profile = await getOrCreateClientProfile(ctx.user.id);
+      const profile = await getClientProfileByUserId(ctx.user.id);
+      if (!profile) {
+        throw new TRPCError({ code: "FORBIDDEN", message: "Please complete your life history, Sage conversation, and family background before starting the VIA survey." });
+      }
       // Gate: clients need a sufficiently rich written history and a saved Sage
       // conversation. Enrichment is supplementary report analysis, not a proxy
       // for whether Sage has meaningfully explored the client's story.
       const { total: viaTotal } = await getEnrichmentCounts(profile.id);
-      const viaGate = getPsychometricsGate(viaTotal, profile.sageStatus);
+      const family = await getFamilyBackground(profile.id);
+      const viaGate = getPsychometricsGate(viaTotal, profile.sageStatus, family);
       if (!viaGate.hasMinimumEvents) {
         throw new TRPCError({
           code: "FORBIDDEN",
@@ -697,6 +745,12 @@ const viaRouter = router({
         throw new TRPCError({
           code: "FORBIDDEN",
           message: "Please complete and save your Sage life history conversation before starting the VIA survey.",
+        });
+      }
+      if (!viaGate.familyBackgroundCompleted) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "Please complete and save all six family background fields before submitting the VIA survey. You can enter \"Not known\", \"Not applicable\", or \"Prefer not to say\".",
         });
       }
       // Convert string keys to numbers
@@ -730,11 +784,15 @@ const ipipRouter = router({
   submit: protectedProcedure
     .input(z.object({ answers: z.record(z.string(), z.number()) }))
     .mutation(async ({ ctx, input }) => {
-      const profile = await getOrCreateClientProfile(ctx.user.id);
+      const profile = await getClientProfileByUserId(ctx.user.id);
+      if (!profile) {
+        throw new TRPCError({ code: "FORBIDDEN", message: "Please complete your life history, Sage conversation, and family background before starting the personality survey." });
+      }
       // See VIA above: supplementary enrichment must never be used as a
       // completion lock after a client has saved a meaningful Sage conversation.
       const { total: ipipTotal } = await getEnrichmentCounts(profile.id);
-      const ipipGate = getPsychometricsGate(ipipTotal, profile.sageStatus);
+      const family = await getFamilyBackground(profile.id);
+      const ipipGate = getPsychometricsGate(ipipTotal, profile.sageStatus, family);
       if (!ipipGate.hasMinimumEvents) {
         throw new TRPCError({
           code: "FORBIDDEN",
@@ -745,6 +803,12 @@ const ipipRouter = router({
         throw new TRPCError({
           code: "FORBIDDEN",
           message: "Please complete and save your Sage life history conversation before starting the personality survey.",
+        });
+      }
+      if (!ipipGate.familyBackgroundCompleted) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "Please complete and save all six family background fields before submitting the personality survey. You can enter \"Not known\", \"Not applicable\", or \"Prefer not to say\".",
         });
       }
       const numericAnswers: Record<number, number> = {};
@@ -1230,7 +1294,16 @@ const counselorRouter = router({
           getInterviewMessages(input.clientId),
           getChatSessionsByClient(input.clientId),
         ]);
-      return { profile, achievements: achievementsList, family, education, career, via, ipip, report, messages, chatSessions };
+      const completion = getFamilyBackgroundCompletion(family);
+      const normalizedProfile = profile ? {
+        ...profile,
+        backgroundStatus: completion.complete ? "completed" as const
+          : family || profile.backgroundStatus !== "not_started" ? "in_progress" as const
+          : "not_started" as const,
+        familyBackgroundCompleted: completion.complete,
+        familyBackgroundMissingFields: completion.missingFields,
+      } : profile;
+      return { profile: normalizedProfile, achievements: achievementsList, family, education, career, via, ipip, report, messages, chatSessions };
     }),
 
   getClientEnrichmentStatus: counselorProcedure
@@ -1239,8 +1312,9 @@ const counselorRouter = router({
       const profile = await getClientProfileById(input.clientId);
       if (!profile) throw new TRPCError({ code: "NOT_FOUND" });
       const { total, enriched } = await getEnrichmentCounts(input.clientId);
-      const gate = getPsychometricsGate(total, profile.sageStatus);
-      return { total, enriched, ...gate };
+      const family = await getFamilyBackground(input.clientId);
+      const gate = getPsychometricsGate(total, profile.sageStatus, family);
+      return { total, enriched, ...gate, familyBackgroundMissingFields: getFamilyBackgroundCompletion(family).missingFields };
     }),
 
   saveNotes: counselorProcedure

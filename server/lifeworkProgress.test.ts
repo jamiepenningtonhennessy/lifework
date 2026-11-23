@@ -5,58 +5,79 @@ import {
   getPsychometricsGate,
   PSYCHOMETRICS_MIN_ACHIEVEMENTS,
 } from "../shared/lifeworkProgress";
+import { FAMILY_REQUIRED_FIELDS, type FamilyBackgroundData } from "../shared/familyBackground";
 
 const routerSource = readFileSync(resolve(process.cwd(), "server/routers.ts"), "utf8");
 const sageChatSource = readFileSync(resolve(process.cwd(), "client/src/components/ChatToPeter.tsx"), "utf8");
-const dashboardSource = readFileSync(resolve(process.cwd(), "client/src/pages/ClientDashboard.tsx"), "utf8");
-const viaSource = readFileSync(resolve(process.cwd(), "client/src/pages/VIASurvey.tsx"), "utf8");
-const ipipSource = readFileSync(resolve(process.cwd(), "client/src/pages/IpipSurvey.tsx"), "utf8");
+const fullFamily: FamilyBackgroundData = Object.fromEntries(
+  FAMILY_REQUIRED_FIELDS.map(field => [field, "Not known"]),
+);
 
 describe("psychometrics progression gate", () => {
-  it("unlocks completed Sage conversations with the required written life-history evidence", () => {
-    const mariaGate = getPsychometricsGate(23, "completed");
-
+  it("unlocks only with enough events, a saved Sage conversation and complete family", () => {
+    const gate = getPsychometricsGate(23, "completed", fullFamily);
     expect(PSYCHOMETRICS_MIN_ACHIEVEMENTS).toBe(20);
-    expect(mariaGate.unlocked).toBe(true);
-    expect(mariaGate.hasMinimumEvents).toBe(true);
-    expect(mariaGate.sageConversationCompleted).toBe(true);
-    expect(mariaGate.remainingEvents).toBe(0);
+    expect(gate).toMatchObject({
+      unlocked: true,
+      hasMinimumEvents: true,
+      sageConversationCompleted: true,
+      familyBackgroundCompleted: true,
+      remainingEvents: 0,
+      blocker: null,
+    });
   });
 
   it("does not confuse optional Sage enrichment with client completion", () => {
-    expect(getPsychometricsGate(23, "in_progress")).toMatchObject({
+    expect(getPsychometricsGate(23, "in_progress", fullFamily)).toMatchObject({
       unlocked: false,
       blocker: "sage_conversation",
     });
-    expect(getPsychometricsGate(17, "completed")).toMatchObject({
+    expect(getPsychometricsGate(17, "completed", fullFamily)).toMatchObject({
       unlocked: false,
       remainingEvents: 3,
       blocker: "events",
     });
   });
 
-  it("uses the same gate for client status, counsellor preview, and both surveys", () => {
-    expect(routerSource).toContain('import { getPsychometricsGate } from "../shared/lifeworkProgress";');
-    expect(routerSource).toContain('const gate = getPsychometricsGate(total, profile.sageStatus);');
-    expect(routerSource).toContain('const viaGate = getPsychometricsGate(viaTotal, profile.sageStatus);');
-    expect(routerSource).toContain('const ipipGate = getPsychometricsGate(ipipTotal, profile.sageStatus);');
-    expect(routerSource).toContain('const gate = getPsychometricsGate(total, profile.sageStatus);');
-    expect(routerSource).not.toContain('viaEnriched < viaRequired');
-    expect(routerSource).not.toContain('ipipEnriched < ipipRequired');
+  it.each([undefined, null, {}, { fatherOccupation: "Not known" }])(
+    "blocks new progress when family is missing or partial: %j",
+    family => {
+      expect(getPsychometricsGate(23, "completed", family)).toMatchObject({
+        unlocked: false,
+        familyBackgroundCompleted: false,
+        blocker: "family_background",
+      });
+    },
+  );
+
+  it("defaults an omitted third argument to blocked, with events then Sage taking precedence", () => {
+    expect(getPsychometricsGate(23, "completed").blocker).toBe("family_background");
+    expect(getPsychometricsGate(0, "not_started").blocker).toBe("events");
+    expect(getPsychometricsGate(20, "not_started").blocker).toBe("sage_conversation");
   });
 
-  it("allows the client to save a meaningful Sage conversation without a transcript-enrichment lock", () => {
-    expect(sageChatSource).not.toContain('getEnrichmentStatus.useQuery');
-    expect(sageChatSource).not.toContain('more events needed before you can save');
-    expect(sageChatSource).toContain('Save &amp; finish');
+  it("a profile backgroundStatus flag alone is not proof of family completion", () => {
+    const family = { backgroundStatus: "completed" };
+    expect(getPsychometricsGate(20, "completed", family as FamilyBackgroundData).unlocked).toBe(false);
   });
 
-  it("describes the actual completion rule consistently in client screens", () => {
-    expect(dashboardSource).toContain('Record at least 20 life-history events, then save your Sage conversation');
-    expect(dashboardSource).toContain('Sage enrichment adds useful supporting detail');
-    expect(viaSource).toContain('enrichmentStatus.blocker === "events"');
-    expect(ipipSource).toContain('enrichmentStatus.blocker === "events"');
-    expect(viaSource).toContain('complete and save your conversation with Sage');
-    expect(ipipSource).toContain('complete and save your conversation with Sage');
+  it.each(FAMILY_REQUIRED_FIELDS)("requires a nonblank %s", field => {
+    expect(getPsychometricsGate(20, "completed", { ...fullFamily, [field]: " \n\t " })).toMatchObject({
+      unlocked: false,
+      blocker: "family_background",
+    });
+  });
+
+  it("uses the shared family-aware gate in client/counsellor status and both submissions", () => {
+    // Structural guard complements mocked router behavior tests; avoid pinning UI prose.
+    expect(routerSource.match(/getPsychometricsGate\([^;]+profile\.sageStatus, family\)/g)).toHaveLength(4);
+    expect(routerSource).not.toContain("viaEnriched < viaRequired");
+    expect(routerSource).not.toContain("ipipEnriched < ipipRequired");
+  });
+
+  it("still allows meaningful Sage completion without transcript-enrichment locks", () => {
+    expect(sageChatSource).not.toContain("getEnrichmentStatus.useQuery");
+    expect(sageChatSource).not.toContain("more events needed before you can save");
+    expect(sageChatSource).toContain("Save &amp; finish");
   });
 });

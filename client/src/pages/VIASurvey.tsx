@@ -28,10 +28,10 @@ export default function VIASurvey() {
   const { data: viaData, isLoading: loadingQuestions } = trpc.via.getQuestions.useQuery(undefined, {
     enabled: isAuthenticated,
   });
-  const { data: existingResults } = trpc.via.getMyResults.useQuery(undefined, {
+  const { data: existingResults, isLoading: loadingResults, isError: resultsError, refetch: retryResults } = trpc.via.getMyResults.useQuery(undefined, {
     enabled: isAuthenticated,
   });
-  const { data: enrichmentStatus, isLoading: loadingEnrichment } = trpc.profile.getEnrichmentStatus.useQuery(
+  const { data: enrichmentStatus, isLoading: loadingEnrichment, isError: enrichmentError, refetch: retryEnrichment } = trpc.profile.getEnrichmentStatus.useQuery(
     undefined,
     { enabled: isAuthenticated }
   );
@@ -49,16 +49,26 @@ export default function VIASurvey() {
     return null;
   }
 
-  if (loadingQuestions || loadingEnrichment) {
+  if (!submitted && !existingResults && (loading || loadingQuestions || loadingEnrichment || loadingResults)) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
-        <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
+        <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" aria-label="Checking questionnaire requirements" />
       </div>
     );
   }
 
-  // Gate: redirect to dashboard if Sage has not explored enough events yet
-  if (enrichmentStatus && !enrichmentStatus.unlocked && !existingResults) {
+  if (!submitted && !existingResults && (enrichmentError || resultsError || !enrichmentStatus)) {
+    return <div className="min-h-screen flex items-center justify-center bg-background px-4">
+      <div className="max-w-md text-center space-y-4">
+        <p role="alert">Could not verify your saved Family Background and questionnaire requirements. Please retry before starting the VIA survey.</p>
+        <Button onClick={() => { void retryEnrichment(); void retryResults(); }}>Retry requirements</Button>
+        <Button variant="outline" onClick={() => navigate("/background")}>Return to Family Background</Button>
+      </div>
+    </div>;
+  }
+
+  // Existing completed results always keep their original confirmation branch.
+  if (!submitted && enrichmentStatus && !enrichmentStatus.unlocked && !existingResults) {
     return (
       <div
         className="min-h-screen flex items-center justify-center px-4"
@@ -78,7 +88,9 @@ export default function VIASurvey() {
               Psychometrics not yet unlocked
             </h1>
             <p className="text-sm leading-relaxed" style={{ color: "rgba(0,0,0,0.6)" }}>
-              {enrichmentStatus.blocker === "events"
+              {enrichmentStatus.blocker === "family_background"
+                ? <>Complete and save all six Family Background answers before starting the VIA survey. “Not known”, “Not applicable”, and “Prefer not to say” are valid answers. Career History is optional.</>
+                : enrichmentStatus.blocker === "events"
                 ? <>You need at least <strong>{enrichmentStatus.requiredEvents} life-history events</strong> before starting the VIA survey. You have recorded <strong>{enrichmentStatus.total}</strong> so far.</>
                 : <>Please return to your dashboard and complete and save your conversation with Sage before starting the VIA survey.</>}
             </p>
@@ -93,11 +105,11 @@ export default function VIASurvey() {
             />
           </div>
           <Button
-            onClick={() => navigate("/dashboard")}
+            onClick={() => navigate(enrichmentStatus.blocker === "family_background" ? "/background" : "/dashboard")}
             className="gap-2"
             style={{ background: "var(--lw-gold)", color: "white" }}
           >
-            Return to Dashboard
+            {enrichmentStatus.blocker === "family_background" ? "Complete Family Background" : "Return to Dashboard"}
           </Button>
         </div>
       </div>

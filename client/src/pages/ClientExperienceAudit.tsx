@@ -52,6 +52,7 @@ const firstVisitEnrichmentStatus = {
   requiredEvents: 20,
   unlocked: false,
   sageConversationCompleted: false,
+  familyBackgroundCompleted: false,
   hasMinimumEvents: false,
   remainingEvents: 20,
 };
@@ -263,13 +264,13 @@ function BackgroundAudit() {
   return (
     <>
       <AuditScreenHeader title="Background & History" eyebrow="Step 2 of 6 · first visit" next={{ label: "Sage", screen: "sage" }} />
-      <AuditIntro title="Add context only when it helps">
+      <AuditIntro title="Complete your family background">
         <StageVideoEmbed video={STAGE_VIDEOS.background} />
         <div className="grid gap-5 md:grid-cols-2">
           <Card>
             <CardHeader><CardTitle className="flex items-center gap-2 font-serif text-xl"><UserRound className="h-5 w-5" style={{ color: "var(--lw-gold)" }} /> Family background</CardTitle></CardHeader>
             <CardContent className="space-y-4">
-              <p className="text-sm leading-relaxed text-muted-foreground">The live page begins with two parent or guardian occupation fields and a reflective family narrative. It invites useful context without presuming that a client must disclose more than feels helpful.</p>
+              <p className="text-sm leading-relaxed text-muted-foreground">All six family-background responses must be saved before starting new questionnaires: both parent or guardian occupations, sibling position, upbringing location, family narrative and significant early influences. “Not known”, “Not applicable” or “Prefer not to say” are valid responses; clients do not need to invent details or disclose more than feels appropriate.</p>
               <Textarea readOnly placeholder="What were three rules that I would need to know to be a happy and well-regarded member of your household?" className="min-h-32" />
               <p className="text-xs text-muted-foreground">Nothing is saved in audit mode.</p>
             </CardContent>
@@ -358,7 +359,7 @@ function AssessmentAudit({ type }: { type: "via" | "ipip" }) {
         <Card className="mx-auto max-w-3xl">
           <CardHeader>
             <CardTitle className="font-serif text-xl">First available question</CardTitle>
-            <p className="text-sm leading-relaxed text-muted-foreground">In the real journey, these surveys unlock only after the Sage stage. This audit view shows the clean first question a client sees once access is granted, before any answer has been selected.</p>
+            <p className="text-sm leading-relaxed text-muted-foreground">In the real journey, new questionnaires unlock after at least 20 life-history events, a completed and saved Sage conversation, and all six saved family-background responses. This audit view shows the clean first question a client sees once access is granted, before any answer has been selected.</p>
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="rounded-lg border p-5" style={{ borderColor: "rgba(201,151,58,0.35)" }}>
