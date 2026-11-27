@@ -13,6 +13,7 @@ import { wowReportRouter } from "./routers/wowReport";
 import { REPORT_CHAPTERS, reportStructureIssues } from "../shared/reportStructure";
 import { reportVariantAnswerTail, VARIANT_AREA_HEADING_RULE } from "../shared/reportVariantAudience";
 import { fourConditionsJson, makeVariantSections, REPORT_TEST_TYPES } from "./testing/reportVariantFixture";
+import { REPORT_SCORE_ATTRIBUTION_RULE } from "./shared/reportScoreAttribution";
 
 // Never import the original DB module: every router database operation is fake.
 vi.mock("./db", () => ({
@@ -65,6 +66,7 @@ const REQUIRED_FIELDS = [
   "behaviouralStyle", "developmentEdge", "coachingQuestions", "careerDirections",
 ];
 let requests: Array<{ key: OutputKey; prompt: string; body: FakeRequest }>;
+let rewriteRequests: FakeRequest[];
 let stored: Record<string, unknown>;
 let originalJson: string;
 let fixture: Fixture;
@@ -86,6 +88,7 @@ function outputKey(prompt: string): OutputKey {
 beforeEach(() => {
   vi.resetAllMocks();
   requests = [];
+  rewriteRequests = [];
   emptySection = undefined;
   fixture = makeVariantSections();
   originalJson = JSON.stringify(fixture);
@@ -130,6 +133,19 @@ beforeEach(() => {
   vi.stubGlobal("fetch", vi.fn(async (_url: string, init: RequestInit) => {
     const body = JSON.parse(String(init.body)) as FakeRequest;
     const prompt = body.messages.find((message) => message.role === "user")?.content ?? "";
+    if (prompt.includes("--- HOUSE STYLE ORIGINAL ---")) {
+      rewriteRequests.push(body);
+      const content = prompt.split("--- HOUSE STYLE ORIGINAL ---\n")[1].split("\n--- END ---")[0];
+      return new Response(JSON.stringify({ choices: [{ message: { content } }] }), {
+        status: 200, headers: { "content-type": "application/json" },
+      });
+    }
+    if (prompt.startsWith("The following paragraph appears verbatim")) {
+      rewriteRequests.push(body);
+      return new Response(JSON.stringify({ choices: [{ message: { content: "Your OCEAN Extraversion score of 78 and VIA Curiosity score of 23 support this fictional reflection in fresh wording." } }] }), {
+        status: 200, headers: { "content-type": "application/json" },
+      });
+    }
     const key = outputKey(prompt);
     requests.push({ key, prompt, body });
     const content = emptySection === key
@@ -261,6 +277,50 @@ describe.each(REPORT_TEST_TYPES)("isolated %s report authoring", (reportType) =>
       if (update.wowReportJson !== undefined) expect(update.wowReportJson).toBe(originalJson);
     }
     if (key !== "fourPillars") expect(stored.wowReportError).toContain("Report structure check failed");
+    assertNoRenderOrExternalModel();
+  });
+});
+
+describe("score attribution reaches every active WOW authoring path", () => {
+  it.each(["standard", "career_changer", "student", "job_returner", "retirement"] as const)("applies the shared rule to every %s chapter and its trace", async (reportType) => {
+    fixture = makeVariantSections(reportType);
+    await wowReportRouter.createCaller(ctx).generate({
+      clientId: CLIENT_ID, reportType, writingStyle: "house", forceRegenerate: true,
+    });
+    expect(requests).toHaveLength(8);
+    for (const request of requests) {
+      expect(request.body.messages.find((message) => message.role === "system")?.content, request.key).toContain(REPORT_SCORE_ATTRIBUTION_RULE);
+    }
+    const summary = requests.find((request) => request.key === "summary")!.prompt;
+    expect(summary).toContain("Curiosity (VIA score: 20/25)");
+    expect(summary).toContain("OCEAN Extraversion: 40");
+    expect(requests.find((request) => request.key === "behaviouralStyle")!.prompt).toContain("OCEAN Extraversion: 40/100");
+    for (const [log] of vi.mocked(db.insertReportGenerationLog).mock.calls) {
+      if (log.sectionKey !== "lifeHistoryPattern") expect(log.promptSent).toContain(REPORT_SCORE_ATTRIBUTION_RULE);
+    }
+    const authored = JSON.parse(stored.wowReportJson as string);
+    expect(authored.viaRanked).toEqual(fixture.viaRanked);
+    expect(authored.domainScores).toEqual(fixture.domainScores);
+    assertNoRenderOrExternalModel();
+  });
+
+  it.each(["mark", "clive-james", "michael-lewis", "oliver-sacks", "william-zinsser"] as const)("retains the shared score rule through %s rewrites", async (writingStyle) => {
+    const cited = "Your OCEAN Extraversion score of 78 and your VIA Curiosity score of 23 support this fictional working hypothesis.";
+    fixture.summary = cited;
+    fixture.personalitySection += `\n\n${cited}`; // Force the paragraph deduplication path too.
+    await wowReportRouter.createCaller(ctx).generate({
+      clientId: CLIENT_ID, reportType: "standard", writingStyle, forceRegenerate: true,
+    });
+    expect(rewriteRequests.length).toBeGreaterThan(1);
+    for (const request of rewriteRequests) {
+      expect(request.messages.find((message) => message.role === "system")?.content).toContain(REPORT_SCORE_ATTRIBUTION_RULE);
+    }
+    expect(rewriteRequests.some((request) => request.messages.some((message) => message.content.startsWith("The following paragraph appears verbatim")))).toBe(true);
+    const authored = JSON.parse(stored.wowReportJson as string);
+    expect(authored.summary).toBe(cited);
+    expect(authored.personalitySection).toContain("OCEAN Extraversion score of 78 and VIA Curiosity score of 23");
+    expect(authored.viaRanked).toEqual(fixture.viaRanked);
+    expect(authored.domainScores).toEqual(fixture.domainScores);
     assertNoRenderOrExternalModel();
   });
 });

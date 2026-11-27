@@ -26,6 +26,7 @@ import {
 } from "../db.js";
 import { withoutInterviewAnswerInFuture } from "../../shared/reportConclusions";
 import { reportPresentation } from "../../shared/reportStructure";
+import { withReportScoreAttribution } from "../shared/reportScoreAttribution";
 
 // ─── Facet name map (matches wowReport.ts) ───────────────────────────────────
 
@@ -983,13 +984,13 @@ export async function buildClaudeExportJson(
         messages: [
           {
             role: "system",
-            content:
+            content: withReportScoreAttribution(
               "You are a gifted editor for a premium career analysis report. " +
               "Your task is to write a single pull-quote sentence (max 25 words) that distils the " +
               "essence of the client's Past and Present narrative into something punchy, personal, " +
               "and memorable — the kind of line that makes the reader pause and think 'yes, that's exactly me.' " +
               "Write in second person (\"You\"). Do NOT repeat any sentence from the source text verbatim. " +
-              "Return ONLY the sentence, with no quotation marks, no prefix, no explanation.",
+              "Return ONLY the sentence, with no quotation marks, no prefix, no explanation."),
           },
           {
             role: "user",

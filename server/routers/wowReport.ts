@@ -33,6 +33,7 @@ import { renderHtmlReport } from "../html-report";
 import { generateMasterReportPdf } from "../masterReportPdf";
 import { assertReportStructure, reportPrintRequiredPhrases, validateFourConditionsPayload } from "../../shared/reportStructure";
 
+import { withReportScoreAttribution } from "../shared/reportScoreAttribution";
 import { reportVariantAnswerTail, VARIANT_AREA_HEADING_RULE } from "../../shared/reportVariantAudience";
 
 import {
@@ -191,15 +192,15 @@ async function buildClientContext(clientId: number): Promise<{
   if (viaRanked.length > 0) {
     lines.push("\n--- VIA CHARACTER STRENGTHS (ranked) ---");
     viaRanked.slice(0, 10).forEach((s, i) => {
-      lines.push(`${i + 1}. ${s.name} (score: ${s.score}/25)`);
+      lines.push(`${i + 1}. ${s.name} (VIA score: ${s.score}/25)`);
     });
   }
 
   if (Object.keys(domainScores).length > 0) {
-    lines.push("\n--- BIG FIVE PERSONALITY (IPIP-NEO, percentile 0-100) ---");
+    lines.push("\n--- OCEAN / BIG FIVE PERSONALITY (IPIP-NEO, percentile 0-100) ---");
     for (const [key, val] of Object.entries(domainScores)) {
       const label = BIG5_LABELS[key];
-      if (label) lines.push(`${label.name}: ${val} — ${val >= 60 ? label.high : val <= 40 ? label.low : "moderate"}`);
+      if (label) lines.push(`OCEAN ${label.name}: ${val} — ${val >= 60 ? label.high : val <= 40 ? label.low : "moderate"}`);
     }
   }
 
@@ -279,7 +280,7 @@ async function callLLMWithTimeout(
         body: JSON.stringify({
           model: "gemini-2.5-flash",
           messages: [
-            { role: "system", content: systemPrompt },
+            { role: "system", content: withReportScoreAttribution(systemPrompt) },
             { role: "user", content: userPrompt },
           ],
           max_tokens: 4096,
@@ -523,7 +524,7 @@ Write directly to the client using "you" and "your" throughout. Do NOT include a
   // Behavioural Style always generated in house style; Mark rewrite applied post-generation.
   const effectiveInsightsSys = insightsSys;
   const insightsData = Object.keys(domainScores).length > 0
-    ? `Primary colour energy: ${primaryColour}\nSecondary colour energy: ${secondaryColour}\nJungian type approximation: ${jungianType}\nExtraversion: ${eScore}/100\nAgreeableness: ${aScore}/100\nOpenness: ${oScore}/100\nConscientiousness: ${cScore}/100`
+    ? `Primary colour energy: ${primaryColour}\nSecondary colour energy: ${secondaryColour}\nJungian type approximation: ${jungianType}\nOCEAN Extraversion: ${eScore}/100\nOCEAN Agreeableness: ${aScore}/100\nOCEAN Openness: ${oScore}/100\nOCEAN Conscientiousness: ${cScore}/100`
     : "IPIP-NEO data not available — Insights profile cannot be generated.";
 
   console.log(`[WOW Report] Starting generation for client ${clientId}`);
@@ -561,7 +562,7 @@ Write directly to the client using "you" and "your" throughout. Do NOT include a
       reportType,
       sectionKey,
       sectionLabel,
-      promptSent: sysPrompt,
+      promptSent: withReportScoreAttribution(sysPrompt),
       contextSent: userPrompt,
       rawOutput: result,
       durationMs: Date.now() - t0,
@@ -619,7 +620,7 @@ Write directly to the client using "you" and "your" throughout. Do NOT include a
           body: JSON.stringify({
             model: "gemini-2.5-flash",
             messages: [
-              { role: "system", content: effectiveSys },
+              { role: "system", content: withReportScoreAttribution(effectiveSys) },
               { role: "user", content: fpUserPrompt },
             ],
             max_tokens: 4096,
@@ -758,7 +759,7 @@ Write directly to the client using "you" and "your" throughout. Do NOT include a
         reportType,
         sectionKey: "fourPillars",
         sectionLabel: "4 Pillars of Fulfilment",
-        promptSent: effectiveSys,
+        promptSent: withReportScoreAttribution(effectiveSys),
         contextSent: fpUserPrompt,
         rawOutput: fpRaw,
         durationMs: Date.now() - t0,

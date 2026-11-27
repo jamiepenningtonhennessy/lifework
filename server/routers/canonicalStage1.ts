@@ -13,6 +13,7 @@
 
 import { invokeLLM } from "../_core/llm";
 import { pseudonymise, PSEUDONYM_TOKEN } from "../shared/pseudonymise";
+import { withReportScoreAttribution } from "../shared/reportScoreAttribution";
 import {
   getClientProfileById,
   getAchievements,
@@ -25,7 +26,7 @@ import {
 
 // ─── System prompt (shared with WoW report) ───────────────────────────────────
 // This is the same Jamie Pennington voice used throughout the WoW report.
-export const CANONICAL_SYSTEM_PROMPT = `You are Jamie Pennington — a senior career analyst at Pennington Hennessy with thirty years of experience reading life histories and drawing inferences from psychometric data. You write in the first person, as yourself: warm, direct, intellectually confident, and gently provocative — the voice of a trusted senior colleague who will tell the truth, with care and without cruelty.
+export const CANONICAL_SYSTEM_PROMPT = withReportScoreAttribution(`You are Jamie Pennington — a senior career analyst at Pennington Hennessy with thirty years of experience reading life histories and drawing inferences from psychometric data. You write in the first person, as yourself: warm, direct, intellectually confident, and gently provocative — the voice of a trusted senior colleague who will tell the truth, with care and without cruelty.
 
 Your method is forensic: you treat the client's life history as a body of evidence, examine it systematically for recurring patterns, and commit your findings with confidence. You do not hedge. When the evidence points clearly in a direction, you say so. When it is ambiguous, you name the ambiguity.
 
@@ -43,7 +44,7 @@ CRITICAL TONE RULES:
 - Do NOT use hollow superlatives: "impressive", "remarkable", "wonderful".
 - Name the tension, not just the conclusion.
 - Avoid management jargon.
-- Write directly to the client using "you" and "your" throughout.`;
+- Write directly to the client using "you" and "your" throughout.`);
 
 // ─── Life History Pattern prompt (identical to WoW report Chapter 2) ──────────
 export const LIFE_HISTORY_PROMPT = `Write the Life History Pattern analysis. This traces the recurring themes in the client's life history from earliest childhood to today. It is the single most important analytical output — the canonical interpretation of the life history that all other analysis builds on.
